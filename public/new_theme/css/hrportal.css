@@ -1,0 +1,159 @@
+/* Viewport behavior */
+html,body{height:100%}
+body{overflow:hidden} /* lock outer scroll */
+html, body { overflow-x: hidden; }
+
+/* Basic shell layout */
+.hrp-window{width:calc(100vw - 16px);max-width:none;min-width:980px;height:calc(100vh - 108px);margin:6px auto 64px auto;background:#f7f4f1;border:1px solid #e7e1dd;border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.18);overflow:hidden}
+.hrp-shell{display:flex; gap:0; padding:8px; height:100%; overflow:hidden}
+.hrp-sidebar{width:240px; flex:0 0 240px; overflow:auto; padding-right:4px}
+.hrp-main{flex:1; min-width:0; padding-left:8px; display:flex; flex-direction:column; height:100%; overflow:hidden}
+.hrp-content{padding:10px 0 6px; flex:1 1 auto; overflow:auto}
+
+/* Responsive table wrapper */
+.hrp-table-wrap{width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch}
+.hrp-card .dataTables_wrapper{width:100%; overflow-x:auto}
+.hrp-card table{width:100%; max-width:none}
+
+/* Header menu button visibility (in case Bootstrap visibility helpers are absent) */
+.hrp-menu-toggle{display:none}
+@media (max-width: 1024px){ .hrp-menu-toggle{display:inline-block} }
+
+/* Sidebar */
+.hrp-sidebar-inner{background:transparent;border-radius:0;box-shadow:none;padding:6px 10px 10px 8px;border-right:1px solid #e9e6e3}
+.hrp-side-top{display:flex;align-items:center;justify-content:space-between;padding:6px 6px 10px 6px}
+.hrp-side-top .hrp-window-dots{display:flex;gap:8px}
+.hrp-side-badge{width:12px;height:12px;border-radius:4px;background:#3b82f6;box-shadow:0 1px 3px rgba(0,0,0,.15);position:relative}
+.hrp-side-badge::after{content:"";position:absolute;right:3px;top:3px;width:4px;height:4px;background:#fff;border-radius:9999px}
+.hrp-menu{list-style:none;margin:0;padding:0}
+.hrp-menu-item>a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:#222;text-decoration:none;font-weight:600}
+.hrp-menu-item>a:hover{background:#f3f4f6}
+.hrp-menu-item.active>a{background:#fee2e2;color:#b91c1c}
+.hrp-menu-section{padding:12px 10px 6px 10px;font-size:12px;font-weight:800;color:#ef4444;text-transform:uppercase;opacity:.9}
+
+/* Sidebar icon pill and red dot bullets (match Figma) */
+.hrp-menu-item>a{gap:8px}
+.hrp-menu-item>a i{
+  width:26px; height:26px; flex:0 0 26px;
+  display:flex; align-items:center; justify-content:center;
+  background:#ffffff; color:#ef4444; border-radius:8px;
+  font-size:13px; box-shadow:0 2px 6px rgba(0,0,0,.10);
+}
+.hrp-menu-item.hrp-sub>a{position:relative; padding-left:12px}
+.hrp-menu-item.hrp-sub>a::before{
+  content:""; display:inline-block; width:8px; height:8px; border-radius:9999px;
+  background:#d1d5db; margin-right:6px; box-shadow:0 1px 0 rgba(0,0,0,.08);
+}
+.hrp-menu-item.hrp-sub.active>a::before{background:#ef4444}
+.hrp-menu-item.hrp-sub>a span{margin-left:2px; color:#ef4444}
+.hrp-menu-item.hrp-sub.active>a span{color:#b91c1c}
+/* Parent highlight when any sub is active */
+.hrp-menu-item.active-parent>a{
+  background:#ffffff; border:1px solid #eee; box-shadow:0 6px 16px rgba(0,0,0,.08);
+}
+
+/* Header */
+.hrp-header{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,#fff4ed,#f7f1ee);border-radius:0;padding:10px 14px;border:1px solid #efe8e4;box-shadow:inset 0 -1px 0 #ece7e3}
+.hrp-page-title{margin:0;font-size:20px;font-weight:800;color:#111}
+.hrp-header-left{display:flex;align-items:center;gap:12px}
+.hrp-window-dots{display:flex;gap:8px;margin-right:4px}
+.hrp-window-dots .hrp-dot{width:12px;height:12px;border-radius:9999px;display:inline-block;box-shadow:inset 0 -1px 0 rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06)}
+.hrp-window-dots .hrp-dot-r{background:#ff5f57}
+.hrp-window-dots .hrp-dot-y{background:#febc2e}
+.hrp-window-dots .hrp-dot-g{background:#28c840}
+.hrp-header-right{display:flex;align-items:center;gap:12px}
+.hrp-thumb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;margin-right:8px}
+.hrp-thumb .ico{width:34px;height:34px;border-radius:10px;background:#e7eef3;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -1px 0 rgba(0,0,0,.06)}
+.hrp-thumb .ico img{width:22px;height:22px;opacity:.9}
+.hrp-thumb .lbl{font-weight:800;font-size:10px;letter-spacing:.4px;color:#111}
+.hrp-avatar{width:36px;height:36px;border-radius:9999px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.hrp-user-btn{display:flex;align-items:center;gap:10px;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;padding:6px 10px}
+.hrp-user-btn:hover{background:#f9fafb}
+.hrp-user-meta{line-height:1}
+.hrp-user-name{font-weight:700;font-size:12px}
+.hrp-user-role{font-size:11px;color:#6b7280}
+.hrp-fingerprint img{width:28px;height:28px;opacity:.85}
+/* Thumb/fingerprint and punch colors */
+.hrp-fingerprint img{filter:none}
+.hrp-punch-in{background:#10b981;color:#fff}
+.hrp-punch-out{background:#fff;color:#ef4444;border:1px solid #f2d7d7}
+
+/* Header: tighten spacing to mirror Figma */
+.hrp-header-right{gap:10px}
+.hrp-user-btn{padding:6px 12px}
+
+/* Form card */
+.hrp-card{background:#ffffff;border-radius:16px;box-shadow:0 10px 24px rgba(0,0,0,.08);padding:12px;border:1px solid #f0f0f0}
+.hrp-card-body{padding:6px 2px 10px}
+.hrp-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+.hrp-col-6{grid-column:span 6}
+.hrp-col-12{grid-column:span 12}
+
+.hrp-label{font-weight:700;font-size:12px;color:#111;margin:6px 6px}
+.hrp-input,.hrp-select, .hrp-textarea, .hrp-file{width:100%;background:#f5f7f9;border:1px solid #e5e7eb;border-radius:20px;padding:10px 14px;outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.hrp-input:focus,.hrp-select:focus,.hrp-textarea:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.hrp-textarea{min-height:92px;border-radius:16px}
+.hrp-file{padding:8px 12px;border-radius:14px;background:#f9fafb}
+
+.hrp-actions{display:flex;justify-content:flex-end;padding:10px 4px}
+.hrp-btn{border:0;border-radius:22px;padding:10px 18px;font-weight:800}
+.hrp-btn-primary{background:#0ea05d;color:#fff}
+.hrp-btn-primary:hover{filter:brightness(.95)}
+
+/* Breadcrumb + Pagination (sticky bottom inside content) */
+.hrp-breadcrumb{position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;background:#ffffff;border-radius:14px;padding:8px 12px;margin-top:12px;box-shadow:0 8px 18px rgba(0,0,0,.06);border:1px solid #f0f0f0;z-index:5}
+.hrp-breadcrumb .crumb{font-weight:700;color:#111}
+.hrp-breadcrumb .dots{display:flex;gap:8px}
+.hrp-dot{width:8px;height:8px;background:#ef4444;border-radius:9999px;opacity:.5}
+.hrp-dot.active{opacity:1}
+
+/* Pagination visuals to match screenshot */
+.hrp-pagination{display:flex;align-items:center;gap:10px}
+.hrp-page-btn{background:#fff;border:1px solid #e5e7eb;border-radius:9999px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:#111;box-shadow:0 4px 10px rgba(0,0,0,.06)}
+.hrp-pages{display:flex;align-items:center;gap:10px}
+.hrp-page{font-weight:800;color:#ef4444;text-decoration:none}
+.hrp-page.active{color:#111}
+.hrp-ellipsis{color:#6b7280}
+
+/* Responsive tweaks */
+@media (max-width: 1024px){
+  /* Allow page to scroll on tablet/phone */
+  body{overflow:auto}
+  /* Hide sidebar, adjust shell spacing */
+  /* Sidebar becomes off-canvas */
+  .hrp-sidebar{position:fixed; left:0; top:0; bottom:0; width:280px; max-width:80%; background:#ffffff; z-index:10010; transform:translateX(-100%); transition:transform .25s ease; border-right:1px solid #e5e7eb; display:block; padding:12px 8px 16px 8px; overflow-y:auto; -webkit-overflow-scrolling:touch}
+  body.sidebar-open .hrp-sidebar{transform:translateX(0)}
+  /* Backdrop behind sidebar */
+  .hrp-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.35); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px); z-index:10000; opacity:0; pointer-events:none; transition:opacity .2s ease}
+  body.sidebar-open .hrp-backdrop{opacity:1; pointer-events:auto}
+  .hrp-shell{padding:10px; height:auto; flex-direction:column; overflow:visible}
+  /* Window should not force horizontal scroll */
+  .hrp-window{min-width:0; width:100%; height:auto; margin:6px 0 64px 0; border-radius:0;
+    /* robust mobile viewport sizing */
+    min-height:-webkit-fill-available;
+    min-height:100svh;
+    min-height:100dvh;
+  }
+  .hrp-main{padding-left:0; height:auto; overflow:visible}
+  .hrp-content{padding:10px 10px calc(96px + env(safe-area-inset-bottom)); overflow:visible; flex:initial; -webkit-overflow-scrolling: touch}
+  .hrp-content img{max-width:100%; height:auto}
+  /* Grid compress */
+  .hrp-grid{grid-template-columns:repeat(6,1fr)}
+  .hrp-col-6{grid-column:span 6}
+  /* Header stacks */
+  .hrp-header{flex-wrap:wrap; gap:10px}
+  /* Prevent page scroll when sidebar is open */
+  body.sidebar-open{overflow:hidden}
+}
+
+@media (max-width: 640px){
+  .hrp-header{flex-direction:column; align-items:flex-start}
+  .hrp-page-title{font-size:20px}
+  .hrp-user-btn{padding:6px 10px}
+  .hrp-window{margin-bottom:0} /* dock hidden on mobile */
+}
+
+/* Bottom dock (fixed, glass) */
+.mac-dock-bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;background:rgba(30,40,50,0.65);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:22px;padding:8px 12px;box-shadow:0 18px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.2);display:flex;align-items:center;gap:8px;z-index:9999}
+.mac-dock-bottom .dock-item img{width:55px;height:55px;display:block}
+.mac-dock-bottom .mac-dock-divider{width:2px;height:46px;background:rgba(255,255,255,.35);border-radius:2px;margin:0 4px}

@@ -1,0 +1,79 @@
+/* Visby CF Font Faces - Simplified */
+@font-face {
+    font-family: 'Visby';
+    src: url('visby/VisbyRegular.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Visby';
+    src: url('visby/VisbyItalic.otf') format('opentype');
+    font-weight: 400;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Visby';
+    src: url('visby/VisbyMedium.otf') format('opentype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Visby';
+    src: url('visby/VisbySemibold.otf') format('opentype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Visby';
+    src: url('visby/VisbyBold.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* Apply Visby font globally */
+body,
+button,
+input,
+select,
+textarea,
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.navbar,
+.brand,
+.btn,
+.nav-tabs > li > a,
+.nav-pills > li > a,
+.navbar .nav > li > a,
+.dropdown-menu,
+.dropdown-menu > li > a,
+.sidebar-menu > li > a,
+.sidebar-menu .treeview-menu > li > a,
+.sidebar-menu .header,
+.sidebar-menu .label,
+.sidebar-menu .badge,
+.table,
+.form-control,
+.help-block,
+.checkbox,
+.radio,
+label,
+.alert,
+.panel-title,
+.modal-title,
+.popover-title,
+.tooltip-inner {
+    font-family: 'Visby', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+/* Ensure monospace elements use system font stack */
+code,
+kbd,
+pre,
+samp,
+.monospace {
+    font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !important;
+}

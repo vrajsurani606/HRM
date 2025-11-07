@@ -1,0 +1,313 @@
+/* Mac-style glassmorphism theme for dashboard and navbar */
+
+
+:root {
+	--mac-blur: 100px; /* 100% blur strength as requested */
+	--mac-surface: rgba(255, 255, 255, 0.30); /* #ffffff at 30% opacity */
+	--mac-surface-strong: rgba(255, 255, 255, 0.38);
+	--mac-border: rgba(255, 255, 255, 0.10);
+	--mac-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+	--mac-text: #f5f7fb;
+	--mac-muted: #cfd5e3;
+	--mac-accent: #4c9fff;
+}
+
+body.macos-theme {
+	/* Wallpaper-like background; falls back to existing bg images set inline */
+	background-attachment: fixed;
+	background-size: cover;
+	color: var(--mac-text);
+}
+
+/* Sticky, glass navbar */
+.sticky-top {
+	position: sticky;
+	top: 0;
+	z-index: 1050;
+}
+
+.mac-glass-nav {
+	background: var(--mac-surface);
+	backdrop-filter: saturate(140%) blur(var(--mac-blur));
+	-webkit-backdrop-filter: saturate(140%) blur(var(--mac-blur));
+	border-bottom: 1px solid var(--mac-border);
+	box-shadow: var(--mac-shadow);
+}
+
+.mac-glass-nav .navbar-nav > li > a,
+.mac-glass-nav .navbar-brand,
+.mac-glass-nav .logo-lg,
+.mac-glass-nav .logo-mini {
+	color: var(--mac-text) !important;
+}
+
+.mac-glass-nav .navbar-nav > li > a {
+	transition: background 160ms ease, transform 160ms ease, color 160ms ease;
+	border-radius: 10px;
+}
+
+.mac-glass-nav .navbar-nav > li > a:hover {
+	background: var(--mac-surface-strong);
+	color: #fff !important;
+	transform: translateY(-1px);
+}
+
+/* Remove AdminLTE solid header colors */
+.main-header .logo,
+.main-header .navbar {
+	background: transparent !important;
+	border: 0 !important;
+}
+
+/* Content area becomes transparent over wallpaper */
+.content-wrapper {
+	background: transparent !important;
+}
+/* Dark glass wallpaper look */
+.mac-glass-bg {
+    background:
+    radial-gradient(900px 380px at 20% 25%, rgba(44, 129, 193, 0.35), transparent 60%), radial-gradient(900px 360px at 75% 80%, rgba(13, 70, 120, 0.35), transparent 60%), linear-gradient(180deg, #c7d0d4 0%, #9eaab5 100%) !important
+}
+
+/* On dark bg keep light text */
+.mac-glass-bg .mac-card-title,
+.mac-glass-bg .mac-list a,
+.mac-glass-bg .mac-widget,
+.mac-glass-bg .mac-dock .dock-item,
+.mac-glass-bg .mac-glass-nav .navbar-nav > li > a,
+.mac-glass-bg .mac-glass-nav .navbar-brand { color: var(--mac-text); }
+
+/* Flyout for dock hover */
+.mac-flyout { position: fixed; top: 0; left: 120px; display: none; z-index: 1040; }
+.mac-flyout.show { display: block; }
+
+/* Flyout arrow */
+.mac-flyout:after { content: ""; position: absolute; bottom: -10px; left: 50%; width: 18px; height: 18px; border-radius: 4px; background: var(--mac-surface); border: 1px solid var(--mac-border); box-shadow: var(--mac-shadow); backdrop-filter: blur(var(--mac-blur)); -webkit-backdrop-filter: blur(var(--mac-blur)); transform: translateX(-50%) rotate(45deg); }
+
+
+/* Glass cards for boxes/panels */
+.box,
+.panel,
+.box-solid {
+	background: var(--mac-surface) !important;
+	border-radius: 16px !important;
+	border: 1px solid var(--mac-border) !important;
+	box-shadow: var(--mac-shadow);
+	backdrop-filter: blur(var(--mac-blur));
+	-webkit-backdrop-filter: blur(var(--mac-blur));
+}
+
+.box .box-header,
+.panel .box-header,
+.box .with-border {
+	background: transparent !important;
+	border-bottom: 1px solid var(--mac-border) !important;
+}
+
+.box .box-title { color: var(--mac-text) !important; }
+
+/* Pills/links hover */
+.nav-pills > li > a {
+	color: var(--mac-muted);
+	border-radius: 10px;
+}
+.nav-pills > li > a:hover {
+	background: var(--mac-surface-strong);
+	color: #fff;
+}
+
+/* Buttons */
+.btn-info,
+.btn-default,
+.btn-primary {
+	border-radius: 12px;
+	border: 1px solid var(--mac-border);
+	background-image: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(0,0,0,0.12));
+	color: #fff;
+	transition: transform 140ms ease, filter 140ms ease;
+}
+.btn-info:hover,
+.btn-default:hover,
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+/* Spacing so content is not hidden under sticky nav */
+.macos-offset { padding-top: 0px; }
+
+/* Optional: subtle scrollbar for desktop */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ===================== Dashboard specific ===================== */
+.mac-dashboard { position: relative; min-height: 75vh; }
+.mac-widgets { position: absolute; left: 24px; top: 20px; display: flex; flex-direction: column; gap: 14px; }
+.mac-widget { width: 160px; padding: 12px; border-radius: 18px; border: 1px solid var(--mac-border); background: var(--mac-surface); backdrop-filter: blur(var(--mac-blur)); -webkit-backdrop-filter: blur(var(--mac-blur)); box-shadow: var(--mac-shadow); color: var(--mac-text); }
+/* Clock */
+.mac-clock { padding: 12px; }
+.mac-clock-face { position: relative; width: 110px; height: 110px; margin: 0 auto; border-radius: 50%; border: 2px solid rgba(255,255,255,0.35); background: var(--mac-surface); box-shadow: inset 0 0 0 6px rgba(255,255,255,0.08); }
+.mac-clock-face .hand { position: absolute; left: 50%; top: 50%; transform-origin: bottom center; border-radius: 2px; }
+.mac-clock-face .hour { width: 4px; height: 34px; background:#e9edf5; transform: translate(-50%, -100%) rotate(20deg); }
+.mac-clock-face .minute { width: 3px; height: 44px; background:#ffffff; transform: translate(-50%, -100%) rotate(120deg); }
+.mac-clock-face .second { width: 2px; height: 48px; background: #ffb300; transform: translate(-50%, -100%) rotate(250deg); }
+.mac-clock-digital { text-align:center; margin-top:8px; font-size:11px; color: var(--mac-muted); letter-spacing: 0.5px; }
+/* Calendar */
+.mac-calendar .title { font-size: 12px; color: var(--mac-muted); margin-bottom: 6px; font-weight: 600; }
+.mac-calendar .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; font-size: 10px; color: var(--mac-text); }
+/* Larger calendar tile styling */
+.mac-calendar.tile { width: 160px; padding: 12px; border-radius: 18px; border: 1px solid var(--mac-border); background: var(--mac-surface); backdrop-filter: blur(var(--mac-blur)); -webkit-backdrop-filter: blur(var(--mac-blur)); box-shadow: var(--mac-shadow); color: var(--mac-text); }
+.mac-calendar.tile .month { display:flex; align-items:center; justify-content:space-between; font-weight:700; font-size:12px; margin-bottom:8px; color:#fff; }
+.mac-calendar.tile .weekdays { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; font-size:10px; opacity:0.8; margin-bottom:4px; }
+.mac-calendar.tile .days { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.mac-calendar.tile .day { text-align:center; padding:6px 0; border-radius:8px; font-size:11px; color:#e6edf6; }
+.mac-calendar.tile .day.today { background: rgba(76,159,255,0.6); color:#fff; font-weight:700; }
+/* Weather */
+.mac-weather .temp { font-size: 24px; font-weight: 700; }
+.mac-weather .city { font-size: 10px; color: var(--mac-muted); }
+
+/* Draggable widgets */
+.mac-draggable { position: fixed; cursor: move; z-index: 1030; }
+.mac-draggable.dragging { opacity: 0.95; }
+
+/* Master card */
+.mac-card { position: absolute; left: 120px; top: 220px; width: 210px; padding: 12px; border-radius: 20px; border: 1px solid var(--mac-border); background: var(--mac-surface); backdrop-filter: blur(var(--mac-blur)); -webkit-backdrop-filter: blur(var(--mac-blur)); box-shadow: var(--mac-shadow); }
+.mac-card-title { font-weight: 700; font-size: 16px; color: var(--mac-text); margin-bottom: 8px; }
+.mac-list { list-style: none; padding: 0; margin: 0; }
+.mac-list li { margin: 6px 0; font-size: 14px; font-weight: 600; }
+.mac-list a { color: var(--mac-muted); text-decoration: none; font-size: 16px; }
+.mac-list a:hover { color: #fff; }
+
+/* Dock */
+.mac-dock .mac-dock-divider {
+  display: inline-block;
+  vertical-align: middle;
+  width: 2px;
+  height: 60px;
+  margin: 0 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 1px;
+  content: ' ';
+}
+
+/* Dock (macOS-like) */
+:root{
+  --dock-size: 64px;
+  --dock-radius: 18px;
+  --dock-gap: 4px;
+  --dock-scale-max: 1.6; /* peak magnification */
+  --dock-influence: 140px; /* influence radius for magnify */
+  --dock-tooltip-gap: 32px; /* vertical distance between icon and tooltip */
+  --sidebar-width: 250px; /* Admin sidebar width */
+  --sidebar-collapsed-width: 4.6rem; /* Collapsed mini width */
+  --dock-bottom: 36px; /* distance from bottom safe area */
+}
+/* Global typography unify (header + sidebar) */
+html, body {
+  font-family: "San Francisco", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.main-header, .navbar, .brand-link,
+.main-sidebar, .sidebar, .nav-sidebar {
+  font-family: inherit;
+  -webkit-font-smoothing: inherit;
+  -moz-osx-font-smoothing: inherit;
+}
+/* Join header and sidebar: remove seam/gap and align exactly */
+.main-sidebar { border-right: 0 !important; box-shadow: none !important; }
+.main-header { border-left: 0 !important; box-shadow: none !important; }
+/* Shift header to start exactly where the sidebar ends */
+.layout-fixed .main-header { position: fixed; top: 0; left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); }
+body.sidebar-collapse.layout-fixed .main-header { left: var(--sidebar-collapsed-width); width: calc(100% - var(--sidebar-collapsed-width)); }
+/* Navbar inside header should not add extra margin */
+.layout-fixed .main-header .navbar,
+.main-header .navbar { margin-left: 0 !important; border-left: 0 !important; box-shadow: none !important; }
+/* Prevent 1px seam due to borders */
+.main-header, .main-sidebar { border: 0 !important; }
+/* Mobile: header full width */
+@media (max-width: 991.98px){
+  .layout-fixed .main-header { left: 0; width: 100%; }
+}
+.mac-dock { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--dock-bottom) + env(safe-area-inset-bottom)); display: flex; gap: var(--dock-gap); padding: 6px 14px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.40); background:
+  /* subtle top glow */
+  linear-gradient(0deg, rgba(255,255,255,0.22), rgba(255,255,255,0.06)) ,
+  /* main frost layer */
+  linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0.22));
+background-color: transparent !important;
+backdrop-filter: blur(22px) saturate(170%);
+-webkit-backdrop-filter: blur(22px) saturate(170%);
+box-shadow:
+  0 26px 58px rgba(0,0,0,0.28),
+  0 12px 28px rgba(0,0,0,0.14);
+z-index: 10020; overflow: visible; background-clip: padding-box; transition: gap 160ms ease; }
+.mac-dock.is-hovering{ gap: calc(var(--dock-gap) + 8px); }
+.mac-dock::before{ content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; background: linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0)); }
+.mac-dock .dock-item { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: var(--dock-size);  border-radius: var(--dock-radius); text-decoration: none; color: var(--mac-muted); padding: 0 6px; background: transparent !important; }
+.mac-dock .dock-item img { width: 70%; height: auto; display: block; transform-origin: bottom center; transition: transform 200ms cubic-bezier(.22,.61,.36,1); will-change: transform; backface-visibility: hidden; transform: translateZ(0); position: relative; z-index: 1; }
+.mac-dock .dock-item span { font-size: 11px; margin-top: 6px; }
+/* No hover background (prevent white boxes) */
+.mac-dock .dock-item:hover { background: transparent; color: inherit; }
+
+/* Active indicator dot under icon */
+.mac-dock .dock-item.active::after{ content:""; position:absolute; bottom:4px; left:50%; width:6px; height:6px; background:#ffffff; border-radius:9999px; box-shadow:0 0 6px rgba(0,0,0,0.25); transform:translateX(-50%); }
+
+/* macOS-like dock tooltip (dark pill with arrow) */
+.dock-tooltip{
+  position: fixed;
+  z-index: 20000;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.98);
+  color: #0f172a;
+  border: 1px solid rgba(15,23,42,0.08);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  pointer-events: none;
+  transform: translate(-50%, -14px);
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 140ms ease;
+  font-family: "San Francisco", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+}
+.dock-tooltip::after{
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: rgba(255,255,255,0.98);
+  transform: translateX(-50%) rotate(45deg);
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(15,23,42,0.08);
+}
+
+/* Responsive styles for tablets and mobile */
+@media (max-width: 1440px){
+  :root{ --dock-size: 60px; --dock-gap: 4px; --dock-bottom: 34px; }
+}
+@media (max-width: 1280px){
+  :root{ --dock-size: 56px; --dock-gap: 4px; --dock-bottom: 32px; }
+}
+@media (max-width: 1024px){
+  :root{ --dock-size: 54px; --dock-gap: 4px; --dock-bottom: 30px; }
+}
+@media (max-width: 768px){
+  :root{ --dock-size: 50px; --dock-gap: 3px; --dock-bottom: 28px; }
+}
+@media (max-width: 640px){
+  :root{ --dock-size: 46px; --dock-gap: 3px; --dock-bottom: 24px; }
+}
+/* Small screens: enable horizontal scroll without scrollbar */
+@media (max-width: 1024px){
+  .mac-dock{ overflow-x: auto; overflow-y: hidden; white-space: nowrap; -webkit-overflow-scrolling: touch; max-width: calc(100vw - 12px); justify-content: flex-start; padding: 6px 8px; touch-action: pan-x; flex-wrap: nowrap; }
+  .mac-dock::-webkit-scrollbar{ display: none; height: 0; }
+  .mac-dock{ scrollbar-width: none; }
+}
+/* Hide dock entirely on mobile to prioritize sidebar */
+@media (max-width: 768px){
+  .mac-dock{ display: none !important; }
+}
