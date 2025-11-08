@@ -8,16 +8,8 @@
     @hasSection('breadcrumb')
       @yield('breadcrumb')
     @else
-      @php($vectorIco = public_path('side_icon/Vector.svg'))
-      @php($dashIco = public_path('side_icon/dashboard.svg'))
       <span class="hrp-bc-ico">
-        @if(file_exists($vectorIco))
-          <img src="{{ asset('side_icon/Vector.svg') }}" alt="Dashboard"/>
-        @elseif(file_exists($dashIco))
-          <img src="{{ asset('side_icon/dashboard.svg') }}" alt="Dashboard"/>
-        @else
-          <i class="fa fa-home" aria-hidden="true"></i>
-        @endif
+        <img src="{{ asset('side_icon/Vector.svg') }}" alt="Dashboard" onerror="this.onerror=null;this.src='{{ asset('side_icon/dashboard.svg') }}';"/>
       </span>
       <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
       @if(!$isDashboard && $pageTitle)

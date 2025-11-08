@@ -26,7 +26,7 @@
 
     <link rel="stylesheet" href="{{ asset('new_theme/css/hrportal.css') }}">
     <!-- Toastr (notifications) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKM265vZ5hM6k3Z8yJ7pU9cS6m8+oHjvMZxqk3e4H5kY2q+0Q7kHhXzQp0bFv8e0D7+U9Uq9j1QyY6tP3lUn0A==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
@@ -78,7 +78,7 @@
 <script src="{{ asset('new_theme/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js') }}"></script>
 <script src="{{ asset('new_theme/dist/js/select2.min.js') }}"></script>
 <script src="{{ asset('new_theme/bower_components/ckeditor/ckeditor.js') }}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-dtW7B4mE3mQ9G6v9s8xqv1p4NfVv6o4n9cJ1p1a8oS3G9v2Kqj8Kqk1rT4lKX5wN2oFJb0yJzYQFf8v9gXQ2xA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @include('partials.flash')
 <script>
