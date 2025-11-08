@@ -65,8 +65,10 @@ body.macos-theme {
 }
 /* Dark glass wallpaper look */
 .mac-glass-bg {
-    background:
-    radial-gradient(900px 380px at 20% 25%, rgba(44, 129, 193, 0.35), transparent 60%), radial-gradient(900px 360px at 75% 80%, rgba(13, 70, 120, 0.35), transparent 60%), linear-gradient(180deg, #c7d0d4 0%, #9eaab5 100%) !important
+    min-height: 100vh;
+    background: #A8D4EB !important; /* flat blue like reference */
+    backdrop-filter: blur(100px) saturate(160%);
+    -webkit-backdrop-filter: blur(100px) saturate(160%);
 }
 
 /* On dark bg keep light text */

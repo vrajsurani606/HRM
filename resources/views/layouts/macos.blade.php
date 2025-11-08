@@ -37,6 +37,7 @@
             @include('partials.header')
             <div class="hrp-content">
                 @yield('content')
+                @include('partials.footer')
             </div>
         </main>
       </div>
@@ -98,44 +99,69 @@
   if (window.toastr) {
     toastr.options = { closeButton: true, progressBar: true, timeOut: 2500, positionClass: 'toast-bottom-right' };
   }
-  // Mobile sidebar toggle
+  // Sidebar toggle: MOBILE ONLY. On desktop, the blue badge toggles HRM submenu (no overlay).
   (function(){
     var body = document.body;
     var toggle = document.querySelector('.hrp-menu-toggle');
     var backdrop = document.getElementById('hrpBackdrop');
-    function setSidebar(open){
-      if(open){
-        body.classList.add('sidebar-open');
-        if(toggle) toggle.setAttribute('aria-expanded','true');
-      } else {
-        body.classList.remove('sidebar-open');
-        if(toggle) toggle.setAttribute('aria-expanded','false');
-      }
-    }
-    if(toggle){
-      toggle.addEventListener('click', function(){
-        var open = body.classList.contains('sidebar-open');
-        setSidebar(!open);
-      });
-    }
-    if(backdrop){
-      backdrop.addEventListener('click', function(){ setSidebar(false); });
-    }
-    // Close when a sidebar link is clicked
     var sidebar = document.getElementById('hrpSidebar');
-    if(sidebar){
-      sidebar.addEventListener('click', function(e){
-        var a = e.target.closest('a');
-        if(a && document.body.classList.contains('sidebar-open')) setSidebar(false);
-      });
+    function isMobile(){ return window.innerWidth <= 1024; }
+    function setSidebar(open){
+      if(!isMobile()) return; // guard: only mobile slides in/out
+      if(open){ body.classList.add('sidebar-open'); if(toggle) toggle.setAttribute('aria-expanded','true'); }
+      else { body.classList.remove('sidebar-open'); if(toggle) toggle.setAttribute('aria-expanded','false'); }
     }
-    // Close on Escape
+    // robust delegation (hamburger and blue badge in sidebar top)
+    document.addEventListener('click', function(e){
+      var btn = e.target.closest('.hrp-menu-toggle, .hrp-side-badge');
+      if(!btn) return;
+      e.preventDefault();
+      if(isMobile()){
+        setSidebar(!body.classList.contains('sidebar-open'));
+      } else if(sidebar){
+        // Desktop: collapse/expand to icons-only
+        sidebar.classList.toggle('hrp-sidebar-collapsed');
+      }
+    });
+    // keyboard support for badge
     document.addEventListener('keydown', function(e){
-      if(e.key === 'Escape') setSidebar(false);
-    });
-    window.addEventListener('resize', function(){
-      if(window.innerWidth >= 1025){ setSidebar(false); }
-    });
+      var isBadge = e.target && e.target.classList && e.target.classList.contains('hrp-side-badge');
+      if(!isBadge) return;
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        if(isMobile()){
+          setSidebar(!body.classList.contains('sidebar-open'));
+        } else if(sidebar){
+          sidebar.classList.toggle('hrp-sidebar-collapsed');
+        }
+      }
+    }, true);
+    if(backdrop){ backdrop.addEventListener('click', function(){ setSidebar(false); }); }
+    if(sidebar){ sidebar.addEventListener('click', function(e){ var a = e.target.closest('a'); if(a && body.classList.contains('sidebar-open')) setSidebar(false); }); }
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') setSidebar(false); });
+    window.addEventListener('resize', function(){ if(!isMobile()) { body.classList.remove('sidebar-open'); } });
+  
+    // HRM submenu: open on first click (like the image), then allow navigation
+    (function(){
+      var sidebar = document.getElementById('hrpSidebar');
+      if(!sidebar) return;
+      var hrmParent = sidebar.querySelector('.hrp-menu-item[data-group="hrm"] > a');
+      function setHrmOpen(open){
+        sidebar.classList.toggle('group-open-hrm', !!open);
+        var parentLi = sidebar.querySelector('.hrp-menu-item[data-group="hrm"]');
+        if(parentLi){ parentLi.classList.toggle('open', !!open); }
+      }
+      var hasActiveHrm = !!sidebar.querySelector('.hrp-menu-item.hrp-sub[data-group="hrm"].active');
+      if(hasActiveHrm){ setHrmOpen(true); }
+      if(hrmParent){
+        hrmParent.addEventListener('click', function(e){
+          if(!sidebar.classList.contains('group-open-hrm')){
+            e.preventDefault();
+            setHrmOpen(true);
+          }
+        });
+      }
+    })();
 
     // Dock magnification (hovered + 2 neighbors each side) and tooltip follow
     try {
