@@ -30,14 +30,14 @@ class HiringController extends Controller
         $data = $r->validate([
             // unique_code will be generated server-side to avoid collisions
             'person_name' => ['required','string','max:190'],
-            'mobile_no' => ['required','string','max:20'],
-            'address' => ['nullable','string','max:255'],
-            'position' => ['nullable','string','max:190'],
+            'mobile_no' => ['required','regex:/^\d{10}$/'],
+            'address' => ['required','string','max:255'],
+            'position' => ['required','string','max:190'],
             'is_experience' => ['required','boolean'],
-            'experience_count' => ['nullable','numeric','min:0','max:99.9'],
-            'experience_previous_company' => ['nullable','string','max:190'],
+            'experience_count' => ['required_if:is_experience,1','numeric','min:0','max:99.9'],
+            'experience_previous_company' => ['required_if:is_experience,1','string','max:190'],
             'previous_salary' => ['nullable','numeric','min:0'],
-            'gender' => ['nullable','in:male,female,other'],
+            'gender' => ['required','in:male,female,other'],
             'resume' => ['nullable','file','mimes:pdf,doc,docx','max:5120'],
         ]);
 
@@ -66,14 +66,14 @@ class HiringController extends Controller
     {
         $data = $r->validate([
             'person_name' => ['required','string','max:190'],
-            'mobile_no' => ['required','string','max:20'],
-            'address' => ['nullable','string','max:255'],
-            'position' => ['nullable','string','max:190'],
+            'mobile_no' => ['required','regex:/^\d{10}$/'],
+            'address' => ['required','string','max:255'],
+            'position' => ['required','string','max:190'],
             'is_experience' => ['required','boolean'],
-            'experience_count' => ['nullable','numeric','min:0','max:99.9'],
-            'experience_previous_company' => ['nullable','string','max:190'],
+            'experience_count' => ['required_if:is_experience,1','numeric','min:0','max:99.9'],
+            'experience_previous_company' => ['required_if:is_experience,1','string','max:190'],
             'previous_salary' => ['nullable','numeric','min:0'],
-            'gender' => ['nullable','in:male,female,other'],
+            'gender' => ['required','in:male,female,other'],
             'resume' => ['nullable','file','mimes:pdf,doc,docx','max:5120'],
         ]);
 

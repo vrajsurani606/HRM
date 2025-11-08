@@ -52,21 +52,21 @@
           @forelse($leads as $i => $lead)
             <tr>
               <td class="whitespace-nowrap">
-                <div class="action-icons">
-                  <a href="{{ route('hiring.edit', $lead) }}" class="action-icon edit" title="Edit" aria-label="Edit">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4l10.5-10.5a2 2 0 0 0-2.828-2.828L5.172 17.172 4 20z" fill="white"/></svg>
+                <div style="display:inline-flex;align-items:center;gap:8px">
+                  <a href="{{ route('hiring.edit', $lead) }}" title="Edit" aria-label="Edit" style="display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center">
+                    <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" width="17" height="18" style="display:block">
                   </a>
-                  <a href="#" class="action-icon print" title="Print" aria-label="Print">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 9V4h12v5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 17H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="8" y="15" width="8" height="5" fill="white"/></svg>
+                  <a href="#" title="Print" aria-label="Print" style="display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center">
+                    <img src="{{ asset('action_icon/print.svg') }}" alt="Print" width="18" height="18" style="display:block">
                   </a>
-                  <form method="POST" action="{{ route('hiring.destroy', $lead) }}" onsubmit="return confirm('Delete this lead?')" style="display:inline-block">
+                  <form method="POST" action="{{ route('hiring.destroy', $lead) }}" onsubmit="return confirm('Delete this lead?')" style="display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center">
                     @csrf @method('DELETE')
-                    <button class="action-icon delete" title="Delete" aria-label="Delete" type="submit">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 6h18" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M8 6V4h8v2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 6l1 14h10l1-14" stroke="white" stroke-width="2" stroke-linejoin="round"/></svg>
+                    <button type="submit" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer;display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center">
+                      <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" width="15" height="18" style="display:block">
                     </button>
                   </form>
-                  <a href="#" class="action-icon convert" title="Convert to Employee" aria-label="Convert to Employee">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="3" stroke="white" stroke-width="2"/></svg>
+                  <a href="#" title="Convert to Employee" aria-label="Convert to Employee" style="display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center">
+                    <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert" width="18" height="18" style="display:block">
                   </a>
                 </div>
               </td>
@@ -102,18 +102,14 @@
       <div id="dtPagination"></div>
     </div>
   </div>
-  @php($segments = request()->segments())
-  <div class="hrp-breadcrumb">
-    <div class="crumb">
-      <a href="{{ route('dashboard') }}">Dashboard</a>
-      @foreach($segments as $i => $seg)
-        @if($i === 0)  ›  <a href="/{{ $seg }}">{{ ucfirst($seg) }}</a>
-        @elseif($i === count($segments)-1)  ›  {{ $page_title ?? ucfirst(str_replace('-',' ', $seg)) }}
-        @else  ›  <a href="/{{ implode('/', array_slice($segments,0,$i+1)) }}">{{ ucfirst(str_replace('-',' ', $seg)) }}</a>
-        @endif
-      @endforeach
-    </div>
-  </div>
+@endsection
+
+@section('breadcrumb')
+  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+  <span class="hrp-bc-sep">›</span>
+  <a href="{{ route('section',['name'=>'hr']) }}" style="font-weight:800;color:#0f0f0f;text-decoration:none">HRM</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">Hiring Lead Master</span>
 @endsection
 
 @push('scripts')

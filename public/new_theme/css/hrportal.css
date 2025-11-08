@@ -41,7 +41,10 @@ html, body { overflow-x: hidden; }
 .hrp-menu{list-style:none;margin:0;padding:0}
 .hrp-menu-item>a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:#222;text-decoration:none;font-weight:600}
 .hrp-menu-item>a:hover{background:#f3f4f6}
-.hrp-menu-item.active>a{background:#fee2e2;color:#b91c1c}
+.hrp-menu-item.active>a{
+  background: linear-gradient(90deg, #FFFFFF 15.87%, rgba(255, 255, 255, 0) 100%);
+  color:#0f172a;
+}
 .hrp-menu-section{padding:12px 10px 6px 10px;font-size:12px;font-weight:800;color:#ef4444;text-transform:uppercase;opacity:.9}
 
 /* Sidebar icon pill and red dot bullets (match Figma) */
@@ -61,8 +64,11 @@ html, body { overflow-x: hidden; }
 .hrp-menu-item.hrp-sub.active>a span{color:#b91c1c}
 /* Parent highlight when any sub is active */
 .hrp-menu-item.active-parent>a{
-  background:linear-gradient(90deg, rgba(255,255,255,.95), rgba(255,255,255,.78));
-  border:0; box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 4px 12px rgba(0,0,0,.08);
+  background: linear-gradient(90deg, #FFFFFF 15.87%, rgba(255, 255, 255, 0) 100%);
+  border:0; box-shadow:none;
+}
+.hrp-menu-item.hrp-sub.active>a{
+  background: linear-gradient(90deg, #FFFFFF 15.87%, rgba(255, 255, 255, 0) 100%);
 }
 
 /* Collapsible HRM submenu: hidden by default, shown when sidebar has group-open-hrm */
@@ -220,6 +226,47 @@ html, body { overflow-x: hidden; }
   line-height: 0.8;
 }
 
+/* Create/Edit form typography refinements */
+.macos-theme .hrp-window .hrp-form .hrp-label{
+  display:block;
+  margin: 4px 6px 8px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  color:#0f172a;
+}
+.macos-theme .hrp-window .hrp-form input.hrp-input,
+.macos-theme .hrp-window .hrp-form select.hrp-input,
+.macos-theme .hrp-window .hrp-form textarea.hrp-textarea{
+  font-size: 16px !important; /* slightly smaller for dense form */
+  font-weight: 600;
+  color:#111;
+}
+.macos-theme .hrp-window .hrp-form .Rectangle-29::placeholder{ font-size: 15px; color:#6b7280; }
+.macos-theme .hrp-window .hrp-form .Rectangle-29-textarea{ font-size: 15px; }
+.macos-theme .hrp-window .hrp-form .upload-pill .filename{ font-size:14px; }
+.macos-theme .hrp-window .hrp-form .upload-pill .choose{ font-size:14px; font-weight:800; }
+.macos-theme .hrp-window .hrp-form .hrp-segment label{ font-size:14px; font-weight:800; }
+
+/* Uniform vertical rhythm for fields (label + control) */
+.macos-theme .hrp-window .hrp-form > div{ display:flex; flex-direction:column; gap:8px; }
+.macos-theme .hrp-window .hrp-form .hrp-label{ margin:0 4px 4px; }
+.macos-theme .hrp-window .hrp-form .upload-pill{ margin-top:0; }
+.macos-theme .hrp-window .hrp-form .hrp-segment{ margin-top:0; }
+
+/* Compact variant for create/edit forms */
+.macos-theme .hrp-window .hrp-compact{ padding:24px 28px; border-radius:16px; }
+.macos-theme .hrp-window .hrp-compact .hrp-label{ font-size:14px; font-weight:800; margin: 0 4px 6px; }
+.macos-theme .hrp-window .hrp-compact .Rectangle-29{ height:44px !important; padding:10px 14px !important; border-radius:16px !important; font-size:14px !important; }
+.macos-theme .hrp-window .hrp-compact .Rectangle-29-select{ height:44px !important; line-height:44px !important; padding-right:32px !important; background-position: right 14px center, right 9px center !important; }
+.macos-theme .hrp-window .hrp-compact .Rectangle-29-textarea{ min-height:90px !important; padding:12px 14px !important; font-size:14px !important; border-radius:14px !important; }
+.macos-theme .hrp-window .hrp-compact .upload-pill{ height:48px; }
+.macos-theme .hrp-window .hrp-compact .upload-pill .choose{ min-width:140px; font-size:13px; }
+.macos-theme .hrp-window .hrp-compact .upload-pill .filename{ font-size:13px; }
+.macos-theme .hrp-window .hrp-compact .hrp-segment{ height:44px; padding:6px; }
+.macos-theme .hrp-window .hrp-compact .hrp-segment label{ padding:6px 12px; font-size:13px; }
+.macos-theme .hrp-window .hrp-compact .hrp-actions{ padding-top:6px; }
+
 /* Uniform 58px for selects to match inputs */
 .Rectangle-29-select{
   -webkit-appearance:none; appearance:none;
@@ -311,22 +358,22 @@ html, body { overflow-x: hidden; }
 .hrp-btn-primary:hover{filter:brightness(.95)}
 
 /* Breadcrumb + Pagination (sticky bottom inside content) */
-.hrp-breadcrumb{position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;background:#FDF5F3;border-radius:0;padding:12px 18px;margin:0;box-shadow:inset 0 1px 0 #efe8e4;border-top:1px solid #efe8e4;border-bottom:0;border-left:0;border-right:0;z-index:20;margin-top:auto}
-.hrp-breadcrumb .crumb{display:flex;align-items:center;gap:0;font-weight:700;color:#0f0f0f}
+.hrp-breadcrumb{position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;background:#FDF5F3;border-radius:0;padding:10px 14px;margin:0;box-shadow:inset 0 1px 0 #efe8e4;border-top:1px solid #efe8e4;border-bottom:0;border-left:0;border-right:0;z-index:20;margin-top:auto}
+.hrp-breadcrumb .crumb{display:flex;align-items:center;gap:0;font-weight:700;color:#0f0f0f;font-size:14px}
 .hrp-breadcrumb .dots{display:flex;gap:8px}
 .hrp-dot{width:8px;height:8px;background:#ef4444;border-radius:9999px;opacity:.5}
 .hrp-dot.active{opacity:1}
 .hrp-crumb-ico{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:6px;background:#f3f4f6;color:#ef4444;margin-right:6px;box-shadow:0 2px 6px rgba(0,0,0,.08);font-size:11px}
 /* Breadcrumb specific (SVG + typography like reference) */
-.hrp-bc-ico{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;margin-right:8px}
-.hrp-bc-ico img{width:20px;height:20px;display:block}
-.hrp-bc-home{font-weight:800;color:#0f0f0f;text-decoration:none;margin-right:12px;font-size:16px;line-height:1}
-.hrp-bc-sep{margin:0 12px;color:#0f0f0f;opacity:.85;font-weight:800;font-size:18px;line-height:1}
-.hrp-bc-current{font-weight:800;color:#0f0f0f;font-size:16px;line-height:1}
+.hrp-bc-ico{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;margin-right:6px}
+.hrp-bc-ico img{width:14px;height:14px;display:block}
+.hrp-bc-home{font-weight:800;color:#0f0f0f;text-decoration:none;margin-right:8px;font-size:13px;line-height:1}
+.hrp-bc-sep{margin:0 8px;color:#0f0f0f;opacity:.85;font-weight:800;font-size:14px;line-height:1}
+.hrp-bc-current{font-weight:800;color:#0f0f0f;font-size:13px;line-height:1}
 
 /* Pagination visuals to match screenshot */
 .hrp-pagination{display:flex;align-items:center;gap:10px}
-.hrp-page-btn{background:#fff;border:1px solid #e5e7eb;border-radius:9999px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:#111;box-shadow:0 4px 10px rgba(0,0,0,.06)}
+.hrp-page-btn{background:#fff;border:1px solid #e5e7eb;border-radius:9999px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:#111;box-shadow:0 4px 10px rgba(0,0,0,.06)}
 .hrp-pages{display:flex;align-items:center;gap:10px}
 .hrp-page{font-weight:800;color:#ef4444;text-decoration:none}
 .hrp-page.active{color:#111}
