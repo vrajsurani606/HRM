@@ -216,348 +216,547 @@
       </div>
     </div>
 
-    <!-- Other Tab Contents (Hidden) -->
-   <!-- Payroll Table Section -->
-<div style="background:white;padding:0;margin:0">
-  <!-- Payroll Data Table -->
-  <div style="overflow-x:auto">
-    <table style="width:100%;border-collapse:collapse;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
-      <thead>
-        <tr style="background:#f8f9fa;border-bottom:1px solid #e5e7eb">
-          <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Action</th>
-          <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Serial No</th>
-          <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Unique No</th>
-          <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Salary Month</th>
-          <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Format Type</th>
-          <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Payment Date</th>
-          <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px">Payment Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Row 1 -->
-        <tr style="border-bottom:1px solid #f3f4f6">
-          <td style="padding:16px 12px;border-right:1px solid #e5e7eb">
-            <div style="width:24px;height:24px;background:#3b82f6;border-radius:4px;display:flex;align-items:center;justify-content:center">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-              </svg>
-            </div>
-          </td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">1</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">CMS/LEAD/0022</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">OCT - 2025</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Salary</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">30-10-2025</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:14px">₹ 11,000</td>
-        </tr>
-        
-        <!-- Row 2 -->
-        <tr style="border-bottom:1px solid #f3f4f6">
-          <td style="padding:16px 12px;border-right:1px solid #e5e7eb">
-            <div style="width:24px;height:24px;background:#3b82f6;border-radius:4px;display:flex;align-items:center;justify-content:center">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-              </svg>
-            </div>
-          </td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">2</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">CMS/LEAD/0023</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Salary (OCT-25)</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Salary</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">14-10-2025</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:14px">₹ 15,000</td>
-        </tr>
-        
-        <!-- Row 3 -->
-        <tr style="border-bottom:1px solid #f3f4f6">
-          <td style="padding:16px 12px;border-right:1px solid #e5e7eb">
-            <div style="width:24px;height:24px;background:#3b82f6;border-radius:4px;display:flex;align-items:center;justify-content:center">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-              </svg>
-            </div>
-          </td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">3</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">CMS/LEAD/0024</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Other</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Salary</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">29-09-2025</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:14px">₹ 20,000</td>
-        </tr>
-        
-        <!-- Row 4 -->
-        <tr style="border-bottom:1px solid #f3f4f6">
-          <td style="padding:16px 12px;border-right:1px solid #e5e7eb">
-            <div style="width:24px;height:24px;background:#3b82f6;border-radius:4px;display:flex;align-items:center;justify-content:center">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-              </svg>
-            </div>
-          </td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">4</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">CMS/LEAD/0025</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Salary (JUN-25)</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Salary</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">28-08-2025</td>
-          <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:14px">₹ 12,000</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
-  <!-- Pagination Section -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 0;border-top:1px solid #e5e7eb;margin-top:20px">
-    <!-- Left side - Entries info -->
-    <div style="display:flex;align-items:center;gap:8px;color:#6b7280;font-size:14px">
-      <span>Entries</span>
-      <select style="padding:4px 8px;border:1px solid #d1d5db;border-radius:4px;background:white;color:#374151;font-size:14px">
-        <option>25</option>
-        <option>50</option>
-        <option>100</option>
-      </select>
+    <!-- Payroll Tab Content -->
+    <div id="payroll" class="tab-content" style="display:none;padding:30px">
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+          <thead>
+            <tr style="background:#f8f9fa;border-bottom:1px solid #e5e7eb">
+              <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Action</th>
+              <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Serial No</th>
+              <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Unique No</th>
+              <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Salary Month</th>
+              <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Format Type</th>
+              <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Payment Date</th>
+              <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:14px">Payment Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #f3f4f6">
+              <td style="padding:16px 12px;border-right:1px solid #e5e7eb">
+                <div style="width:24px;height:24px;background:#3b82f6;border-radius:4px;display:flex;align-items:center;justify-content:center">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                  </svg>
+                </div>
+              </td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">1</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">CMS/LEAD/0022</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">OCT - 2025</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Salary</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">30-10-2025</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:14px">₹ 11,000</td>
+            </tr>
+            <tr style="border-bottom:1px solid #f3f4f6">
+              <td style="padding:16px 12px;border-right:1px solid #e5e7eb">
+                <div style="width:24px;height:24px;background:#3b82f6;border-radius:4px;display:flex;align-items:center;justify-content:center">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                  </svg>
+                </div>
+              </td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">2</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">CMS/LEAD/0023</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Salary (OCT-25)</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Salary</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">14-10-2025</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:14px">₹ 15,000</td>
+            </tr>
+            <tr style="border-bottom:1px solid #f3f4f6">
+              <td style="padding:16px 12px;border-right:1px solid #e5e7eb">
+                <div style="width:24px;height:24px;background:#3b82f6;border-radius:4px;display:flex;align-items:center;justify-content:center">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                  </svg>
+                </div>
+              </td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">3</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">CMS/LEAD/0024</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Other</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Salary</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">29-09-2025</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:14px">₹ 20,000</td>
+            </tr>
+            <tr style="border-bottom:1px solid #f3f4f6">
+              <td style="padding:16px 12px;border-right:1px solid #e5e7eb">
+                <div style="width:24px;height:24px;background:#3b82f6;border-radius:4px;display:flex;align-items:center;justify-content:center">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                  </svg>
+                </div>
+              </td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">4</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">CMS/LEAD/0025</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Salary (JUN-25)</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Salary</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">28-08-2025</td>
+              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:14px">₹ 12,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    
-    <!-- Right side - Pagination -->
-    <div style="display:flex;align-items:center;gap:8px">
-      <button style="padding:8px 12px;border:1px solid #d1d5db;background:white;color:#6b7280;border-radius:4px;cursor:pointer;font-size:14px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
-        </svg>
-      </button>
+
+    <!-- Attendance Tab Content -->
+    <div id="attendance" class="tab-content" style="display:none;padding:30px">
+      <!-- Stats Cards -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:30px">
+        <div style="background:linear-gradient(135deg,#dbeafe 0%,#bfdbfe 100%);padding:20px;border-radius:12px;text-align:center">
+          <div style="width:40px;height:40px;background:#3b82f6;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+              <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+            </svg>
+          </div>
+          <div style="font-size:28px;font-weight:700;color:#1e40af;margin-bottom:4px">041</div>
+          <div style="font-size:14px;color:#1e40af;font-weight:500">Present Day</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#dcfce7 0%,#bbf7d0 100%);padding:20px;border-radius:12px;text-align:center">
+          <div style="width:40px;height:40px;background:#10b981;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+              <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+            </svg>
+          </div>
+          <div style="font-size:28px;font-weight:700;color:#059669;margin-bottom:4px">312.1</div>
+          <div style="font-size:14px;color:#059669;font-weight:500">Working Hours</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#fed7aa 0%,#fdba74 100%);padding:20px;border-radius:12px;text-align:center">
+          <div style="width:40px;height:40px;background:#f97316;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+              <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8Z"/>
+            </svg>
+          </div>
+          <div style="font-size:28px;font-weight:700;color:#ea580c;margin-bottom:4px">037</div>
+          <div style="font-size:14px;color:#ea580c;font-weight:500">Late Entries</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#fecaca 0%,#fca5a5 100%);padding:20px;border-radius:12px;text-align:center">
+          <div style="width:40px;height:40px;background:#ef4444;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+              <path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z"/>
+            </svg>
+          </div>
+          <div style="font-size:28px;font-weight:700;color:#dc2626;margin-bottom:4px">001</div>
+          <div style="font-size:14px;color:#dc2626;font-weight:500">Early Exits</div>
+        </div>
+      </div>
       
-      <button style="padding:8px 12px;border:1px solid #ef4444;background:#ef4444;color:white;border-radius:4px;font-weight:600;font-size:14px">01</button>
-      <button style="padding:8px 12px;border:1px solid #d1d5db;background:white;color:#6b7280;border-radius:4px;cursor:pointer;font-size:14px">02</button>
-      <button style="padding:8px 12px;border:1px solid #d1d5db;background:white;color:#6b7280;border-radius:4px;cursor:pointer;font-size:14px">03</button>
-      <button style="padding:8px 12px;border:1px solid #d1d5db;background:white;color:#6b7280;border-radius:4px;cursor:pointer;font-size:14px">04</button>
-      <button style="padding:8px 12px;border:1px solid #d1d5db;background:white;color:#6b7280;border-radius:4px;cursor:pointer;font-size:14px">05</button>
-      <span style="color:#6b7280;font-size:14px">...</span>
-      <button style="padding:8px 12px;border:1px solid #d1d5db;background:white;color:#6b7280;border-radius:4px;cursor:pointer;font-size:14px">20</button>
+      <!-- Attendance Table -->
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+          <thead>
+            <tr style="background:#f8f9fa;border-bottom:1px solid #e5e7eb">
+              <th style="padding:16px 12px;text-align:center;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Day</th>
+              <th style="padding:16px 12px;text-align:center;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Date</th>
+              <th style="padding:16px 12px;text-align:center;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Check IN & OUT</th>
+              <th style="padding:16px 12px;text-align:center;font-weight:600;color:#374151;font-size:14px;border-right:1px solid #e5e7eb">Overtime</th>
+              <th style="padding:16px 12px;text-align:center;font-weight:600;color:#374151;font-size:14px">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #f3f4f6">
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Monday</td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">27 Oct, 2025</td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">
+                <span style="color:#f97316;font-weight:600">09:36 AM</span> - <span style="color:#ef4444;font-weight:600">06:25 PM</span>
+              </td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">0h 19m</td>
+              <td style="padding:16px 12px;text-align:center">
+                <span style="background:#dcfce7;color:#059669;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">Present</span>
+              </td>
+            </tr>
+            <tr style="border-bottom:1px solid #f3f4f6">
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Tuesday</td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">28 Oct, 2025</td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">
+                <span style="color:#f97316;font-weight:600">09:40 AM</span> - <span style="color:#ef4444;font-weight:600">06:15 PM</span>
+              </td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">--</td>
+              <td style="padding:16px 12px;text-align:center">
+                <span style="background:#fed7aa;color:#ea580c;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">Half Day</span>
+              </td>
+            </tr>
+            <tr style="border-bottom:1px solid #f3f4f6">
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Wednesday</td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">29 Oct, 2025</td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">
+                <span style="color:#f97316;font-weight:600">09:55 AM</span> - <span style="color:#10b981;font-weight:600">06:40 PM</span>
+              </td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">0h 15m</td>
+              <td style="padding:16px 12px;text-align:center">
+                <span style="background:#dcfce7;color:#059669;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">Present</span>
+              </td>
+            </tr>
+            <tr style="border-bottom:1px solid #f3f4f6">
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Thursday</td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">30 Oct, 2025</td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">
+                <span style="color:#10b981;font-weight:600">09:17 AM</span> - <span style="color:#10b981;font-weight:600">07:20 PM</span>
+              </td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">1h 33m</td>
+              <td style="padding:16px 12px;text-align:center">
+                <span style="background:#dcfce7;color:#059669;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">Present</span>
+              </td>
+            </tr>
+            <tr style="border-bottom:1px solid #f3f4f6">
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">Friday</td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">31 Oct, 2025</td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">
+                <span style="color:#f97316;font-weight:600">09:36 AM</span> - <span style="color:#ef4444;font-weight:600">06:25 PM</span>
+              </td>
+              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:14px;border-right:1px solid #e5e7eb">0h 19m</td>
+              <td style="padding:16px 12px;text-align:center">
+                <span style="background:#dcfce7;color:#059669;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">Present</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="documents" class="tab-content" style="display:none;padding:30px">
+      <!-- Search and Add Section -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px">
+        <div style="position:relative;flex:1;max-width:400px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#9ca3af" style="position:absolute;left:16px;top:50%;transform:translateY(-50%)">
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+          <input type="text" placeholder="Type to search..." style="width:100%;padding:12px 16px 12px 48px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;background:#f9fafb;color:#374151;outline:none">
+        </div>
+        <button style="background:#1f2937;color:white;padding:12px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;margin-left:16px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+          Add
+        </button>
+      </div>
       
-      <button style="padding:8px 12px;border:1px solid #d1d5db;background:white;color:#6b7280;border-radius:4px;cursor:pointer;font-size:14px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
-        </svg>
-      </button>
+      <!-- Documents Grid -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px">
+        <!-- Document Card 1 -->
+        <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
+          <div style="height:180px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;position:relative">
+            <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=250&h=150&fit=crop" style="width:100%;height:100%;object-fit:cover" alt="Aadhaar Card">
+          </div>
+          <div style="padding:16px">
+            <h3 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 4px 0">Aadhaarcard_Front</h3>
+            <p style="font-size:12px;color:#6b7280;margin:0 0 16px 0">PDF • 1.32 MB</p>
+            <div style="display:flex;gap:8px">
+              <button style="flex:1;background:#374151;color:white;padding:8px 16px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                Download
+              </button>
+              <button style="width:36px;height:36px;background:#6b7280;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Document Card 2 -->
+        <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
+          <div style="height:180px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;position:relative">
+            <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=250&h=150&fit=crop" style="width:100%;height:100%;object-fit:cover" alt="Aadhaar Back">
+          </div>
+          <div style="padding:16px">
+            <h3 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 4px 0">Aadhaarcard_Back</h3>
+            <p style="font-size:12px;color:#6b7280;margin:0 0 16px 0">PDF • 4.7 MB</p>
+            <div style="display:flex;gap:8px">
+              <button style="flex:1;background:#374151;color:white;padding:8px 16px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                Download
+              </button>
+              <button style="width:36px;height:36px;background:#6b7280;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Document Card 3 -->
+        <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
+          <div style="height:180px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;position:relative">
+            <img src="https://images.unsplash.com/photo-1633265486064-086b219458ec?w=250&h=150&fit=crop" style="width:100%;height:100%;object-fit:cover" alt="PAN Card">
+          </div>
+          <div style="padding:16px">
+            <h3 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 4px 0">Pancard_Front</h3>
+            <p style="font-size:12px;color:#6b7280;margin:0 0 16px 0">JPG • 9.8 KB</p>
+            <div style="display:flex;gap:8px">
+              <button style="flex:1;background:#374151;color:white;padding:8px 16px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                Download
+              </button>
+              <button style="width:36px;height:36px;background:#1f2937;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="bank" class="tab-content" style="display:none;padding:30px">
+      <!-- Bank Details Card -->
+      <div style="max-width:500px;background:white;border:1px solid #e5e7eb;border-radius:16px;padding:40px;box-shadow:0 4px 6px rgba(0,0,0,0.05)">
+        <!-- Bank Name -->
+        <div style="margin-bottom:24px">
+          <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:16px">Bank Name :</label>
+          <input type="text" value="ICICI Bank" readonly style="width:100%;padding:14px 18px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;background:#f9fafb;color:#374151;outline:none">
+        </div>
+        
+        <!-- IFSC Code -->
+        <div style="margin-bottom:24px">
+          <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:16px">IFSC Code :</label>
+          <input type="text" value="IBKL0045458" readonly style="width:100%;padding:14px 18px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;background:#f9fafb;color:#374151;outline:none">
+        </div>
+        
+        <!-- Account Number -->
+        <div style="margin-bottom:32px">
+          <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:16px">Account Number :</label>
+          <input type="text" value="465776547675" readonly style="width:100%;padding:14px 18px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;background:#f9fafb;color:#374151;outline:none">
+        </div>
+        
+        <!-- Copy Button -->
+        <button style="background:#10b981;color:white;padding:12px 24px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;width:100%" onclick="copyBankDetails()">
+          Copy All Details
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-  <style>
-    /* Import system fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    <style>
+      /* Import system fonts */
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    /* Tab styling */
-    .tab-btn:hover {
-      color: #0ea5e9 !important;
-      border-bottom-color: #0ea5e9 !important;
-    }
-
-    .tab-btn.active {
-      color: #0ea5e9 !important;
-      border-bottom-color: #0ea5e9 !important;
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    /* Form input focus states */
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: #3b82f6 !important;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-    }
-
-    /* Placeholder styling */
-    input::placeholder,
-    textarea::placeholder {
-      color: #9ca3af !important;
-      font-weight: 400;
-    }
-
-    /* Radio button styling */
-    input[type="radio"] {
-      width: 16px;
-      height: 16px;
-      border: 2px solid #d1d5db;
-      border-radius: 50%;
-      appearance: none;
-      background: white;
-      cursor: pointer;
-      position: relative;
-    }
-
-    input[type="radio"]:checked {
-      border-color: #374151;
-      background: #374151;
-    }
-
-    input[type="radio"]:checked::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: white;
-    }
-
-    /* Select dropdown arrow */
-    select {
-      cursor: pointer;
-    }
-
-    /* Save button styling */
-    button[type="submit"] {
-      background: #10b981 !important;
-      color: white !important;
-      padding: 12px 24px !important;
-      border: none !important;
-      border-radius: 8px !important;
-      font-weight: 600 !important;
-      cursor: pointer !important;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-      transition: background-color 0.2s !important;
-    }
-
-    button[type="submit"]:hover {
-      background: #059669 !important;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .tab-content form {
-        grid-template-columns: 1fr !important;
+      /* Tab styling */
+      .tab-btn:hover {
+        color: #0ea5e9 !important;
+        border-bottom-color: #0ea5e9 !important;
       }
 
-      input,
-      select,
-      textarea {
-        padding: 12px 16px !important;
-      }
-    }
-
-    /* Typography consistency */
-    * {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    }
-
-    /* HRP Input Classes - Rectangle-29 */
-    .hrp-input.Rectangle-29 {
-      width: 100%;
-      padding: 14px 18px;
-      border: 1px solid #d1d5db;
-      border-radius: 25px;
-      font-size: 14px;
-      background: #ffffff;
-      color: #374151;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      outline: none;
-      transition: border-color 0.2s;
-      box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2), 0 1px 0 #fff;
-    }
-
-    .hrp-input.Rectangle-29:focus {
-      border-color: #3b82f6;
-      box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2), 0 1px 0 #fff, 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    .hrp-input.Rectangle-29::placeholder {
-      color: #9ca3af;
-      font-weight: 400;
-    }
-
-    .Rectangle-29-select {
-      width: 100%;
-      padding: 14px 18px;
-      border: 1px solid #d1d5db;
-      border-radius: 25px;
-      font-size: 14px;
-      background: #ffffff;
-      color: #374151;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      outline: none;
-      appearance: none;
-      background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
-      background-repeat: no-repeat;
-      background-position: right 18px center;
-      background-size: 12px;
-      cursor: pointer;
-      transition: border-color 0.2s;
-      box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2), 0 1px 0 #fff;
-    }
-
-    .Rectangle-29-select:focus {
-      border-color: #3b82f6;
-      box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2), 0 1px 0 #fff, 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    .Rectangle-29-textarea {
-      width: 100%;
-      padding: 14px 18px;
-      border: 1px solid #d1d5db;
-      border-radius: 20px;
-      font-size: 14px;
-      background: #ffffff;
-      color: #374151;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      outline: none;
-      min-height: 80px;
-      resize: vertical;
-      transition: border-color 0.2s;
-      box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2), 0 1px 0 #fff;
-    }
-
-    .Rectangle-29-textarea:focus {
-      border-color: #3b82f6;
-      box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2), 0 1px 0 #fff, 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    .hrp-label {
-      display: block;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 8px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-  </style>
-
-  <script>
-    function switchTab(tabName) {
-      // Hide all tab contents
-      document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-        tab.style.display = 'none';
-      });
-
-      // Remove active class from all tab buttons
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-        btn.style.color = '#718096';
-        btn.style.borderBottomColor = 'transparent';
-      });
-
-      // Show selected tab content
-      const selectedTab = document.getElementById(tabName);
-      if (selectedTab) {
-        selectedTab.classList.add('active');
-        selectedTab.style.display = 'block';
+      .tab-btn.active {
+        color: #0ea5e9 !important;
+        border-bottom-color: #0ea5e9 !important;
       }
 
-      // Activate selected tab button
-      const selectedBtn = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
-      if (selectedBtn) {
-        selectedBtn.classList.add('active');
-        selectedBtn.style.color = '#0ea5e9';
-        selectedBtn.style.borderBottomColor = '#0ea5e9';
+      .tab-content {
+        display: none;
       }
-    }
-  </script>
+
+      .tab-content.active {
+        display: block;
+      }
+
+      /* Form input focus states */
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+      }
+
+      /* Placeholder styling */
+      input::placeholder,
+      textarea::placeholder {
+        color: #9ca3af !important;
+        font-weight: 400;
+      }
+
+      /* Radio button styling */
+      input[type="radio"] {
+        width: 16px;
+        height: 16px;
+        border: 2px solid #d1d5db;
+        border-radius: 50%;
+        appearance: none;
+        background: white;
+        cursor: pointer;
+        position: relative;
+      }
+
+      input[type="radio"]:checked {
+        border-color: #374151;
+        background: #374151;
+      }
+
+      input[type="radio"]:checked::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: white;
+      }
+
+      /* Select dropdown arrow */
+      select {
+        cursor: pointer;
+      }
+
+      /* Save button styling */
+      button[type="submit"] {
+        background: #10b981 !important;
+        color: white !important;
+        padding: 12px 24px !important;
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        transition: background-color 0.2s !important;
+      }
+
+      button[type="submit"]:hover {
+        background: #059669 !important;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .tab-content form {
+          grid-template-columns: 1fr !important;
+        }
+
+        input,
+        select,
+        textarea {
+          padding: 12px 16px !important;
+        }
+      }
+
+      /* Typography consistency */
+      * {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      }
+
+      /* HRP Input Classes - Rectangle-29 */
+      .hrp-input.Rectangle-29 {
+        width: 100%;
+        padding: 14px 18px;
+        border: 1px solid #d1d5db;
+        border-radius: 25px;
+        font-size: 14px;
+        background: #ffffff;
+        color: #374151;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        outline: none;
+        transition: border-color 0.2s;
+        box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2), 0 1px 0 #fff;
+      }
+
+      .hrp-input.Rectangle-29:focus {
+        border-color: #3b82f6;
+        box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2), 0 1px 0 #fff, 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .hrp-input.Rectangle-29::placeholder {
+        color: #9ca3af;
+        font-weight: 400;
+      }
+
+      .Rectangle-29-select {
+        width: 100%;
+        padding: 14px 18px;
+        border: 1px solid #d1d5db;
+        border-radius: 25px;
+        font-size: 14px;
+        background: #ffffff;
+        color: #374151;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        outline: none;
+        appearance: none;
+        background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 18px center;
+        background-size: 12px;
+        cursor: pointer;
+        transition: border-color 0.2s;
+        box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2), 0 1px 0 #fff;
+      }
+
+      .Rectangle-29-select:focus {
+        border-color: #3b82f6;
+        box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2), 0 1px 0 #fff, 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .Rectangle-29-textarea {
+        width: 100%;
+        padding: 14px 18px;
+        border: 1px solid #d1d5db;
+        border-radius: 20px;
+        font-size: 14px;
+        background: #ffffff;
+        color: #374151;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        outline: none;
+        min-height: 80px;
+        resize: vertical;
+        transition: border-color 0.2s;
+        box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2), 0 1px 0 #fff;
+      }
+
+      .Rectangle-29-textarea:focus {
+        border-color: #3b82f6;
+        box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2), 0 1px 0 #fff, 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .hrp-label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+    </style>
+
+    <script>
+      function switchTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(tab => {
+          tab.classList.remove('active');
+          tab.style.display = 'none';
+        });
+
+        // Remove active class from all tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.classList.remove('active');
+          btn.style.color = '#718096';
+          btn.style.borderBottomColor = 'transparent';
+        });
+
+        // Show selected tab content
+        const selectedTab = document.getElementById(tabName);
+        if (selectedTab) {
+          selectedTab.classList.add('active');
+          selectedTab.style.display = 'block';
+        }
+
+        // Activate selected tab button
+        const selectedBtn = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
+        if (selectedBtn) {
+          selectedBtn.classList.add('active');
+          selectedBtn.style.color = '#0ea5e9';
+          selectedBtn.style.borderBottomColor = '#0ea5e9';
+        }
+      }
+      
+      function copyBankDetails() {
+        const bankDetails = `Bank Name: ICICI Bank\nIFSC Code: IBKL0045458\nAccount Number: 465776547675`;
+        navigator.clipboard.writeText(bankDetails).then(() => {
+          alert('Bank details copied to clipboard!');
+        });
+      }
+    </script>
 @endsection
