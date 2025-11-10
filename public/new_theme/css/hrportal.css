@@ -1,6 +1,34 @@
 /* Viewport behavior */
 html,body{height:100%}
 
+<<<<<<< HEAD
+/* Make native date inputs look like rounded pills */
+input.Rectangle-29[type="date"]{
+  border-radius: 413px !important;
+  overflow: hidden; /* clip inner corners */
+  background-color:#fff;
+  border:1px solid #e8e8e8;
+  padding: 10px 14px; /* compact visual */
+  height: 44px; /* match compact pill height */
+  line-height: 1; 
+  box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 0 #fff;
+}
+/* Remove spinners and normalize inner field paddings */
+input.Rectangle-29[type="date"]::-webkit-outer-spin-button,
+input.Rectangle-29[type="date"]::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
+input.Rectangle-29[type="date"]::-webkit-datetime-edit{ padding:4px 6px; border-radius:413px; background: transparent; }
+input.Rectangle-29[type="date"]::-webkit-datetime-edit-fields-wrapper{ padding:0 4px; }
+input.Rectangle-29[type="date"]::-webkit-datetime-edit-text,
+input.Rectangle-29[type="date"]::-webkit-datetime-edit-month-field,
+input.Rectangle-29[type="date"]::-webkit-datetime-edit-day-field,
+input.Rectangle-29[type="date"]::-webkit-datetime-edit-year-field{
+  padding: 0 2px;
+  border-radius: 8px;
+  background: transparent;
+}
+input.Rectangle-29[type="date"]::-webkit-calendar-picker-indicator{ padding:0 8px; cursor:pointer; opacity:.85; }
+input.Rectangle-29[type="date"]{ -webkit-appearance: none; appearance: none; }
+=======
 /* ===== Dashboard compact typography (slightly smaller, consistent) ===== */
 .dash-root{ font-size: 14px; }
 .dash-root .search-input{ font-size:14px !important }
@@ -69,6 +97,7 @@ html,body{height:100%}
 .hrp-col-7 > .hrp-card.card-p-0{ height:400px }
 .hrp-card .tabbar{ min-height:36px }
 .hrp-card-body-note{ height:calc(100% - 36px); overflow:auto }
+>>>>>>> 0fce31a799c1ff698ae121baa7b85696a8428176
 body{overflow:hidden} /* lock outer scroll */
 html, body { overflow-x: hidden; }
 
@@ -328,7 +357,11 @@ html, body { overflow-x: hidden; }
 .hrp-card{background:#ffffff;border-radius:16px;box-shadow:0 10px 24px rgba(0,0,0,.08);padding:12px;border:1px solid #f0f0f0}
 .hrp-card-body{padding:3px 2px 10px}
 .hrp-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+.hrp-col-3{grid-column:span 3}
+.hrp-col-4{grid-column:span 4}
 .hrp-col-6{grid-column:span 6}
+.hrp-col-8{grid-column:span 8}
+.hrp-col-9{grid-column:span 9}
 .hrp-col-12{grid-column:span 12}
 .hrp-col-3{grid-column:span 3}
 .hrp-col-5{grid-column:span 5}
@@ -391,23 +424,33 @@ html, body { overflow-x: hidden; }
 .Rectangle-29{
   width: 100%; /* responsive instead of fixed 713px */
   height: 58px;
-  margin: 20px 0 0;
-  padding: 21px 31px; /* left padding 31px; right balanced for full width */
+  margin: 8px 0 0;
+  padding: 16px 24px; /* balanced padding for better readability */
   border-radius: 413px;
   box-shadow: inset 0 2px 4px rgba(0,0,0,.15), 0 2px 8px rgba(0,0,0,.06);
   background-color: #fff;
-  font-size: 18px;
-  color: #414141;
+  border: 1px solid #e5e7eb;
+  font-size: 16px;
+  color: #111827;
   font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-weight: 500;
-  line-height: 0.8;
+  line-height: 1.4;
+  letter-spacing: 0.025em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 /* Make sure it wins over hrp-input base */
 .hrp-card .Rectangle-29{
   background-color:#fff !important;
   border:1px solid #e8e8e8 !important;
 }
-.Rectangle-29::placeholder{ font-size: 16px; }
+.Rectangle-29::placeholder{ 
+  font-size: 15px; 
+  color: #9ca3af; 
+  opacity: 1;
+  font-weight: 400;
+  font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
 
 /* Global form typography for inputs/selects/textarea inside app window */
 .macos-theme .hrp-window input.hrp-input,
@@ -448,11 +491,29 @@ html, body { overflow-x: hidden; }
 .macos-theme .hrp-window .hrp-form .upload-pill{ margin-top:0; }
 .macos-theme .hrp-window .hrp-form .hrp-segment{ margin-top:0; }
 
+/* Validation: error text and invalid control visuals */
+.macos-theme .hrp-window .hrp-form .hrp-error{
+  color:#ef4444; /* red */
+  font-size:13px;
+  font-weight:700;
+  margin:6px 4px 0;
+}
+.macos-theme .hrp-window .hrp-form .Rectangle-29.is-invalid,
+.macos-theme .hrp-window .hrp-form .Rectangle-29:invalid{
+  border-color:#ef4444 !important;
+  box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 0 #fff, 0 0 0 3px rgba(239,68,68,.12) !important;
+}
+.macos-theme .hrp-window .hrp-form .Rectangle-29-select.is-invalid,
+.macos-theme .hrp-window .hrp-form select.Rectangle-29-select:invalid{
+  border-color:#ef4444 !important;
+  box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 0 #fff, 0 0 0 3px rgba(239,68,68,.12) !important;
+}
+
 /* Compact variant for create/edit forms */
 .macos-theme .hrp-window .hrp-compact{ padding:24px 28px; border-radius:16px; }
 .macos-theme .hrp-window .hrp-compact .hrp-label{ font-size:14px; font-weight:800; margin: 0 4px 6px; }
 .macos-theme .hrp-window .hrp-compact .Rectangle-29{ height:44px !important; padding:10px 14px !important; border-radius:16px !important; font-size:14px !important; }
-.macos-theme .hrp-window .hrp-compact .Rectangle-29-select{ height:44px !important; line-height:44px !important; padding-right:32px !important; background-position: right 14px center, right 9px center !important; }
+.macos-theme .hrp-window .hrp-compact .Rectangle-29-select{ height:44px !important; line-height:27px !important; padding-right:32px !important; background-position: right 14px center, right 9px center !important; }
 .macos-theme .hrp-window .hrp-compact .Rectangle-29-textarea{ min-height:90px !important; padding:12px 14px !important; font-size:14px !important; border-radius:14px !important; }
 .macos-theme .hrp-window .hrp-compact .upload-pill{ height:48px; }
 .macos-theme .hrp-window .hrp-compact .upload-pill .choose{ min-width:140px; font-size:13px; }
@@ -463,18 +524,89 @@ html, body { overflow-x: hidden; }
 
 /* Uniform 58px for selects to match inputs */
 .Rectangle-29-select{
-  -webkit-appearance:none; appearance:none;
-  height:58px; line-height:58px; font-size:18px; padding-right:48px;
+  -webkit-appearance:none; 
+  appearance:none;
+  height:58px; 
+  line-height:58px; 
+  font-size:16px; 
+  padding-right:48px;
+  padding-left:24px;
   background:#fff;
   background-image: linear-gradient(45deg, transparent 50%, #9ca3af 50%), linear-gradient(135deg, #9ca3af 50%, transparent 50%);
-  background-position: right 20px center, right 15px center; background-size: 8px 8px, 8px 8px; background-repeat: no-repeat;
-  color:#111; font-weight:700; font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-position: right 20px center, right 15px center; 
+  background-size: 8px 8px, 8px 8px; 
+  background-repeat: no-repeat;
+  color:#111827; 
+  font-weight:500; 
+  font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  border: 1px solid #e5e7eb;
+  border-radius: 413px;
+  box-shadow: inset 0 2px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 0 0 #fff;
+  margin: 8px 0 0;
 }
-.Rectangle-29-select option{ color:#111; font-weight:700; }
+.Rectangle-29-select option{ 
+  color:#111827 !important; 
+  font-weight:500 !important; 
+  font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+  padding: 10px !important;
+  background: #ffffff !important;
+}
 
-/* Larger address textarea matching mock */
-.Rectangle-29-textarea{
-  width:100%; min-height:110px; padding:16px 20px; border-radius:20px; background:#fff; border:1px solid #e8e8e8; box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 0 #fff; font-size:16px;
+.Rectangle-29-select option:checked,
+.Rectangle-29-select option:selected {
+  background: #0ea5e9 !important;
+  color: #ffffff !important;
+}
+
+/* Force display of selected text */
+.Rectangle-29-select {
+  text-align: left !important;
+  text-indent: 0 !important;
+}
+
+.Rectangle-29-select:valid {
+  color: #111827 !important;
+}
+
+/* Ensure dropdown text is visible */
+.Rectangle-29-select {
+  cursor: pointer;
+}
+
+.Rectangle-29-select option:disabled {
+  color: #9ca3af !important;
+  font-style: italic;
+}
+
+/* Override any conflicting styles */
+.hrp-form .Rectangle-29-select {
+  color: #111827 !important;
+  font-weight: 500 !important;
+}
+
+.Rectangle-29-select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: inset 0 2px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 0 0 #fff, 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* Ensure select dropdown shows properly */
+.Rectangle-29-select::-ms-expand {
+  display: none;
+}
+
+.Rectangle-29-select select {
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  height: 100%;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.025em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 8px 0 0;
 }
 
 /* Styled file input look (Rectangle-25) */
@@ -527,11 +659,12 @@ html, body { overflow-x: hidden; }
 /* Specific label typography (Mobile-No) */
 .Mobile-No{
   font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-size: 25px;
+  font-size: 16px;
   font-weight: 700;
-  line-height: 0.8;
-  letter-spacing: normal;
-  color: #000;
+  line-height: 1.2;
+  letter-spacing: 0.025em;
+  color: #374151;
+  margin: 0 0 8px 0;
 }
 
 /* Segmented control (Gender) */
@@ -604,6 +737,41 @@ html, body { overflow-x: hidden; }
   border-radius: 9999px !important; /* keep round for prev/next */
 }
 
+/* Rounded white table surface (wraps hrp-table-wrap) */
+.hrp-table-surface{
+  background:#ffffff;
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  box-shadow:0 8px 22px rgba(0,0,0,.06);
+  padding:6px 6px 8px;
+}
+
+/* ===== Hiring filters row (font + alignment) ===== */
+.filters-compact{ align-items:center; }
+.filters-compact .Rectangle-29,
+.filters-compact .Rectangle-29-select{
+  height:44px !important;
+  line-height:44px !important;
+  border-radius:413px !important;
+  font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+  font-size:14px !important;
+  font-weight:800 !important;
+  color:#111 !important;
+}
+.filters-compact input[type=date].Rectangle-29{
+  padding: 0 14px !important;
+}
+.filters-compact select.Rectangle-29-select{
+  padding-left:18px !important;
+  padding-right:40px !important;
+  background-position: right 16px center, right 10px center !important;
+}
+.filters-compact #globalSearch.Rectangle-29{
+  height:44px !important;
+  line-height:44px !important;
+  padding: 0 16px !important;
+}
+
 /* ===== Hiring list table polish ===== */
 .hrp-table{
   border-collapse: separate; border-spacing: 0 0; width:100%;
@@ -613,8 +781,17 @@ html, body { overflow-x: hidden; }
   font-weight: 700; color:#111; background:#fff; border-bottom:1px solid #ececec; padding:12px 12px;
 }
 .hrp-table tbody td{
-  padding:12px 12px; color:#414141; font-weight:500; font-size:16px;
+  padding:10px 12px; color:#414141; font-weight:500; font-size:16px;
 }
+.hrp-table thead th:first-child,
+.hrp-table tbody td:first-child{ text-align:center; }
+.hrp-table thead th:nth-child(2),
+.hrp-table tbody td:nth-child(2){ text-align:center; }
+
+/* Helpers for cells */
+.td-nowrap{ white-space: nowrap; }
+.td-right{ text-align: right; }
+.td-ellipsis{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hrp-table tbody tr:nth-child(even){ background:#f8fafc; }
 .hrp-table tbody tr:hover{ background:#f1f5f9; }
 

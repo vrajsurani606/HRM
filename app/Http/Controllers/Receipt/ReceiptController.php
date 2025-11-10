@@ -4,8 +4,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 class ReceiptController extends Controller
 {
-    public function index(){ return view('section',['name'=>'receipts']); }
-    public function create(){ return view('section',['name'=>'receipt-create']); }
+    public function index(){ return view('receipts.index'); }
+    public function create(){ return view('receipts.create'); }
     public function store(Request $r){ return back()->with('success','Receipt saved'); }
     public function show($id){ return view('section',['name'=>'receipt-show']); }
     public function edit($id){ return view('section',['name'=>'receipt-edit']); }

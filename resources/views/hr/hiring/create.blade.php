@@ -49,29 +49,30 @@
   @endpush
         <div>
           <label class="hrp-label">Person Name:</label>
-          <input name="person_name" value="{{ old('person_name') }}" placeholder="Enter Full Name" class="hrp-input Rectangle-29" required>
+          <input name="person_name" value="{{ old('person_name') }}" placeholder="Enter Full Name" class="hrp-input Rectangle-29">
           @error('person_name')<p class="hrp-error">{{ $message }}</p>@enderror
         </div>
         
         <div>
           <label class="hrp-label">Mobile No:</label>
-          <input name="mobile_no" value="{{ old('mobile_no') }}" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10" required>
+          <input name="mobile_no" value="{{ old('mobile_no') }}" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10">
           @error('mobile_no')<p class="hrp-error">{{ $message }}</p>@enderror
         </div>
         <div>
           <label class="hrp-label">Address:</label>
-          <textarea name="address" placeholder="Enter Your Address" class="hrp-textarea Rectangle-29 Rectangle-29-textarea" required>{{ old('address') }}</textarea>
+          <textarea name="address" placeholder="Enter Your Address" class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('address') }}</textarea>
           @error('address')<p class="hrp-error">{{ $message }}</p>@enderror
         </div>
         <div>
           <label class="hrp-label">Position:</label>
-          <input name="position" value="{{ old('position') }}" placeholder="Enter Position" class="hrp-input Rectangle-29" required>
+          <input name="position" value="{{ old('position') }}" placeholder="Enter Position" class="hrp-input Rectangle-29">
           @error('position')<p class="hrp-error">{{ $message }}</p>@enderror
         </div>
         <div>
           <label class="hrp-label">Is experience ?:</label>
-          @php($exp = old('is_experience', '0'))
-          <select name="is_experience" id="is_experience" class="hrp-input Rectangle-29 Rectangle-29-select" required>
+          @php($exp = old('is_experience', ''))
+          <select name="is_experience" id="is_experience" class="Rectangle-29 Rectangle-29-select">
+            <option value="" disabled {{ $exp==='' ? 'selected' : '' }}>Select Experience</option>
             <option value="0" {{ $exp==='0' ? 'selected' : '' }}>No</option>
             <option value="1" {{ $exp==='1' ? 'selected' : '' }}>Yes</option>
           </select>
@@ -94,7 +95,7 @@
         </div>
         <div>
           <label class="hrp-label">Resume Upload:</label>
-          <div class="upload-pill">
+          <div class="upload-pill Rectangle-29">
             <div class="choose">Choose File</div>
             <div class="filename" id="resumeFileName">No File Chosen</div>
             <input id="resumeInput" name="resume" type="file" accept=".pdf,.doc,.docx">
@@ -105,9 +106,9 @@
           <label class="hrp-label">Gender:</label>
           @php($g = old('gender'))
           <div class="hrp-segment">
-            <input id="g-male" type="radio" name="gender" value="male" {{ $g==='male' ? 'checked' : '' }} required><label for="g-male">Male</label>
-            <input id="g-female" type="radio" name="gender" value="female" {{ $g==='female' ? 'checked' : '' }} required><label for="g-female">Female</label>
-            <input id="g-other" type="radio" name="gender" value="other" {{ $g==='other' ? 'checked' : '' }} required><label for="g-other">Other</label>
+            <input id="g-male" type="radio" name="gender" value="male" {{ $g==='male' ? 'checked' : '' }} ><label for="g-male">Male</label>
+            <input id="g-female" type="radio" name="gender" value="female" {{ $g==='female' ? 'checked' : '' }} ><label for="g-female">Female</label>
+            <input id="g-other" type="radio" name="gender" value="other" {{ $g==='other' ? 'checked' : '' }} ><label for="g-other">Other</label>
           </div>
           @error('gender')<p class="hrp-error">{{ $message }}</p>@enderror
         </div>

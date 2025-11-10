@@ -2,15 +2,44 @@
 namespace App\Http\Controllers\Inquiry;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class InquiryController extends Controller
 {
-    public function index(){ return view('section', ['name' => 'inquiries']); }
-    public function create(){ return view('inquiries.create'); }
-    public function store(Request $r){ return back()->with('status','Inquiry saved'); }
-    public function show($id){ return view('section', ['name' => 'inquiry-show']); }
-    public function edit($id){ return view('section', ['name' => 'inquiry-edit']); }
-    public function update(Request $r,$id){ return back()->with('status','Inquiry updated'); }
-    public function destroy($id){ return back()->with('status','Inquiry deleted'); }
+    public function index(): View
+    {
+        return view('inquiries.index');
+    }
+
+    public function create(): View
+    {
+        return view('inquiries.create');
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        return back()->with('status', 'Inquiry saved');
+    }
+
+    public function show(int $id): View
+    {
+        return view('inquiries.show', compact('id'));
+    }
+
+    public function edit(int $id): View
+    {
+        return view('inquiries.edit', compact('id'));
+    }
+
+    public function update(Request $request, int $id): RedirectResponse
+    {
+        return back()->with('status', 'Inquiry updated');
+    }
+
+    public function destroy(int $id): RedirectResponse
+    {
+        return back()->with('status', 'Inquiry deleted');
+    }
 }

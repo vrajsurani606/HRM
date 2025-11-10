@@ -17,6 +17,7 @@
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100 flex">
+            @include('partials.toast')
             @include('partials.sidebar')
             
             <div class="flex-1 flex flex-col">
@@ -33,7 +34,7 @@
 
                 <!-- Page Content -->
                 <main class="flex-1 p-6">
-                    {{ $slot }}
+                    @yield('content')
                 </main>
             </div>
         </div>

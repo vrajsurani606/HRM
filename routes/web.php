@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\RuleController;
 use App\Http\Controllers\HR\EmployeeController;
 use App\Http\Controllers\HR\HiringController;
 use App\Http\Controllers\Inquiry\InquiryController;
@@ -11,19 +14,17 @@ use App\Http\Controllers\Project\ProjectController;
 use App\Http\Controllers\Performa\PerformaController;
 use App\Http\Controllers\Performa\InvoiceController;
 use App\Http\Controllers\Receipt\ReceiptController;
-use App\Http\Controllers\Receipt\VoucherController;
 use App\Http\Controllers\Ticket\TicketController;
 use App\Http\Controllers\Attendance\AttendanceReportController;
 use App\Http\Controllers\Attendance\LeaveApprovalController;
 use App\Http\Controllers\Event\EventController;
-use App\Http\Controllers\Role\RoleController;
 use App\Http\Controllers\Setting\SettingController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [WelcomeController::class, 'index']);
+
+// Maintenance routes removed to avoid closures; use Artisan locally or a dedicated controller if needed
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -33,6 +34,7 @@ Route::middleware('auth')->group(function () {
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/bank', [ProfileController::class, 'updateBank'])->name('profile.bank.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Employees (example module)
@@ -40,7 +42,7 @@ Route::middleware('auth')->group(function () {
 
     // HR Hiring Leads
     Route::resource('hiring', HiringController::class);
-
+    
     // Inquiries
     Route::resource('inquiries', InquiryController::class)->only(['index','create','store','show','edit','update','destroy']);
 
@@ -78,9 +80,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('settings', SettingController::class)->only(['index','update']);
 
     // Placeholder named routes to replace generic 'section' links
-    Route::get('/payroll', function(){ return view('section', ['name' => 'payroll']); })->name('payroll.index');
-    Route::get('/payroll/create', function(){ return view('section', ['name' => 'payroll_create']); })->name('payroll.create');
-    Route::get('/rules', function(){ return view('section', ['name' => 'rules']); })->name('rules.index');
+    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+    Route::get('/payroll/create', [PayrollController::class, 'create'])->name('payroll.create');
+    Route::get('/rules', [RuleController::class, 'index'])->name('rules.index');
+    // Inquiry create/store handled by resource routes above
+
+    // Utilities
+    Route::get('/clear-cache', [MaintenanceController::class, 'clearCache'])->name('maintenance.clear-cache');
 });
 
 require __DIR__.'/auth.php';

@@ -91,23 +91,10 @@
     </form>
   </div>
 </div>
+@endsection
 
-<div class="hrp-breadcrumb">
-  <div class="crumb">Dashboard  ›  Add New Hiring Lead</div>
-  <div class="hrp-pagination" role="navigation" aria-label="Pagination">
-    <button class="hrp-page-btn" aria-label="First"><i class="fa fa-angle-double-left"></i></button>
-    <button class="hrp-page-btn" aria-label="Prev"><i class="fa fa-angle-left"></i></button>
-    <span class="hrp-pages">
-      <a href="#" class="hrp-page active">01</a>
-      <a href="#" class="hrp-page">02</a>
-      <a href="#" class="hrp-page">03</a>
-      <a href="#" class="hrp-page">04</a>
-      <a href="#" class="hrp-page">05</a>
-      <span class="hrp-ellipsis">…</span>
-      <a href="#" class="hrp-page">20</a>
-    </span>
-    <button class="hrp-page-btn" aria-label="Next"><i class="fa fa-angle-right"></i></button>
-    <button class="hrp-page-btn" aria-label="Last"><i class="fa fa-angle-double-right"></i></button>
-  </div>
-</div>
+@section('breadcrumb')
+  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">Add New Hiring Lead</span>
 @endsection

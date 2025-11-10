@@ -12,6 +12,9 @@ class Employee extends Model
     protected $fillable = [
         'code',
         'name',
+        'gender',
+        'date_of_birth',
+        'marital_status',
         'email',
         'mobile_no',
         'address',
@@ -21,6 +24,8 @@ class Employee extends Model
         'reference_no',
         'aadhaar_no',
         'pan_no',
+        'highest_qualification',
+        'year_of_passing',
         'aadhaar_photo_front',
         'aadhaar_photo_back',
         'pan_photo',
@@ -32,6 +37,9 @@ class Employee extends Model
         'photo_path',
         'experience_type',
         'previous_company_name',
+        'previous_designation',
+        'duration',
+        'reason_for_leaving',
         'previous_salary',
         'current_offer_amount',
         'has_incentive',
@@ -47,6 +55,7 @@ class Employee extends Model
         'has_incentive' => 'boolean',
         'incentive_amount' => 'decimal:2',
         'joining_date' => 'date',
+        'date_of_birth' => 'date',
     ];
 
     public function socials(){ return $this->hasOne(EmployeeSocial::class); }

@@ -4,8 +4,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 class TicketController extends Controller
 {
-    public function index(){ return view('section',['name'=>'tickets']); }
-    public function create(){ return view('section',['name'=>'ticket-create']); }
+    public function index(){ return view('tickets.index'); }
+    public function create(){ return view('tickets.create'); }
     public function store(Request $r){ return back()->with('success','Ticket saved'); }
     public function show($id){ return view('section',['name'=>'ticket-show']); }
     public function edit($id){ return view('section',['name'=>'ticket-edit']); }

@@ -16,6 +16,10 @@
     <link rel="stylesheet" href="{{ asset('new_theme/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css') }}">
     <link rel="stylesheet" href="{{ asset('new_theme/css/macos.css') }}">
     <link rel="stylesheet" href="{{ asset('new_theme/css/visby-fonts.css') }}">
+    <link rel="preload" href="{{ asset('new_theme/css/visby/VisbyRegular.otf') }}" as="font" type="font/otf" crossorigin>
+    <link rel="preload" href="{{ asset('new_theme/css/visby/VisbyMedium.otf') }}" as="font" type="font/otf" crossorigin>
+    <link rel="preload" href="{{ asset('new_theme/css/visby/VisbySemibold.otf') }}" as="font" type="font/otf" crossorigin>
+    <link rel="preload" href="{{ asset('new_theme/css/visby/VisbyBold.otf') }}" as="font" type="font/otf" crossorigin>
     <link rel="stylesheet" href="{{ asset('new_theme/css/jquery.dataTables.min.css') }}">
     <link rel="stylesheet" href="{{ asset('new_theme/css/buttons.dataTables.min.css') }}">
     <link rel="stylesheet" href="{{ asset('new_theme/dist/css/select2.min.css') }}">

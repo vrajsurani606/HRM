@@ -1,0 +1,8 @@
+@extends('layouts.macos')
+@section('page_title', 'Add Event')
+@section('content')
+<div class="max-w-3xl mx-auto">
+  <h1 class="text-2xl font-semibold text-gray-800 mb-6">Add Event</h1>
+  <div class="bg-white shadow rounded p-6">Form for creating event.</div>
+</div>
+@endsection

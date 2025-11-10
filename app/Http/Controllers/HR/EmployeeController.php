@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+use Carbon\Carbon;
 
 class EmployeeController extends Controller
 {
@@ -29,8 +32,91 @@ class EmployeeController extends Controller
                 ->rawColumns(['actions'])
                 ->make(true);
         }
+        $employees = Employee::orderByDesc('id')->paginate(12);
+        if ($employees->total() === 0) {
+            $demo = collect([
+                [
+                    'experience_type' => 'Full - Time',
+                    'photo_path' => null,
+                    'name' => 'Dipesh Vasoya',
+                    'email' => 'dipeshvasoya22@gmail.com',
+                    'position' => 'Sr. UI/UX Designer',
+                    'gender' => 'male',
+                    'code' => 'ABDPF1835R',
+                    'current_offer_amount' => 27000,
+                    'joining_date' => Carbon::parse('2025-02-23'),
+                ],
+                [
+                    'experience_type' => 'Internship',
+                    'photo_path' => null,
+                    'name' => 'Anju Tarak Ram',
+                    'email' => 'ToddReed@armyscp.com',
+                    'position' => 'Sr. Tele caller',
+                    'gender' => 'female',
+                    'code' => 'ABDPF1835R',
+                    'current_offer_amount' => 27000,
+                    'joining_date' => Carbon::parse('2025-02-23'),
+                ],
+                [
+                    'experience_type' => 'Full - Time',
+                    'photo_path' => null,
+                    'name' => 'Nehal Ashvin Bhai Gajera',
+                    'email' => 'gajeranehal9@gmail.com',
+                    'position' => 'Sr. Web Developer',
+                    'gender' => 'female',
+                    'code' => 'ABDPF1835R',
+                    'current_offer_amount' => 27000,
+                    'joining_date' => Carbon::parse('2025-02-23'),
+                ],
+                [
+                    'experience_type' => 'Remote',
+                    'photo_path' => null,
+                    'name' => 'Savalaiya Krupali Dilipbhai',
+                    'email' => 'k@gmail.com',
+                    'position' => 'Jr. UI/UX Designer',
+                    'gender' => 'female',
+                    'code' => 'ABDPF1835R',
+                    'current_offer_amount' => 27000,
+                    'joining_date' => Carbon::parse('2025-02-23'),
+                ],
+                [
+                    'experience_type' => 'Internship',
+                    'photo_path' => null,
+                    'name' => 'Vaghani Pruthvi Vijaybhai',
+                    'email' => 'pruthvivaghani02@gmail.com',
+                    'position' => 'Jr. Web Developer',
+                    'gender' => 'male',
+                    'code' => 'ABDPF1835R',
+                    'current_offer_amount' => 27000,
+                    'joining_date' => Carbon::parse('2025-02-23'),
+                ],
+                [
+                    'experience_type' => 'Freelance',
+                    'photo_path' => null,
+                    'name' => 'Vaadhavana Nikunj Hareshbhai',
+                    'email' => 'nikunjvadhavana3@gmail.com',
+                    'position' => 'Jr. Web Developer',
+                    'gender' => 'male',
+                    'code' => 'ABDPF1835R',
+                    'current_offer_amount' => 27000,
+                    'joining_date' => Carbon::parse('2025-02-23'),
+                ],
+            ])->map(function ($a) {
+                // cast to object-like for Blade access
+                return (object) $a;
+            });
+
+            $employees = new LengthAwarePaginator(
+                $demo,
+                $demo->count(),
+                12,
+                1,
+                ['path' => request()->url(), 'query' => request()->query()]
+            );
+        }
         return view('hr.employees.index', [
             'page_title' => 'Employee List',
+            'employees'  => $employees,
         ]);
     }
 
