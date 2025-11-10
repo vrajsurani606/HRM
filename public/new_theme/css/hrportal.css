@@ -1,7 +1,6 @@
 /* Viewport behavior */
 html,body{height:100%}
 
-<<<<<<< HEAD
 /* Make native date inputs look like rounded pills */
 input.Rectangle-29[type="date"]{
   border-radius: 413px !important;
@@ -28,7 +27,7 @@ input.Rectangle-29[type="date"]::-webkit-datetime-edit-year-field{
 }
 input.Rectangle-29[type="date"]::-webkit-calendar-picker-indicator{ padding:0 8px; cursor:pointer; opacity:.85; }
 input.Rectangle-29[type="date"]{ -webkit-appearance: none; appearance: none; }
-=======
+
 /* ===== Dashboard compact typography (slightly smaller, consistent) ===== */
 .dash-root{ font-size: 14px; }
 .dash-root .search-input{ font-size:14px !important }
@@ -97,7 +96,6 @@ input.Rectangle-29[type="date"]{ -webkit-appearance: none; appearance: none; }
 .hrp-col-7 > .hrp-card.card-p-0{ height:400px }
 .hrp-card .tabbar{ min-height:36px }
 .hrp-card-body-note{ height:calc(100% - 36px); overflow:auto }
->>>>>>> 0fce31a799c1ff698ae121baa7b85696a8428176
 body{overflow:hidden} /* lock outer scroll */
 html, body { overflow-x: hidden; }
 
