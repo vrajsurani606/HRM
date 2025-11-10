@@ -100,6 +100,127 @@ html, body { overflow-x: hidden; }
 .hrp-menu-toggle{display:none}
 @media (max-width: 1024px){ .hrp-menu-toggle{display:inline-block} }
 
+/* ===== Responsive: Tablet (<=1024px) ===== */
+@media (max-width: 1024px){
+  /* Cards: relax fixed height a bit */
+  .chart-card{ height:340px }
+  .hrp-col-7 > .hrp-card.card-p-0{ height:340px }
+  .chart-card .chart-body{ height:calc(100% - 36px) }
+  .chart-wrap{ height:220px }
+  /* KPIs a touch smaller */
+  .dash-root .dash-kpi .value{ font-size:26px }
+  /* Tables: tighter */
+  .dash-root .hrp-table thead th{ padding:6px }
+  .dash-root .hrp-table tbody td{ padding:6px }
+  /* Search pill smaller */
+  .dash-root .search-wrap{ min-height:34px; padding:6px 10px }
+}
+
+/* ===== Responsive: Mobile (<=640px) ===== */
+@media (max-width: 640px){
+  /* Grid fully stacked */
+  .hrp-grid{ grid-template-columns:repeat(1,1fr) }
+  /* Remove fixed heights */
+  .chart-card, .hrp-col-7 > .hrp-card.card-p-0{ height:auto }
+  .chart-card .chart-body{ height:auto }
+  .hrp-card-body-note{ height:auto; max-height:none }
+  .chart-wrap{ height:200px }
+  /* Table horizontal scroll safety */
+  .hrp-table-wrap{ overflow-x:auto }
+  /* Even tighter UI */
+  .dash-root .search-input{ font-size:13px !important }
+  .dash-root #globalSearch{ font-size:13px !important }
+  .dash-root .notes-area{ font-size:15px }
+  /* Window/container: fully fluid, no side margins or min-width */
+  .hrp-window{ min-width:0; width:100%; height:auto; margin:0; border-radius:0 }
+  .hrp-shell{ padding:0; height:auto; overflow:visible }
+  .hrp-main{ padding-left:0; height:auto; overflow:visible }
+  .hrp-content{ padding:10px 10px 72px; overflow:visible }
+  /* Hide bottom dock on small screens to prevent overlap */
+  .mac-dock-bottom{ display:none }
+  /* Prevent horizontal scroll */
+  html, body{ overflow-x:hidden }
+}
+
+/* ===== Extra-small mobile (<=480px) ===== */
+@media (max-width: 480px){
+  .hrp-grid{ gap:10px }
+  .hrp-header{ padding:8px 10px }
+  .hrp-page-title{ font-size:18px }
+  .top-right{ gap:6px }
+  .dash-root .search-wrap{ min-height:32px; padding:4px 8px }
+  .dash-root .search-ico{ width:20px; height:20px }
+  .dash-root .search-ico svg{ width:12px; height:12px }
+  .dash-root .search-input{ font-size:12px !important }
+  .dash-root .dash-kpi{ padding:10px }
+  .dash-root .dash-kpi .value{ font-size:24px }
+  .dash-root .hrp-card{ padding:8px }
+  .dash-root .hrp-card .hrp-card-body{ padding:6px }
+  .chart-legend .doughnut-legend{ gap:6px 12px }
+  .chart-legend .doughnut-legend li{ font-size:11px }
+  .chart-wrap{ height:180px }
+  .dash-root .hrp-table thead th{ font-size:11px !important; padding:6px 6px }
+  .dash-root .hrp-table tbody td{ font-size:12px !important; padding:6px 6px }
+  .dash-root .notes-area{ min-height:90px; font-size:15px }
+}
+
+/* ===== Tiny devices (<=360px) ===== */
+@media (max-width: 360px){
+  .hrp-grid{ gap:8px }
+  .hrp-header{ padding:6px 8px }
+  .hrp-page-title{ font-size:16px }
+  .dash-root .search-wrap{ min-height:30px; padding:4px 8px; border-radius:20px }
+  .dash-root .notify-bell{ width:24px; height:24px }
+  .dash-root .dash-kpi{ padding:8px }
+  .dash-root .dash-kpi .value{ font-size:22px }
+  .chart-wrap{ height:160px }
+  .chart-card .tabbar-chart{ min-height:32px }
+  .hrp-card .tabbar{ min-height:32px }
+  .chart-legend .doughnut-legend li{ font-size:10px }
+}
+
+/* Sidebar tweaks */
+.hrp-menu .hrp-sub{ 
+  max-height: 0; 
+  opacity: 0; 
+  overflow: hidden; 
+  transform: translateY(-4px); 
+  transition: max-height .26s ease, opacity .2s ease, transform .26s ease; 
+}
+/* expanded states per group */
+.hrp-menu-item[data-group="hrm"].open ~ .hrp-sub[data-group="hrm"],
+.hrp-menu-item[data-group="hrm"].active-parent ~ .hrp-sub[data-group="hrm"]{
+  max-height: 44px; opacity: 1; transform: none;
+}
+.hrp-menu-item[data-group="inquiry"].open ~ .hrp-sub[data-group="inquiry"],
+.hrp-menu-item[data-group="inquiry"].active-parent ~ .hrp-sub[data-group="inquiry"]{
+  max-height: 44px; opacity: 1; transform: none;
+}
+.hrp-menu-item[data-group="quotation"].open ~ .hrp-sub[data-group="quotation"],
+.hrp-menu-item[data-group="quotation"].active-parent ~ .hrp-sub[data-group="quotation"]{
+  max-height: 44px; opacity: 1; transform: none;
+}
+.hrp-menu-item[data-group="company"].open ~ .hrp-sub[data-group="company"],
+.hrp-menu-item[data-group="company"].active-parent ~ .hrp-sub[data-group="company"]{
+  max-height: 44px; opacity: 1; transform: none;
+}
+.hrp-menu-item[data-group="invoice"].open ~ .hrp-sub[data-group="invoice"],
+.hrp-menu-item[data-group="invoice"].active-parent ~ .hrp-sub[data-group="invoice"]{
+  max-height: 44px; opacity: 1; transform: none;
+}
+.hrp-menu-item[data-group="payroll"].open ~ .hrp-sub[data-group="payroll"],
+.hrp-menu-item[data-group="payroll"].active-parent ~ .hrp-sub[data-group="payroll"]{
+  max-height: 44px; opacity: 1; transform: none;
+}
+.hrp-menu-item[data-group="project"].open ~ .hrp-sub[data-group="project"],
+.hrp-menu-item[data-group="project"].active-parent ~ .hrp-sub[data-group="project"]{
+  max-height: 44px; opacity: 1; transform: none;
+}
+.hrp-menu-item[data-group="attendance"].open ~ .hrp-sub[data-group="attendance"],
+.hrp-menu-item[data-group="attendance"].active-parent ~ .hrp-sub[data-group="attendance"]{
+  max-height: 44px; opacity: 1; transform: none;
+}
+
 /* Sidebar */
 .hrp-sidebar-inner{background:#E8E3DFCC;height:100%;border-radius:0;box-shadow:none;padding:6px 0 0 8px;border-right:0;box-sizing:border-box;display:flex;flex-direction:column}
 .hrp-side-top{display:flex;align-items:center;justify-content:space-between;padding:6px 6px 10px 6px}

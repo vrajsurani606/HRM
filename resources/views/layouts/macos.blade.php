@@ -48,18 +48,18 @@
 
     <!-- Bottom Dock (fixed like macOS) -->
     <div class="mac-dock mac-dock-bottom">
-        <a class="dock-item" data-section="dashboard" href="{{ route('section', ['name' => 'dashboard']) }}" title="Dashboard"><img src="{{ asset('Doc_icon/Dashboard.png') }}" alt="Dashboard" /></a>
-        <a class="dock-item" data-section="hrm" href="{{ route('section', ['name' => 'hrm']) }}" title="HRM"><img src="{{ asset('Doc_icon/HRM.png') }}" alt="HRM" /></a>
-        <a class="dock-item" data-section="inquiry-mgmt" href="{{ route('section', ['name' => 'inquiry-mgmt']) }}" title="Inquiry Mgmt."><img src="{{ asset('Doc_icon/Inquiry Management.png') }}" alt="Inquiry Mgmt." /></a>
-        <a class="dock-item" data-section="quotation-mgmt" href="{{ route('section', ['name' => 'quotation-mgmt']) }}" title="Quotation Mgmt."><img src="{{ asset('Doc_icon/Quotation Management.png') }}" alt="Quotation Mgmt." /></a>
-        <a class="dock-item" data-section="company" href="{{ route('section', ['name' => 'company']) }}" title="Company"><img src="{{ asset('Doc_icon/Company Information.png') }}" alt="Company" /></a>
-        <a class="dock-item" data-section="invoice-mgmt" href="{{ route('section', ['name' => 'invoice-mgmt']) }}" title="Invoice Mgmt."><img src="{{ asset('Doc_icon/Performa Management.png') }}" alt="Invoice Mgmt." /></a>
-        <a class="dock-item" data-section="payroll-mgmt" href="{{ route('section', ['name' => 'payroll-mgmt']) }}" title="Payroll Mgmt."><img src="{{ asset('Doc_icon/Payroll Management.png') }}" alt="Payroll Mgmt." /></a>
-        <a class="dock-item" data-section="project-task-mgmt" href="{{ route('section', ['name' => 'project-task-mgmt']) }}" title="Project & Task Mgmt."><img src="{{ asset('Doc_icon/Project & Task Management.png') }}" alt="Project & Task Mgmt." /></a>
-        <a class="dock-item" data-section="ticket" href="{{ route('section', ['name' => 'ticket']) }}" title="Ticket"><img src="{{ asset('Doc_icon/Ticket Support System.png') }}" alt="Ticket" /></a>
-        <a class="dock-item" data-section="attendance-mgmt" href="{{ route('section', ['name' => 'attendance-mgmt']) }}" title="Attendance Mgmt."><img src="{{ asset('Doc_icon/Attendance Management.png') }}" alt="Attendance Mgmt." /></a>
-        <a class="dock-item" data-section="events-mgmt" href="{{ route('section', ['name' => 'events-mgmt']) }}" title="Events Mgmt."><img src="{{ asset('Doc_icon/Event Management..png') }}" alt="Events Mgmt." /></a>
-        <a class="dock-item" data-section="rules-regulations" href="{{ route('section', ['name' => 'rules-regulations']) }}" title="Rules & Regulations"><img src="{{ asset('Doc_icon/Rules & Regulations.png') }}" alt="Rules & Regulations" /></a>
+        <a class="dock-item" data-section="dashboard" href="{{ route('dashboard') }}" title="Dashboard"><img src="{{ asset('Doc_icon/Dashboard.png') }}" alt="Dashboard" /></a>
+        <a class="dock-item" data-section="hrm" href="{{ route('hiring.index') }}" title="HRM"><img src="{{ asset('Doc_icon/HRM.png') }}" alt="HRM" /></a>
+        <a class="dock-item" data-section="inquiry-mgmt" href="{{ route('inquiries.index') }}" title="Inquiry Mgmt."><img src="{{ asset('Doc_icon/Inquiry Management.png') }}" alt="Inquiry Mgmt." /></a>
+        <a class="dock-item" data-section="quotation-mgmt" href="{{ route('quotations.index') }}" title="Quotation Mgmt."><img src="{{ asset('Doc_icon/Quotation Management.png') }}" alt="Quotation Mgmt." /></a>
+        <a class="dock-item" data-section="company" href="{{ route('companies.index') }}" title="Company"><img src="{{ asset('Doc_icon/Company Information.png') }}" alt="Company" /></a>
+        <a class="dock-item" data-section="invoice-mgmt" href="{{ route('performas.index') }}" title="Invoice Mgmt."><img src="{{ asset('Doc_icon/Performa Management.png') }}" alt="Invoice Mgmt." /></a>
+        <a class="dock-item" data-section="payroll-mgmt" href="{{ route('payroll.index') }}" title="Payroll Mgmt."><img src="{{ asset('Doc_icon/Payroll Management.png') }}" alt="Payroll Mgmt." /></a>
+        <a class="dock-item" data-section="project-task-mgmt" href="{{ route('projects.index') }}" title="Project & Task Mgmt."><img src="{{ asset('Doc_icon/Project & Task Management.png') }}" alt="Project & Task Mgmt." /></a>
+        <a class="dock-item" data-section="ticket" href="{{ route('tickets.index') }}" title="Ticket"><img src="{{ asset('Doc_icon/Ticket Support System.png') }}" alt="Ticket" /></a>
+        <a class="dock-item" data-section="attendance-mgmt" href="{{ route('attendance.report') }}" title="Attendance Mgmt."><img src="{{ asset('Doc_icon/Attendance Management.png') }}" alt="Attendance Mgmt." /></a>
+        <a class="dock-item" data-section="events-mgmt" href="{{ route('events.index') }}" title="Events Mgmt."><img src="{{ asset('Doc_icon/Event Management..png') }}" alt="Events Mgmt." /></a>
+        <a class="dock-item" data-section="rules-regulations" href="{{ route('rules.index') }}" title="Rules & Regulations"><img src="{{ asset('Doc_icon/Rules & Regulations.png') }}" alt="Rules & Regulations" /></a>
     </div>
 
 </div>

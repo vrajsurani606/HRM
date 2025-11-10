@@ -107,7 +107,7 @@
 @section('breadcrumb')
   <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
   <span class="hrp-bc-sep">›</span>
-  <a href="{{ route('section',['name'=>'hr']) }}" style="font-weight:800;color:#0f0f0f;text-decoration:none">HRM</a>
+  <a href="{{ route('hiring.index') }}" style="font-weight:800;color:#0f0f0f;text-decoration:none">HRM</a>
   <span class="hrp-bc-sep">›</span>
   <span class="hrp-bc-current">Hiring Lead Master</span>
 @endsection

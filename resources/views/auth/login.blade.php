@@ -3,62 +3,79 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Login | HR Portal</title>
-   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script>
+    (function() {
+      const appearance = 'system';
+      if (appearance === 'system') {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) {
+          document.documentElement.classList.add('dark');
+        }
+      }
+    })();
+  </script>
+  <style>
+    html { background-color: oklch(1 0 0); }
+    html.dark { background-color: oklch(0.145 0 0); }
+  </style>
+  <link rel="preconnect" href="https://fonts.bunny.net">
+  <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
-  <!-- lottie player (used only as renderer) -->
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js" defer></script>
 </head>
-<body class="bg-gradient-to-br from-indigo-50 via-white to-slate-100 min-h-screen flex items-center justify-center">
+<body class="min-h-screen bg-white dark:bg-slate-900 font-[Instrument_Sans]">
 
-  <div class="bg-white/80 backdrop-blur-xl shadow-2xl rounded-2xl p-8 md:p-10 w-full max-w-5xl flex flex-col md:flex-row items-center">
-    <!-- Left: animation container -->
-    <div id="animation-area" class="hidden md:flex w-1/2 justify-center items-center">
-      <!-- lottie-player will be injected here dynamically by JS -->
-      <div id="lottie-wrapper" style="width:100%; max-width:420px; height:350px; display:flex; align-items:center; justify-content:center;">
-        <!-- Loading spinner while deciding -->
-        <div id="lottie-loading" class="text-gray-400">Loading animation…</div>
+  <div class="min-h-screen grid grid-cols-1 lg:grid-cols-2">
+    <div class="hidden lg:flex items-center justify-center p-8 bg-white dark:bg-slate-800">
+      <div class="w-full h-full max-w-4xl max-h-[90vh] flex items-center justify-center">
+        <lottie-player
+          src="{{ asset('lottie/hr-animation.json') }}"
+          background="transparent"
+          speed="1"
+          loop
+          autoplay
+          style="width:100%;height:100%;max-height:90vh;"
+        ></lottie-player>
       </div>
-    </div>
+    </div>  
 
-    <!-- Right: login form -->
-    <div class="w-full md:w-1/2 space-y-6">
-      <div class="text-center md:text-left">
-        <h2 class="text-3xl font-bold text-gray-800">Welcome Back 👋</h2>
-        <p class="text-gray-500 text-sm mt-2">Sign in to continue to your HR Dashboard</p>
+    <div class="flex items-center justify-center p-6 md:p-12 bg-slate-50 dark:bg-slate-900">
+      <div class="w-full max-w-md">
+        <div class="text-center lg:text-left mb-6">
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Log in to your account</h1>
+          <p class="text-slate-600 dark:text-slate-400">Enter your credentials to access your account</p>
+        </div>
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 md:p-8 border border-slate-200 dark:border-slate-700">
+          <form method="POST" action="{{ route('login') }}" class="space-y-5">
+            @csrf
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+              <input type="email" name="email" id="email" required autocomplete="email"
+                     class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-4 py-3 outline-none focus-visible:ring-[3px] focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 transition"
+                     placeholder="you@company.com">
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+                <a href="{{ route('password.request') }}" class="text-emerald-600 hover:underline text-sm">Forgot Password?</a>
+              </div>
+              <input type="password" name="password" id="password" required autocomplete="current-password"
+                     class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-4 py-3 outline-none focus-visible:ring-[3px] focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 transition"
+                     placeholder="••••••••">
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <label class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <input type="checkbox" name="remember" class="rounded border-gray-300 text-emerald-600"> Remember me
+              </label>
+            </div>
+            <button type="submit" class="w-full h-11 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-md hover:shadow-lg transition">Log in</button>
+            <p class="text-center text-sm text-gray-600 dark:text-gray-400">Don't have an account? <a href="{{ route('register') }}" class="text-emerald-600 hover:underline font-medium">Sign up</a></p>
+          </form>
+        </div>
       </div>
-
-      <form method="POST" action="{{ route('login') }}" class="space-y-5">
-        @csrf
-        <div>
-          <label for="email" class="block text-gray-600 mb-1">Email Address</label>
-          <input type="email" name="email" id="email" required
-                 class="w-full border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 rounded-xl px-4 py-3 outline-none transition"
-                 placeholder="you@company.com">
-        </div>
-
-        <div>
-          <label for="password" class="block text-gray-600 mb-1">Password</label>
-          <input type="password" name="password" id="password" required
-                 class="w-full border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 rounded-xl px-4 py-3 outline-none transition"
-                 placeholder="••••••••">
-        </div>
-
-        <div class="flex items-center justify-between text-sm">
-          <label class="flex items-center gap-2 text-gray-500">
-            <input type="checkbox" name="remember" class="text-indigo-600 rounded"> Remember me
-          </label>
-          <a href="{{ route('password.request') }}" class="text-indigo-600 hover:underline">Forgot Password?</a>
-        </div>
-
-        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 transition text-white font-semibold rounded-xl py-3 shadow-lg">
-          Sign In
-        </button>
-
-        <p class="text-center text-sm text-gray-500 mt-4">
-          Don’t have an account? <a href="{{ route('register') }}" class="text-indigo-600 hover:underline">Create one</a>
-        </p>
-      </form>
     </div>
   </div>
 
