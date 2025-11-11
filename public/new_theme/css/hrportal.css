@@ -294,7 +294,7 @@ html, body { overflow-x: hidden; }
 
 /* Header */
 .hrp-header{display:flex;align-items:center;justify-content:space-between;background:#FDF5F3;border-radius:0;padding:10px 14px;border:1px solid #efe8e4;box-shadow:inset 0 -1px 0 #ece7e3;border-left:0;border-top:0;border-right:0;margin-left:0}
-.hrp-page-title{margin:0;font-size:20px;font-weight:800;color:#111}
+.hrp-page-title{margin:0;font-size:25px;font-weight:800;color:#111}
 .hrp-header-left{display:flex;align-items:center;gap:12px}
 .hrp-window-dots{display:flex;gap:8px;margin-right:4px}
 .hrp-window-dots .hrp-dot{width:12px;height:12px;border-radius:9999px;display:inline-block;box-shadow:inset 0 -1px 0 rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06)}

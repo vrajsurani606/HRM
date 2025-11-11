@@ -5,6 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>HRPortal — Modern HR for People-First Companies</title>
+  <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
 
   <!-- Tailwind (CDN for demo; for production compile with PostCSS) -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
@@ -44,7 +45,7 @@
     /* minimal focus outline */
     .focus-ring:focus { outline: 2px solid rgba(37,99,235,0.18); outline-offset: 3px; }
     /* Responsive Lottie container */
-    #lottieHero { width: 100%; max-width: 640px; aspect-ratio: 16/10; height: auto; }
+    #lottieHero { width: 100%; height: auto; aspect-ratio: 16/9; }
   </style>
 </head>
 <body class="antialiased text-slate-800 bg-soft-1">
@@ -112,7 +113,7 @@
     <div class="blob left-1/4 top-8 w-96 h-96 rounded-full bg-gradient-to-br from-indigo-100 via-sky-100 to-rose-50"></div>
     <div class="blob right-10 top-48 w-72 h-72 rounded-full bg-gradient-to-br from-cyan-50 via-indigo-50 to-pink-50"></div>
 
-    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+    <div class="max-w-7xl xl:max-w-[80rem] 2xl:max-w-[90rem] mx-auto px-6 grid md:[grid-template-columns:1fr_1.35fr] xl:[grid-template-columns:1fr_1.5fr] gap-12 items-center">
       <div class="z-10">
         <div class="inline-flex items-center gap-3 bg-white/75 glass px-3 py-1 rounded-full text-sm shadow-sm">
           <span class="text-indigo-600 font-semibold">New</span>
@@ -184,288 +185,194 @@
       <div class="relative">
         <div id="lottieHero" class="mx-auto"></div>
 
-        <!-- floating feature cards -->
-        <div class="absolute top-6 left-6 w-44 p-4 rounded-2xl glass shadow-lg feature-card">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-lg bg-white flex items-center justify-center feature-icon shadow">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 12v7M7 8a5 5 0 1010 0" stroke="#2563eb" stroke-width="1.4" stroke-linecap="round"/></svg>
-            </div>
-            <div>
-              <div class="text-sm font-semibold">Active 1,210</div>
-              <div class="text-xs text-slate-500">employees</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="absolute bottom-10 right-10 w-56 p-5 rounded-2xl bg-white shadow-lg">
-          <div class="text-sm text-slate-500">Payroll run</div>
-          <div class="mt-2 flex items-baseline gap-3">
-            <div class="text-2xl font-bold text-indigo-600">$128,430</div>
-            <div class="text-xs text-slate-400">Last 30 days</div>
-          </div>
-        </div>
+       
 
       </div>
     </div>
   </section>
 
-  <!-- FEATURES GRID - interactive -->
-  <section id="features" class="py-20">
+  <!-- QUICK ACCESS (Internal portal) -->
+  <section id="quick-access" class="py-16">
     <div class="max-w-7xl mx-auto px-6">
       <div class="text-center max-w-2xl mx-auto">
-        <h2 class="text-3xl font-extrabold">Comprehensive HR features — designed for teams</h2>
-        <p class="mt-3 text-slate-600">Everything HR needs: onboarding, payroll, performance, compliance and people analytics — with powerful automation and integrations.</p>
+        <h2 class="text-3xl font-extrabold">Quick Access</h2>
+        <p class="mt-3 text-slate-600">Jump straight to modules you use every day.</p>
       </div>
-
-      <div class="mt-12 grid md:grid-cols-3 gap-8">
-        <!-- interactive card -->
-        <article class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition feature-card">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-lg bg-indigo-50 flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4zM6 20v-1a4 4 0 014-4h4a4 4 0 014 4v1" stroke="#2563eb" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <a href="{{ route('employees.index') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-indigo-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 11c2 0 4-1 4-4s-2-4-4-4-4 1-4 4 2 4 4 4zM6 20v-1c0-1.657 2.686-3 6-3s6 1.343 6 3v1" stroke="#2563eb" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
             <div>
-              <h3 class="font-semibold text-lg">Smart Onboarding</h3>
-              <p class="mt-1 text-sm text-slate-500">Automate offers, e-signatures, document collection and induction workflows.</p>
+              <div class="font-semibold">Employees</div>
+              <div class="text-xs text-slate-500">Directory & onboarding</div>
             </div>
           </div>
-          <div class="mt-4 text-xs text-slate-400">Templates, auto-reminders & compliance checks</div>
-        </article>
-
-        <article class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition feature-card">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-lg bg-emerald-50 flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 8v8M8 12h8M4 4h16v16H4z" stroke="#059669" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="{{ route('payroll.index') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M6 10h12M8 14h8M10 18h4" stroke="#059669" stroke-width="1.4" stroke-linecap="round"/></svg>
             </div>
             <div>
-              <h3 class="font-semibold text-lg">Payroll & Compliance</h3>
-              <p class="mt-1 text-sm text-slate-500">Multi-jurisdiction payroll engine, tax rules and audit logs built-in.</p>
+              <div class="font-semibold">Payroll</div>
+              <div class="text-xs text-slate-500">Runs & rules</div>
             </div>
           </div>
-          <div class="mt-4 text-xs text-slate-400">Payslips, auto-calcs & exports</div>
-        </article>
-
-        <article class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition feature-card">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-lg bg-yellow-50 flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 20v-6M8 12h8M12 6v.01" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="{{ route('inquiries.index') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-amber-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 6h16v12H4zM8 10h8" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/></svg>
             </div>
             <div>
-              <h3 class="font-semibold text-lg">Performance & OKRs</h3>
-              <p class="mt-1 text-sm text-slate-500">Goal setting, continuous feedback and performance cycles that scale.</p>
+              <div class="font-semibold">Inquiries</div>
+              <div class="text-xs text-slate-500">Leads & contact</div>
             </div>
           </div>
-          <div class="mt-4 text-xs text-slate-400">1:1s, reviews & recognition</div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- INTEGRATIONS -->
-  <section id="integrations" class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-6">
-      <div class="flex items-center justify-between flex-col sm:flex-row gap-4 sm:gap-0">
-        <div>
-          <h3 class="text-2xl font-extrabold">Integrates with the tools your team already uses</h3>
-          <p class="text-slate-600 mt-2">Connect Slack, Google Workspace, Microsoft Teams, ADP and more — single sign-on & SCIM supported.</p>
-        </div>
-        <div class="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
-          <a class="px-4 py-2 bg-white border rounded-lg shadow" href="#"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/slack/slack-original.svg" class="h-6 sm:h-7" alt="Slack"></a>
-          <a class="px-4 py-2 bg-white border rounded-lg shadow" href="#"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" class="h-6 sm:h-7" alt="Google"></a>
-          <a class="px-4 py-2 bg-white border rounded-lg shadow" href="#"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoft/microsoft-original.svg" class="h-6 sm:h-7" alt="MS"></a>
-        </div>
-      </div>
-
-      <div class="mt-8 grid md:grid-cols-4 gap-6">
-        <div class="p-4 bg-slate-50 rounded-xl text-center">
-          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/slack/slack-original.svg" alt="" class="h-10 mx-auto" />
-          <div class="mt-2 text-sm font-medium">Slack</div>
-        </div>
-        <div class="p-4 bg-slate-50 rounded-xl text-center">
-          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="" class="h-10 mx-auto" />
-          <div class="mt-2 text-sm font-medium">Google Workspace</div>
-        </div>
-        <div class="p-4 bg-slate-50 rounded-xl text-center">
-          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoft/microsoft-original.svg" alt="" class="h-10 mx-auto" />
-          <div class="mt-2 text-sm font-medium">Microsoft</div>
-        </div>
-        <div class="p-4 bg-slate-50 rounded-xl text-center">
-          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="" class="h-10 mx-auto" />
-          <div class="mt-2 text-sm font-medium">GitHub</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- STATS with animated counters -->
-  <section class="py-16">
-    <div class="max-w-7xl mx-auto px-6">
-      <div class="grid md:grid-cols-3 gap-8 text-center">
-        <div class="bg-white p-6 rounded-2xl shadow">
-          <div class="text-3xl font-extrabold text-indigo-600" data-target="12840">0</div>
-          <div class="mt-2 text-slate-500">Employees Managed</div>
-        </div>
-        <div class="bg-white p-6 rounded-2xl shadow">
-          <div class="text-3xl font-extrabold text-indigo-600" data-target="860">0</div>
-          <div class="mt-2 text-slate-500">Companies</div>
-        </div>
-        <div class="bg-white p-6 rounded-2xl shadow">
-          <div class="text-3xl font-extrabold text-indigo-600" data-target="99.9">0%</div>
-          <div class="mt-2 text-slate-500">Uptime</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- TESTIMONIALS (Swiper) -->
-  <section class="py-20 bg-white">
-    <div class="max-w-6xl mx-auto px-6">
-      <h3 class="text-2xl font-extrabold text-center">What HR leaders say</h3>
-      <div class="swiper mt-8">
-        <div class="swiper-wrapper">
-          <div class="swiper-slide bg-white p-8 rounded-2xl shadow">
-            <p class="text-slate-600">“Switching to HRPortal reduced our payroll time by 70% and improved employee satisfaction.”</p>
-            <div class="mt-4 font-semibold">— Ananya Rao, Head of People</div>
-          </div>
-          <div class="swiper-slide bg-white p-8 rounded-2xl shadow">
-            <p class="text-slate-600">“The onboarding automation gave us the structure and compliance checks we needed.”</p>
-            <div class="mt-4 font-semibold">— Dinesh Kumar, HR Manager</div>
-          </div>
-          <div class="swiper-slide bg-white p-8 rounded-2xl shadow">
-            <p class="text-slate-600">“Intuitive dashboards and real-time analytics — a must for scaling teams.”</p>
-            <div class="mt-4 font-semibold">— Meera Singh, COO</div>
-          </div>
-        </div>
-        <div class="swiper-pagination mt-6"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PRICING with monthly/annual toggle -->
-  <section id="pricing" class="py-24 bg-soft-1">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center">
-        <h3 class="text-3xl font-extrabold">Pricing built for teams</h3>
-        <p class="mt-2 text-slate-600">Transparent plans — no hidden fees. Try free for 14 days.</p>
-
-        <div class="inline-flex items-center gap-3 mt-6 bg-white rounded-full p-1 shadow">
-          <span class="text-sm text-slate-600">Monthly</span>
-          <button id="billingToggle" class="w-14 h-7 rounded-full bg-indigo-600 relative transition" aria-pressed="false">
-            <span class="absolute w-6 h-6 rounded-full bg-white shadow transform translate-x-0" id="billingKnob"></span>
-          </button>
-          <span class="text-sm text-slate-600">Annual <span class="text-xs text-emerald-600 font-medium">Save 20%</span></span>
-        </div>
-      </div>
-
-      <div class="mt-10 grid md:grid-cols-3 gap-6">
-        <div class="p-6 bg-white rounded-2xl shadow">
-          <div class="flex items-center justify-between">
+        </a>
+        <a href="{{ route('quotations.index') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-sky-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 4h12v16H6zM8 8h8M8 12h6M8 16h5" stroke="#0284c7" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
             <div>
-              <h4 class="font-semibold">Starter</h4>
-              <div class="text-slate-500 text-sm">For small teams</div>
+              <div class="font-semibold">Quotations</div>
+              <div class="text-xs text-slate-500">Quotes & proposals</div>
             </div>
-            <div class="text-indigo-600 font-bold text-xl" data-price-month="19" data-price-year="182">$19</div>
           </div>
-          <ul class="mt-4 text-sm text-slate-600 space-y-2">
-            <li>Up to 25 employees</li>
-            <li>Payroll exports</li>
-            <li>Basic analytics</li>
-          </ul>
-          <a href="#" class="mt-6 inline-block w-full text-center bg-indigo-600 text-white py-3 rounded-lg">Start trial</a>
-        </div>
-
-        <div class="p-6 bg-white rounded-2xl shadow-lg border-2 border-indigo-50 transform scale-105">
-          <div class="flex items-center justify-between">
+        </a>
+        <a href="{{ route('companies.index') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-violet-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 20h18M4 18V6a2 2 0 012-2h6v14M12 9h6v9" stroke="#7c3aed" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
             <div>
-              <h4 class="font-semibold">Pro <span class="ml-2 px-2 py-1 text-xs rounded-full popular-badge">Popular</span></h4>
-              <div class="text-slate-500 text-sm">For growing companies</div>
+              <div class="font-semibold">Companies</div>
+              <div class="text-xs text-slate-500">Accounts & clients</div>
             </div>
-            <div class="text-indigo-600 font-bold text-xl" data-price-month="49" data-price-year="470">$49</div>
           </div>
-          <ul class="mt-4 text-sm text-slate-600 space-y-2">
-            <li>Unlimited employees</li>
-            <li>Advanced analytics</li>
-            <li>Priority support</li>
-          </ul>
-          <a href="#" class="mt-6 inline-block w-full text-center bg-indigo-600 text-white py-3 rounded-lg">Start trial</a>
-        </div>
-
-        <div class="p-6 bg-white rounded-2xl shadow">
-          <div class="flex items-center justify-between">
+        </a>
+        <a href="{{ route('projects.index') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-cyan-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M6 10h12M6 14h8M6 18h10" stroke="#06b6d4" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
             <div>
-              <h4 class="font-semibold">Enterprise</h4>
-              <div class="text-slate-500 text-sm">Custom solutions</div>
+              <div class="font-semibold">Projects</div>
+              <div class="text-xs text-slate-500">Boards & tasks</div>
             </div>
-            <div class="text-indigo-600 font-bold text-xl">Custom</div>
           </div>
-          <ul class="mt-4 text-sm text-slate-600 space-y-2">
-            <li>Dedicated CSM</li>
-            <li>Custom integrations</li>
-            <li>SLA & compliance</li>
-          </ul>
-          <a href="#" class="mt-6 inline-block w-full text-center border border-indigo-600 text-indigo-600 py-3 rounded-lg">Contact sales</a>
+        </a>
+        <a href="{{ route('performas.index') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-slate-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 4h12v16H6zM8 8h8M8 12h6M8 16h5" stroke="#334155" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold">Performas</div>
+              <div class="text-xs text-slate-500">Proforma bills</div>
+            </div>
+          </div>
+        </a>
+        <a href="{{ route('invoices.index') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 4h12v16H6zM8 8h8M8 12h6M8 16h5" stroke="#059669" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold">Invoices</div>
+              <div class="text-xs text-slate-500">Billing</div>
+            </div>
+          </div>
+        </a>
+        <a href="{{ route('receipts.index') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-yellow-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 4h12v16H6zM8 8h8M8 12h6" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold">Receipts</div>
+              <div class="text-xs text-slate-500">Payments</div>
+            </div>
+          </div>
+        </a>
+        <a href="{{ route('tickets.index') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-rose-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v8H4z" stroke="#e11d48" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold">Tickets</div>
+              <div class="text-xs text-slate-500">Support & issues</div>
+            </div>
+          </div>
+        </a>
+        <a href="{{ route('attendance.report') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-blue-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 6h12M6 10h12M6 14h8" stroke="#3b82f6" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold">Attendance</div>
+              <div class="text-xs text-slate-500">Reports</div>
+            </div>
+          </div>
+        </a>
+        <a href="{{ route('leave-approval.index') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-fuchsia-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="#a21caf" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold">Leave Approval</div>
+              <div class="text-xs text-slate-500">Approvals</div>
+            </div>
+          </div>
+        </a>
+        <a href="{{ route('events.index') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-purple-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 4v3M17 4v3M4 9h16v11H4z" stroke="#8b5cf6" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold">Events</div>
+              <div class="text-xs text-slate-500">Calendar</div>
+            </div>
+          </div>
+        </a>
+        <a href="{{ route('settings.index') }}" class="p-5 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-slate-50 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="#334155" stroke-width="1.4"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V22a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H2a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 007 4.6V4a2 2 0 014 0v.09c0 .66.39 1.26 1 1.51.5.24 1.08.24 1.58 0a1.65 1.65 0 001-1.51V4a2 2 0 014 0v.6c0 .66.39 1.26 1 1.51l.06.06a2 2 0 012.83 2.83l-.06.06c-.47.47-.61 1.18-.33 1.82.24.5.85.89 1.51.89H22a2 2 0 010 4h-.6c-.66 0-1.26.39-1.51 1z" stroke="#334155" stroke-width="1.4"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold">Settings</div>
+              <div class="text-xs text-slate-500">Configuration</div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT (brief) -->
+  <section id="about" class="py-12 bg-white">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <h3 class="text-2xl font-extrabold">About HRPortal</h3>
+        <p class="mt-3 text-slate-600">A unified internal system to manage people, projects and billing. Optimized for speed, clarity and daily workflows — not marketing.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div class="p-4 rounded-xl bg-slate-50">
+          <div class="font-semibold">Modules</div>
+          <div class="text-slate-500 mt-1">HR, Payroll, Projects, Billing, Attendance, Events</div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section id="faq" class="py-20 bg-white">
-    <div class="max-w-4xl mx-auto px-6">
-      <h3 class="text-2xl font-extrabold text-center">Frequently asked questions</h3>
-      <div class="mt-6 space-y-3">
-        <details class="p-4 bg-slate-50 rounded-lg">
-          <summary class="font-semibold cursor-pointer">Is there a free trial?</summary>
-          <div class="mt-2 text-slate-600">Yes — 14 days with full access to Pro features. No card required.</div>
-        </details>
-        <details class="p-4 bg-slate-50 rounded-lg">
-          <summary class="font-semibold cursor-pointer">How secure is my data?</summary>
-          <div class="mt-2 text-slate-600">We use AES-256 encryption in transit & at rest, strict access controls and SOC2 practices.</div>
-        </details>
-        <details class="p-4 bg-slate-50 rounded-lg">
-          <summary class="font-semibold cursor-pointer">Do you support payroll in my country?</summary>
-          <div class="mt-2 text-slate-600">We support multiple countries — contact sales for exact jurisdiction availability and compliance details.</div>
-        </details>
-      </div>
-    </div>
-  </section>
-
-  <!-- RESOURCES -->
-  <section id="resources" class="py-20 bg-soft-1">
-    <div class="max-w-7xl mx-auto px-6">
-      <div class="flex items-center justify-between">
-        <h4 class="text-2xl font-extrabold">Learn & scale</h4>
-        <a href="#" class="text-sm text-indigo-600">View all resources →</a>
-      </div>
-
-      <div class="mt-6 grid md:grid-cols-3 gap-6">
-        <article class="p-6 bg-white rounded-lg shadow">
-          <h5 class="font-semibold">Guide: Onboarding checklist</h5>
-          <p class="mt-2 text-sm text-slate-500">A step-by-step checklist to ramp new hires quickly and compliantly.</p>
-          <a href="#" class="mt-4 inline-block text-indigo-600 text-sm">Read more →</a>
-        </article>
-        <article class="p-6 bg-white rounded-lg shadow">
-          <h5 class="font-semibold">Webinar: Payroll best practices</h5>
-          <p class="mt-2 text-sm text-slate-500">Expert panel discussion about payroll automation and audits.</p>
-          <a href="#" class="mt-4 inline-block text-indigo-600 text-sm">Watch →</a>
-        </article>
-        <article class="p-6 bg-white rounded-lg shadow">
-          <h5 class="font-semibold">Template: Remote offer letter</h5>
-          <p class="mt-2 text-sm text-slate-500">Customizable offer letter template built for distributed teams.</p>
-          <a href="#" class="mt-4 inline-block text-indigo-600 text-sm">Download →</a>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section id="signup" class="py-16">
-    <div class="max-w-4xl mx-auto px-6 text-center bg-white rounded-2xl shadow p-10">
-      <h3 class="text-2xl font-extrabold">Ready to modernize HR?</h3>
-      <p class="mt-2 text-slate-600">Start a free trial or book a live demo with our product experts.</p>
-      <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-        <a href="#" class="px-6 py-3 rounded-lg bg-indigo-600 text-white">Start free 14-day trial</a>
-        <a href="#demo" class="px-6 py-3 rounded-lg border border-slate-200">Book a demo</a>
+        <div class="p-4 rounded-xl bg-slate-50">
+          <div class="font-semibold">Access</div>
+          <div class="text-slate-500 mt-1">Role-based permissions with clear navigation</div>
+        </div>
       </div>
     </div>
   </section>
@@ -551,7 +458,7 @@
       renderer: 'svg',
       loop: true,
       autoplay: true,
-      path: 'https://assets6.lottiefiles.com/packages/lf20_jmBauI.json' // demo HR/dashboard style
+      path: "{{ asset('lottie/Project-config.json') }}" // local Lottie JSON
     });
 
     // GSAP entrance animations
