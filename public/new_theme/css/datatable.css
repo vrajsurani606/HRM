@@ -93,7 +93,7 @@
   border: 0;
 }
 .JV-datatble thead th{
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: #000000 !important;
   background: #ffffff;
@@ -105,7 +105,7 @@
   position: relative;
 }
 .JV-datatble tbody td{
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: #000000 !important;
   border: 0;
@@ -144,9 +144,9 @@
 .JV-datatble tbody tr:nth-child(even){ background: #F5F5F5 }
 .JV-datatble .action-icon{ width:16px; height:16px; display:inline-block }
 
-/* Optional slight zoom for JV table (use on wrapper: JV-datatble JV-datatble--zoom) */
-.JV-datatble.JV-datatble--zoom thead th{ font-size:14px !important }
-.JV-datatble.JV-datatble--zoom tbody td{ font-size:13px !important }
+/* Zoom variant for JV table (use on wrapper: JV-datatble JV-datatble--zoom) */
+.JV-datatble.JV-datatble--zoom thead th{ font-size:16px !important }
+.JV-datatble.JV-datatble--zoom tbody td{ font-size:15px !important }
 
 /* JV footer and pagination (left-aligned) */
 .JV-datatble .jv-footer{
@@ -188,3 +188,4 @@
 .table-wrap{ overflow-x:hidden }
 .table-wrap.pad-none{ padding:0 }
 .table-wrap.pad-attn{ padding:0 32px 8px }
+

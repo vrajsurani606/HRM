@@ -2,26 +2,26 @@
 @section('page_title', 'Proforma List')
 @section('content')
 
-<!-- Filter Row -->
-<div class="performa-filter hrp-compact" style="background: #f8f9fa; padding: 12px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-  <input type="text" placeholder="Bill Name" class="Rectangle-29 hrp-compact" style="width: 150px;">
-  <input type="text" placeholder="Proforma No." class="Rectangle-29 hrp-compact" style="width: 150px;">
-  <input type="text" placeholder="Mobile No." class="Rectangle-29 hrp-compact" style="width: 150px;">
-  <input type="text" placeholder="From : dd/mm/yyyy" class="Rectangle-29 hrp-compact" style="width: 170px;">
-  <input type="text" placeholder="To : dd/mm/yyyy" class="Rectangle-29 hrp-compact" style="width: 170px;">
-  <button style="background: #333; color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+<!-- Filter Row (JV Datatable filter style) -->
+<div class="jv-filter performa-filter">
+  <input type="text" placeholder="Bill Name" class="filter-pill" />
+  <input type="text" placeholder="Proforma No." class="filter-pill" />
+  <input type="text" placeholder="Mobile No." class="filter-pill" />
+  <input type="date" placeholder="From : dd/mm/yyyy" class="filter-pill" />
+  <input type="date" placeholder="To : dd/mm/yyyy" class="filter-pill" />
+  <button type="button" class="filter-search" aria-label="Search">
     <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
       <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
     </svg>
   </button>
-  <div style="margin-left: auto; display: flex; gap: 8px;">
-    <input type="text" placeholder="Search here.." class="Rectangle-29 hrp-compact" style="padding: 6px 12px; min-width: 160px; background: white;">
-    <a href="#" style="background: #28a745; color: white; border: none; border-radius: 20px; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none;">Excel</a>
-    <a href="{{ route('performas.create') }}" style="background: #28a745; color: white; border: none; border-radius: 20px; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none;">+ Add</a>
+  <div class="filter-right">
+    <input type="text" placeholder="Search here.." class="filter-pill" />
+    <a href="#" class="pill-btn pill-success">Excel</a>
+    <a href="{{ route('performas.create') }}" class="pill-btn pill-success">+ Add</a>
   </div>
 </div>
 <!-- Data Table -->
-<div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
+  <div class="JV-datatble JV-datatble--zoom striped-surface striped-surface--full table-wrap pad-none">
   <table>
     <thead>
       <tr>

@@ -3,35 +3,37 @@
 
 @section('content')
   <div class="hrp-card">
-    <div class="hrp-card-header flex items-center justify-between gap-4">
-      <h2 class="hrp-card-title">Hiring Lead Master</h2>
-    </div>
+    
     <div class="hrp-card-body">
-      <div class="flex flex-wrap items-center gap-3 mb-3 filters-compact">
-        <input type="text" class="hrp-input Rectangle-29" style="max-width:220px" placeholder="mm/dd/yyyy" inputmode="numeric">
-        <input type="text" class="hrp-input Rectangle-29" style="max-width:220px" placeholder="mm/dd/yyyy" inputmode="numeric">
-        <select class="hrp-input Rectangle-29 Rectangle-29-select" style="max-width:220px">
-          <option value="">Select Gender</option>
+      <div class="jv-filter">
+        <input type="date" class="filter-pill" placeholder="From : dd/mm/yyyy">
+        <input type="date" class="filter-pill" placeholder="To : dd/mm/yyyy">
+        <select class="filter-pill" required>
+          <option value="" disabled selected>Select Gender</option>
           <option value="male">Male</option>
           <option value="female">Female</option>
           <option value="other">Other</option>
         </select>
-        <select class="hrp-input Rectangle-29 Rectangle-29-select" style="max-width:220px">
-          <option value="">Select Experience</option>
+        <select class="filter-pill" required>
+          <option value="" disabled selected>Select Experience</option>
           <option value="fresher">Fresher</option>
           <option value=">0">0+</option>
           <option value=">1">1+</option>
           <option value=">2">2+</option>
           <option value=">3">3+</option>
         </select>
-        <div class="ml-auto flex items-center gap-3" style="margin-left:auto">
-          <input id="globalSearch" class="hrp-input Rectangle-29" style="width:420px; max-width:420px" placeholder="Search here...">
-          <a href="{{ route('hiring.create') }}" class="hrp-btn hrp-btn-primary" style="border-radius:9999px;padding:10px 22px;font-weight:800">+ Add</a>
+        <button type="button" class="filter-search" aria-label="Search">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+          </svg>
+        </button>
+        <div class="filter-right">
+          <input id="globalSearch" class="filter-pill" placeholder="Search here...">
+          <a href="{{ route('hiring.create') }}" class="pill-btn pill-success">+ Add</a>
         </div>
       </div>
-      <div class="hrp-table-surface">
-      <div class="hrp-table-wrap">
-      <table id="hiringTable" class="table table-striped table-hover hrp-table" style="width:100%">
+        <div class="JV-datatble JV-datatble--zoom striped-surface striped-surface--full table-wrap pad-none">
+      <table>
         <thead>
           <tr>
             <th>Action</th>
@@ -52,40 +54,28 @@
         <tbody>
           @forelse($leads as $i => $lead)
             <tr>
-              <td class="whitespace-nowrap">
-                <div style="display:inline-flex;align-items:center;gap:8px">
-                  <a href="{{ route('hiring.edit', $lead) }}" title="Edit" aria-label="Edit" style="display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center">
-                    <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" width="17" height="18" style="display:block">
+              <td>
+                <a href="{{ route('hiring.edit', $lead) }}" title="Edit" aria-label="Edit">
+                  <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon">
+                </a>
+                @if(\Illuminate\Support\Facades\Route::has('hiring.print'))
+                  <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'details']) }}" title="Print Details" target="_blank" aria-label="Print Details">
+                    <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon">
                   </a>
-                  @if(\Illuminate\Support\Facades\Route::has('hiring.print'))
-                    <div class="dropdown" style="display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Print Options" aria-label="Print Options" style="display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center">
-                        <img src="{{ asset('action_icon/print.svg') }}" alt="Print" width="18" height="18" style="display:block">
-                      </a>
-                      <ul class="dropdown-menu" style="min-width: 160px;">
-                        <li><a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'details']) }}" target="_blank">Print Details</a></li>
-                        <li><a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offer-letter']) }}" target="_blank">Offer Letter</a></li>
-                      </ul>
-                    </div>
-                  @else
-                    <span title="Print not available" style="display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center">
-                      <img src="{{ asset('action_icon/print.svg') }}" alt="Print" width="18" height="18" style="display:block; opacity:.55">
-                    </span>
-                  @endif
-                  <form method="POST" action="{{ route('hiring.destroy', $lead) }}" onsubmit="return confirm('Delete this lead?')" style="display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center">
-                    @csrf @method('DELETE')
-                    <button type="submit" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer;display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center">
-                      <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" width="15" height="18" style="display:block">
-                    </button>
-                  </form>
-                  <a href="#" title="Convert to Employee" aria-label="Convert to Employee" style="display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center">
-                    <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert" width="18" height="18" style="display:block">
-                  </a>
-                </div>
+                @endif
+                <form method="POST" action="{{ route('hiring.destroy', $lead) }}" onsubmit="return confirm('Delete this lead?')" style="display:inline">
+                  @csrf @method('DELETE')
+                  <button type="submit" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
+                    <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon">
+                  </button>
+                </form>
+                <a href="#" title="Convert to Employee" aria-label="Convert to Employee">
+                  <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert" class="action-icon">
+                </a>
               </td>
               <td>
                 @php($sno = ($leads->currentPage()-1) * $leads->perPage() + $i + 1)
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:9999px;background:#e8f7ef;color:#0ea05d;font-weight:800;font-size:12px;border:1px solid #a7e4c8">{{ $sno }}</span>
+                {{ $sno }}
               </td>
               <td>{{ $lead->unique_code }}</td>
               <td>{{ $lead->person_name }}</td>
@@ -123,11 +113,6 @@
       </div>
       </div>
     </div>
-    <div class="hrp-card-footer d-flex align-items-center justify-content-between gap-3 flex-wrap">
-      <div id="dtLength" class="text-sm"></div>
-      <div id="dtInfo" class="text-sm text-muted" style="margin-left:auto"></div>
-      <div id="dtPagination"></div>
-    </div>
   </div>
 @endsection
 
@@ -139,37 +124,20 @@
   <span class="hrp-bc-current">Hiring Lead Master</span>
 @endsection
 
-@push('scripts')
-  <script src="{{ asset('new_theme/bower_components/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-  <script src="{{ asset('new_theme/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
-  <script>
-    $(function(){
-      var dt = $('#hiringTable').DataTable({
-        paging: true,
-        lengthChange: true,
-        searching: true,
-        ordering: true,
-        info: true,
-        autoWidth: false,
-        pageLength: 25,
-        order: [[1,'asc']],
-        columnDefs: [
-          { orderable:false, targets: [0] },
-          { searchable:false, targets: [0] }
-        ],
-        language: {
-          search: "",
-          searchPlaceholder: "Search..."
-        },
-        dom: '<"row"<"col-sm-12"tr>>' // render table only; we'll place controls manually
-      });
-      // place DT controls into footer
-      var $wrap = $('#hiringTable').closest('.dataTables_wrapper');
-      $wrap.find('.dataTables_length').appendTo('#dtLength');
-      $wrap.find('.dataTables_info').appendTo('#dtInfo');
-      $wrap.find('.dataTables_paginate').appendTo('#dtPagination');
-
-      $('#globalSearch').on('keyup change', function(){ dt.search(this.value).draw(); });
-    });
-  </script>
-@endpush
+@section('footer_pagination')
+  @if(isset($leads) && method_exists($leads,'links'))
+    <form method="GET" class="hrp-entries-form">
+      <span>Entries</span>
+      @php($currentPerPage = (int) request()->get('per_page', 10))
+      <select name="per_page" onchange="this.form.submit()">
+        @foreach([10,25,50,100] as $size)
+          <option value="{{ $size }}" {{ $currentPerPage === $size ? 'selected' : '' }}>{{ $size }}</option>
+        @endforeach
+      </select>
+      @foreach(request()->except(['per_page','page']) as $k => $v)
+        <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+      @endforeach
+    </form>
+    {{ $leads->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
+  @endif
+@endsection

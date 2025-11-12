@@ -1,37 +1,41 @@
+@section('footer_pagination')
+  @include('partials.footer')
+@endsection
 @extends('layouts.macos')
 @section('page_title', 'Inquiries')
 @section('content')
 <div class="inquiry-index-container">
-  <!-- Filter Row -->
-  <div class="filter-row">
-    <input type="date" id="start_date" class="filter-input" placeholder="From: dd/mm/yyyy">
-    <input type="date" id="end_date" class="filter-input" placeholder="To: dd/mm/yyyy">
-    <select id="gender_filter" class="filter-select">
-      <option value="">Select Gender</option>
+  <!-- JV Filter -->
+  <div class="jv-filter">
+    <input type="date" id="start_date" class="filter-pill" placeholder="From: dd/mm/yyyy">
+    <input type="date" id="end_date" class="filter-pill" placeholder="To: dd/mm/yyyy">
+    <select id="gender_filter" class="filter-pill" required>
+      <option value="" disabled selected>Select Gender</option>
       <option value="male">Male</option>
       <option value="female">Female</option>
       <option value="other">Other</option>
     </select>
-    <select id="experience_filter" class="filter-select">
-      <option value="">Select Experience</option>
+    <select id="experience_filter" class="filter-pill" required>
+      <option value="" disabled selected>Select Experience</option>
       <option value="0-1">0-1 Years</option>
       <option value="1-3">1-3 Years</option>
       <option value="3+">3+ Years</option>
     </select>
-    <button class="w-12 h-12" id="filter_btn"><img src="{{ asset('action_icon/search svg.svg') }}" alt="Filter"></button>
-    <div class="right-actions">
-      <div class="search-container">
-        <img src="{{ asset('action_icon/search.svg') }}" class="search-icon" alt="Search">
-        <input type="text" class="search-input" placeholder="Search here..." id="custom_search">
-      </div>
-      <button class="excel-btn" id="excel_btn">Excel</button>
-      <a href="{{ route('inquiries.create') }}" class="add-btn">+ Add</a>
+    <button type="button" class="filter-search" id="filter_btn" aria-label="Search">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+      </svg>
+    </button>
+    <div class="filter-right">
+      <input type="text" class="filter-pill" placeholder="Search here..." id="custom_search">
+      <a href="#" class="pill-btn pill-success" id="excel_btn">Excel</a>
+      <a href="{{ route('inquiries.create') }}" class="pill-btn pill-success">+ Add</a>
     </div>
   </div>
 
-  <!-- Table -->
-  <div class="inquiry-table">
-    <table id="inquiries_table" class="display nowrap" style="width:100%">
+  <!-- JV Table -->
+  <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
+    <table>
       <thead>
         <tr>
           <th>Action</th>
@@ -54,13 +58,13 @@
       <tbody>
         @forelse($inquiries as $index => $inquiry)
         <tr>
-          <td class="action-cell">
-            <button class="action-btn edit" title="Edit"><img src="{{ asset('action_icon/edit.svg') }}" alt="Edit"></button>
-            <button class="action-btn delete" title="Delete"><img src="{{ asset('action_icon/delete.svg') }}" alt="Delete"></button>
-            <a href="{{ route('inquiry.follow-up', $inquiry->id) }}" class="action-btn follow-up" title="Follow Up">
-                <img src="{{ asset('action_icon/follow-up.svg') }}" alt="Follow Up">
-            </a>
-            <a href="{{ route('quotation.create-from-inquiry', $inquiry->id) }}" class="action-btn quotation" title="Make Quotation"><img src="{{ asset('action_icon/make-quatation.svg') }}" alt="Make Quotation"></a>
+          <td>
+            <div class="action-icons">
+              <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+              <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+              <img class="action-icon" src="{{ asset('action_icon/follow-up.svg') }}" alt="Follow Up">
+              <img class="action-icon" src="{{ asset('action_icon/make-quatation.svg') }}" alt="Make Quotation">
+            </div>
           </td>
           <td>{{ $index + 1 }}</td>
           <td><span class="status-badge confirmed">Confirmed</span></td>
@@ -95,74 +99,4 @@
 @endsection
 
 @push('scripts')
-<script>
-$(document).ready(function() {
-    // Initialize DataTable
-    var table = $('#inquiries_table').DataTable({
-        scrollX: true,
-        scrollY: '400px',
-        scrollCollapse: true,
-        paging: true,
-        searching: true,
-        ordering: true,
-        info: true,
-        autoWidth: false,
-        responsive: false,
-        dom: 'rt<"bottom"lip>',
-        language: {
-            search: "",
-            searchPlaceholder: "Search here..."
-        },
-        columnDefs: [
-            { orderable: false, targets: 0 },
-            { width: "120px", targets: 0 },
-            { width: "80px", targets: 1 },
-            { width: "100px", targets: 2 }
-        ]
-    });
-
-    // Custom search
-    $('#custom_search').on('keyup', function() {
-        table.search(this.value).draw();
-    });
-
-    // Filter button
-    $('#filter_btn').on('click', function() {
-        var startDate = $('#start_date').val();
-        var endDate = $('#end_date').val();
-        var gender = $('#gender_filter').val();
-        var experience = $('#experience_filter').val();
-        
-        // Apply filters (basic implementation)
-        table.draw();
-    });
-
-    // Excel export
-    $('#excel_btn').on('click', function() {
-        // Basic table to CSV export
-        var csv = [];
-        var rows = document.querySelectorAll('#inquiries_table tr');
-        
-        for (var i = 0; i < rows.length; i++) {
-            var row = [], cols = rows[i].querySelectorAll('td, th');
-            
-            for (var j = 1; j < cols.length; j++) { // Skip action column
-                var cellText = cols[j].innerText.replace(/,/g, ';');
-                row.push('"' + cellText + '"');
-            }
-            
-            csv.push(row.join(','));
-        }
-        
-        var csvFile = new Blob([csv.join('\n')], {type: 'text/csv'});
-        var downloadLink = document.createElement('a');
-        downloadLink.download = 'inquiries.csv';
-        downloadLink.href = window.URL.createObjectURL(csvFile);
-        downloadLink.style.display = 'none';
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-    });
-});
-</script>
 @endpush

@@ -1567,3 +1567,70 @@ body.sidebar-overlay.sidebar-open{ overflow:hidden }
 .hrp-entries-form::after{ content:none }
 
 .Rectangle-29-select{ width:100%; }
+
+/* Hiring filters: simple top/bottom spacing and a bottom divider */
+.hiring-filters{
+  padding: 10px 0;          /* space inside, top & bottom */
+  margin: 8px 0 14px 0;     /* space from header above and table below */
+  background: transparent;  /* no rectangle fill */
+  border: 0;                /* no box border */
+  border-bottom: 1px solid #E5E5E5; /* single separator line */
+  border-radius: 0;         /* no rounded corners */
+  display:flex;
+  flex-wrap:wrap;
+  gap: 10px 16px;           /* vertical and horizontal spacing between fields */
+}
+.hiring-filters > *{ margin: 0 !important }
+
+/* JV Datatable filter (used on Proforma List) */
+.jv-filter{
+  display:flex; align-items:center; flex-wrap:wrap; gap:10px 12px;
+  background:#ffffff; padding:12px 16px; border:1px solid #E5E5E5;
+}
+.jv-filter .filter-pill{
+  height:38px; padding:8px 14px; font-size:12px; font-weight:600; color:#0f0f0f;
+  background:#F5F5F5; border:1px solid #e8e8e8; border-radius:9999px; outline:none;
+  box-shadow: inset 0 2px 3px rgba(0,0,0,.12), 0 1px 0 #fff;
+}
+.jv-filter .filter-pill:focus{
+  border-color:#000000; outline:none; box-shadow:none; background:#F5F5F5; color:#0f0f0f;
+}
+.jv-filter .filter-pill::placeholder{ color:#99a3ad }
+.jv-filter .filter-pill[type="date"]{ -webkit-appearance:none; appearance:none }
+.jv-filter .filter-pill[type="date"]::-webkit-calendar-picker-indicator{ padding:0 8px; cursor:pointer; opacity:.85 }
+/* Selects: show gray text until a real option is selected */
+.jv-filter select.filter-pill{ color:#0f0f0f }
+/* Higher specificity + important to beat global a/select styles */
+.jv-filter select.filter-pill:required:invalid{ color:#99a3ad !important }
+/* Ensure the placeholder option itself appears gray (Firefox honors option color) */
+.jv-filter select.filter-pill option[disabled][selected]{ color:#99a3ad }
+/* Once focused/changed, revert to black */
+.jv-filter select.filter-pill:focus{ color:#0f0f0f }
+/* Date text color: placeholder-like by default, black on focus */
+.jv-filter .filter-pill[type="date"]{ color:#99a3ad }
+.jv-filter .filter-pill[type="date"]:focus{ color:#0f0f0f }
+/* WebKit internal edit field color tying to input color */
+.jv-filter .filter-pill[type="date"]::-webkit-datetime-edit{ color:inherit }
+.jv-filter .filter-right{ margin-left:auto; display:flex; align-items:center; gap:8px }
+.jv-filter .filter-search{
+  display:flex; align-items:center; justify-content:center; width:35px; height:35px;
+  border-radius:50%; border:none; background:#111827; color:#ffffff; cursor:pointer;
+}
+.pill-btn{ display:inline-flex; align-items:center; justify-content:center; height:38px; padding:0 16px; border-radius:9999px; font-size:12px; font-weight:600; line-height:1; text-decoration:none; gap:8px; border:1px solid #e8e8e8; background:#ffffff; color:#0f0f0f; transition: background-color .15s ease, color .15s ease, border-color .15s ease, transform .15s ease }
+.pill-btn:focus{ outline:2px solid rgba(17,24,39,.12); outline-offset:2px }
+.pill-btn svg{ width:16px; height:16px }
+.pill-success{ 
+  background:#00A65A; 
+  color:#ffffff; 
+  border-color:#008F4E; 
+  /* subtle glossy pill feel */
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.22),
+    0 4px 10px rgba(0,0,0,0.18);
+}
+
+/* Prevent default anchor color changes on interaction */
+.pill-btn:link, .pill-btn:visited{ color:#0f0f0f; text-decoration:none }
+.pill-btn:hover, .pill-btn:active{ color:#0f0f0f; background:inherit; border-color:inherit; text-decoration:none; transform:none }
+.pill-success:link, .pill-success:visited{ color:#ffffff; text-decoration:none }
+.pill-success:hover, .pill-success:active{ color:#ffffff; background:#00A65A; border-color:#008F4E; text-decoration:none; transform:none }
