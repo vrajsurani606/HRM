@@ -1530,3 +1530,17 @@ body.sidebar-overlay.sidebar-open{ overflow:hidden }
 .hrp-entries-form::after{ content:none }
 
 .Rectangle-29-select{ width:100%; }
+
+/* Hiring filters: simple top/bottom spacing and a bottom divider */
+.hiring-filters{
+  padding: 10px 0;          /* space inside, top & bottom */
+  margin: 8px 0 14px 0;     /* space from header above and table below */
+  background: transparent;  /* no rectangle fill */
+  border: 0;                /* no box border */
+  border-bottom: 1px solid #E5E5E5; /* single separator line */
+  border-radius: 0;         /* no rounded corners */
+  display:flex;
+  flex-wrap:wrap;
+  gap: 10px 16px;           /* vertical and horizontal spacing between fields */
+}
+.hiring-filters > *{ margin: 10px !important }
