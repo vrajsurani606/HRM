@@ -33,7 +33,7 @@
     <div class="hidden lg:flex items-center justify-center p-8 bg-white dark:bg-slate-800">
       <div class="w-full h-full max-w-4xl max-h-[90vh] flex items-center justify-center">
         <lottie-player
-          src="{{ asset('lottie/hr-animation.json') }}"
+          src="{{ asset('public/lottie/hr-animation.json') }}"
           background="transparent"
           speed="1"
           loop

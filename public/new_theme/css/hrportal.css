@@ -28,6 +28,28 @@ input.Rectangle-29[type="date"]::-webkit-datetime-edit-year-field{
 input.Rectangle-29[type="date"]::-webkit-calendar-picker-indicator{ padding:0 8px; cursor:pointer; opacity:.85; }
 input.Rectangle-29[type="date"]{ -webkit-appearance: none; appearance: none; }
 
+/* Pill-style select to match Rectangle-29 inputs */
+select.Rectangle-29-select{
+  border-radius: 413px !important;
+  background-color: #fff;
+  border: 1px solid #e8e8e8;
+  padding: 10px 38px 10px 14px; /* extra right for arrow */
+  height: 44px;
+  line-height: 1;
+  box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 0 #fff;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2399a3ad' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px 18px;
+}
+select.Rectangle-29-select:focus{
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+
 /* ===== Dashboard compact typography (slightly smaller, consistent) ===== */
 .dash-root{ font-size: 14px; }
 .dash-root .search-input{ font-size:14px !important }
@@ -528,7 +550,7 @@ html, body { overflow-x: hidden; }
   font-weight:700;
   margin:6px 4px 0;
 }
-.macos-theme .hrp-window .hrp-form .Rectangle-29.is-invalid,
+/* .macos-theme .hrp-window .hrp-form .Rectangle-29.is-invalid,
 .macos-theme .hrp-window .hrp-form .Rectangle-29:invalid{
   border-color:#ef4444 !important;
   box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 0 #fff, 0 0 0 3px rgba(239,68,68,.12) !important;
@@ -537,7 +559,7 @@ html, body { overflow-x: hidden; }
 .macos-theme .hrp-window .hrp-form select.Rectangle-29-select:invalid{
   border-color:#ef4444 !important;
   box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 0 #fff, 0 0 0 3px rgba(239,68,68,.12) !important;
-}
+} */
 
 /* Compact variant for create/edit forms */
 .macos-theme .hrp-window .hrp-compact{ padding:24px 28px; border-radius:16px; }
@@ -557,7 +579,6 @@ html, body { overflow-x: hidden; }
   -webkit-appearance:none; 
   appearance:none;
   height:58px; 
-  line-height:58px; 
   font-size:16px; 
   padding-right:48px;
   padding-left:24px;
@@ -1436,6 +1457,22 @@ body.sidebar-overlay.sidebar-open{ overflow:hidden }
 .custom-search-wrapper {
   position: relative;
   display: inline-block;
+}
+
+/* Performa index: compact filter inputs */
+.performa-filter .filter-pill{
+  height: 38px !important;
+  padding: 8px 14px !important;
+  font-size: 12px !important;
+  border-radius: 9999px !important;
+}
+
+/* Simple striped table helper */
+.table-striped-like tbody tr:nth-child(even){
+  background-color: #f9fafb;
+}
+.table-striped-like tbody tr:hover{
+  background-color: #f3f4f6;
 }
 
 /* Grid utilities (restored) */
