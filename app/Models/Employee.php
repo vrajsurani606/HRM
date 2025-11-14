@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Employee extends Model
 {
@@ -66,6 +67,22 @@ class Employee extends Model
     public function achievements(){ return $this->hasMany(EmployeeAchievement::class); }
     public function projects(){ return $this->hasMany(EmployeeProject::class); }
     public function profileImages(){ return $this->hasMany(EmployeeProfileImage::class); }
+    
+    /**
+     * Get all of the letters for the employee.
+     */
+    public function letters(): HasMany
+    {
+        return $this->hasMany(EmployeeLetter::class);
+    }
+
+    /**
+     * Get the digital card for the employee.
+     */
+    public function digitalCard()
+    {
+        return $this->hasOne(DigitalCard::class);
+    }
 
     public static function nextCode(string $prefix = 'CMS/EMP/'): string
     {

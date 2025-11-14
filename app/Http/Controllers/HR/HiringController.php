@@ -10,12 +10,52 @@ use Illuminate\Support\Str;
 
 class HiringController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $leads = HiringLead::latest()->paginate(25);
+        $query = HiringLead::query();
+
+        // Apply date filters if they exist
+        if ($request->filled('from_date')) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        }
+
+        if ($request->filled('to_date')) {
+            $query->whereDate('created_at', '<=', $request->to_date);
+        }
+
+        // Apply gender filter if selected
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
+        // Apply experience filter if selected
+        if ($request->filled('experience')) {
+            if ($request->experience === 'fresher') {
+                $query->where('is_experience', 0);
+            } else {
+                $years = (int) str_replace('>', '', $request->experience);
+                $query->where('is_experience', 1)
+                      ->where('experience_count', '>=', $years);
+            }
+        }
+
+        // Apply search if provided
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('person_name', 'like', "%$search%")
+                  ->orWhere('mobile_no', 'like', "%$search%")
+                  ->orWhere('unique_code', 'like', "%$search%")
+                  ->orWhere('position', 'like', "%$search%");
+            });
+        }
+
+        $leads = $query->latest()->paginate(25);
+        
         return view('hr.hiring.index', [
             'page_title' => 'Hiring Lead List',
             'leads' => $leads,
+            'filters' => $request->all()
         ]);
     }
 
@@ -49,7 +89,7 @@ class HiringController extends Controller
 
         $employee = Employee::create($payload);
 
-        return redirect()->route('employees.edit', $employee->id)
+        return redirect()->route('employees.index')
             ->with('success', 'Hiring lead converted to employee');
     }
 

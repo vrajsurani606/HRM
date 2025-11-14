@@ -9,6 +9,8 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
+use App\Models\EmployeeLetter;
+use Illuminate\Support\Str;
 
 class EmployeeController extends Controller
 {
@@ -33,87 +35,6 @@ class EmployeeController extends Controller
                 ->make(true);
         }
         $employees = Employee::orderByDesc('id')->paginate(12);
-        if ($employees->total() === 0) {
-            $demo = collect([
-                [
-                    'experience_type' => 'Full - Time',
-                    'photo_path' => null,
-                    'name' => 'Dipesh Vasoya',
-                    'email' => 'dipeshvasoya22@gmail.com',
-                    'position' => 'Sr. UI/UX Designer',
-                    'gender' => 'male',
-                    'code' => 'ABDPF1835R',
-                    'current_offer_amount' => 27000,
-                    'joining_date' => Carbon::parse('2025-02-23'),
-                ],
-                [
-                    'experience_type' => 'Internship',
-                    'photo_path' => null,
-                    'name' => 'Anju Tarak Ram',
-                    'email' => 'ToddReed@armyscp.com',
-                    'position' => 'Sr. Tele caller',
-                    'gender' => 'female',
-                    'code' => 'ABDPF1835R',
-                    'current_offer_amount' => 27000,
-                    'joining_date' => Carbon::parse('2025-02-23'),
-                ],
-                [
-                    'experience_type' => 'Full - Time',
-                    'photo_path' => null,
-                    'name' => 'Nehal Ashvin Bhai Gajera',
-                    'email' => 'gajeranehal9@gmail.com',
-                    'position' => 'Sr. Web Developer',
-                    'gender' => 'female',
-                    'code' => 'ABDPF1835R',
-                    'current_offer_amount' => 27000,
-                    'joining_date' => Carbon::parse('2025-02-23'),
-                ],
-                [
-                    'experience_type' => 'Remote',
-                    'photo_path' => null,
-                    'name' => 'Savalaiya Krupali Dilipbhai',
-                    'email' => 'k@gmail.com',
-                    'position' => 'Jr. UI/UX Designer',
-                    'gender' => 'female',
-                    'code' => 'ABDPF1835R',
-                    'current_offer_amount' => 27000,
-                    'joining_date' => Carbon::parse('2025-02-23'),
-                ],
-                [
-                    'experience_type' => 'Internship',
-                    'photo_path' => null,
-                    'name' => 'Vaghani Pruthvi Vijaybhai',
-                    'email' => 'pruthvivaghani02@gmail.com',
-                    'position' => 'Jr. Web Developer',
-                    'gender' => 'male',
-                    'code' => 'ABDPF1835R',
-                    'current_offer_amount' => 27000,
-                    'joining_date' => Carbon::parse('2025-02-23'),
-                ],
-                [
-                    'experience_type' => 'Freelance',
-                    'photo_path' => null,
-                    'name' => 'Vaadhavana Nikunj Hareshbhai',
-                    'email' => 'nikunjvadhavana3@gmail.com',
-                    'position' => 'Jr. Web Developer',
-                    'gender' => 'male',
-                    'code' => 'ABDPF1835R',
-                    'current_offer_amount' => 27000,
-                    'joining_date' => Carbon::parse('2025-02-23'),
-                ],
-            ])->map(function ($a) {
-                // cast to object-like for Blade access
-                return (object) $a;
-            });
-
-            $employees = new LengthAwarePaginator(
-                $demo->take(12),
-                $demo->count(),
-                12,
-                request()->get('page', 1),
-                ['path' => request()->url(), 'query' => request()->query()]
-            );
-        }
         return view('hr.employees.index', [
             'page_title' => 'Employee List',
             'employees'  => $employees,
@@ -141,6 +62,14 @@ class EmployeeController extends Controller
         return redirect()->route('employees.index')->with('success', 'Employee created');
     }
 
+    public function show(Employee $employee)
+    {
+        return view('hr.employees.show', [
+            'employee'   => $employee,
+            'page_title' => 'Employee Details - ' . $employee->name,
+        ]);
+    }
+
     public function edit(Employee $employee)
     {
         return view('hr.employees.edit', [
@@ -152,13 +81,33 @@ class EmployeeController extends Controller
     public function update(Request $request, Employee $employee)
     {
         $data = $request->validate([
+            'code' => 'nullable|string|max:100',
+            'status' => 'nullable|in:active,inactive',
             'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:employees,email,'.$employee->id,
+            'mobile_no' => 'nullable|string|max:30',
+            'gender' => 'nullable|in:male,female,other',
+            'position' => 'nullable|string|max:190',
+            'experience_type' => 'nullable|in:Experienced,Fresher,Trainee,Intern,Contract',
+            'joining_date' => 'nullable|date',
+            'date_of_birth' => 'nullable|date',
+            'current_offer_amount' => 'nullable|numeric|min:0',
+            'previous_salary' => 'nullable|numeric|min:0',
+            'previous_company_name' => 'nullable|string|max:190',
+            'previous_designation' => 'nullable|string|max:190',
+            'address' => 'nullable|string',
+            'has_incentive' => 'nullable',
+            'incentive_amount' => 'nullable|numeric|min:0',
             'photo' => 'nullable|image|max:2048',
         ]);
+
+        $data['has_incentive'] = $request->boolean('has_incentive');
+
         if ($request->hasFile('photo')) {
             $data['photo_path'] = $request->file('photo')->store('employees', 'public');
         }
+        unset($data['photo']);
+
         $employee->update($data);
         return redirect()->route('employees.index')->with('success', 'Employee updated');
     }
@@ -167,5 +116,71 @@ class EmployeeController extends Controller
     {
         $employee->delete();
         return back()->with('success', 'Employee deleted');
+    }
+
+    /**
+     * Display a listing of the employee's letters.
+     */
+    public function lettersIndex(Employee $employee)
+    {
+        $letters = $employee->letters()->latest()->paginate(10);
+        
+        return view('hr.employees.letters.index', [
+            'employee' => $employee,
+            'letters' => $letters,
+            'page_title' => 'Employee Letters - ' . $employee->name,
+        ]);
+    }
+    
+    /**
+     * Show the form for creating a new letter.
+     */
+    public function createLetter(Employee $employee)
+    {
+        $referenceNumber = $this->generateLetterNumber();
+        
+        return view('hr.employees.letters.create', [
+            'employee' => $employee,
+            'referenceNumber' => $referenceNumber,
+            'page_title' => 'Create New Letter - ' . $employee->name,
+        ]);
+    }
+
+    /**
+     * Store a newly created letter in storage.
+     */
+    public function storeLetter(Request $request, Employee $employee)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'type' => 'required|string|in:appointment,experience,relieving,other',
+            'issue_date' => 'required|date',
+        ]);
+
+        $validated['reference_number'] = $this->generateLetterNumber();
+        
+        $employee->letters()->create($validated);
+
+        return redirect()
+            ->route('employees.letters.index', $employee)
+            ->with('success', 'Letter created successfully');
+    }
+
+    /**
+     * Generate a unique letter number.
+     */
+    public function generateLetterNumber()
+    {
+        $prefix = 'LTR-' . date('Y') . '-';
+        $latest = \App\Models\EmployeeLetter::where('reference_number', 'like', $prefix . '%')
+            ->orderBy('reference_number', 'desc')
+            ->first();
+
+        $number = $latest ? (int) str_replace($prefix, '', $latest->reference_number) + 1 : 1;
+        
+        // Generate a more unique reference number with random string
+        $randomString = strtoupper(Str::random(3));
+        return $prefix . str_pad($number, 4, '0', STR_PAD_LEFT) . '-' . $randomString;
     }
 }

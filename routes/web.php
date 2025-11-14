@@ -18,7 +18,7 @@ use App\Http\Controllers\Ticket\TicketController;
 use App\Http\Controllers\Attendance\AttendanceReportController;
 use App\Http\Controllers\Attendance\LeaveApprovalController;
 use App\Http\Controllers\Event\EventController;
-use App\Http\Controllers\Setting\SettingController;
+use App\Http\Controllers\Setting\SettingController; 
 use App\Http\Controllers\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +30,37 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+// Attendance Routes
+Route::prefix('attendance')->middleware('auth')->group(function () {
+    Route::get('/', [App\Http\Controllers\Attendance\AttendanceController::class, 'index'])->name('attendance.index');
+    Route::post('/check-in', [App\Http\Controllers\Attendance\AttendanceController::class, 'checkIn'])->name('attendance.check-in');
+    Route::post('/check-out', [App\Http\Controllers\Attendance\AttendanceController::class, 'checkOut'])->name('attendance.check-out');
+    Route::get('/history', [App\Http\Controllers\Attendance\AttendanceController::class, 'history'])->name('attendance.history');
+    
+    // Attendance Reports
+    Route::get('/reports', [App\Http\Controllers\Attendance\AttendanceReportController::class, 'index'])->name('attendance.reports');
+    Route::get('/reports/generate', [App\Http\Controllers\Attendance\AttendanceReportController::class, 'generate'])->name('attendance.reports.generate');
+    Route::get('/reports/export', [App\Http\Controllers\Attendance\AttendanceReportController::class, 'export'])->name('attendance.reports.export');
+});
+
+// Leave Management Routes
+Route::prefix('leaves')->middleware('auth')->group(function () {
+    Route::get('/', [App\Http\Controllers\Leave\LeaveController::class, 'index'])->name('leaves.index');
+    Route::get('/create', [App\Http\Controllers\Leave\LeaveController::class, 'create'])->name('leaves.create');
+    Route::post('/', [App\Http\Controllers\Leave\LeaveController::class, 'store'])->name('leaves.store');
+    Route::get('/{leave}/edit', [App\Http\Controllers\Leave\LeaveController::class, 'edit'])->name('leaves.edit');
+    Route::put('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'update'])->name('leaves.update');
+    Route::delete('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'destroy'])->name('leaves.destroy');
+    
+    // Leave Approval Routes (for managers/admins)
+    Route::prefix('approvals')->group(function () {
+        Route::get('/', [App\Http\Controllers\Leave\LeaveApprovalController::class, 'index'])->name('leaves.approvals.index');
+        Route::post('/{leave}/approve', [App\Http\Controllers\Leave\LeaveApprovalController::class, 'approve'])->name('leaves.approvals.approve');
+        Route::post('/{leave}/reject', [App\Http\Controllers\Leave\LeaveApprovalController::class, 'reject'])->name('leaves.approvals.reject');
+    });
+});
+
+// Employee Self-Service Routes
 Route::middleware('auth')->group(function () {
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -37,8 +68,20 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile/bank', [ProfileController::class, 'updateBank'])->name('profile.bank.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Employees (example module)
+    // Employees
     Route::resource('employees', EmployeeController::class);
+    Route::prefix('employees/{employee}')->group(function () {
+        Route::get('/letters', [EmployeeController::class, 'lettersIndex'])->name('employees.letters.index');
+        Route::get('/letters/create', [EmployeeController::class, 'createLetter'])->name('employees.letters.create');
+        Route::post('/letters', [EmployeeController::class, 'storeLetter'])->name('employees.letters.store');
+        
+        // Digital Card routes
+        Route::get('/digital-card/create', [\App\Http\Controllers\HR\DigitalCardController::class, 'create'])->name('employees.digital-card.create');
+        Route::post('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'store'])->name('employees.digital-card.store');
+        Route::get('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'show'])->name('employees.digital-card.show');
+    });
+    Route::get('employees/letters/generate-number', [EmployeeController::class, 'generateLetterNumber'])->name('employees.letters.generate-number');
+    Route::get('employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
 
     // HR Hiring Leads
     Route::resource('hiring', HiringController::class);
@@ -97,6 +140,8 @@ Route::middleware('auth')->group(function () {
 
     // Roles & Permissions (disabled from routes)
     // Route::resource('roles', RoleController::class);
+    
+    Route::resource('employee-letters', EmployeeLetterController::class);
 
     // Settings
     Route::resource('settings', SettingController::class)->only(['index','update']);

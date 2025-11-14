@@ -85,48 +85,98 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @include('partials.flash')
 <style>
-  .swal2-popup.hrp-swal-lg { max-width: 48rem !important; padding: 2.25rem 2rem !important; }
-  .swal2-popup.hrp-swal-lg .swal2-title { font-size: 1.5rem !important; }
-  .swal2-popup.hrp-swal-lg .swal2-html-container { font-size: 1.05rem !important; }
-  .swal2-popup.hrp-swal-lg .swal2-actions .swal2-styled { font-size: 0.95rem !important; padding: 0.65rem 1.25rem !important; }
-  @media (max-width: 480px) { .swal2-popup.hrp-swal-lg { width: 95% !important; max-width: none !important; } }
-  /* keep buttons accessible contrast */
-  .swal2-popup.hrp-swal-lg .swal2-confirm { background-color: #d33 !important; }
-  .swal2-popup.hrp-swal-lg .swal2-cancel { background-color: #6b7280 !important; }
-  .swal2-popup.hrp-swal-lg .swal2-cancel { color:#fff !important; }
-  .swal2-popup.hrp-swal-lg .swal2-styled:focus { box-shadow: 0 0 0 3px rgba(59,130,246,0.45) !important; }
+  /* Perfect SweetAlert Size - Global */
+  .perfect-swal-popup {
+    font-size: 15px !important;
+  }
+  
+  .perfect-swal-popup .swal2-title {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .perfect-swal-popup .swal2-content {
+    font-size: 15px !important;
+    margin-bottom: 1.5rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  .perfect-swal-popup .swal2-actions {
+    gap: 0.75rem !important;
+    margin-top: 1rem !important;
+  }
+  
+  .perfect-swal-popup .swal2-confirm,
+  .perfect-swal-popup .swal2-cancel {
+    font-size: 14px !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+  }
+  
+  .perfect-swal-popup .swal2-icon {
+    margin: 0.5rem auto 1rem !important;
+  }
+  
   .swal2-backdrop-show { backdrop-filter: blur(1px); }
 </style>
 <script>
+  // Global SweetAlert Delete Confirmation
   document.addEventListener('click', function(e){
+    // Handle forms with onsubmit="return confirm(...)"
+    const form = e.target.closest('form[onsubmit*="confirm"]');
+    if(form && e.target.type === 'submit'){
+      e.preventDefault();
+      Swal.fire({
+        title: 'Delete this item?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+        width: '400px',
+        padding: '1.5rem',
+        customClass: { popup: 'perfect-swal-popup' }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.removeAttribute('onsubmit');
+          form.submit();
+        }
+      });
+      return;
+    }
+    
+    // Handle .js-confirm-delete class
     const btn = e.target.closest('.js-confirm-delete');
     if(!btn) return;
     e.preventDefault();
-    const form = btn.closest('form');
-    const title = btn.getAttribute('data-title') || 'Are you sure?';
-    const text = btn.getAttribute('data-text') || 'This action cannot be undone.';
+    const deleteForm = btn.closest('form');
+    const title = btn.getAttribute('data-title') || 'Delete this item?';
+    const text = btn.getAttribute('data-text') || "You won't be able to revert this!";
     const confirmText = btn.getAttribute('data-confirm') || 'Yes, delete it!';
-    const cancelText = btn.getAttribute('data-cancel') || null; // let Swal use provided or default
+    const cancelText = btn.getAttribute('data-cancel') || 'Cancel';
     const icon = btn.getAttribute('data-icon') || 'warning';
     Swal.fire({
       title: title,
       text: text,
       icon: icon,
       showCancelButton: true,
-      reverseButtons: true,
-      confirmButtonColor: '#d33',
+      confirmButtonColor: '#ef4444',
       cancelButtonColor: '#6b7280',
       confirmButtonText: confirmText,
-      cancelButtonText: cancelText || 'Cancel',
-      width: '44rem',
-      customClass: { popup: 'hrp-swal-lg' }
+      cancelButtonText: cancelText,
+      width: '400px',
+      padding: '1.5rem',
+      customClass: { popup: 'perfect-swal-popup' }
     }).then((result) => {
       if (!result.isConfirmed) return;
-      const wantsAjax = btn.hasAttribute('data-ajax') || (form && form.hasAttribute('data-ajax'));
-      if (!wantsAjax) { form.submit(); return; }
+      const wantsAjax = btn.hasAttribute('data-ajax') || (deleteForm && deleteForm.hasAttribute('data-ajax'));
+      if (!wantsAjax) { deleteForm.submit(); return; }
       // AJAX delete without page refresh
       try {
-        const tokenInput = form && form.querySelector('input[name="_token"]');
+        const tokenInput = deleteForm && deleteForm.querySelector('input[name="_token"]');
         const csrf = tokenInput ? tokenInput.value : (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '');
         btn.disabled = true;
         function removeTarget(){
@@ -135,14 +185,13 @@
           if(node) node.remove();
         }
         function tryDeleteWith(method, opts){
-          return fetch(form.action, Object.assign({ method: method, credentials:'same-origin' }, opts));
+          return fetch(deleteForm.action, Object.assign({ method: method, credentials:'same-origin' }, opts));
         }
         tryDeleteWith('DELETE', {
           method: 'DELETE',
           headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
         }).then(function(resp){
           if(resp.status === 405){
-            // Retry as POST + _method override for environments where DELETE is blocked
             return tryDeleteWith('POST', {
               headers: { 'X-CSRF-TOKEN': csrf, 'Accept':'application/json', 'Content-Type':'application/x-www-form-urlencoded' },
               body: new URLSearchParams({ _method: 'DELETE' })
@@ -160,7 +209,7 @@
           if(err && err.message){ msg += ' ('+err.message+')'; }
           if(window.toastr) toastr.error(msg);
         }).finally(function(){ btn.disabled = false; });
-      } catch(e){ form.submit(); }
+      } catch(e){ deleteForm.submit(); }
     });
   });
   // Basic Toastr defaults

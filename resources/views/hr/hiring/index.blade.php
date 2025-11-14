@@ -5,30 +5,31 @@
   <div class="hrp-card">
     
     <div class="hrp-card-body">
-      <div class="jv-filter">
-        <input type="date" class="filter-pill" placeholder="From : dd/mm/yyyy">
-        <input type="date" class="filter-pill" placeholder="To : dd/mm/yyyy">
-        <select class="filter-pill" required>
-          <option value="" disabled selected>Select Gender</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
+      <form id="filterForm" method="GET" action="{{ route('hiring.index') }}" class="jv-filter">
+        <input type="date" name="from_date" class="filter-pill" placeholder="From : dd/mm/yyyy" value="{{ request('from_date') }}">
+        <input type="date" name="to_date" class="filter-pill" placeholder="To : dd/mm/yyyy" value="{{ request('to_date') }}">
+        <select name="gender" class="filter-pill">
+          <option value="" {{ !request('gender') ? 'selected' : '' }}>All Genders</option>
+          <option value="male" {{ request('gender') == 'male' ? 'selected' : '' }}>Male</option>
+          <option value="female" {{ request('gender') == 'female' ? 'selected' : '' }}>Female</option>
+          <option value="other" {{ request('gender') == 'other' ? 'selected' : '' }}>Other</option>
         </select>
-        <select class="filter-pill" required>
-          <option value="" disabled selected>Select Experience</option>
-          <option value="fresher">Fresher</option>
-          <option value=">0">0+</option>
-          <option value=">1">1+</option>
-          <option value=">2">2+</option>
-          <option value=">3">3+</option>
+        <select name="experience" class="filter-pill">
+          <option value="" {{ !request('experience') ? 'selected' : '' }}>All Experience</option>
+          <option value="fresher" {{ request('experience') == 'fresher' ? 'selected' : '' }}>Fresher</option>
+          <option value=">0" {{ request('experience') == '>0' ? 'selected' : '' }}>0+</option>
+          <option value=">1" {{ request('experience') == '>1' ? 'selected' : '' }}>1+</option>
+          <option value=">2" {{ request('experience') == '>2' ? 'selected' : '' }}>2+</option>
+          <option value=">3" {{ request('experience') == '>3' ? 'selected' : '' }}>3+</option>
         </select>
-        <button type="button" class="filter-search" aria-label="Search">
+        <button type="submit" class="filter-search" aria-label="Search">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
             <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
           </svg>
         </button>
         <div class="filter-right">
-          <input id="globalSearch" class="filter-pill" placeholder="Search here...">
+          <input type="text" name="search" class="filter-pill" placeholder="Search by name, mobile, code..." value="{{ request('search') }}">
+          <a href="{{ route('hiring.index') }}" class="pill-btn pill-secondary">Reset</a>
           <a href="{{ route('hiring.create') }}" class="pill-btn pill-success">+ Add</a>
         </div>
       </div>

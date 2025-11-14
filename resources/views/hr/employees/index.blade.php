@@ -3,17 +3,7 @@
 
 @section('content')
   <div class="employee-container">
-    <div class="employee-grid">
-        @php
-          $staticImages = [
-            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
-            'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
-            'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
-            'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face',
-              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face'
-          ];
-        @endphp
+    <div class="employee-grid"> 
         
         @forelse($employees as $emp)
           <div class="emp-card">
@@ -60,13 +50,13 @@
                         <img src="{{ asset('action_icon/delete.svg') }}" width="16" height="16"> Delete
                       </button>
                     </form>
-                    <a href="#">
+                    <a href="{{ route('employees.show', $emp) }}">
                       <img src="{{ asset('action_icon/view.svg') }}" width="16" height="16"> View
                     </a>
-                    <a href="#">
+                    <a href="{{ route('employees.letters.index', $emp) }}">
                       <img src="{{ asset('action_icon/print.svg') }}" width="16" height="16"> Letter
                     </a>
-                    <a href="{{ route('employees.edit', $emp) }}">
+                    <a href="{{ route('employees.digital-card.create', $emp) }}">
                       <img src="{{ asset('action_icon/pluse.svg') }}" width="16" height="16"> Add Dig. Card
                     </a>
                   @else
@@ -86,11 +76,15 @@
             <!-- Profile Section -->
             <div class="profile-section">
               <div class="profile-image">
-                @php($imageIndex = $loop->index % count($staticImages))
+                @php($initial = strtoupper(mb_substr((string)($emp->name ?? 'U'), 0, 1)))
                 @if(isset($emp->photo_path) && $emp->photo_path)
                   <img src="{{ asset('storage/'.$emp->photo_path) }}" alt="{{ $emp->name }}">
                 @else
-                  <img src="{{ $staticImages[$imageIndex] }}" alt="{{ $emp->name }}">
+                  <span style="
+                    width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+                    font-weight:700;font-size:20px;color:#fff;background:linear-gradient(135deg,#3b82f6,#9333ea);">
+                    {{ $initial }}
+                  </span>
                 @endif
               </div>
               <div class="profile-info">
@@ -103,9 +97,9 @@
             <div class="role-section">
               <div class="role-badge">
                 <div class="role-dot"></div>
-                <span class="role-title">{{ $emp->position ?? 'Designer' }}</span>
+                <span class="role-title">{{ $emp->position ?: '-' }}</span>
               </div>
-              <span class="role-description">{{ $emp->position ?? 'Sr. UI/UX Designer' }}</span>
+              <span class="role-description">{{ $emp->position ?: '-' }}</span>
             </div>
 
             <!-- Bottom Info -->
@@ -115,8 +109,8 @@
                 <div>Join Date</div>
               </div>
               <div class="info-values">
-                <div>{{ $emp->code ?? 'ABDPF1835R' }} | ₹{{ isset($emp->current_offer_amount) ? number_format($emp->current_offer_amount,0) : '27,000' }}</div>
-                <div>{{ isset($emp->joining_date) ? $emp->joining_date->format('d M,Y') : '23 Feb,2025' }}</div>
+                <div>{{ $emp->code ?: '-' }} | ₹{{ isset($emp->current_offer_amount) ? number_format($emp->current_offer_amount,0) : '-' }}</div>
+                <div>{{ !empty($emp->joining_date) ? \Carbon\Carbon::parse($emp->joining_date)->format('d M,Y') : '-' }}</div>
               </div>
             </div>
           </div>
