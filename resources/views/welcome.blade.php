@@ -458,7 +458,7 @@
       renderer: 'svg',
       loop: true,
       autoplay: true,
-      path: "{{ asset('lottie/Project-config.json') }}" // local Lottie JSON
+      path: "{{ asset('public/lottie/Project-config.json') }}" // local Lottie JSON
     });
 
     // GSAP entrance animations

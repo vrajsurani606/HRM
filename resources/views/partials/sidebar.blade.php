@@ -10,7 +10,9 @@
     <ul class="hrp-menu">
       @php($ico='dashboard.svg')
       @php($p=public_path('side_icon/'.$ico))
+      @can('Dashboard.manage dashboard')
       <li class="hrp-menu-item {{ request()->routeIs('dashboard') ? 'active' : '' }}"><a href="{{ route('dashboard') }}"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="Dashboard">@else <span class="fa fa-home"></span>@endif</i> <span>Dashboard</span></a></li>
+      @endcan
       @php($ico='hr.svg')
       @php($p=public_path('side_icon/'.$ico))
       <li class="hrp-menu-item {{ (request()->routeIs('hiring.*') || request()->routeIs('employees.*')) ? 'active-parent open' : '' }}" data-group="hrm"><a href="#" role="button"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="HRM">@else <span class="fa fa-users"></span>@endif</i> <span>HRM</span></a></li>
@@ -66,10 +68,20 @@
       <li class="hrp-menu-item {{ $attActive ? 'active-parent open' : '' }}" data-group="attendance"><a href="#" role="button"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="Attendance">@else <span class="fa fa-calendar-check-o"></span>@endif</i> <span>Attendance Management</span></a></li>
       <li class="hrp-menu-item hrp-sub {{ request()->routeIs('attendance.report') ? 'active' : '' }}" data-group="attendance"><a href="{{ route('attendance.report') }}"><span>Attendance Report</span></a></li>
       <li class="hrp-menu-item hrp-sub {{ request()->routeIs('leave-approval.*') ? 'active' : '' }}" data-group="attendance"><a href="{{ route('leave-approval.index') }}"><span>Leave Approval</span></a></li>
-
+      
       @php($ico='event.svg')
       @php($p=public_path('side_icon/'.$ico))
+      @can('Events Management.manage event')
       <li class="hrp-menu-item {{ request()->routeIs('events.*') ? 'active' : '' }}"><a href="{{ route('events.index') }}"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="Event">@else <span class="fa fa-calendar"></span>@endif</i> <span>Events Management</span></a></li>
+      @endcan
+
+      @php($ico='users.svg')
+      @php($p=public_path('side_icon/'.$ico))
+      @php($userActive = (request()->routeIs('users.*') || request()->routeIs('roles.*')))
+      <li class="hrp-menu-item {{ $userActive ? 'active-parent open' : '' }}" data-group="usermgmt"><a href="#" role="button"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="User Management">@else <span class="fa fa-users"></span>@endif</i> <span>User Management</span></a></li>
+      <li class="hrp-menu-item hrp-sub {{ request()->routeIs('users.*') ? 'active' : '' }}" data-group="usermgmt"><a href="{{ route('users.index') }}"><span>Users</span></a></li>
+      <li class="hrp-menu-item hrp-sub {{ request()->routeIs('roles.*') ? 'active' : '' }}" data-group="usermgmt"><a href="{{ route('roles.index') }}"><span>Roles</span></a></li>
+
 
       @php($ico='rule.svg')
       @php($p=public_path('side_icon/'.$ico))

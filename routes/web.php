@@ -37,9 +37,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile/bank', [ProfileController::class, 'updateBank'])->name('profile.bank.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Employees (example module)
-    Route::resource('employees', EmployeeController::class);
-
+    // Employees (example module with permission protection)
+        Route::resource('employees', EmployeeController::class);
     // HR Hiring Leads
     Route::resource('hiring', HiringController::class);
     Route::get('hiring/{id}/print', [HiringController::class, 'print'])->name('hiring.print');
@@ -82,7 +81,7 @@ Route::middleware('auth')->group(function () {
     Route::get('attendance/report', [AttendanceReportController::class,'index'])->name('attendance.report');
     Route::resource('leave-approval', LeaveApprovalController::class)->only(['index','update']); // leave-approval.index
 
-    // Events
+    // Events (align with new permission names)
     Route::resource('events', EventController::class);
     Route::post('events/{event}/images', [EventController::class, 'uploadImages'])->name('events.upload-images');
     Route::delete('event-images/{image}', [EventController::class, 'deleteImage'])->name('events.images.destroy');
@@ -95,8 +94,11 @@ Route::middleware('auth')->group(function () {
     Route::get('event-videos/{video}/open', [EventController::class, 'openVideo'])->name('events.videos.open');
     Route::get('event-videos/{video}/download', [EventController::class, 'downloadVideo'])->name('events.videos.download');
 
-    // Roles & Permissions (disabled from routes)
-    // Route::resource('roles', RoleController::class);
+    // User Management
+    Route::resource('users', \App\Http\Controllers\UserController::class);
+    
+    // Roles & Permissions
+    Route::resource('roles', \App\Http\Controllers\Role\RoleController::class);
 
     // Settings
     Route::resource('settings', SettingController::class)->only(['index','update']);

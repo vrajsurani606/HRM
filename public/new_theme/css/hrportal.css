@@ -272,6 +272,10 @@ html, body { overflow-x: hidden; }
 .hrp-menu-item[data-group="attendance"].active-parent ~ .hrp-sub[data-group="attendance"]{
   max-height: 44px; opacity: 1; transform: none;
 }
+.hrp-menu-item[data-group="usermgmt"].open ~ .hrp-sub[data-group="usermgmt"],
+.hrp-menu-item[data-group="usermgmt"].active-parent ~ .hrp-sub[data-group="usermgmt"]{
+  max-height: 44px; opacity: 1; transform: none;
+}
 
 /* Sidebar */
 .hrp-sidebar-inner{background:#E8E3DFCC;height:100%;border-radius:0;box-shadow:none;padding:6px 0 0 8px;border-right:0;box-sizing:border-box;display:flex;flex-direction:column}

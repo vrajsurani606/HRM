@@ -18,7 +18,7 @@ class ProjectStageSeeder extends Seeder
         ];
 
         foreach ($stages as $stage) {
-            ProjectStage::create($stage);
+            ProjectStage::firstOrCreate($stage);
         }
 
         // Sample projects
@@ -35,7 +35,7 @@ class ProjectStageSeeder extends Seeder
         ];
 
         foreach ($projects as $project) {
-            Project::create($project);
+            Project::firstOrCreate($project);
         }
     }
 }

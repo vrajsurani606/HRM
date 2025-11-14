@@ -73,12 +73,16 @@
     <div class="filter-right">
       <label class="select-all filter-pill"><input type="checkbox" id="selectAll"> Select all</label>
       <div id="bulkActionsWrap" class="bulk-actions" style="display:none;">
+        @can('Events Management.download event image')
         <button id="bulkDownload" class="bulk-btn download" disabled title="Download selected" type="button">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v12m0 0l4-4m-4 4l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 17v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
+        @endcan
+        @can('Events Management.delete event image')
         <button id="bulkDelete" class="bulk-btn delete" disabled title="Delete selected" type="button">
           <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" width="16" height="16">
         </button>
+        @endcan
       </div>
     </div>
   </div>
@@ -91,15 +95,21 @@
         <img class="media-thumb" src="{{ $url }}" alt="Image">
         <div class="media-overlay">
           <div class="ovl-actions">
-            <a class="ovl-btn" href="{{ route('events.images.open', $image) }}" target="_blank" title="Open">
-              <img src="{{ asset('action_icon/show.svg') }}" alt="Open">
-            </a>
-            <a class="ovl-btn" href="{{ route('events.images.download', $image) }}" title="Download">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v12m0 0l4-4m-4 4l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 17v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            </a>
-            <button class="ovl-btn" onclick="deleteImage({{ $image->id }})" title="Delete">
-              <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
-            </button>
+            @can('Events Management.view event image')
+              <a class="ovl-btn" href="{{ route('events.images.open', $image) }}" target="_blank" title="Open">
+                <img src="{{ asset('action_icon/show.svg') }}" alt="Open">
+              </a>
+            @endcan
+            @can('Events Management.download event image')
+              <a class="ovl-btn" href="{{ route('events.images.download', $image) }}" title="Download">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v12m0 0l4-4m-4 4l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 17v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </a>
+            @endcan
+            @can('Events Management.delete event image')
+              <button class="ovl-btn" onclick="deleteImage({{ $image->id }})" title="Delete">
+                <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+              </button>
+            @endcan
           </div>
         </div>
       </div>
@@ -114,15 +124,21 @@
         </video>
         <div class="media-overlay">
           <div class="ovl-actions">
-            <a class="ovl-btn" href="{{ route('events.videos.open', $video) }}" target="_blank" title="Open">
-              <img src="{{ asset('action_icon/view.svg') }}" alt="Open">
-            </a>
-            <a class="ovl-btn" href="{{ route('events.videos.download', $video) }}" title="Download">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v12m0 0l4-4m-4 4l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 17v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            </a>
-            <button class="ovl-btn" onclick="deleteVideo({{ $video->id }})" title="Delete">
-              <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
-            </button>
+            @can('Events Management.view event image')
+              <a class="ovl-btn" href="{{ route('events.videos.open', $video) }}" target="_blank" title="Open">
+                <img src="{{ asset('action_icon/view.svg') }}" alt="Open">
+              </a>
+            @endcan
+            @can('Events Management.download event image')
+              <a class="ovl-btn" href="{{ route('events.videos.download', $video) }}" title="Download">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v12m0 0l4-4m-4 4l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 17v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </a>
+            @endcan
+            @can('Events Management.delete event image')
+              <button class="ovl-btn" onclick="deleteVideo({{ $video->id }})" title="Delete">
+                <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+              </button>
+            @endcan
           </div>
         </div>
       </div>

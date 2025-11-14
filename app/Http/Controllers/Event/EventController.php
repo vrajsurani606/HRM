@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EventController extends Controller
 {
-    public function index(): View
+    public function index(): View|RedirectResponse
     {
         $events = Event::with([
             'images' => function($q){ $q->latest(); },
@@ -22,8 +22,11 @@ class EventController extends Controller
         return view('events.index', compact('events'));
     }
 
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Events Management.create event'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
         return view('events.create');
     }
 
@@ -46,19 +49,28 @@ class EventController extends Controller
         return redirect()->route('events.index')->with('success', 'Event created successfully!');
     }
 
-    public function show(Event $event): View
+    public function show(Event $event): View|RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Events Management.view event'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
         $event->load(['images','videos']);
         return view('events.show', compact('event'));
     }
 
-    public function edit(Event $event): View
+    public function edit(Event $event): View|RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Events Management.edit event'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
         return view('events.edit', compact('event'));
     }
 
     public function update(Request $request, Event $event): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Events Management.edit event'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -78,6 +90,9 @@ class EventController extends Controller
 
     public function destroy(Event $event): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Events Management.delete event'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
         foreach ($event->images as $image) {
             Storage::disk('public')->delete($image->image_path);
         }
@@ -88,6 +103,9 @@ class EventController extends Controller
 
     public function uploadImages(Request $request, Event $event)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Events Management.upload event image'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
         $request->validate([
             'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
@@ -114,6 +132,9 @@ class EventController extends Controller
 
     public function deleteImage(EventImage $image)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Events Management.delete event image'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
         Storage::disk('public')->delete($image->image_path);
         $image->delete();
         
@@ -185,6 +206,9 @@ class EventController extends Controller
     // Stream/open media through Laravel to avoid web server 403s
     public function openImage(EventImage $image)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Events Management.view event image'))) {
+            abort(403);
+        }
         $path = $image->image_path;
         if (!Storage::disk('public')->exists($path)) {
             abort(404);
@@ -198,6 +222,9 @@ class EventController extends Controller
 
     public function downloadImage(EventImage $image)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Events Management.download event image'))) {
+            abort(403);
+        }
         $path = $image->image_path;
         if (!Storage::disk('public')->exists($path)) {
             abort(404);

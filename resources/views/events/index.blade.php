@@ -36,9 +36,11 @@
     <div class="events-search-container">
       <input type="text" id="eventSearch" class="events-search" placeholder="Type to search...">
     </div>
-    <button class="add-event-btn" data-toggle="modal" data-target="#addEventModal">
-      <img src="{{ asset('action_icon/pluse.svg') }}" alt="Add" class="btn-icon"> Add
-    </button>
+    @can('Events Management.create event')
+      <button class="add-event-btn" data-toggle="modal" data-target="#addEventModal">
+        <img src="{{ asset('action_icon/pluse.svg') }}" alt="Add" class="btn-icon"> Add
+      </button>
+    @endcan
   </div>
 
   <!-- Grid -->
@@ -62,6 +64,7 @@
           <div class="event-date">{{ $event->created_at?->format('M d, Y') }}</div>
         </div>
         <div class="event-actions">
+          @can('Events Management.upload event image')
           <button class="action-btn js-upload" data-id="{{ $event->id }}" title="Upload Images">
             <!-- upload icon -->
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -70,12 +73,18 @@
               <path d="M20 16v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </button>
+          @endcan
+          @can('Events Management.edit event')
           <button class="action-btn js-edit" data-id="{{ $event->id }}" data-name="{{ $event->name }}" data-description="{{ $event->description }}" data-cover="{{ $cover }}" title="Edit">
             <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
           </button>
+          @endcan
+          @can('Events Management.view event')
           <a href="{{ route('events.show', $event) }}" class="action-btn view" title="View">
             <img src="{{ asset('action_icon/view.svg') }}" alt="View">
           </a>
+          @endcan
+          @can('Events Management.delete event')
           <form action="{{ route('events.destroy', $event) }}" method="POST" style="display:inline;">
             @csrf
             @method('DELETE')
@@ -83,6 +92,7 @@
               <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
             </button>
           </form>
+          @endcan
         </div>
         <div class="event-footer">
           <div class="count-pills">
@@ -95,7 +105,9 @@
               {{ $vidCount }}
             </a>
           </div>
-          <a href="{{ route('events.show', $event) }}" class="pill-btn" style="padding:6px 10px; font-weight:700;">Open</a>
+          @can('Events Management.view event')
+            <a href="{{ route('events.show', $event) }}" class="pill-btn" style="padding:6px 10px; font-weight:700;">Open</a>
+          @endcan
         </div>
       </div>
     @empty

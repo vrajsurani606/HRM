@@ -154,7 +154,7 @@
                 <tr>
                   <td class="action-icons">
                     <button class="action-icon view" title="View"><img src="{{ asset('action_icon/view.svg') }}" alt="view"></button>
-                    <button class="action-icon delete" title="Delete"><img src="{{ asset('action_icon/delete.svg') }}" alt="delete"></button>
+                      <button class="action-icon delete" title="Delete"><img src="{{ asset('action_icon/delete.svg') }}" alt="delete"></button>
                   </td>
                   <td>{{ $idx+1 }}</td>
                   <td><a href="#" class="link-blue">{{ $t['status'] ?? 'Closed' }}</a></td>
@@ -193,10 +193,12 @@
         <div class="hrp-card-body-note">
           <div class="tab-pane show" id="tab-notes">
             <div class="notes-title">Add New Notes</div>
+            @can('Dashboard.manage dashboard')
             <div class="notes-entry">
               <textarea class="notes-area" rows="3" placeholder="Enter your Note....."></textarea>
               <button class="notes-send" type="button" aria-label="Add">➤</button>
             </div>
+            @endcan
             <div class="chips-wrap" style="display:none"></div>
             <div class="notes-grid">
               @foreach(data_get($notes, 'notes', []) as $n)
@@ -216,13 +218,15 @@
             </div>
           </div>
           <div class="tab-pane" id="tab-admin" hidden>
-            <div class="notes-title">Add New Notes</div>
-            <textarea class="notes-area" rows="3" placeholder="Enter your Note....."></textarea>
-            <div class="chips-wrap chips-panel" id="adminChips">
-              <button class="notes-add" id="btnAddUser" type="button" aria-label="Add">
-                <img src="{{ asset('new_theme/bower_components/Ionicons/src/android-add.svg') }}" alt="add" />
-              </button>
-            </div>
+            @can('Dashboard.manage dashboard')
+              <div class="notes-title">Add New Notes</div>
+              <textarea class="notes-area" rows="3" placeholder="Enter your Note....."></textarea>
+              <div class="chips-wrap chips-panel" id="adminChips">
+                <button class="notes-add" id="btnAddUser" type="button" aria-label="Add">
+                  <img src="{{ asset('new_theme/bower_components/Ionicons/src/android-add.svg') }}" alt="add" />
+                </button>
+              </div>
+            @endcan
           </div>
           <div class="tab-pane" id="tab-emp" hidden>
             <div class="notes-list">
@@ -237,11 +241,13 @@
                   <div class="item-meta">
                     <span class="ico">⏰</span> {{ $n['date'] }}
                     <span class="ico">⏳</span> {{ $n['expiry'] ?? 'No expiration' }}
+                    @can('Dashboard.manage dashboard')
                     <span class="actions">
                       <a href="#" class="view" title="View"><img src="{{ asset('action_icon/view.svg') }}" alt="view"></a>
                       <a href="#" class="edit" title="Edit"><img src="{{ asset('action_icon/edit.svg') }}" alt="edit"></a>
                       <a href="#" class="trash" title="Delete"><img src="{{ asset('action_icon/delete.svg') }}" alt="delete"></a>
                     </span>
+                    @endcan
                   </div>
                 </div>
               @endforeach
