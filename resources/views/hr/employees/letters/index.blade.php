@@ -1,4 +1,6 @@
 @extends('layouts.macos')
+@section('page_title', $page_title)
+
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/employee-grid.css') }}">
@@ -155,6 +157,9 @@
     .badge-impartiality { background-color: #f97316; }
     .badge-experience { background-color: #06b6d4; }
     .badge-agreement { background-color: #14b8a6; }
+    .badge-relieving { background-color: #8b5cf6; }
+    .badge-confirmation { background-color: #2563eb; }
+    .badge-warning { background-color: #f59e0b; }
     .badge-termination { background-color: #ef4444; }
     .badge-other { background-color: #6b7280; }
     
@@ -220,10 +225,6 @@
 @section('content')
 <div class="letters-container">
     <div class="letters-header">
-        <div>
-            <h1 class="letters-title">Letters for {{ $employee->name }}</h1>
-            <p class="text-sm text-gray-600 mt-1">Manage all employee letters and documents</p>
-        </div>
         <div class="flex items-center space-x-3">
             <a href="{{ route('employees.letters.create', $employee) }}" 
                class="add-btn" 
@@ -232,17 +233,6 @@
             </a>
         </div>
     </div>
-
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible" style="background: #d1fae5; color: #065f46; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-            <i class="fa fa-check-circle"></i>
-            <span>{{ session('success') }}</span>
-            <button type="button" class="close" style="margin-left: auto; background: none; border: none; font-size: 18px; cursor: pointer;" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    @endif
-
     <div class="letters-grid">
         @forelse ($letters as $letter)
             <div class="letter-card">
@@ -266,6 +256,12 @@
                     </div>
                 </div>
                 <div class="letter-actions">
+                    <a href="{{ route('employees.letters.print', [$employee, $letter]) }}" 
+                       class="action-btn view" 
+                       title="Print Letter"
+                       target="_blank">
+                        <i class="fa fa-print"></i> Print
+                    </a>
                     <a href="#" class="action-btn view" title="View Letter">
                         <i class="fa fa-eye"></i> View
                     </a>
@@ -342,6 +338,13 @@
         </div>
     </div>
 </div>
+@endsection
+@section('breadcrumb')
+  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+  <span class="hrp-bc-sep">›</span>
+  <a href="{{ route('hiring.index') }}" style="font-weight:800;color:#0f0f0f;text-decoration:none">HRM</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">Employee Letters</span>
 @endsection
 @push('scripts')
 <script>

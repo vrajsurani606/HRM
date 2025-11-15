@@ -154,7 +154,7 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'type' => 'required|string|in:appointment,experience,relieving,other',
+            'type' => 'required|string|in:appointment,offer,joining,confidentiality,impartiality,experience,agreement,relieving,confirmation,warning,termination,other',
             'issue_date' => 'required|date',
         ]);
 
@@ -182,5 +182,22 @@ class EmployeeController extends Controller
         // Generate a more unique reference number with random string
         $randomString = strtoupper(Str::random(3));
         return $prefix . str_pad($number, 4, '0', STR_PAD_LEFT) . '-' . $randomString;
+    }
+
+    /**
+     * Display the specified letter in a print view.
+     */
+    public function printLetter(Employee $employee, \App\Models\EmployeeLetter $letter)
+    {
+        // Verify the letter belongs to the employee
+        if ($letter->employee_id !== $employee->id) {
+            abort(404);
+        }
+
+        return view('hr.employees.letters.print', [
+            'employee' => $employee,
+            'letter' => $letter,
+            'page_title' => 'Print ' . ucfirst($letter->type) . ' Letter - ' . $employee->name,
+        ]);
     }
 }

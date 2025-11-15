@@ -10,9 +10,9 @@
     <ul class="hrp-menu">
       @php($ico='dashboard.svg')
       @php($p=public_path('side_icon/'.$ico))
-      @can('Dashboard.manage dashboard')
+      
       <li class="hrp-menu-item {{ request()->routeIs('dashboard') ? 'active' : '' }}"><a href="{{ route('dashboard') }}"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="Dashboard">@else <span class="fa fa-home"></span>@endif</i> <span>Dashboard</span></a></li>
-      @endcan
+     
       @php($ico='hr.svg')
       @php($p=public_path('side_icon/'.$ico))
       <li class="hrp-menu-item {{ (request()->routeIs('hiring.*') || request()->routeIs('employees.*')) ? 'active-parent open' : '' }}" data-group="hrm"><a href="#" role="button"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="HRM">@else <span class="fa fa-users"></span>@endif</i> <span>HRM</span></a></li>
