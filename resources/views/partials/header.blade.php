@@ -7,12 +7,15 @@
     <h1 class="hrp-page-title">@yield('page_title','Dashboard')</h1>
   </div>
   <div class="hrp-header-right">
-    <div class="hrp-thumb" title="IN/OUT">
+    <div class="hrp-thumb" title="IN/OUT" id="attendanceBtn" style="cursor: pointer;">
       <div class="ico" aria-hidden="true">
         <img src="{{ asset('new_theme/images/fingure.svg') }}" alt="IN/OUT" width="22" height="22" />
       </div>
       <div class="lbl">IN/OUT</div>
     </div>
+    
+    <!-- Include Time Tracker Component -->
+    @include('components.time-tracker-modal')
     <div class="dropdown">
       <button class="hrp-user-btn" data-toggle="dropdown" aria-expanded="false">
         <img class="hrp-avatar" src="https://i.pravatar.cc/64?img=12" alt="user"/>
@@ -34,3 +37,18 @@
     </div>
   </div>
 </header>
+
+@push('scripts')
+  <script>
+    // Simple click handler for the attendance button
+    document.getElementById('attendanceBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      // The modal is controlled by the time-tracker component
+    });
+    
+    // Initialize tooltips
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+  </script>
+@endpush

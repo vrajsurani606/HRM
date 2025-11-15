@@ -74,7 +74,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/letters', [EmployeeController::class, 'lettersIndex'])->name('employees.letters.index');
         Route::get('/letters/create', [EmployeeController::class, 'createLetter'])->name('employees.letters.create');
         Route::post('/letters', [EmployeeController::class, 'storeLetter'])->name('employees.letters.store');
-        
+        Route::get('/letters/{letter}/print', [EmployeeController::class, 'printLetter'])->name('employees.letters.print');
         // Digital Card routes
         Route::get('/digital-card/create', [\App\Http\Controllers\HR\DigitalCardController::class, 'create'])->name('employees.digital-card.create');
         Route::post('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'store'])->name('employees.digital-card.store');
