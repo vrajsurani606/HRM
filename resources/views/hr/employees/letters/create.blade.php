@@ -204,16 +204,92 @@ $(document).ready(function() {
         toolbar: [
             ['style', ['bold', 'italic', 'underline', 'clear']],
             ['para', ['ul', 'ol']],
-            ['insert', ['link']],
-            ['view', ['codeview']]
-        ]
+            ['insert', ['link']]
+        ],
+        fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18'],
+        styleTags: ['p', 'pre', 'h4', 'h5', 'h6']
+    });
+
+    // Generate new reference number
+    $('#generateRefBtn').click(function() {
+        $.ajax({
+            url: '{{ route("employees.letters.generate-reference", $employee) }}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                $('#reference_number').val(response.reference_number);
+            },
+            error: function() {
+                alert('Error generating reference number');
+            }
+        });
     });
 
     // Handle form submission
-    $('form').on('submit', function() {
+    $('form').on('submit', function(e) {
+        e.preventDefault();
+        
         // Update textarea content before form submission
         $('.summernote, .summernote-notes').each(function() {
             $(this).val($(this).summernote('code'));
+        });
+        
+        // Get form data
+        var formData = new FormData(this);
+        var url = $(this).attr('action');
+        
+        // Show loading state
+        var submitBtn = $(this).find('button[type="submit"]');
+        var originalBtnText = submitBtn.html();
+        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+        
+        // Clear previous errors
+        $('.hrp-error').text('').hide();
+        $('.is-invalid').removeClass('is-invalid');
+        
+        // Submit form via AJAX
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType: 'json', // Expect JSON response
+            success: function(response) {
+                if (response.redirect) {
+                    window.location.href = response.redirect;
+                } else {
+                    // If no redirect URL is provided, just reload the page
+                    window.location.reload();
+                }
+            },
+            error: function(xhr) {
+                // Re-enable submit button
+                submitBtn.prop('disabled', false).html(originalBtnText);
+                
+                // Handle validation errors
+                if (xhr.status === 422) {
+                    var errors = xhr.responseJSON.errors;
+                    $.each(errors, function(field, messages) {
+                        var input = $('[name="' + field + '"]');
+                        input.addClass('is-invalid');
+                        var errorContainer = input.siblings('.hrp-error');
+                        if (errorContainer.length === 0) {
+                            errorContainer = $('<small class="hrp-error text-red-500 text-xs"></small>');
+                            input.after(errorContainer);
+                        }
+                        errorContainer.html(messages[0]).show();
+                    });
+                } else {
+                    // Show generic error message
+                    var errorMsg = xhr.responseJSON && xhr.responseJSON.message 
+                        ? xhr.responseJSON.message 
+                        : 'An error occurred while saving. Please try again.';
+                    alert(errorMsg);
+                }
+            }
         });
     });
 });

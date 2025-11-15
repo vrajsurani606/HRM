@@ -156,15 +156,31 @@ class EmployeeController extends Controller
             'content' => 'required|string',
             'type' => 'required|string|in:appointment,offer,joining,confidentiality,impartiality,experience,agreement,relieving,confirmation,warning,termination,other',
             'issue_date' => 'required|date',
+            'reference_number' => 'required|string|unique:employee_letters,reference_number',
+            'notes' => 'nullable|string',
         ]);
 
-        $validated['reference_number'] = $this->generateLetterNumber();
-        
-        $employee->letters()->create($validated);
+        try {
+            // If reference number is not provided, generate one
+            if (empty($validated['reference_number'])) {
+                $validated['reference_number'] = $this->generateLetterNumber();
+            }
+            
+            // Create the letter
+            $letter = $employee->letters()->create($validated);
 
-        return redirect()
-            ->route('employees.letters.index', $employee)
-            ->with('success', 'Letter created successfully');
+            return response()->json([
+                'success' => true,
+                'redirect' => route('employees.letters.index', $employee)
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error saving letter: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save letter. Please try again.'
+            ], 500);
+        }
     }
 
     /**
