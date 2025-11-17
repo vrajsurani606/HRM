@@ -197,7 +197,14 @@ class EmployeeController extends Controller
         
         // Generate a more unique reference number with random string
         $randomString = strtoupper(Str::random(3));
-        return $prefix . str_pad($number, 4, '0', STR_PAD_LEFT) . '-' . $randomString;
+        $referenceNumber = $prefix . str_pad($number, 4, '0', STR_PAD_LEFT) . '-' . $randomString;
+        
+        // Return JSON response for AJAX calls
+        if (request()->ajax()) {
+            return response()->json(['reference_number' => $referenceNumber]);
+        }
+        
+        return $referenceNumber;
     }
 
     /**
@@ -210,7 +217,73 @@ class EmployeeController extends Controller
             abort(404);
         }
 
-        return view('hr.employees.letters.print', [
+        // Type-specific routing
+        if ($letter->type == 'offer') {
+            return view('hr.employees.letters.print_offerletter', [
+                'employee' => $employee,
+                'letter' => $letter,
+                'page_title' => 'Print Offer Letter - ' . $employee->name,
+            ]);
+        }
+        
+        if ($letter->type == 'joining') {
+            return view('hr.employees.letters.print_joining', [
+                'employee' => $employee,
+                'letter' => $letter,
+                'page_title' => 'Print Joining Letter - ' . $employee->name,
+            ]);
+        }
+        
+        if ($letter->type == 'confidentiality') {
+            return view('hr.employees.letters.print_confidentiality', [
+                'employee' => $employee,
+                'letter' => $letter,
+                'page_title' => 'Print Confidentiality Letter - ' . $employee->name,
+            ]);
+        }
+        
+        if ($letter->type == 'impartiality') {
+            return view('hr.employees.letters.print_impartiality', [
+                'employee' => $employee,
+                'letter' => $letter,
+                'page_title' => 'Print Impartiality Letter - ' . $employee->name,
+            ]);
+        }
+        
+        if ($letter->type == 'experience') {
+            return view('hr.employees.letters.print_experience', [
+                'employee' => $employee,
+                'letter' => $letter,
+                'page_title' => 'Print Experience Letter - ' . $employee->name,
+            ]);
+        }
+        
+        if ($letter->type == 'agreement') {
+            return view('hr.employees.letters.print_agreement', [
+                'employee' => $employee,
+                'letter' => $letter,
+                'page_title' => 'Print Agreement Letter - ' . $employee->name,
+            ]);
+        }
+        
+        if ($letter->type == 'warning') {
+            return view('hr.employees.letters.print_warning', [
+                'employee' => $employee,
+                'letter' => $letter,
+                'page_title' => 'Print Warning Letter - ' . $employee->name,
+            ]);
+        }
+        
+        if ($letter->type == 'termination') {
+            return view('hr.employees.letters.print_termination', [
+                'employee' => $employee,
+                'letter' => $letter,
+                'page_title' => 'Print Termination Letter - ' . $employee->name,
+            ]);
+        }
+
+        // Default fallback for other letter types
+        return view('hr.employees.letters.print_letter', [
             'employee' => $employee,
             'letter' => $letter,
             'page_title' => 'Print ' . ucfirst($letter->type) . ' Letter - ' . $employee->name,

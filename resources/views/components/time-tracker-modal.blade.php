@@ -1,4 +1,4 @@
-<div id="timeTrackerModal" class="time-tracker-wrapper" style="display: none;">
+<div id="timeTrackerModal" class="time-tracker-wrapper" style="display: none; z-index: 9999;">
     <div class="time-tracker-overlay"></div>
     <div class="time-tracker-container">
         <div class="time-tracker-header">
@@ -41,11 +41,13 @@
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 9999;
+    z-index: 1050;
     display: flex;
     justify-content: center;
     align-items: center;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    padding: 1rem;
+    box-sizing: border-box;
 }
 
 /* Overlay */
@@ -56,8 +58,9 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 1;
+    z-index: 1049;
     backdrop-filter: blur(2px);
+    cursor: pointer;
 }
 
 /* Main Container */

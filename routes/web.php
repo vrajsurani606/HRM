@@ -81,6 +81,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'show'])->name('employees.digital-card.show');
     });
     Route::get('employees/letters/generate-number', [EmployeeController::class, 'generateLetterNumber'])->name('employees.letters.generate-number');
+    Route::get('employees/letters/generate-reference', [EmployeeController::class, 'generateLetterNumber'])->name('employees.letters.generate-reference');
     Route::get('employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
 
     // HR Hiring Leads

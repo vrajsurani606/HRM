@@ -187,7 +187,6 @@ $(document).ready(function() {
         fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '24', '36', '48'],
         callbacks: {
             onInit: function() {
-                // Make sure the editor has focus when initialized
                 $('.note-editable').focus();
             }
         },
@@ -207,17 +206,14 @@ $(document).ready(function() {
             ['insert', ['link']]
         ],
         fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18'],
-        styleTags: ['p', 'pre', 'h4', 'h5', 'h6']
+        styleTags: ['p', 'h4', 'h5', 'h6']
     });
 
     // Generate new reference number
     $('#generateRefBtn').click(function() {
         $.ajax({
-            url: '{{ route("employees.letters.generate-reference", $employee) }}',
-            type: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}'
-            },
+            url: '{{ route("employees.letters.generate-reference") }}',
+            type: 'GET',
             success: function(response) {
                 $('#reference_number').val(response.reference_number);
             },
@@ -227,49 +223,61 @@ $(document).ready(function() {
         });
     });
 
+    // Auto-populate content based on letter type
+    $('#type').change(function() {
+        var letterType = $(this).val();
+        var companyName = 'CHITRI ENLARGE SOFT IT HUB PVT. LTD.';
+        
+        var templates = {
+            'joining': 'Subject: Welcome to ' + companyName,
+            'confidentiality': 'Subject: Confidentiality Agreement',
+            'impartiality': 'Subject: Impartiality Agreement', 
+            'experience': 'Subject: Experience Certificate',
+            'agreement': 'Subject: Employment Agreement',
+            'warning': 'Subject: Warning Notice',
+            'termination': 'Subject: Termination of Employment'
+        };
+        
+        if (templates[letterType]) {
+            $('#title').val(templates[letterType]);
+        }
+    });
+
     // Handle form submission
     $('form').on('submit', function(e) {
         e.preventDefault();
         
-        // Update textarea content before form submission
         $('.summernote, .summernote-notes').each(function() {
             $(this).val($(this).summernote('code'));
         });
         
-        // Get form data
         var formData = new FormData(this);
         var url = $(this).attr('action');
         
-        // Show loading state
         var submitBtn = $(this).find('button[type="submit"]');
         var originalBtnText = submitBtn.html();
         submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
         
-        // Clear previous errors
         $('.hrp-error').text('').hide();
         $('.is-invalid').removeClass('is-invalid');
         
-        // Submit form via AJAX
         $.ajax({
             url: url,
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
-            dataType: 'json', // Expect JSON response
+            dataType: 'json',
             success: function(response) {
                 if (response.redirect) {
                     window.location.href = response.redirect;
                 } else {
-                    // If no redirect URL is provided, just reload the page
                     window.location.reload();
                 }
             },
             error: function(xhr) {
-                // Re-enable submit button
                 submitBtn.prop('disabled', false).html(originalBtnText);
                 
-                // Handle validation errors
                 if (xhr.status === 422) {
                     var errors = xhr.responseJSON.errors;
                     $.each(errors, function(field, messages) {
@@ -283,7 +291,6 @@ $(document).ready(function() {
                         errorContainer.html(messages[0]).show();
                     });
                 } else {
-                    // Show generic error message
                     var errorMsg = xhr.responseJSON && xhr.responseJSON.message 
                         ? xhr.responseJSON.message 
                         : 'An error occurred while saving. Please try again.';
