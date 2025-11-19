@@ -149,7 +149,7 @@
                     <div>
                         <label class="hrp-label">Start Date: <span class="text-red-500">*</span></label>
                         <input type="date" name="start_date" id="start_date" class="hrp-input Rectangle-29" 
-                               value="{{ $employee->joining_date }}">
+                               value="{{ optional($employee->joining_date)->format('Y-m-d') }}">
                         @error('start_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -310,7 +310,7 @@
             <div id="otherFields" class="hidden col-span-2 space-y-4">
                 <div>
                     <label class="hrp-label">Subject: <span class="text-red-500">*</span></label>
-                    <input type="text" name="subject" id="other_subject" class="hrp-input Rectangle-29" 
+                    <input type="text" id="other_subject" class="hrp-input Rectangle-29" 
                            placeholder="Enter letter subject" value="{{ old('subject') }}">
                     @error('subject')
                         <small class="hrp-error">{{ $message }}</small>
@@ -437,16 +437,21 @@ function removeField(button, type) {
 // Set today's date as default for issue date
 document.addEventListener('DOMContentLoaded', function() {
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('issueDate').value = today;
+    const issueDateEl = document.getElementById('issue_date');
+    if (issueDateEl) issueDateEl.value = today;
     
-    // Set default joining date to 7 days from now
-    const nextWeek = new Date();
-    nextWeek.setDate(nextWeek.getDate() + 7);
-    document.getElementById('joiningDate').value = nextWeek.toISOString().split('T')[0];
+    // Set default joining date to 7 days from now (only if field exists)
+    const joiningEl = document.getElementById('joiningDate');
+    if (joiningEl) {
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        joiningEl.value = nextWeek.toISOString().split('T')[0];
+    }
 });
 
 // Toggle fields based on letter type selection
 $(document).on('change', 'select[name="type"]', function() {
+
     const offerLetterFields = document.getElementById('offerLetterFields');
     const experienceFields = document.getElementById('experienceFields');
     const terminationFields = document.getElementById('terminationFields');
@@ -504,8 +509,51 @@ $(document).on('change', 'select[name="type"]', function() {
     } else {
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     }
-});
 
+    // Ensure only the visible content textarea is submitted as 'content'
+    const mapping = {
+      warning: 'warning_content',
+      termination: 'termination_reason',
+      other: 'other_content'
+    };
+    const ids = ['warning_content','termination_reason','other_content'];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      // Temporarily remove name so it doesn't get posted
+      el.setAttribute('data-orig-name', el.getAttribute('name') || '');
+      el.removeAttribute('name');
+    });
+    const selectedId = mapping[this.value];
+    if (selectedId) {
+      const active = document.getElementById(selectedId);
+      if (active) active.setAttribute('name','content');
+    }
+
+    // Toggle subject name only for 'other' type so it isn't posted for other types
+    const subj = document.getElementById('other_subject');
+    if (subj) {
+      if (this.value === 'other') {
+        subj.setAttribute('name','subject');
+      } else {
+        subj.removeAttribute('name');
+      }
+    }
+
+    // Toggle required attributes for common cases
+    const req = (id, on) => { const el = document.getElementById(id); if (el) on ? el.setAttribute('required','required') : el.removeAttribute('required'); };
+    // Base required
+    req('title', true); req('issue_date', true);
+    // Per-type requirements
+    req('start_date', this.value==='experience');
+    req('end_date', this.value==='experience');
+    req('termination_date', this.value==='termination');
+    req('other_subject', this.value==='other');
+    // Content required for warning/termination/other
+    req('warning_content', this.value==='warning');
+    req('termination_reason', this.value==='termination');
+    req('other_content', this.value==='other');
+});
 // Trigger change event on page load to set initial state
 $('select[name="type"]').trigger('change');
 
@@ -626,6 +674,7 @@ $(document).ready(function() {
                 
                 if (xhr.status === 422) {
                     var errors = xhr.responseJSON.errors;
+                    console.error('Validation errors:', errors);
                     $.each(errors, function(field, messages) {
                         var input = $('[name="' + field + '"]');
                         input.addClass('is-invalid');
@@ -636,6 +685,13 @@ $(document).ready(function() {
                         }
                         errorContainer.html(messages[0]).show();
                     });
+                    // Scroll to first error field
+                    var firstKey = Object.keys(errors)[0];
+                    var firstEl = $('[name="' + firstKey + '"]');
+                    if (firstEl && firstEl.length) {
+                        $('html, body').animate({ scrollTop: Math.max(0, firstEl.offset().top - 120) }, 300);
+                        firstEl.focus();
+                    }
                 } else {
                     var errorMsg = xhr.responseJSON && xhr.responseJSON.message 
                         ? xhr.responseJSON.message 

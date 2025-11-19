@@ -21,12 +21,12 @@
       <div class="hrp-col-6">
         <label class="hrp-label Mobile-No" for="name">{{ __('Full Name') }} : <span style="color: #ef4444;">*</span></label>
         <input type="text" id="name" name="name" class="Rectangle-29" 
-               value="{{ old('name', $user->name) }}" required autofocus autocomplete="name" 
+               value="{{ old('name', ($employee->name ?? null) ?: $user->name) }}" required autofocus autocomplete="name" 
                placeholder="{{ __('Enter your full name') }}" />
         @if($errors->get('name'))
           <div style="color: #ef4444; font-size: 13px; margin-top: 8px; font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
             {{ $errors->first('name') }}
-          </div>
+          </div>    
         @endif
       </div>
 

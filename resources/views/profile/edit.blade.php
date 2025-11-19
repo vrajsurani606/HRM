@@ -10,7 +10,7 @@
         <!-- Employee ID -->
         <div style="flex-shrink:0">
           <div style="font-size:12px;color:#64748b;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin-bottom:2px">Employee ID</div>
-          <div style="font-size:16px;color:#1e293b;font-weight:700;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">#Chitri_0024</div>
+          <div style="font-size:16px;color:#1e293b;font-weight:700;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">{{ $employee?->code ?? ('USR-' . $user->id) }}</div>
         </div>
         
         <!-- Divider -->
@@ -19,21 +19,24 @@
         <!-- Profile Info -->
         <div style="display:flex;align-items:center;gap:8px">
           <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;background:#fbbf24;flex-shrink:0">
-            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover" alt="Dipesh Vasoya">
+            @php($photo = $employee?->photo_path ? asset('storage/' . $employee->photo_path) : null)
+            <img src="{{ $photo ?? 'https://ui-avatars.com/api/?name=' . urlencode($employee->name ?? $user->name) . '&background=f59e0b&color=fff&size=60' }}" style="width:100%;height:100%;object-fit:cover" alt="{{ $employee->name ?? $user->name }}">
           </div>
           <div>
-            <h2 style="font-size:24px;font-weight:700;color:#1e293b;margin:0 0 1px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">Dipesh Vasoya</h2>
-            <p style="color:#64748b;margin:0;font-size:13px;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">UI/UX Designer</p>
+            <h2 style="font-size:24px;font-weight:700;color:#1e293b;margin:0 0 1px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">{{ $employee->name ?? $user->name }}</h2>
+            <p style="color:#64748b;margin:0;font-size:13px;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">{{ $employee->position ?? '—' }}</p>
           </div>
         </div>
         
         <!-- Divider -->
         <div style="width:1px;height:36px;background:#e5e7eb"></div>
         
-        <!-- Active Badge -->
-        <div style="display:flex;align-items:center;gap:16px;background:#158f00;color:#ffffff;font-weight:700;font-size:14px;padding:6px 14px;border-radius:9999px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;flex-shrink:0">
+        <!-- Status Badge -->
+        @php($status = strtolower($employee->status ?? 'active'))
+        @php($badgeBg = $status === 'active' ? '#158f00' : '#6b7280')
+        <div style="display:flex;align-items:center;gap:16px;background:{{ $badgeBg }};color:#ffffff;font-weight:700;font-size:14px;padding:6px 14px;border-radius:9999px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;flex-shrink:0">
           <div style="width:8px;height:8px;background:#ffffff;border-radius:50%"></div>
-          Active
+          {{ ucfirst($status) }}
         </div>
         
         <!-- Divider -->
@@ -45,13 +48,13 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
               <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
             </svg>
-            +917359442073
+            {{ $employee->mobile_no ?? ($user->mobile_no ?? '—') }}
           </div>
           <div style="display:flex;align-items:center;gap:6px;color:#000000;font-size:14px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
               <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
             </svg>
-            dipeshvasoya22@gmail.com
+            {{ $user->email }}
           </div>
         </div>
         
@@ -61,7 +64,9 @@
         <!-- Company Join Date -->
         <div style="flex-shrink:0">
           <div style="font-size:14px;color:#000000;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin-bottom:2px">Company Join Date:</div>
-          <div style="font-size:16px;color:#000000;font-weight:700;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">23 / 12 / 2024</div>
+          <div style="font-size:16px;color:#000000;font-weight:700;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+            {{ isset($employee->joining_date) ? $employee->joining_date->format('d / m / Y') : '—' }}
+          </div>
         </div>
       </div>
     </div>
@@ -237,60 +242,39 @@
         <table>
           <thead>
             <tr>
-              <th>Action</th>
-              <th>Serial No</th>
-              <th>Unique No</th>
+              <th>#</th>
+              <th>Payslip ID</th>
               <th>Salary Month</th>
-              <th>Format Type</th>
               <th>Payment Date</th>
-              <th>Payment Amount</th>
+              <th>Gross Amount</th>
+              <th>Net Amount</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>
-                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon" />
-              </td>
-              <td>1</td>
-              <td>CMS/LEAD/0022</td>
-              <td>OCT - 2025</td>
-              <td>Salary</td>
-              <td>30-10-2025</td>
-              <td>₹ 11,000</td>
-            </tr>
-            <tr>
-              <td>
-                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon" />
-              </td>
-              <td>2</td>
-              <td>CMS/LEAD/0023</td>
-              <td>Salary (OCT-25)</td>
-              <td>Salary</td>
-              <td>14-10-2025</td>
-              <td>₹ 15,000</td>
-            </tr>
-            <tr>
-              <td>
-                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon" />
-              </td>
-              <td>3</td>
-              <td>CMS/LEAD/0024</td>
-              <td>Other</td>
-              <td>Salary</td>
-              <td>29-09-2025</td>
-              <td>₹ 20,000</td>
-            </tr>
-            <tr>
-              <td>
-                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon" />
-              </td>
-              <td>4</td>
-              <td>CMS/LEAD/0025</td>
-              <td>Salary (JUN-25)</td>
-              <td>Salary</td>
-              <td>28-08-2025</td>
-              <td>₹ 12,000</td>
-            </tr>
+            @if(isset($payslips) && count($payslips))
+              @foreach($payslips as $i => $p)
+                <tr>
+                  <td>{{ $loop->iteration }}</td>
+                  <td>{{ $p->code ?? ('PSL-'.$p->id) }}</td>
+                  <td>{{ isset($p->salary_month) ? \Carbon\Carbon::parse($p->salary_month)->format('M - Y') : '-' }}</td>
+                  <td>{{ isset($p->payment_date) ? \Carbon\Carbon::parse($p->payment_date)->format('d-m-Y') : '-' }}</td>
+                  <td>{{ isset($p->gross_amount) ? '₹'.number_format($p->gross_amount,2) : '-' }}</td>
+                  <td>{{ isset($p->net_amount) ? '₹'.number_format($p->net_amount,2) : '-' }}</td>
+                  <td>
+                    @if(!empty($p->file_path))
+                      <a href="{{ asset('storage/'.$p->file_path) }}" target="_blank" style="color:#0ea5e9;font-weight:700;text-decoration:none">View</a>
+                    @else
+                      —
+                    @endif
+                  </td>
+                </tr>
+              @endforeach
+            @else
+              <tr>
+                <td colspan="7" style="text-align:center;padding:40px;color:#6b7280">No payslips found</td>
+              </tr>
+            @endif
           </tbody>
         </table>
       </div>
@@ -298,237 +282,142 @@
 
     <!-- Attendance Tab Content -->
     <div id="attendance" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
-      <!-- Stats Cards -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 32px 0">
+        <div style="font-weight:700;color:#1f2937">Attendance Overview</div>
+        <form method="get" action="{{ route('profile.edit') }}" style="display:flex;gap:8px;align-items:center">
+          <select name="month" onchange="this.form.submit()" style="padding:8px 10px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#111827">
+            @for($m=1;$m<=12;$m++)
+              <option value="{{ $m }}" {{ (int)$month === $m ? 'selected' : '' }}>{{ date('F', mktime(0,0,0,$m,1)) }}</option>
+            @endfor
+          </select>
+          <select name="year" onchange="this.form.submit()" style="padding:8px 10px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#111827">
+            @for($y=now()->year-3;$y<=now()->year+1;$y++)
+              <option value="{{ $y }}" {{ (int)$year === $y ? 'selected' : '' }}>{{ $y }}</option>
+            @endfor
+          </select>
+        </form>
+      </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin:0 32px 30px">
         <div style="background:linear-gradient(135deg,#dbeafe 0%,#bfdbfe 100%);padding:20px;border-radius:12px;text-align:center">
           <div style="width:40px;height:40px;background:#3b82f6;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-              <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
           </div>
-          <div style="font-size:28px;font-weight:700;color:#1e40af;margin-bottom:4px">041</div>
-          <div style="font-size:20px;color:#1e40af;font-weight:500">Present Day</div>
+          <div style="font-size:28px;font-weight:700;color:#1e40af;margin-bottom:4px">{{ $attSummary['present'] ?? 0 }}</div>
+          <div style="font-size:20px;color:#1e40af;font-weight:500">Present Days</div>
         </div>
         <div style="background:linear-gradient(135deg,#dcfce7 0%,#bbf7d0 100%);padding:20px;border-radius:12px;text-align:center">
           <div style="width:40px;height:40px;background:#10b981;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-              <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/></svg>
           </div>
-          <div style="font-size:28px;font-weight:700;color:#059669;margin-bottom:4px">312.1</div>
+          <div style="font-size:28px;font-weight:700;color:#059669;margin-bottom:4px">{{ $attSummary['hours'] ?? '00:00' }}</div>
           <div style="font-size:20px;color:#059669;font-weight:500">Working Hours</div>
         </div>
         <div style="background:linear-gradient(135deg,#fed7aa 0%,#fdba74 100%);padding:20px;border-radius:12px;text-align:center">
           <div style="width:40px;height:40px;background:#f97316;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-              <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8Z"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8Z"/></svg>
           </div>
-          <div style="font-size:28px;font-weight:700;color:#ea580c;margin-bottom:4px">037</div>
+          <div style="font-size:28px;font-weight:700;color:#ea580c;margin-bottom:4px">{{ $attSummary['late'] ?? 0 }}</div>
           <div style="font-size:20px;color:#ea580c;font-weight:500">Late Entries</div>
         </div>
         <div style="background:linear-gradient(135deg,#fecaca 0%,#fca5a5 100%);padding:20px;border-radius:12px;text-align:center">
           <div style="width:40px;height:40px;background:#ef4444;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-              <path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z"/></svg>
           </div>
-          <div style="font-size:28px;font-weight:700;color:#dc2626;margin-bottom:4px">001</div>
-          <div style="font-size:20px;color:#dc2626;font-weight:500">Early Exits</div>
+          <div style="font-size:28px;font-weight:700;color:#dc2626;margin-bottom:4px">{{ $attSummary['absent'] ?? 0 }}</div>
+          <div style="font-size:20px;color:#dc2626;font-weight:500">Absent Days</div>
         </div>
       </div>
-      
-      <!-- Attendance Table -->
       <div class="striped-surface table-wrap pad-attn">
         <table class="flat-table">
           <thead>
             <tr>
-              <th>Day</th>
               <th>Date</th>
-              <th>Check IN & OUT</th>
-              <th>Overtime</th>
+              <th>Check IN</th>
+              <th>Check OUT</th>
+              <th>Working Hours</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
+            @forelse($attendances as $row)
             <tr>
-              <td>Monday</td>
-              <td>27 Oct, 2025</td>
+              <td>{{ \Carbon\Carbon::parse($row->date)->format('d M Y') }}</td>
+              <td>{{ $row->check_in ? \Carbon\Carbon::parse($row->check_in)->format('h:i A') : '-' }}</td>
+              <td>{{ $row->check_out ? \Carbon\Carbon::parse($row->check_out)->format('h:i A') : '-' }}</td>
               <td>
-                <span>09:36 AM</span> - <span>06:25 PM</span>
+                @if($row->total_working_hours)
+                  {{ $row->total_working_hours }}
+                @elseif($row->check_in && $row->check_out)
+                  @php($mins=\Carbon\Carbon::parse($row->check_in)->diffInMinutes(\Carbon\Carbon::parse($row->check_out)))
+                  @php($h=floor($mins/60))
+                  @php($m=$mins%60)
+                  {{ sprintf('%02d:%02d:00',$h,$m) }}
+                @else
+                  -
+                @endif
               </td>
-              <td>0h 19m</td>
-              <td>
-                <span class="status-pill status-present">Present</span>
-              </td>
+              <td style="text-transform:capitalize">{{ $row->status ?? '-' }}</td>
             </tr>
+            @empty
             <tr>
-              <td>Tuesday</td>
-              <td>28 Oct, 2025</td>
-              <td>
-                <span>09:40 AM</span> - <span>06:15 PM</span>
-              </td>
-              <td>--</td>
-              <td>
-                <span class="status-pill status-half">Half Day</span>
-              </td>
+              <td colspan="5" style="text-align:center;padding:40px;color:#6b7280">No attendance records found for this month</td>
             </tr>
-            <tr>
-              <td>Wednesday</td>
-              <td>29 Oct, 2025</td>
-              <td>
-                <span>09:55 AM</span> - <span>06:40 PM</span>
-              </td>
-              <td>0h 15m</td>
-              <td>
-                <span class="status-pill status-present">Present</span>
-              </td>
-            </tr>
-            <tr>
-              <td>Thursday</td>
-              <td>30 Oct, 2025</td>
-              <td>
-                <span>09:17 AM</span> - <span>07:20 PM</span>
-              </td>
-              <td>1h 33m</td>
-              <td>
-                <span class="status-pill status-present">Present</span>
-              </td>
-            </tr>
-            <tr>
-              <td>Friday</td>
-              <td>31 Oct, 2025</td>
-              <td>
-                <span>09:36 AM</span> - <span>06:25 PM</span>
-              </td>
-              <td>0h 19m</td>
-              <td>
-                <span class="status-pill status-present">Present</span>
-              </td>
-            </tr>
+            @endforelse
           </tbody>
         </table>
       </div>
     </div>
 
     <div id="documents" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
-      <!-- Search and Add Section -->
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:0 32px;margin-bottom:30px">
-        <div style="position:relative;flex:1;max-width:400px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="#9ca3af" style="position:absolute;left:16px;top:50%;transform:translateY(-50%)">
-            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-          </svg>
-          <input type="text" placeholder="Type to search..." style="width:100%;padding:12px 16px 12px 48px;border:1px solid #e5e7eb;border-radius:8px;font-size:20px;background:#f9fafb;color:#374151;outline:none">
-        </div>
-        <button style="background:#1f2937;color:white;padding:12px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:16px;margin-left:16px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-          </svg>
-          Add
-        </button>
-      </div>
-      
-      <!-- Documents Grid -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;padding:0 32px 24px">
-        <!-- Document Card 1 -->
-        <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
-          <div style="height:180px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;position:relative">
-            <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=250&h=150&fit=crop" style="width:100%;height:100%;object-fit:cover" alt="Aadhaar Card">
-          </div>
-          <div style="padding:16px">
-            <h3 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 4px 0">Aadhaarcard_Front</h3>
-            <p style="font-size:12px;color:#6b7280;margin:0 0 16px 0">PDF • 1.32 MB</p>
-            <div style="display:flex;gap:8px">
-              <button style="flex:1;background:#374151;color:white;padding:8px 16px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                </svg>
-                Download
-              </button>
-              <button style="width:36px;height:36px;background:#6b7280;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-              </button>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;padding:24px 32px">
+        @php($hasAny=false)
+        @foreach([
+          ['key' => 'photo_path', 'label' => 'Profile Photo'],
+          ['key' => 'aadhaar_photo_front', 'label' => 'Aadhaar Front'],
+          ['key' => 'aadhaar_photo_back', 'label' => 'Aadhaar Back'],
+          ['key' => 'pan_photo', 'label' => 'PAN Card'],
+          ['key' => 'cheque_photo', 'label' => 'Cheque'],
+          ['key' => 'marksheet_photo', 'label' => 'Marksheet'],
+        ] as $doc)
+          @php($path = $employee?->{$doc['key']} ?? null)
+          @php($exists = $path && Storage::disk('public')->exists($path))
+          @if($exists)
+            @php($hasAny=true)
+            @php($url = asset('storage/'.$path))
+            @php($ext = strtolower(pathinfo($path, PATHINFO_EXTENSION)))
+            @php($isImage = in_array($ext, ['jpg','jpeg','png','gif','webp','bmp']))
+            @php($size = Storage::disk('public')->size($path))
+            @php($human = $size >= 1048576 ? round($size/1048576,2).' MB' : ($size >= 1024 ? round($size/1024,2).' KB' : $size.' B'))
+            <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
+              <div style="height:180px;background:#f8fafc;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center">
+                @if($isImage)
+                  <img src="{{ $url }}" alt="{{ $doc['label'] }}" style="max-width:100%;max-height:100%;object-fit:contain" />
+                @else
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="#94a3b8"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                @endif
+              </div>
+              <div style="padding:14px">
+                <div style="font-weight:800;color:#0f172a;margin-bottom:6px">{{ $doc['label'] }}</div>
+                <div style="font-size:12px;color:#64748b;margin-bottom:10px">{{ strtoupper($ext ?: 'FILE') }} • {{ $human }}</div>
+                <div style="display:flex;gap:10px">
+                  <a href="{{ $url }}" download style="flex:1;text-align:center;background:#0ea5e9;color:white;border:none;border-radius:8px;padding:8px 12px;font-weight:700;text-decoration:none">Download</a>
+                  <button type="button" onclick="window.open('{{ $url }}','_blank')" style="width:36px;height:36px;background:#6b7280;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 5C5 5 1 12 1 12s4 7 11 7 11-7 11-7-4-7-11-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"></path></svg>
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        
-        <!-- Document Card 2 -->
-        <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
-          <div style="height:180px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;position:relative">
-            <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=250&h=150&fit=crop" style="width:100%;height:100%;object-fit:cover" alt="Aadhaar Back">
-          </div>
-          <div style="padding:16px">
-            <h3 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 4px 0">Aadhaarcard_Back</h3>
-            <p style="font-size:12px;color:#6b7280;margin:0 0 16px 0">PDF • 4.7 MB</p>
-            <div style="display:flex;gap:8px">
-              <button style="flex:1;background:#374151;color:white;padding:8px 16px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                </svg>
-                Download
-              </button>
-              <button style="width:36px;height:36px;background:#6b7280;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Document Card 3 -->
-        <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
-          <div style="height:180px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;position:relative">
-            <img src="https://images.unsplash.com/photo-1633265486064-086b219458ec?w=250&h=150&fit=crop" style="width:100%;height:100%;object-fit:cover" alt="PAN Card">
-          </div>
-          <div style="padding:16px">
-            <h3 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 4px 0">Pancard_Front</h3>
-            <p style="font-size:12px;color:#6b7280;margin:0 0 16px 0">JPG • 9.8 KB</p>
-            <div style="display:flex;gap:8px">
-              <button style="flex:1;background:#374151;color:white;padding:8px 16px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                </svg>
-                Download
-              </button>
-              <button style="width:36px;height:36px;background:#1f2937;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
+          @endif
+        @endforeach
+        @if(!$hasAny)
+          <div style="grid-column:1/-1;text-align:center;color:#6b7280;padding:40px">No documents found</div>
+        @endif
       </div>
     </div>
 
     <div id="bank" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
-      <!-- Bank Details Card -->
-      <div style="max-width:500px;margin:0 32px 24px;background:white;border:1px solid #e5e7eb;border-radius:16px;padding:40px;box-shadow:0 4px 6px rgba(0,0,0,0.05)">
-        <!-- Bank Name -->
-        <div style="margin-bottom:24px">
-          <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:16px">Bank Name :</label>
-          <input type="text" value="ICICI Bank" readonly style="width:100%;padding:14px 18px;border:1px solid #d1d5db;border-radius:8px;font-size:20px;background:#f9fafb;color:#374151;outline:none">
-        </div>
-        
-        <!-- IFSC Code -->
-        <div style="margin-bottom:24px">
-          <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:16px">IFSC Code :</label>
-          <input type="text" value="IBKL0045458" readonly style="width:100%;padding:14px 18px;border:1px solid #d1d5db;border-radius:8px;font-size:20px;background:#f9fafb;color:#374151;outline:none">
-        </div>
-        
-        <!-- Account Number -->
-        <div style="margin-bottom:32px">
-          <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:16px">Account Number :</label>
-          <input type="text" value="465776547675" readonly style="width:100%;padding:14px 18px;border:1px solid #d1d5db;border-radius:8px;font-size:20px;background:#f9fafb;color:#374151;outline:none">
-        </div>
-        
-        <!-- Copy Button -->
-        <button style="background:#10b981;color:white;padding:12px 24px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:20px;width:100%" onclick="copyBankDetails()">
-          Copy All Details
-        </button>
+      <div style="margin:0 32px 24px">
+        @include('profile.partials.bank-details')
       </div>
     </div>
   </div>

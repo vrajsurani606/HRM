@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use App\Models\Employee;
+use App\Models\Attendance;
 
 class ProfileController extends Controller
 {
@@ -18,11 +20,54 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         // Try to find associated employee by email
-        $employee = \App\Models\Employee::where('email', $user->email)->first();
+        $employee = Employee::where('email', $user->email)->first();
+
+        // Month/year filters for attendance (default to current)
+        $month = (int) $request->get('month', now()->month);
+        $year  = (int) $request->get('year', now()->year);
+
+        $attendances = collect();
+        $attSummary = ['present'=>0,'absent'=>0,'late'=>0,'hours'=>'00:00'];
+        if ($employee) {
+            $attendances = Attendance::where('employee_id', $employee->id)
+                ->whereYear('date', $year)
+                ->whereMonth('date', $month)
+                ->orderBy('date')
+                ->get();
+
+            $presentDays = $attendances->where('status','present')->count();
+            $absentDays  = $attendances->where('status','absent')->count();
+            $lateEntries = 0; // no rule provided
+
+            $totalMinutes = 0;
+            foreach ($attendances as $a) {
+                if ($a->check_in && $a->check_out) {
+                    $in  = \Carbon\Carbon::parse($a->check_in);
+                    $out = \Carbon\Carbon::parse($a->check_out);
+                    $totalMinutes += $in->diffInMinutes($out);
+                } elseif (!empty($a->total_working_hours)) {
+                    [$h,$m] = array_map('intval', explode(':', substr($a->total_working_hours,0,5)) + [0,0]);
+                    $totalMinutes += ($h * 60) + $m;
+                }
+            }
+            $hours = floor($totalMinutes / 60);
+            $mins  = $totalMinutes % 60;
+            $attSummary = [
+                'present' => $presentDays,
+                'absent'  => $absentDays,
+                'late'    => $lateEntries,
+                'hours'   => sprintf('%02d:%02d',$hours,$mins),
+            ];
+        }
         
         return view('profile.edit', [
             'user' => $user,
             'employee' => $employee,
+            'attendances' => $attendances,
+            'attSummary'  => $attSummary,
+            'month' => $month,
+            'year'  => $year,
+            'active_tab' => session('active_tab'),
         ]);
     }
 

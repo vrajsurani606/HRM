@@ -4,8 +4,35 @@
 @section('content')
   <div class="hrp-card">
       <div class="Rectangle-30 hrp-compact">
-      <form method="POST" action="{{ route('employees.digital-card.store', $employee) }}" enctype="multipart/form-data" class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3" id="digitalCardForm">
+      
+      <!-- Success/Error Messages -->
+      @if(session('success'))
+          <div class="alert alert-success" style="background:#d4edda;color:#155724;padding:12px;border-radius:6px;margin-bottom:20px;border:1px solid #c3e6cb;">
+              <i class="fas fa-check-circle"></i> {{ session('success') }}
+          </div>
+      @endif
+      
+      @if(session('error'))
+          <div class="alert alert-danger" style="background:#f8d7da;color:#721c24;padding:12px;border-radius:6px;margin-bottom:20px;border:1px solid #f5c6cb;">
+              <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+          </div>
+      @endif
+      
+      @if($errors->any())
+          <div class="alert alert-danger" style="background:#f8d7da;color:#721c24;padding:12px;border-radius:6px;margin-bottom:20px;border:1px solid #f5c6cb;">
+              <i class="fas fa-exclamation-triangle"></i> Please fix the following errors:
+              <ul style="margin:8px 0 0 20px;">
+                  @foreach($errors->all() as $error)
+                      <li>{{ $error }}</li>
+                  @endforeach
+              </ul>
+          </div>
+      @endif
+      <form method="POST" action="{{ isset($isEdit) && $isEdit ? route('employees.digital-card.update', $employee) : route('employees.digital-card.store', $employee) }}" enctype="multipart/form-data" class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3" id="digitalCardForm">
         @csrf
+        @if(isset($isEdit) && $isEdit)
+            @method('PUT')
+        @endif
           
         <!-- Basic Information -->
         <div class="md:col-span-2">
@@ -14,25 +41,25 @@
         
         <div>
           <label class="hrp-label">Full Name:</label>
-          <input name="full_name" value="{{ old('full_name', $employee->name) }}" placeholder="Enter Full Name" class="hrp-input Rectangle-29" required>
+          <input name="full_name" value="{{ old('full_name', $digitalCard->full_name ?? $employee->name) }}" placeholder="Enter Full Name" class="hrp-input Rectangle-29" required>
           @error('full_name')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <div>
           <label class="hrp-label">Current Position:</label>
-          <input name="current_position" value="{{ old('current_position', $employee->position) }}" placeholder="Enter Current Position" class="hrp-input Rectangle-29">
+          <input name="current_position" value="{{ old('current_position', $digitalCard->current_position ?? $employee->position) }}" placeholder="Enter Current Position" class="hrp-input Rectangle-29">
           @error('current_position')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <div>
           <label class="hrp-label">Company Name:</label>
-          <input name="company_name" value="{{ old('company_name') }}" placeholder="Enter Company Name" class="hrp-input Rectangle-29">
+          <input name="company_name" value="{{ old('company_name', $digitalCard->company_name ?? '') }}" placeholder="Enter Company Name" class="hrp-input Rectangle-29">
           @error('company_name')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <div>
           <label class="hrp-label">Years of Experience:</label>
-          <input name="years_experience" value="{{ old('years_experience') }}" placeholder="e.g. 3.5" class="hrp-input Rectangle-29" type="number" step="0.1" min="0">
+          <input name="years_experience" value="{{ old('years_experience', $digitalCard->years_of_experience ?? '') }}" placeholder="e.g. 3.5" class="hrp-input Rectangle-29" type="number" step="0.1" min="0">
           @error('years_experience')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
@@ -43,49 +70,49 @@
         
         <div>
           <label class="hrp-label">Email:</label>
-          <input name="email" value="{{ old('email', $employee->email) }}" placeholder="Enter Email" class="hrp-input Rectangle-29" type="email">
+          <input name="email" value="{{ old('email', $digitalCard->email ?? $employee->email) }}" placeholder="Enter Email" class="hrp-input Rectangle-29" type="email">
           @error('email')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <div>
           <label class="hrp-label">Phone:</label>
-          <input name="phone" value="{{ old('phone') }}" placeholder="Enter Phone Number" class="hrp-input Rectangle-29">
+          <input name="phone" value="{{ old('phone', $digitalCard->phone ?? '') }}" placeholder="Enter Phone Number" class="hrp-input Rectangle-29">
           @error('phone')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <div>
           <label class="hrp-label">LinkedIn Profile:</label>
-          <input name="linkedin" value="{{ old('linkedin') }}" placeholder="LinkedIn Profile URL" class="hrp-input Rectangle-29">
+          <input name="linkedin" value="{{ old('linkedin', $digitalCard->linkedin ?? '') }}" placeholder="LinkedIn Profile URL" class="hrp-input Rectangle-29">
           @error('linkedin')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <div>
           <label class="hrp-label">Portfolio Website:</label>
-          <input name="portfolio" value="{{ old('portfolio') }}" placeholder="Portfolio Website URL" class="hrp-input Rectangle-29">
+          <input name="portfolio" value="{{ old('portfolio', $digitalCard->portfolio ?? '') }}" placeholder="Portfolio Website URL" class="hrp-input Rectangle-29">
           @error('portfolio')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <div>
           <label class="hrp-label">Facebook:</label>
-          <input name="facebook" value="{{ old('facebook') }}" placeholder="Facebook Profile URL" class="hrp-input Rectangle-29">
+          <input name="facebook" value="{{ old('facebook', $digitalCard->facebook ?? '') }}" placeholder="Facebook Profile URL" class="hrp-input Rectangle-29">
           @error('facebook')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <div>
           <label class="hrp-label">Twitter:</label>
-          <input name="twitter" value="{{ old('twitter') }}" placeholder="Twitter Profile URL" class="hrp-input Rectangle-29">
+          <input name="twitter" value="{{ old('twitter', $digitalCard->twitter ?? '') }}" placeholder="Twitter Profile URL" class="hrp-input Rectangle-29">
           @error('twitter')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <div>
           <label class="hrp-label">Instagram:</label>
-          <input name="instagram" value="{{ old('instagram') }}" placeholder="Instagram Profile URL" class="hrp-input Rectangle-29">
+          <input name="instagram" value="{{ old('instagram', $digitalCard->instagram ?? '') }}" placeholder="Instagram Profile URL" class="hrp-input Rectangle-29">
           @error('instagram')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <div>
           <label class="hrp-label">GitHub:</label>
-          <input name="github" value="{{ old('github') }}" placeholder="GitHub Profile URL" class="hrp-input Rectangle-29">
+          <input name="github" value="{{ old('github', $digitalCard->github ?? '') }}" placeholder="GitHub Profile URL" class="hrp-input Rectangle-29">
           @error('github')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
@@ -96,7 +123,7 @@
         
         <div class="md:col-span-2">
           <label class="hrp-label">Location:</label>
-          <input name="location" value="{{ old('location') }}" placeholder="Enter Location" class="hrp-input Rectangle-29">
+          <input name="location" value="{{ old('location', $digitalCard->location ?? '') }}" placeholder="Enter Location" class="hrp-input Rectangle-29">
           @error('location')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
@@ -107,19 +134,19 @@
         
         <div>
           <label class="hrp-label">Skills (comma separated):</label>
-          <textarea name="skills" placeholder="PHP, Laravel, JavaScript, etc." class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('skills') }}</textarea>
+          <textarea name="skills" placeholder="PHP, Laravel, JavaScript, etc." class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('skills', $digitalCard->skills ?? '') }}</textarea>
           @error('skills')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <div>
           <label class="hrp-label">Hobbies & Interests (comma separated):</label>
-          <textarea name="hobbies" placeholder="Reading, Traveling, Photography, etc." class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('hobbies') }}</textarea>
+          <textarea name="hobbies" placeholder="Reading, Traveling, Photography, etc." class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('hobbies', $digitalCard->hobbies ?? '') }}</textarea>
           @error('hobbies')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <div class="md:col-span-2">
           <label class="hrp-label">Professional Summary:</label>
-          <textarea name="summary" placeholder="Brief professional summary" class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('summary') }}</textarea>
+          <textarea name="summary" placeholder="Brief professional summary" class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('summary', $digitalCard->summary ?? '') }}</textarea>
           @error('summary')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
@@ -280,7 +307,10 @@
         
         <div class="md:col-span-2">
           <div class="hrp-actions">
-            <button class="hrp-btn hrp-btn-primary">Create Digital Card</button>
+            <button type="submit" class="hrp-btn hrp-btn-primary">
+              {{ isset($isEdit) && $isEdit ? 'Update Digital Card' : 'Create Digital Card' }}
+            </button>
+            <a href="{{ route('employees.digital-card.show', $employee) }}" class="hrp-btn hrp-btn-secondary">Cancel</a>
           </div>
         </div>
       </form>
@@ -296,6 +326,27 @@ let certCount = 1;
 let achievementCount = 1;
 let languageCount = 1;
 let projectCount = 1;
+
+// Form submission handling
+document.getElementById('digitalCardForm').addEventListener('submit', function(e) {
+    // Basic validation
+    const fullName = this.querySelector('input[name="full_name"]').value.trim();
+    if (!fullName) {
+        alert('Please enter the full name.');
+        e.preventDefault();
+        return false;
+    }
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    
+    // Re-enable after 10 seconds as fallback
+    setTimeout(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '{{ isset($isEdit) && $isEdit ? "Update Digital Card" : "Create Digital Card" }}';
+    }, 10000);
+});
 
 function addRole() {
   const html = `
@@ -374,6 +425,27 @@ document.getElementById('resumeInput').addEventListener('change', function() {
 document.getElementById('galleryInput').addEventListener('change', function() {
   document.getElementById('galleryFileName').textContent = this.files.length ? `${this.files.length} files selected` : 'No Files Chosen';
 });
+
+// Remove functions for dynamic fields
+function removeRole(btn) {
+    btn.closest('.role-item').remove();
+}
+
+function removeEducation(btn) {
+    btn.closest('.education-item').remove();
+}
+
+function removeCertification(btn) {
+    btn.closest('.cert-item').remove();
+}
+
+function removeAchievement(btn) {
+    btn.closest('.achievement-item').remove();
+}
+
+function removeProject(btn) {
+    btn.closest('.project-item').remove();
+}
 </script>
 @endpush
 
