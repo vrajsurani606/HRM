@@ -213,7 +213,7 @@ $(document).ready(function() {
     // Generate new reference number
     $('#generateRefBtn').click(function() {
         $.ajax({
-            url: '{{ route("employees.letters.generate-reference", $employee) }}',
+            url: '{{ route("employees.letters.generate-number", $employee) }}',
             type: 'POST',
             data: {
                 _token: '{{ csrf_token() }}'

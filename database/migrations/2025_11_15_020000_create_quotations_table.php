@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('quotations', function (Blueprint $table) {
+        if (!Schema::hasTable('quotations')) {
+            Schema::create('quotations', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('inquiry_id')->nullable();
             $table->string('unique_code')->nullable();
@@ -42,7 +43,8 @@ return new class extends Migration {
             $table->timestamps();
 
             $table->foreign('inquiry_id')->references('id')->on('inquiries')->onDelete('set null');
-        });
+            });
+        }
     }
 
     public function down(): void

@@ -121,7 +121,7 @@
         </div>
         <div class="md:col-span-2">
           <div class="hrp-actions">
-            <button class="hrp-btn hrp-btn-primary">Add Hiring Lead Master</button>
+            <button type="submit" class="hrp-btn hrp-btn-primary">Add Hiring Lead Master</button>
           </div>
         </div>
       </form>

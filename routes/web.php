@@ -101,11 +101,20 @@ Route::middleware('auth')->group(function () {
     Route::post('inquiry/{id}/follow-up', [InquiryController::class, 'storeFollowUp'])->name('inquiry.follow-up.store');
     Route::post('inquiry-followups/{followUp}/confirm', [InquiryController::class, 'confirmFollowUp'])->name('inquiry.follow-up.confirm');
     // Quotations
+    Route::get('quotations/export', [QuotationController::class, 'export'])->name('quotations.export');
     Route::resource('quotations', QuotationController::class);
     Route::get('inquiry/{id}/quotation', [QuotationController::class, 'createFromInquiry'])->name('quotation.create-from-inquiry');
+    Route::get('quotations/company/{id}', [QuotationController::class, 'getCompanyDetails'])->name('quotations.company.details');
+    Route::get('quotations/{id}/download', [QuotationController::class, 'download'])->name('quotations.download');
+    Route::get('quotations/{id}/contract-pdf', [QuotationController::class, 'generateContractPdf'])->name('quotations.contract.pdf');
+    Route::get('quotations/{id}/contract-png', [QuotationController::class, 'generateContractPng'])->name('quotations.contract.png');
 
     // Companies
     Route::resource('companies', CompanyController::class);
+    // Company document viewing route
+    Route::get('company-documents/{type}/{filename}', [CompanyController::class, 'viewFile'])
+         ->name('company.documents.view');
+    Route::get('companies-export', [CompanyController::class, 'export'])->name('companies.export');
 
     // Projects
     Route::resource('projects', ProjectController::class);

@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('inquiry_follow_ups', function (Blueprint $table) {
+        if (!Schema::hasTable('inquiry_follow_ups')) {
+            Schema::create('inquiry_follow_ups', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('inquiry_id');
             $table->date('followup_date')->nullable();
@@ -22,7 +23,8 @@ return new class extends Migration {
             $table->timestamps();
 
             $table->foreign('inquiry_id')->references('id')->on('inquiries')->onDelete('cascade');
-        });
+            });
+        }
     }
 
     public function down(): void

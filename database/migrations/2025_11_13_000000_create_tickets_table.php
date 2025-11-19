@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('tickets', function (Blueprint $table) {
+        if (!Schema::hasTable('tickets')) {
+            Schema::create('tickets', function (Blueprint $table) {
             $table->id();
             $table->string('ticket_no')->unique();
             $table->string('subject');
@@ -25,7 +26,8 @@ return new class extends Migration {
             $table->string('company')->nullable();
             $table->string('ticket_type')->nullable();
             $table->timestamps();
-        });
+            });
+        }
     }
 
     public function down(): void

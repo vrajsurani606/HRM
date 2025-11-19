@@ -11,14 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('events')) {
-            Schema::create('events', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->timestamps();
-            });
-        }
+        Schema::table('quotations', function (Blueprint $table) {
+            $table->json('standard_terms')->nullable()->after('maintenance_cost');
+        });
     }
 
     /**
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('events');
+        Schema::table('quotations', function (Blueprint $table) {
+            $table->dropColumn('standard_terms');
+        });
     }
 };

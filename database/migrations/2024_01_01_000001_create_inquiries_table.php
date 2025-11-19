@@ -8,7 +8,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('inquiries', function (Blueprint $table) {
+        if (!Schema::hasTable('inquiries')) {
+            Schema::create('inquiries', function (Blueprint $table) {
             $table->id();
             $table->string('unique_code')->unique();
             $table->date('inquiry_date');
@@ -26,7 +27,8 @@ return new class extends Migration
             $table->string('quotation_file')->nullable();
             $table->string('quotation_sent')->nullable();
             $table->timestamps();
-        });
+            });
+        }
     }
 
     public function down(): void

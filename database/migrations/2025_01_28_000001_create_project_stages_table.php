@@ -8,13 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('project_stages', function (Blueprint $table) {
+        if (!Schema::hasTable('project_stages')) {
+            Schema::create('project_stages', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('color', 7)->default('#6b7280');
             $table->integer('order')->default(0);
             $table->timestamps();
-        });
+            });
+        }
     }
 
     public function down(): void

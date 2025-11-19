@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('hiring_leads', function (Blueprint $table) {
+        if (!Schema::hasTable('hiring_leads')) {
+            Schema::create('hiring_leads', function (Blueprint $table) {
             $table->id();
             $table->string('unique_code')->unique();
             $table->string('person_name');
@@ -21,7 +22,8 @@ return new class extends Migration {
             $table->string('resume_path')->nullable();
             $table->enum('gender', ['male','female','other'])->nullable();
             $table->timestamps();
-        });
+            });
+        }
     }
 
     public function down(): void

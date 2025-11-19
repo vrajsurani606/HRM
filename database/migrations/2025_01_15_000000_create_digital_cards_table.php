@@ -8,7 +8,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('digital_cards', function (Blueprint $table) {
+        if (!Schema::hasTable('digital_cards')) {
+            Schema::create('digital_cards', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id')->constrained()->onDelete('cascade');
             
@@ -61,7 +62,8 @@ return new class extends Migration
             $table->string('resume_path')->nullable();
             
             $table->timestamps();
-        });
+            });
+        }
     }
 
     public function down(): void

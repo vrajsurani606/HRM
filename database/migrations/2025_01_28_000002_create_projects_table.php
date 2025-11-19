@@ -8,7 +8,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('projects', function (Blueprint $table) {
+        if (!Schema::hasTable('projects')) {
+            Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
@@ -17,7 +18,8 @@ return new class extends Migration
             $table->integer('total_tasks')->default(0);
             $table->integer('completed_tasks')->default(0);
             $table->timestamps();
-        });
+            });
+        }
     }
 
     public function down(): void

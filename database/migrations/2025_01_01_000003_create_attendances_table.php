@@ -8,7 +8,8 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('attendances', function (Blueprint $table) {
+        if (!Schema::hasTable('attendances')) {
+            Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id')->constrained()->onDelete('cascade');
             $table->date('date')->index();
@@ -25,7 +26,8 @@ return new class extends Migration
             
             // Composite unique key to ensure one entry per employee per day
             $table->unique(['employee_id', 'date']);
-        });
+            });
+        }
     }
 
     public function down()

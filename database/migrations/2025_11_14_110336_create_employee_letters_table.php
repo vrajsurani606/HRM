@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employee_letters', function (Blueprint $table) {
+        if (!Schema::hasTable('employee_letters')) {
+            Schema::create('employee_letters', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id')->constrained()->onDelete('cascade');
             $table->string('reference_number')->unique();
@@ -22,7 +23,8 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->timestamps();
-        });
+            });
+        }
     }
 
     /**

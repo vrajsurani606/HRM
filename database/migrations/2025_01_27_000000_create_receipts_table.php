@@ -8,7 +8,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('receipts', function (Blueprint $table) {
+        if (!Schema::hasTable('receipts')) {
+            Schema::create('receipts', function (Blueprint $table) {
             $table->id();
             $table->string('unique_code');
             $table->date('rec_date');
@@ -21,7 +22,8 @@ return new class extends Migration
             $table->text('narration');
             $table->string('trans_code');
             $table->timestamps();
-        });
+            });
+        }
     }
 
     public function down(): void

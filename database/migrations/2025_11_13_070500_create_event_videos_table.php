@@ -8,14 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('event_videos', function (Blueprint $table) {
+        if (!Schema::hasTable('event_videos')) {
+            Schema::create('event_videos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('event_id')->constrained()->cascadeOnDelete();
             $table->string('video_path');
             $table->string('mime')->nullable();
             $table->unsignedBigInteger('size')->nullable();
             $table->timestamps();
-        });
+            });
+        }
     }
 
     public function down(): void

@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('offer_letters', function (Blueprint $table) {
+        if (!Schema::hasTable('offer_letters')) {
+            Schema::create('offer_letters', function (Blueprint $table) {
             $table->id();
             $table->foreignId('hiring_lead_id')->constrained('hiring_leads')->cascadeOnDelete();
             $table->date('issue_date');
@@ -19,7 +20,8 @@ return new class extends Migration {
             $table->text('probation_period')->nullable();
             $table->text('salary_increment')->nullable();
             $table->timestamps();
-        });
+            });
+        }
     }
 
     public function down(): void
