@@ -4,6 +4,7 @@ namespace App\Http\Controllers\HR;
 
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -116,9 +117,52 @@ class EmployeeController extends Controller
 
     public function show(Employee $employee)
     {
+        // Month/year filters (default to current)
+        $month = (int) request('month', now()->month);
+        $year  = (int) request('year', now()->year);
+
+        // Attendance for selected month
+        $attendances = Attendance::where('employee_id', $employee->id)
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->orderBy('date')
+            ->get();
+
+        // Summary
+        $presentDays = $attendances->where('status', 'present')->count();
+        $absentDays  = $attendances->where('status', 'absent')->count();
+        $lateEntries = 0; // No clear late rule in model; keep 0 for now
+
+        $totalMinutes = 0;
+        foreach ($attendances as $a) {
+            if ($a->check_in && $a->check_out) {
+                $in  = \Carbon\Carbon::parse($a->check_in);
+                $out = \Carbon\Carbon::parse($a->check_out);
+                $totalMinutes += $in->diffInMinutes($out);
+            } elseif (!empty($a->total_working_hours)) {
+                // Parse HH:MM:SS
+                [$h,$m] = array_map('intval', explode(':', substr($a->total_working_hours,0,5)) + [0,0]);
+                $totalMinutes += ($h * 60) + $m;
+            }
+        }
+        $hours = floor($totalMinutes / 60);
+        $mins  = $totalMinutes % 60;
+        $hoursFormatted = sprintf('%02d:%02d', $hours, $mins);
+
+        $attSummary = [
+            'present' => $presentDays,
+            'absent'  => $absentDays,
+            'late'    => $lateEntries,
+            'hours'   => $hoursFormatted,
+        ];
+
         return view('hr.employees.show', [
-            'employee'   => $employee,
-            'page_title' => 'Employee Details - ' . $employee->name,
+            'employee'     => $employee,
+            'page_title'   => 'Employee Details - ' . $employee->name,
+            'attendances'  => $attendances,
+            'attSummary'   => $attSummary,
+            'month'        => $month,
+            'year'         => $year,
         ]);
     }
 
@@ -234,13 +278,19 @@ class EmployeeController extends Controller
      */
    public function storeLetter(Request $request, Employee $employee)
 {
+    // Normalize fields that sometimes come as arrays from the UI
+    if (is_array($request->input('subject'))) {
+        $request->merge(['subject' => implode(' ', array_filter($request->input('subject')))]);
+    }
+    if (is_array($request->input('content'))) {
+        $request->merge(['content' => implode("\n\n", array_filter($request->input('content')))]);
+    }
+
     $validated = $request->validate([
         'title' => 'required|string|max:255',
-        'content' => 'nullable|string',
-        'subject' => 'nullable|string|max:255',
         'type' => 'required|string|in:appointment,offer,joining,confidentiality,impartiality,experience,agreement,relieving,confirmation,warning,termination,increment,internship_offer,internship_letter,other',
-        'subject' => 'required_if:type,other|string|max:255',
-        'content' => 'required_if:type,other,warning,termination|string',
+        'subject' => 'required_if:type,other|nullable|string|max:255',
+        'content' => 'required_if:type,other,warning,termination|nullable|string',
         'issue_date' => 'required|date',
         'reference_number' => 'required|string|unique:employee_letters,reference_number',
         'notes' => 'nullable|string',

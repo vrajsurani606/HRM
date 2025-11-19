@@ -12,10 +12,12 @@ class DigitalCard extends Model
 
     protected $fillable = [
         'employee_id',
+        'um_id',
         'full_name',
         'current_position',
         'company_name',
-        'years_experience',
+        'years_of_experience',
+        'experience_years',
         'email',
         'phone',
         'linkedin',
@@ -28,7 +30,8 @@ class DigitalCard extends Model
         'skills',
         'hobbies',
         'summary',
-        'roles',
+        'willing_to',
+        'previous_roles',
         'education',
         'certifications',
         'gallery',
@@ -36,10 +39,11 @@ class DigitalCard extends Model
         'languages',
         'projects',
         'resume_path',
+        'resume',
     ];
 
     protected $casts = [
-        'roles' => 'array',
+        'previous_roles' => 'array',
         'education' => 'array',
         'certifications' => 'array',
         'gallery' => 'array',
@@ -48,8 +52,62 @@ class DigitalCard extends Model
         'projects' => 'array',
     ];
 
+    // Accessors for backward compatibility
+    public function getSkillsArrayAttribute()
+    {
+        return !empty($this->skills) ? array_map('trim', explode(',', $this->skills)) : [];
+    }
+
+    public function getHobbiesArrayAttribute()
+    {
+        return !empty($this->hobbies) ? array_map('trim', explode(',', $this->hobbies)) : [];
+    }
+
+    public function getSocialsAttribute()
+    {
+        return [
+            'linkedin' => $this->linkedin ?? '',
+            'github' => $this->github ?? '',
+            'twitter' => $this->twitter ?? '',
+            'instagram' => $this->instagram ?? '',
+            'facebook' => $this->facebook ?? '',
+            'portfolio' => $this->portfolio ?? ''
+        ];
+    }
+
+    public function getProfileAttribute()
+    {
+        return [
+            'name' => $this->full_name ?: '',
+            'position' => $this->current_position ?: '',
+            'company' => $this->company_name ?: '',
+            'email' => $this->email ?? '',
+            'phone' => $this->phone ?? '',
+            'location' => $this->location ?? '',
+            'summary' => $this->summary ?? '',
+            'experience_years' => $this->experience_years ?: '',
+            'willing_to' => $this->willing_to ?? ''
+        ];
+    }
+
+    public function getProfileImageAttribute()
+    {
+        $gallery = $this->gallery;
+        return (!empty($gallery) && is_array($gallery) && file_exists(public_path($gallery[0]))) 
+            ? $gallery[0] : 'blank_user.webp';
+    }
+
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    // Scope for finding by um_id or id
+    public function scopeFindByIdentifier($query, $identifier)
+    {
+        if (is_numeric($identifier)) {
+            return $query->where('um_id', $identifier)->orWhere('id', $identifier);
+        }
+        return $query->where('id', $identifier);
     }
 }
