@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('quotations', function (Blueprint $table) {
-            $table->decimal('retention_percent', 5, 2)->nullable()->after('retention_amount');
+        Schema::table('employee_letters', function (Blueprint $table) {
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
         });
     }
 
@@ -21,8 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('quotations', function (Blueprint $table) {
-            $table->dropColumn('retention_percent');
+        Schema::table('employee_letters', function (Blueprint $table) {
+            $table->dropColumn(['start_date', 'end_date']);
         });
     }
 };

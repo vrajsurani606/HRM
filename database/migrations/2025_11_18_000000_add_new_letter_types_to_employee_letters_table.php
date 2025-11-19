@@ -49,12 +49,24 @@ return new class extends Migration
 
         // Add new fields for increment and internship letters
         Schema::table('employee_letters', function (Blueprint $table) {
-            $table->decimal('increment_amount', 12, 2)->nullable()->after('salary_increment');
-            $table->date('increment_effective_date')->nullable()->after('increment_amount');
-            $table->string('internship_position', 190)->nullable()->after('increment_effective_date');
-            $table->date('internship_start_date')->nullable()->after('internship_position');
-            $table->date('internship_end_date')->nullable()->after('internship_start_date');
-            $table->text('internship_address')->nullable()->after('internship_end_date');
+            if (!Schema::hasColumn('employee_letters', 'increment_amount')) {
+                $table->decimal('increment_amount', 12, 2)->nullable();
+            }
+            if (!Schema::hasColumn('employee_letters', 'increment_effective_date')) {
+                $table->date('increment_effective_date')->nullable();
+            }
+            if (!Schema::hasColumn('employee_letters', 'internship_position')) {
+                $table->string('internship_position', 190)->nullable();
+            }
+            if (!Schema::hasColumn('employee_letters', 'internship_start_date')) {
+                $table->date('internship_start_date')->nullable();
+            }
+            if (!Schema::hasColumn('employee_letters', 'internship_end_date')) {
+                $table->date('internship_end_date')->nullable();
+            }
+            if (!Schema::hasColumn('employee_letters', 'internship_address')) {
+                $table->text('internship_address')->nullable();
+            }
         });
     }
 
