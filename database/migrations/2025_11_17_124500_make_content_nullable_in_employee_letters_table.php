@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendance_records', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('employee_letters', function (Blueprint $table) {
+            $table->text('content')->nullable()->change();
         });
     }
 
@@ -22,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendance_records');
+        Schema::table('employee_letters', function (Blueprint $table) {
+            $table->text('content')->nullable(false)->change();
+        });
     }
 };

@@ -127,66 +127,72 @@
         <div class="md:col-span-2">
           <h3 style="font-weight:800;color:#0f0f0f;margin:20px 0 10px 0;font-size:18px;">Previous Roles</h3>
           <div id="previousRoles">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 role-item">
-              <div>
+            <div class="row role-item" style="margin-bottom:15px;align-items:end;">
+              <div class="col-4">
                 <label class="hrp-label">Job Title:</label>
                 <input name="roles[0][title]" placeholder="Job Title" class="hrp-input Rectangle-29">
               </div>
-              <div>
+              <div class="col-4">
                 <label class="hrp-label">Company:</label>
                 <input name="roles[0][company]" placeholder="Company Name" class="hrp-input Rectangle-29">
               </div>
-              <div>
+              <div class="col-3">
                 <label class="hrp-label">Year:</label>
                 <input name="roles[0][year]" placeholder="2020-2023" class="hrp-input Rectangle-29">
               </div>
+              <div class="col-1">
+                <button type="button" onclick="addRole()" style="background:#10b981;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:600;width:100%;">+</button>
+              </div>
             </div>
           </div>
-          <button type="button" onclick="addRole()" style="margin-top:10px;background:#10b981;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:600;">+ Add Role</button>
         </div>
         
         <!-- Education -->
         <div class="md:col-span-2">
           <h3 style="font-weight:800;color:#0f0f0f;margin:20px 0 10px 0;font-size:18px;">Education</h3>
           <div id="education">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 education-item">
-              <div>
+            <div class="row education-item" style="margin-bottom:15px;align-items:end;">
+              <div class="col-4">
                 <label class="hrp-label">Degree:</label>
                 <input name="education[0][degree]" placeholder="Degree" class="hrp-input Rectangle-29">
               </div>
-              <div>
+              <div class="col-4">
                 <label class="hrp-label">Institute:</label>
                 <input name="education[0][institute]" placeholder="Institute Name" class="hrp-input Rectangle-29">
               </div>
-              <div>
+              <div class="col-3">
                 <label class="hrp-label">Year:</label>
                 <input name="education[0][year]" placeholder="2020" class="hrp-input Rectangle-29">
               </div>
+              <div class="col-1">
+                <button type="button" onclick="addEducation()" style="background:#10b981;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:600;width:100%;">+</button>
+              </div>
             </div>
           </div>
-          <button type="button" onclick="addEducation()" style="margin-top:10px;background:#10b981;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:600;">+ Add Education</button>
         </div>
         
         <!-- Certifications -->
         <div class="md:col-span-2">
           <h3 style="font-weight:800;color:#0f0f0f;margin:20px 0 10px 0;font-size:18px;">Certifications</h3>
           <div id="certifications">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 cert-item">
-              <div>
+            <div class="row cert-item" style="margin-bottom:15px;align-items:end;">
+              <div class="col-4">
                 <label class="hrp-label">Certificate Name:</label>
                 <input name="certifications[0][name]" placeholder="Certificate Name" class="hrp-input Rectangle-29">
               </div>
-              <div>
+              <div class="col-4">
                 <label class="hrp-label">Issuing Authority:</label>
                 <input name="certifications[0][authority]" placeholder="Issuing Authority" class="hrp-input Rectangle-29">
               </div>
-              <div>
+              <div class="col-3">
                 <label class="hrp-label">Year:</label>
                 <input name="certifications[0][year]" placeholder="2023" class="hrp-input Rectangle-29">
               </div>
+              <div class="col-1">
+                <button type="button" onclick="addCertification()" style="background:#10b981;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:600;width:100%;">+</button>
+              </div>
             </div>
           </div>
-          <button type="button" onclick="addCertification()" style="margin-top:10px;background:#10b981;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:600;">+ Add Certification</button>
         </div>
         
         <!-- Gallery -->
@@ -205,22 +211,24 @@
         <div class="md:col-span-2">
           <h3 style="font-weight:800;color:#0f0f0f;margin:20px 0 10px 0;font-size:18px;">Achievements & Awards</h3>
           <div id="achievements">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 achievement-item">
-              <div>
+            <div class="row achievement-item" style="margin-bottom:15px;align-items:end;">
+              <div class="col-4">
                 <label class="hrp-label">Title:</label>
                 <input name="achievements[0][title]" placeholder="Achievement Title" class="hrp-input Rectangle-29">
               </div>
-              <div>
+              <div class="col-4">
                 <label class="hrp-label">Description:</label>
                 <input name="achievements[0][description]" placeholder="Description" class="hrp-input Rectangle-29">
               </div>
-              <div>
+              <div class="col-3">
                 <label class="hrp-label">Year:</label>
                 <input name="achievements[0][year]" placeholder="2023" class="hrp-input Rectangle-29">
               </div>
+              <div class="col-1">
+                <button type="button" onclick="addAchievement()" style="background:#10b981;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:600;width:100%;">+</button>
+              </div>
             </div>
           </div>
-          <button type="button" onclick="addAchievement()" style="margin-top:10px;background:#10b981;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:600;">+ Add Achievement</button>
         </div>
         
         <!-- Languages -->
@@ -238,22 +246,24 @@
         <div class="md:col-span-2">
           <h3 style="font-weight:800;color:#0f0f0f;margin:20px 0 10px 0;font-size:18px;">Projects / Portfolio</h3>
           <div id="projects">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 project-item">
-              <div>
+            <div class="row project-item" style="margin-bottom:15px;align-items:end;">
+              <div class="col-4">
                 <label class="hrp-label">Project Name:</label>
                 <input name="projects[0][name]" placeholder="Project Name" class="hrp-input Rectangle-29">
               </div>
-              <div>
+              <div class="col-4">
                 <label class="hrp-label">Description:</label>
                 <input name="projects[0][description]" placeholder="Project Description" class="hrp-input Rectangle-29">
               </div>
-              <div>
+              <div class="col-3">
                 <label class="hrp-label">Link:</label>
                 <input name="projects[0][link]" placeholder="Project URL" class="hrp-input Rectangle-29">
               </div>
+              <div class="col-1">
+                <button type="button" onclick="addProject()" style="background:#10b981;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:600;width:100%;">+</button>
+              </div>
             </div>
           </div>
-          <button type="button" onclick="addProject()" style="margin-top:10px;background:#10b981;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:600;">+ Add Project</button>
         </div>
         
         <!-- Upload Resume -->
@@ -289,10 +299,11 @@ let projectCount = 1;
 
 function addRole() {
   const html = `
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 role-item" style="margin-top:15px;">
-      <div><input name="roles[${roleCount}][title]" placeholder="Job Title" class="hrp-input Rectangle-29"></div>
-      <div><input name="roles[${roleCount}][company]" placeholder="Company Name" class="hrp-input Rectangle-29"></div>
-      <div><input name="roles[${roleCount}][year]" placeholder="2020-2023" class="hrp-input Rectangle-29"></div>
+    <div class="row role-item" style="margin-bottom:15px;align-items:end;">
+      <div class="col-4"><input name="roles[${roleCount}][title]" placeholder="Job Title" class="hrp-input Rectangle-29"></div>
+      <div class="col-4"><input name="roles[${roleCount}][company]" placeholder="Company Name" class="hrp-input Rectangle-29"></div>
+      <div class="col-3"><input name="roles[${roleCount}][year]" placeholder="2020-2023" class="hrp-input Rectangle-29"></div>
+      <div class="col-1"><button type="button" onclick="removeRole(this)" style="background:#ef4444;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:600;width:100%;">×</button></div>
     </div>`;
   document.getElementById('previousRoles').insertAdjacentHTML('beforeend', html);
   roleCount++;
@@ -300,10 +311,11 @@ function addRole() {
 
 function addEducation() {
   const html = `
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 education-item" style="margin-top:15px;">
-      <div><input name="education[${educationCount}][degree]" placeholder="Degree" class="hrp-input Rectangle-29"></div>
-      <div><input name="education[${educationCount}][institute]" placeholder="Institute Name" class="hrp-input Rectangle-29"></div>
-      <div><input name="education[${educationCount}][year]" placeholder="2020" class="hrp-input Rectangle-29"></div>
+    <div class="row education-item" style="margin-bottom:15px;align-items:end;">
+      <div class="col-4"><input name="education[${educationCount}][degree]" placeholder="Degree" class="hrp-input Rectangle-29"></div>
+      <div class="col-4"><input name="education[${educationCount}][institute]" placeholder="Institute Name" class="hrp-input Rectangle-29"></div>
+      <div class="col-3"><input name="education[${educationCount}][year]" placeholder="2020" class="hrp-input Rectangle-29"></div>
+      <div class="col-1"><button type="button" onclick="removeEducation(this)" style="background:#ef4444;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:600;width:100%;">×</button></div>
     </div>`;
   document.getElementById('education').insertAdjacentHTML('beforeend', html);
   educationCount++;
@@ -311,10 +323,11 @@ function addEducation() {
 
 function addCertification() {
   const html = `
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 cert-item" style="margin-top:15px;">
-      <div><input name="certifications[${certCount}][name]" placeholder="Certificate Name" class="hrp-input Rectangle-29"></div>
-      <div><input name="certifications[${certCount}][authority]" placeholder="Issuing Authority" class="hrp-input Rectangle-29"></div>
-      <div><input name="certifications[${certCount}][year]" placeholder="2023" class="hrp-input Rectangle-29"></div>
+    <div class="row cert-item" style="margin-bottom:15px;align-items:end;">
+      <div class="col-4"><input name="certifications[${certCount}][name]" placeholder="Certificate Name" class="hrp-input Rectangle-29"></div>
+      <div class="col-4"><input name="certifications[${certCount}][authority]" placeholder="Issuing Authority" class="hrp-input Rectangle-29"></div>
+      <div class="col-3"><input name="certifications[${certCount}][year]" placeholder="2023" class="hrp-input Rectangle-29"></div>
+      <div class="col-1"><button type="button" onclick="removeCertification(this)" style="background:#ef4444;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:600;width:100%;">×</button></div>
     </div>`;
   document.getElementById('certifications').insertAdjacentHTML('beforeend', html);
   certCount++;
@@ -322,10 +335,11 @@ function addCertification() {
 
 function addAchievement() {
   const html = `
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 achievement-item" style="margin-top:15px;">
-      <div><input name="achievements[${achievementCount}][title]" placeholder="Achievement Title" class="hrp-input Rectangle-29"></div>
-      <div><input name="achievements[${achievementCount}][description]" placeholder="Description" class="hrp-input Rectangle-29"></div>
-      <div><input name="achievements[${achievementCount}][year]" placeholder="2023" class="hrp-input Rectangle-29"></div>
+    <div class="row achievement-item" style="margin-bottom:15px;align-items:end;">
+      <div class="col-4"><input name="achievements[${achievementCount}][title]" placeholder="Achievement Title" class="hrp-input Rectangle-29"></div>
+      <div class="col-4"><input name="achievements[${achievementCount}][description]" placeholder="Description" class="hrp-input Rectangle-29"></div>
+      <div class="col-3"><input name="achievements[${achievementCount}][year]" placeholder="2023" class="hrp-input Rectangle-29"></div>
+      <div class="col-1"><button type="button" onclick="removeAchievement(this)" style="background:#ef4444;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:600;width:100%;">×</button></div>
     </div>`;
   document.getElementById('achievements').insertAdjacentHTML('beforeend', html);
   achievementCount++;
@@ -342,10 +356,11 @@ function addLanguage() {
 
 function addProject() {
   const html = `
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 project-item" style="margin-top:15px;">
-      <div><input name="projects[${projectCount}][name]" placeholder="Project Name" class="hrp-input Rectangle-29"></div>
-      <div><input name="projects[${projectCount}][description]" placeholder="Project Description" class="hrp-input Rectangle-29"></div>
-      <div><input name="projects[${projectCount}][link]" placeholder="Project URL" class="hrp-input Rectangle-29"></div>
+    <div class="row project-item" style="margin-bottom:15px;align-items:end;">
+      <div class="col-4"><input name="projects[${projectCount}][name]" placeholder="Project Name" class="hrp-input Rectangle-29"></div>
+      <div class="col-4"><input name="projects[${projectCount}][description]" placeholder="Project Description" class="hrp-input Rectangle-29"></div>
+      <div class="col-3"><input name="projects[${projectCount}][link]" placeholder="Project URL" class="hrp-input Rectangle-29"></div>
+      <div class="col-1"><button type="button" onclick="removeProject(this)" style="background:#ef4444;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:600;width:100%;">×</button></div>
     </div>`;
   document.getElementById('projects').insertAdjacentHTML('beforeend', html);
   projectCount++;

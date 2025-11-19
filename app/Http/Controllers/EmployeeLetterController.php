@@ -32,7 +32,7 @@ class EmployeeLetterController extends Controller
         ]);
 
         $validated['letter_no'] = EmployeeLetter::generateLetterNo($validated['letter_type'], $validated['employee_id']);
-
+        dd($validated);
         EmployeeLetter::create($validated);
 
         return redirect()->route('employee-letters.index')->with('success', 'Letter created successfully');

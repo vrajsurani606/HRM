@@ -48,6 +48,15 @@ $background_url = asset('letters/back.png');
             box-shadow: 0 4px 10px rgba(0,0,0,0.15); cursor: pointer; font-weight: 700;
         }
         .print-btn:hover { background: #111827; }
+        .note-rectangle {
+            background: #fffde7;
+            border-left: 4px solid #456DB5;
+            padding: 15px 20px;
+            margin: 20px 0;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+        .note-rectangle b { color: #333; }
     </style>
 </head>
 <body>
@@ -87,6 +96,16 @@ $background_url = asset('letters/back.png');
                 </ul>
 
                 <p>We appreciate your contributions during your tenure with us and wish you success in your future endeavors.</p>
+                
+                @php
+                    $cleanNotes = trim(strip_tags($letter->notes ?? ''));
+                @endphp
+                
+                @if(!empty($cleanNotes))
+                    <div class="note-rectangle">
+                        <b>Note: {!! strip_tags($letter->notes) !!}</b>
+                    </div>
+                @endif
             </div>
             <div class="signature">
                 <div><b>Best Regards,</b></div>

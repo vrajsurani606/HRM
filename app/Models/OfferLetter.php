@@ -9,16 +9,16 @@ class OfferLetter extends Model
     use HasFactory;
 
     protected $fillable = [
-        'hiring_lead_id',
-        'issue_date',
-        'note',
-        'monthly_salary',
-        'annual_ctc',
-        'reporting_manager',
-        'working_hours',
-        'date_of_joining',
-        'probation_period',
-        'salary_increment',
+            'hiring_lead_id',
+            'issue_date',
+            'note',
+            'monthly_salary',
+            'annual_ctc',
+            'reporting_manager',
+            'working_hours',
+            'date_of_joining',
+            'probation_period',
+            'salary_increment',
     ];
 
     protected $casts = [

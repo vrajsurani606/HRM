@@ -13,18 +13,24 @@
                 $isModel = $emp instanceof \App\Models\Employee
               )
               @php(
-                $etype = strtolower(trim($emp->experience_type ?? ''))
+                $rawType = $emp->experience_type ?? ''
+              )
+              @php(
+                $displayType = $rawType === 'YES' ? 'Experience' : ($rawType === 'NO' ? 'Fresher' : ($rawType ?: 'Full - Time'))
+              )
+              @php(
+                $etype = strtolower(trim($displayType))
               )
               @php(
                 $badge = [
                   'bg' => '#f3f4f6',
                   'fg' => '#374151',
-                  'text' => $emp->experience_type ?: 'Full - Time',
+                  'text' => $displayType,
                 ]
               )
               @php(
                 $map = [
-                  'experienced' => ['#fce7f3', '#be185d'], // pink
+                  'experience' => ['#fce7f3', '#be185d'], // pink
                   'fresher' => ['#dcfce7', '#166534'],     // green
                   'trainee' => ['#dbeafe', '#1d4ed8'],     // blue
                   'intern' => ['#e0e7ff', '#3730a3'],      // indigo

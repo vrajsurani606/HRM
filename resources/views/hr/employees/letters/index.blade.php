@@ -98,14 +98,23 @@
         cursor: pointer;
         transition: all 0.2s;
         text-decoration: none;
+        border: 1px solid transparent;
     }
     .action-btn.view {
         background-color: #e0f2fe;
         color: #0369a1;
-        border: 1px solid #bae6fd;
+        border-color: #bae6fd;
     }
     .action-btn.view:hover {
         background-color: #bae6fd;
+    }
+    .action-btn.print {
+        background-color: #f0fdf4;
+        color: #059669;
+        border-color: #bbf7d0;
+    }
+    .action-btn.print:hover {
+        background-color: #bbf7d0;
     }
     .action-btn.edit {
         background-color: #ede9fe;
@@ -162,6 +171,9 @@
     .badge-warning { background-color: #f59e0b; }
     .badge-termination { background-color: #ef4444; }
     .badge-other { background-color: #6b7280; }
+    .badge-increment { background-color: #059669; }
+    .badge-internship_offer { background-color: #7c3aed; }
+    .badge-internship_letter { background-color: #dc2626; }
     
     /* Modal styles */
     .modal-header {
@@ -256,14 +268,11 @@
                     </div>
                 </div>
                 <div class="letter-actions">
-                    <a href="{{ route('employees.letters.print', [$employee, $letter]) }}" 
-                       class="action-btn view" 
-                       title="Print Letter"
+                    <a href="{{ route('employees.letters.print', ['employee' => $employee, 'letter' => $letter]) }}" 
+                       class="action-btn print" 
+                       title="Print Letter" 
                        target="_blank">
                         <i class="fa fa-print"></i> Print
-                    </a>
-                    <a href="#" class="action-btn view" title="View Letter">
-                        <i class="fa fa-eye"></i> View
                     </a>
                     <a href="#" class="action-btn edit" title="Edit Letter" target="_blank">
                         <i class="fa fa-edit"></i> Edit

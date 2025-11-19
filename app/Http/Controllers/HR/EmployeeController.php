@@ -43,8 +43,13 @@ class EmployeeController extends Controller
 
     public function create()
     {
+        $positions = ['Developer', 'Designer', 'Manager', 'HR', 'Sales', 'Marketing', 'Accountant', 'Other'];
+        $nextCode = Employee::nextCode();
+        
         return view('hr.employees.create', [
             'page_title' => 'Add Employee',
+            'positions' => $positions,
+            'nextCode' => $nextCode,
         ]);
     }
 
@@ -53,11 +58,58 @@ class EmployeeController extends Controller
         $data = $request->validate([
             'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:employees,email',
+            'mobile_no' => 'nullable|string|max:30',
+            'address' => 'nullable|string',
+            'position' => 'nullable|string|max:190',
+            'password' => 'nullable|string|min:6',
+            'reference_name' => 'nullable|string|max:190',
+            'reference_no' => 'nullable|string|max:50',
+            'aadhaar_no' => 'nullable|string|max:20',
+            'pan_no' => 'nullable|string|max:20',
+            'bank_name' => 'nullable|string|max:190',
+            'bank_account_no' => 'nullable|string|max:50',
+            'bank_ifsc' => 'nullable|string|max:20',
+            'experience_type' => 'nullable|in:YES,NO',
+            'previous_company_name' => 'nullable|string|max:190',
+            'previous_salary' => 'nullable|numeric|min:0',
+            'current_offer_amount' => 'nullable|numeric|min:0',
+            'has_incentive' => 'nullable|in:YES,NO',
+            'incentive_amount' => 'nullable|numeric|min:0',
+            'joining_date' => 'nullable|date',
+            'aadhaar_photo_front' => 'nullable|image|max:2048',
+            'aadhaar_photo_back' => 'nullable|image|max:2048',
+            'pan_photo' => 'nullable|image|max:2048',
+            'cheque_photo' => 'nullable|image|max:2048',
+            'marksheet_photo' => 'nullable|image|max:2048',
             'photo' => 'nullable|image|max:2048',
         ]);
-        if ($request->hasFile('photo')) {
-            $data['photo_path'] = $request->file('photo')->store('employees', 'public');
+        
+        // Generate employee code
+        $data['code'] = Employee::nextCode();
+        
+        // Handle file uploads
+        $fileFields = ['aadhaar_photo_front', 'aadhaar_photo_back', 'pan_photo', 'cheque_photo', 'marksheet_photo', 'photo'];
+        foreach ($fileFields as $field) {
+            if ($request->hasFile($field)) {
+                if ($field === 'photo') {
+                    $data['photo_path'] = $request->file($field)->store('employees', 'public');
+                } else {
+                    $data[$field] = $request->file($field)->store('employees', 'public');
+                }
+            }
         }
+        
+        // Convert YES/NO to boolean for has_incentive
+        if (isset($data['has_incentive'])) {
+            $data['has_incentive'] = $data['has_incentive'] === 'YES' ? 1 : 0;
+        }
+        
+        // Hash password if provided
+        if (!empty($data['password'])) {
+            $data['password_hash'] = bcrypt($data['password']);
+        }
+        unset($data['password'], $data['photo']);
+        
         Employee::create($data);
         return redirect()->route('employees.index')->with('success', 'Employee created');
     }
@@ -72,9 +124,14 @@ class EmployeeController extends Controller
 
     public function edit(Employee $employee)
     {
+        $positions = ['Developer', 'Designer', 'Manager', 'HR', 'Sales', 'Marketing', 'Accountant', 'Other'];
+        $incentiveOptions = ['YES', 'NO'];
+        
         return view('hr.employees.edit', [
             'employee'   => $employee,
             'page_title' => 'Edit Employee',
+            'positions' => $positions,
+            'incentiveOptions' => $incentiveOptions,
         ]);
     }
 
@@ -86,27 +143,53 @@ class EmployeeController extends Controller
             'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:employees,email,'.$employee->id,
             'mobile_no' => 'nullable|string|max:30',
-            'gender' => 'nullable|in:male,female,other',
-            'position' => 'nullable|string|max:190',
-            'experience_type' => 'nullable|in:Experienced,Fresher,Trainee,Intern,Contract',
-            'joining_date' => 'nullable|date',
-            'date_of_birth' => 'nullable|date',
-            'current_offer_amount' => 'nullable|numeric|min:0',
-            'previous_salary' => 'nullable|numeric|min:0',
-            'previous_company_name' => 'nullable|string|max:190',
-            'previous_designation' => 'nullable|string|max:190',
             'address' => 'nullable|string',
-            'has_incentive' => 'nullable',
+            'position' => 'nullable|string|max:190',
+            'password' => 'nullable|string|min:6',
+            'reference_name' => 'nullable|string|max:190',
+            'reference_no' => 'nullable|string|max:50',
+            'aadhaar_no' => 'nullable|string|max:20',
+            'pan_no' => 'nullable|string|max:20',
+            'bank_name' => 'nullable|string|max:190',
+            'bank_account_no' => 'nullable|string|max:50',
+            'bank_ifsc' => 'nullable|string|max:20',
+            'experience_type' => 'nullable|in:YES,NO',
+            'previous_company_name' => 'nullable|string|max:190',
+            'previous_salary' => 'nullable|numeric|min:0',
+            'current_offer_amount' => 'nullable|numeric|min:0',
+            'has_incentive' => 'nullable|in:YES,NO',
             'incentive_amount' => 'nullable|numeric|min:0',
+            'joining_date' => 'nullable|date',
+            'aadhaar_photo_front' => 'nullable|image|max:2048',
+            'aadhaar_photo_back' => 'nullable|image|max:2048',
+            'pan_photo' => 'nullable|image|max:2048',
+            'cheque_photo' => 'nullable|image|max:2048',
+            'marksheet_photo' => 'nullable|image|max:2048',
             'photo' => 'nullable|image|max:2048',
         ]);
 
-        $data['has_incentive'] = $request->boolean('has_incentive');
-
-        if ($request->hasFile('photo')) {
-            $data['photo_path'] = $request->file('photo')->store('employees', 'public');
+        // Handle file uploads
+        $fileFields = ['aadhaar_photo_front', 'aadhaar_photo_back', 'pan_photo', 'cheque_photo', 'marksheet_photo', 'photo'];
+        foreach ($fileFields as $field) {
+            if ($request->hasFile($field)) {
+                if ($field === 'photo') {
+                    $data['photo_path'] = $request->file($field)->store('employees', 'public');
+                } else {
+                    $data[$field] = $request->file($field)->store('employees', 'public');
+                }
+            }
         }
-        unset($data['photo']);
+        
+        // Convert YES/NO to boolean for has_incentive
+        if (isset($data['has_incentive'])) {
+            $data['has_incentive'] = $data['has_incentive'] === 'YES' ? 1 : 0;
+        }
+        
+        // Hash password if provided
+        if (!empty($data['password'])) {
+            $data['password_hash'] = bcrypt($data['password']);
+        }
+        unset($data['password'], $data['photo']);
 
         $employee->update($data);
         return redirect()->route('employees.index')->with('success', 'Employee updated');
@@ -123,7 +206,7 @@ class EmployeeController extends Controller
      */
     public function lettersIndex(Employee $employee)
     {
-        $letters = $employee->letters()->latest()->paginate(10);
+        $letters = $employee->letters()->latest()->paginate(50);
         
         return view('hr.employees.letters.index', [
             'employee' => $employee,
@@ -149,39 +232,70 @@ class EmployeeController extends Controller
     /**
      * Store a newly created letter in storage.
      */
-    public function storeLetter(Request $request, Employee $employee)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'type' => 'required|string|in:appointment,offer,joining,confidentiality,impartiality,experience,agreement,relieving,confirmation,warning,termination,other',
-            'issue_date' => 'required|date',
-            'reference_number' => 'required|string|unique:employee_letters,reference_number',
-            'notes' => 'nullable|string',
-        ]);
+   public function storeLetter(Request $request, Employee $employee)
+{
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'nullable|string',
+        'subject' => 'nullable|string|max:255',
+        'type' => 'required|string|in:appointment,offer,joining,confidentiality,impartiality,experience,agreement,relieving,confirmation,warning,termination,increment,internship_offer,internship_letter,other',
+        'subject' => 'required_if:type,other|string|max:255',
+        'content' => 'required_if:type,other,warning,termination|string',
+        'issue_date' => 'required|date',
+        'reference_number' => 'required|string|unique:employee_letters,reference_number',
+        'notes' => 'nullable|string',
+        'monthly_salary' => 'nullable|numeric|min:0',
+        'annual_ctc' => 'nullable|numeric|min:0',
+        'reporting_manager' => 'nullable|string|max:190',
+        'working_hours' => 'nullable|string|max:190',
+        'date_of_joining' => 'nullable|date',
+        'probation_period' => 'nullable',
+        'salary_increment' => 'nullable',
+        'start_date' => 'nullable|date',
+        'end_date' => 'nullable|date|after_or_equal:start_date',
+        'increment_amount' => 'nullable|numeric|min:0',
+        'increment_effective_date' => 'nullable|date',
+        'internship_position' => 'nullable|string|max:190',
+        'internship_start_date' => 'nullable|date',
+        'internship_end_date' => 'nullable|date|after_or_equal:internship_start_date',
+        'internship_address' => 'nullable|string',
+        'warning_content' => 'nullable|string',
+    ]);
 
-        try {
-            // If reference number is not provided, generate one
-            if (empty($validated['reference_number'])) {
-                $validated['reference_number'] = $this->generateLetterNumber();
-            }
-            
-            // Create the letter
-            $letter = $employee->letters()->create($validated);
-
-            return response()->json([
-                'success' => true,
-                'redirect' => route('employees.letters.index', $employee)
-            ]);
-            
-        } catch (\Exception $e) {
-            \Log::error('Error saving letter: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to save letter. Please try again.'
-            ], 500);
+    try {
+        // If reference number is not provided, generate one
+        if (empty($validated['reference_number'])) {
+            $validated['reference_number'] = $this->generateLetterNumber();
         }
+        
+        // Convert arrays to JSON strings for database storage
+        if (isset($validated['probation_period']) && is_array($validated['probation_period'])) {
+            $validated['probation_period'] = json_encode(array_filter($validated['probation_period']));
+        }
+        
+        if (isset($validated['salary_increment']) && is_array($validated['salary_increment'])) {
+            $validated['salary_increment'] = json_encode(array_filter($validated['salary_increment']));
+        }
+        
+        // Set the created_by field
+        $validated['created_by'] = auth()->id();
+        
+        // Create the letter
+        $letter = $employee->letters()->create($validated);
+
+        return response()->json([
+            'success' => true,
+            'redirect' => route('employees.letters.index', $employee)
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Error saving letter: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to save letter. ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Generate a unique letter number.
@@ -206,87 +320,72 @@ class EmployeeController extends Controller
         
         return $referenceNumber;
     }
+    // public function print(Employee $employee, EmployeeLetter $letter)
+    // {
+    //     $company = "Chaitri"; // or however you get company info
+    //     dd($letter , $employee);
 
-    /**
-     * Display the specified letter in a print view.
-     */
-    public function printLetter(Employee $employee, \App\Models\EmployeeLetter $letter)
+    //     if ($letter->type == 'offer') {
+    //           $offer = $letter->offerLetter;
+    //     if (!$offer) {
+    //         // First time: capture details
+    //         return redirect()->route('hiring.offer.create', $lead->id)
+    //             ->with('info', 'Please fill offer letter details first.');
+    //     }
+
+    //     $probation = $offer->probation_period;
+    //     $salary_increment = $offer->salary_increment;
+    //     $probation_lines = array_values(array_filter(preg_split('/\r\n|\r|\n/', (string)($probation ?? '')), function($v){ return trim($v) !== ''; }));
+    //     $salary_lines = array_values(array_filter(preg_split('/\r\n|\r|\n/', (string)($salary_increment ?? '')), function($v){ return trim($v) !== ''; }));
+    //     $break_after = (count($probation_lines) > 5 || count($salary_lines) > 5);
+    //     $joining = [
+    //         'date_of_joining' => optional($offer->date_of_joining)->format('d-m-Y'),
+    //         'reporting_person' => $offer->reporting_manager,
+    //     ];
+
+    //     return view('hr.hiring.print_offerletter', compact('lead','offer','probation','salary_increment','joining','probation_lines','salary_lines','break_after'));
+   
+    //     }else{
+    //         return view('hr.employees.letters.print', compact('employee', 'letter', 'company'));
+    //     }
+    // }
+
+    public function print(Employee $employee, EmployeeLetter $letter)
     {
-        // Verify the letter belongs to the employee
-        if ($letter->employee_id !== $employee->id) {
-            abort(404);
-        }
+        $company = json_decode(json_encode([
+            'name' => 'CHITRI ENLARGE SOFT IT HUB PVT. LTD.',
+            'address' => 'Shop No. 28, Shagun Building, NH-4, Old Mumbai-Pune Highway, Dehu Road, Kiwale, Dist. Pune - 412101',
+            'phone' => '+91 72763 23999',
+            'email' => 'info@ceihpl.com',
+            'website' => 'www.ceihpl.com',
+        ]));
 
-        // Type-specific routing
-        if ($letter->type == 'offer') {
-            return view('hr.employees.letters.print_offerletter', [
-                'employee' => $employee,
-                'letter' => $letter,
-                'page_title' => 'Print Offer Letter - ' . $employee->name,
-            ]);
+        // Route to specific templates based on letter type
+        switch ($letter->type) {
+            case 'agreement':
+                return redirect(asset('public/letters/Agreement.pdf'));
+                
+            case 'offer':
+                $lead = $employee;
+                $offer = $letter;
+                $probation = $letter->probation_period;
+                $salary_increment = $letter->salary_increment;
+                $probation_lines = array_values(array_filter(preg_split('/\r\n|\r|\n/', (string)($probation ?? '')), function($v){ return trim($v) !== ''; }));
+                $salary_lines = array_values(array_filter(preg_split('/\r\n|\r|\n/', (string)($salary_increment ?? '')), function($v){ return trim($v) !== ''; }));
+                $break_after = (count($probation_lines) > 5 || count($salary_lines) > 5);
+                $joining = [
+                    'date_of_joining' => optional($offer->date_of_joining)->format('d-m-Y'),
+                    'reporting_person' => $offer->reporting_manager,
+                ];
+                return view('hr.hiring.print_offerletter', compact('lead','offer','probation','salary_increment','joining','probation_lines','salary_lines','break_after'));
+                
+            default:
+                // For other letter types, use the standard print view
+                return view('hr.employees.letters.print', [
+                    'employee' => $employee,
+                    'letter' => $letter,
+                    'company' => $company
+                ]);
         }
-        
-        if ($letter->type == 'joining') {
-            return view('hr.employees.letters.print_joining', [
-                'employee' => $employee,
-                'letter' => $letter,
-                'page_title' => 'Print Joining Letter - ' . $employee->name,
-            ]);
-        }
-        
-        if ($letter->type == 'confidentiality') {
-            return view('hr.employees.letters.print_confidentiality', [
-                'employee' => $employee,
-                'letter' => $letter,
-                'page_title' => 'Print Confidentiality Letter - ' . $employee->name,
-            ]);
-        }
-        
-        if ($letter->type == 'impartiality') {
-            return view('hr.employees.letters.print_impartiality', [
-                'employee' => $employee,
-                'letter' => $letter,
-                'page_title' => 'Print Impartiality Letter - ' . $employee->name,
-            ]);
-        }
-        
-        if ($letter->type == 'experience') {
-            return view('hr.employees.letters.print_experience', [
-                'employee' => $employee,
-                'letter' => $letter,
-                'page_title' => 'Print Experience Letter - ' . $employee->name,
-            ]);
-        }
-        
-        if ($letter->type == 'agreement') {
-            return view('hr.employees.letters.print_agreement', [
-                'employee' => $employee,
-                'letter' => $letter,
-                'page_title' => 'Print Agreement Letter - ' . $employee->name,
-            ]);
-        }
-        
-        if ($letter->type == 'warning') {
-            return view('hr.employees.letters.print_warning', [
-                'employee' => $employee,
-                'letter' => $letter,
-                'page_title' => 'Print Warning Letter - ' . $employee->name,
-            ]);
-        }
-        
-        if ($letter->type == 'termination') {
-            return view('hr.employees.letters.print_termination', [
-                'employee' => $employee,
-                'letter' => $letter,
-                'page_title' => 'Print Termination Letter - ' . $employee->name,
-            ]);
-        }
-
-        // Default fallback for other letter types
-        return view('hr.employees.letters.print_letter', [
-            'employee' => $employee,
-            'letter' => $letter,
-            'page_title' => 'Print ' . ucfirst($letter->type) . ' Letter - ' . $employee->name,
-        ]);
     }
 }

@@ -20,6 +20,14 @@ return new class extends Migration
             $table->enum('type', ['appointment', 'experience', 'relieving', 'other']);
             $table->date('issue_date');
             $table->text('notes')->nullable();
+            $table->text('note')->nullable();
+            $table->decimal('monthly_salary', 12, 2)->nullable();
+            $table->decimal('annual_ctc', 12, 2)->nullable();
+            $table->string('reporting_manager', 190)->nullable();
+            $table->string('working_hours', 190)->nullable();
+            $table->date('date_of_joining')->nullable();
+            $table->text('probation_period')->nullable();
+            $table->text('salary_increment')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->timestamps();
         });

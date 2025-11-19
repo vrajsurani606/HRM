@@ -1,22 +1,45 @@
-<p>Dear <b>{{ $letter->employee->name }}</b>,</p>
+<div class="letter-meta">
+    <div><b>Letter No:</b> {{ $letter->reference_number }}</div>
+    <div><b>Date:</b> {{ \Carbon\Carbon::parse($letter->issue_date)->format('d F Y') }}</div>
+</div>
 
-<p>This letter serves as a <b>Confidentiality Agreement</b> between you and <span class="company">{{ $company_name }}</span>.</p>
+<div class="recipient">
+    <div><b>To,</b></div>
+    <div>{{ $employee->name }}</div>
+    @if($employee->address)
+    <div>Address :- {{ $employee->address }}</div>
+    @endif
+</div>
 
-<p><b>Confidentiality Obligations:</b></p>
-<ol style="margin-top: 4px;">
-    <li><b>Confidential Information:</b> You acknowledge that during your employment, you may have access to confidential and proprietary information including but not limited to:
-        <ul style="list-style-type: disc; margin: 4px 0 0 18px; padding:0;">
-            <li>Business strategies, plans, and financial information</li>
-            <li>Client lists, customer data, and business relationships</li>
-            <li>Technical data, software, and proprietary processes</li>
-            <li>Marketing strategies and competitive information</li>
-        </ul>
-    </li>
-    <li><b>Non-Disclosure:</b> You agree not to disclose, use, or exploit any confidential information for personal gain or to the detriment of the company.</li>
-    <li><b>Return of Materials:</b> Upon termination of employment, you agree to return all confidential materials and information.</li>
-    <li><b>Duration:</b> This confidentiality obligation shall continue indefinitely, even after the termination of your employment.</li>
-</ol>
+<div class="subject">Subject: Confidentiality Agreement</div>
 
-<p>Your signature on this letter confirms your understanding and agreement to maintain strict confidentiality.</p>
+<div class="body">
+    <p>Dear <b>{{ $employee->name }}</b>,</p>
+    
+    <p>This agreement is to confirm that as a <b>{{ $employee->designation }}</b> at 
+    <b>{{ $company_name }}</b>, you are required to maintain strict confidentiality 
+    regarding all company information, data, and intellectual property you may access 
+    during your employment. Disclosure of any such information to unauthorized persons 
+    is strictly prohibited.</p>
+ @php
+    $cleanNotes = trim(strip_tags($letter->notes));
+@endphp
 
-<p>We trust that you will honor this commitment and maintain the highest standards of confidentiality.</p>
+@if(!empty($cleanNotes))
+    <div class="note-rectangle">
+        <b>Note: {!! strip_tags($letter->notes) !!}</b>
+    </div>
+@endif
+
+    
+    <p>Kindly sign and return a copy of this letter as your acceptance of the confidentiality terms.</p>
+</div>
+
+<div class="signature">
+    <div><b>Sincerely,</b></div>
+    <div class="sign">
+    <img src="{{ asset('letters/signature.png') }}" alt="Signature">
+    </div>
+    <div class="name">{{ $signatory_name ?? 'HR Department' }}</div>
+    <div class="company">{{ $company_name }}</div>
+</div>

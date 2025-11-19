@@ -1,33 +1,46 @@
+<div class="recipient">
+    <div><b>To,</b></div>
+    <div><b>{{ strtoupper($letter->employee->name) }}</b></div>
+    @if($letter->employee->address)
+    <div>{{ $letter->employee->address }}</div>
+    @endif
+</div>
+
+<div style="margin: 20px 0;">
+    <div><b>Date:</b> {{ $letter->issue_date ? $letter->issue_date->format('d.m.Y') : date('d.m.Y') }}</div>
+</div>
+
+<div class="subject">Subject: Termination letter from designation of {{ $letter->employee->position ?? 'Employee' }}</div>
+
+<div class="body">
 <p>Dear <b>{{ $letter->employee->name }}</b>,</p>
+@php
+    $content = trim(strip_tags($letter->content ?? ''));
+@endphp
 
-<p>This letter serves as formal notice of <b>Termination of Employment</b> with <span class="company">{{ $company_name }}</span>.</p>
+<p>This letter is to formally notify you that your employment with <span class="company">{{ $company_name }}</span> will be terminated effective <b> {{ $letter->end_date ? $letter->end_date->format('F d, Y') : '_______________' }},</b> due to <b>{{ $content ?? 'consistently low performance despite prior discussions and performance improvement plans' }}.</b></p>
 
-<p><b>Termination Details:</b></p>
-<ul style="list-style-type: disc; margin: 4px 0 0 18px; padding:0;">
-    <li><b>Employee ID:</b> {{ $letter->employee->employee_id }}</li>
-    <li><b>Last Working Day:</b> [To be specified]</li>
-    <li><b>Reason for Termination:</b> [To be specified based on case]</li>
-    <li><b>Notice Period:</b> As per company policy/contract terms</li>
-</ul>
+<p>Over the past few months, we have reviewed your work and provided feedback and support to help you meet the expected performance standards. Unfortunately, there has not been sufficient improvement in your overall performance to meet the company's requirements for your role.</p>
 
-<p><b>Final Settlement:</b></p>
-<ol style="margin-top: 4px;">
-    <li><b>Salary:</b> Final salary will be processed as per company policy</li>
-    <li><b>Benefits:</b> All applicable benefits will be calculated and settled</li>
-    <li><b>Provident Fund:</b> PF settlement will be processed as per statutory requirements</li>
-    <li><b>Gratuity:</b> If applicable, will be processed as per policy</li>
-</ol>
+<p>Your final settlement, including any pending salary (if applicable), will be processed and credited as per company policy. Please ensure that all company assets, files, and credentials in your possession are returned to the HR department by your last working day.</p>
 
-<p><b>Return of Company Property:</b></p>
-<p>You are required to return all company property including but not limited to:</p>
-<ul style="list-style-type: disc; margin: 4px 0 0 18px; padding:0;">
-    <li>ID card, access cards, and keys</li>
-    <li>Laptop, mobile phone, and other electronic devices</li>
-    <li>Documents, files, and confidential information</li>
-    <li>Any other company assets in your possession</li>
-</ul>
+@php
+    $cleanNotes = trim(strip_tags($letter->notes ?? ''));
+@endphp
 
-<p><b>Confidentiality:</b></p>
-<p>Please note that your confidentiality obligations continue even after termination of employment.</p>
+@if(!empty($cleanNotes))
+    <div class="note-rectangle">
+        <b>Note: {!! strip_tags($letter->notes) !!}</b>
+    </div>
+@endif
 
-<p>We wish you success in your future endeavors.</p>
+<p>We appreciate the efforts you have made during your time with us and wish you the best in your future endeavors.</p>
+</div>
+<div class="signature">
+    <div><b>Sincerely,</b></div>
+    <div class="sign">
+    <img src="{{ asset('letters/signature.png') }}" alt="Signature">
+    </div>
+    <div class="name">{{ $signatory_name ?? 'Mr. Chintan Kachhadiya' }}</div>
+    <div class="company">{{ $company_name }}</div>
+</div>

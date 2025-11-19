@@ -17,6 +17,9 @@
     <body class="macos-theme" style="min-height:100vh; background: linear-gradient(145deg,#fff7f4,#fff);">
         {{ $slot }}
 
+        <!-- Lottie Player -->
+        <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+        
         <!-- Optional JS -->
         <script src="{{ asset('new_theme/bower_components/jquery/dist/jquery.min.js') }}"></script>
     </body>

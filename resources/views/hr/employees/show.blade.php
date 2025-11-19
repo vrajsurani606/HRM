@@ -264,53 +264,305 @@
 
   <!-- Documents Tab -->
   <div id="documents" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 32px;margin-bottom:30px">
-      <div style="position:relative;flex:1;max-width:400px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#9ca3af" style="position:absolute;left:16px;top:50%;transform:translateY(-50%)">
-          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-        </svg>
-        <input type="text" placeholder="Search documents..." style="width:100%;padding:12px 16px 12px 48px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;background:#f9fafb;color:#374151;outline:none">
+    <!-- Document Header -->
+    <div style="background:#f8fafc;border-bottom:1px solid #e5e7eb;padding:24px 32px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h3 style="font-size:20px;font-weight:700;color:#1e293b;margin:0">Employee Documents</h3>
+        <button onclick="openUploadModal()" style="background:#3b82f6;color:white;padding:12px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+          </svg>
+          Upload Document
+        </button>
       </div>
-      <button style="background:#1f2937;color:white;padding:12px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;margin-left:16px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-        </svg>
-        Add Document
-      </button>
+      
+      <!-- Search and Filter -->
+      <div style="display:flex;gap:16px;align-items:center">
+        <div style="position:relative;flex:1;max-width:400px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#9ca3af" style="position:absolute;left:16px;top:50%;transform:translateY(-50%)">
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+          <input type="text" id="documentSearch" placeholder="Search documents..." style="width:100%;padding:12px 16px 12px 48px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;background:white;color:#374151;outline:none">
+        </div>
+        <select style="padding:12px 16px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;background:white;color:#374151;outline:none;min-width:150px">
+          <option value="">All Types</option>
+          <option value="resume">Resume/CV</option>
+          <option value="id">ID Documents</option>
+          <option value="certificate">Certificates</option>
+          <option value="contract">Contracts</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
     </div>
     
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;padding:0 32px 24px">
-      <div style="text-align:center;padding:60px 20px;color:#6b7280;grid-column:1/-1">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="#d1d5db" style="margin:0 auto 16px">
-          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-        </svg>
-        <div style="font-size:18px;font-weight:600;margin-bottom:8px">No Documents Found</div>
-        <div style="font-size:14px">Upload documents for this employee</div>
+    <!-- Document Categories -->
+    <div style="padding:32px">
+      <!-- Essential Documents -->
+      <div style="margin-bottom:40px">
+        <h4 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 20px 0;display:flex;align-items:center;gap:8px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#ef4444">
+            <path d="M12,2L13.09,8.26L22,9L13.09,9.74L12,16L10.91,9.74L2,9L10.91,8.26L12,2Z"/>
+          </svg>
+          Essential Documents
+        </h4>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
+          <!-- Resume/CV -->
+          <div style="border:2px dashed #e5e7eb;border-radius:12px;padding:24px;text-align:center;background:#fafafa;transition:all 0.2s;cursor:pointer" onclick="uploadDocument('resume')">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="#6b7280" style="margin:0 auto 12px">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            <div style="font-weight:600;color:#374151;margin-bottom:4px">Resume/CV</div>
+            <div style="font-size:12px;color:#6b7280">Click to upload</div>
+          </div>
+          
+          <!-- ID Proof -->
+          <div style="border:2px dashed #e5e7eb;border-radius:12px;padding:24px;text-align:center;background:#fafafa;transition:all 0.2s;cursor:pointer" onclick="uploadDocument('id')">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="#6b7280" style="margin:0 auto 12px">
+              <path d="M22,3H2C0.91,3.04 0.04,3.91 0,5V19C0.04,20.09 0.91,20.96 2,21H22C23.09,20.96 23.96,20.09 24,19V5C23.96,3.91 23.09,3.04 22,3M22,19H2V5H22V19M14,17V15.75C14,14.09 10.66,13.25 9,13.25C7.34,13.25 4,14.09 4,15.75V17H14M9,7A2.5,2.5 0 0,0 6.5,9.5A2.5,2.5 0 0,0 9,12A2.5,2.5 0 0,0 11.5,9.5A2.5,2.5 0 0,0 9,7M14,7V8H20V7H14M14,9V10H20V9H14M14,11V12H18V11H14"/>
+            </svg>
+            <div style="font-weight:600;color:#374151;margin-bottom:4px">ID Proof</div>
+            <div style="font-size:12px;color:#6b7280">Aadhar, PAN, etc.</div>
+          </div>
+          
+          <!-- Address Proof -->
+          <div style="border:2px dashed #e5e7eb;border-radius:12px;padding:24px;text-align:center;background:#fafafa;transition:all 0.2s;cursor:pointer" onclick="uploadDocument('address')">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="#6b7280" style="margin:0 auto 12px">
+              <path d="M12,3L2,12H5V20H19V12H22L12,3M12,8.75A2.25,2.25 0 0,1 14.25,11A2.25,2.25 0 0,1 12,13.25A2.25,2.25 0 0,1 9.75,11A2.25,2.25 0 0,1 12,8.75Z"/>
+            </svg>
+            <div style="font-weight:600;color:#374151;margin-bottom:4px">Address Proof</div>
+            <div style="font-size:12px;color:#6b7280">Utility bills, etc.</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Educational Documents -->
+      <div style="margin-bottom:40px">
+        <h4 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 20px 0;display:flex;align-items:center;gap:8px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#3b82f6">
+            <path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z"/>
+          </svg>
+          Educational Certificates
+        </h4>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+          <div style="border:2px dashed #e5e7eb;border-radius:12px;padding:24px;text-align:center;background:#fafafa;transition:all 0.2s;cursor:pointer" onclick="uploadDocument('education')">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="#6b7280" style="margin:0 auto 12px">
+              <path d="M9,10H7V12H9V10M13,10H11V12H13V10M17,10H15V12H17V10M19,3H18V1H16V3H8V1H6V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M19,19H5V8H19V19Z"/>
+            </svg>
+            <div style="font-weight:600;color:#374151;margin-bottom:4px">Degree/Diploma</div>
+            <div style="font-size:12px;color:#6b7280">Upload certificates</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Uploaded Documents List -->
+      <div id="uploadedDocuments">
+        <h4 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 20px 0;display:flex;align-items:center;gap:8px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#10b981">
+            <path d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M6,20H18V10H12V4H6V20Z"/>
+          </svg>
+          Uploaded Documents
+        </h4>
+        
+        <!-- Sample Documents (Replace with dynamic content) -->
+        <div style="display:grid;gap:12px">
+          <!-- Document Item -->
+          <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;background:white;display:flex;align-items:center;gap:16px;transition:all 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
+            <div style="width:40px;height:40px;background:#dbeafe;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+              </svg>
+            </div>
+            <div style="flex:1">
+              <div style="font-weight:600;color:#374151;margin-bottom:2px">Resume_{{ $employee->name }}.pdf</div>
+              <div style="font-size:12px;color:#6b7280">Resume/CV • 2.4 MB • Uploaded 2 days ago</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button style="padding:6px 12px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:6px;font-size:12px;color:#374151;cursor:pointer;display:flex;align-items:center;gap:4px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"/>
+                </svg>
+                View
+              </button>
+              <button style="padding:6px 12px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:6px;font-size:12px;color:#374151;cursor:pointer;display:flex;align-items:center;gap:4px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+                </svg>
+                Download
+              </button>
+              <button style="padding:6px 8px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;color:#dc2626;cursor:pointer">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Empty State -->
+          <div style="text-align:center;padding:40px 20px;color:#6b7280;border:2px dashed #e5e7eb;border-radius:12px;margin-top:20px">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="#d1d5db" style="margin:0 auto 16px">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            <div style="font-size:16px;font-weight:600;margin-bottom:8px">No Documents Uploaded Yet</div>
+            <div style="font-size:14px;margin-bottom:16px">Start by uploading essential documents above</div>
+            <button onclick="openUploadModal()" style="background:#3b82f6;color:white;padding:8px 16px;border:none;border-radius:6px;font-size:14px;cursor:pointer">
+              Upload First Document
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Bank Details Tab -->
   <div id="bank" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
-    <div style="max-width:500px;margin:0 32px 24px;background:white;border:1px solid #e5e7eb;border-radius:16px;padding:40px;box-shadow:0 4px 6px rgba(0,0,0,0.05)">
-      <div style="margin-bottom:24px">
-        <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:16px">Bank Name:</label>
-        <div style="padding:14px 18px;border:1px solid #d1d5db;border-radius:8px;font-size:16px;background:#f9fafb;color:#374151">Not Available</div>
+    <!-- Bank Header -->
+    <div style="background:#f8fafc;border-bottom:1px solid #e5e7eb;padding:24px 32px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h3 style="font-size:20px;font-weight:700;color:#1e293b;margin:0 0 4px 0">Banking Information</h3>
+          <p style="color:#6b7280;margin:0;font-size:14px">Manage employee banking details for payroll processing</p>
+        </div>
+        <button onclick="editBankDetails()" style="background:#3b82f6;color:white;padding:12px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+            <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/>
+          </svg>
+          Edit Details
+        </button>
       </div>
-      
-      <div style="margin-bottom:24px">
-        <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:16px">IFSC Code:</label>
-        <div style="padding:14px 18px;border:1px solid #d1d5db;border-radius:8px;font-size:16px;background:#f9fafb;color:#374151">Not Available</div>
+    </div>
+    
+    <div style="padding:32px">
+      <div style="max-width:800px">
+        <!-- Bank Account Information -->
+        <div style="background:white;border:1px solid #e5e7eb;border-radius:16px;padding:32px;box-shadow:0 4px 6px rgba(0,0,0,0.05);margin-bottom:24px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+            <div style="width:48px;height:48px;background:#dbeafe;border-radius:12px;display:flex;align-items:center;justify-content:center">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#3b82f6">
+                <path d="M11.5,1L2,6V8H21V6M16,10V17H19V19H5V17H8V10H10V17H14V10"/>
+              </svg>
+            </div>
+            <div>
+              <h4 style="font-size:18px;font-weight:600;color:#1e293b;margin:0 0 2px 0">Primary Bank Account</h4>
+              <p style="color:#6b7280;margin:0;font-size:14px">Main account for salary deposits</p>
+            </div>
+          </div>
+          
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:24px">
+            <div>
+              <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:14px">Bank Name</label>
+              <div style="padding:16px;border:1px solid #e5e7eb;border-radius:8px;font-size:16px;background:#f9fafb;color:#374151;display:flex;align-items:center;gap:12px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b7280">
+                  <path d="M11.5,1L2,6V8H21V6M16,10V17H19V19H5V17H8V10H10V17H14V10"/>
+                </svg>
+                {{ $employee->bank_name ?? 'Not Available' }}
+              </div>
+            </div>
+            
+            <div>
+              <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:14px">Branch Name</label>
+              <div style="padding:16px;border:1px solid #e5e7eb;border-radius:8px;font-size:16px;background:#f9fafb;color:#374151;display:flex;align-items:center;gap:12px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b7280">
+                  <path d="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z"/>
+                </svg>
+                {{ $employee->branch_name ?? 'Not Available' }}
+              </div>
+            </div>
+            
+            <div>
+              <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:14px">IFSC Code</label>
+              <div style="padding:16px;border:1px solid #e5e7eb;border-radius:8px;font-size:16px;background:#f9fafb;color:#374151;display:flex;align-items:center;gap:12px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b7280">
+                  <path d="M9,7H7V9H9V7M11,7V9H13V7H11M15,7V9H17V7H15M7,11V13H9V11H7M13,11V13H11V11H13M17,11V13H15V11H17M7,15V17H9V15H7M13,15V17H11V15H13M17,15V17H15V15H17Z"/>
+                </svg>
+                {{ $employee->ifsc_code ?? 'Not Available' }}
+              </div>
+            </div>
+            
+            <div>
+              <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:14px">Account Type</label>
+              <div style="padding:16px;border:1px solid #e5e7eb;border-radius:8px;font-size:16px;background:#f9fafb;color:#374151;display:flex;align-items:center;gap:12px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b7280">
+                  <path d="M17,18C15.89,18 15,18.89 15,20A3,3 0 0,0 18,23A3,3 0 0,0 21,20C21,18.89 20.1,18 19,18H17M12,3L1,9L12,15L21,10.09V17H23V9"/>
+                </svg>
+                {{ $employee->account_type ?? 'Savings Account' }}
+              </div>
+            </div>
+            
+            <div style="grid-column:1/-1">
+              <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:14px">Account Number</label>
+              <div style="padding:16px;border:1px solid #e5e7eb;border-radius:8px;font-size:16px;background:#f9fafb;color:#374151;display:flex;align-items:center;justify-content:space-between">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b7280">
+                    <path d="M6,2A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6M6,4H13V9H18V20H6V4Z"/>
+                  </svg>
+                  <span id="accountNumber">{{ $employee->account_number ? str_repeat('*', strlen($employee->account_number) - 4) . substr($employee->account_number, -4) : 'Not Available' }}</span>
+                </div>
+                @if($employee->account_number)
+                <button onclick="toggleAccountNumber()" style="padding:4px 8px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:4px;font-size:12px;color:#374151;cursor:pointer">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"/>
+                  </svg>
+                </button>
+                @endif
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Bank Verification Status -->
+        <div style="background:white;border:1px solid #e5e7eb;border-radius:16px;padding:24px;box-shadow:0 4px 6px rgba(0,0,0,0.05)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <h4 style="font-size:16px;font-weight:600;color:#1e293b;margin:0">Verification Status</h4>
+            @if($employee->bank_verified ?? false)
+            <span style="background:#dcfce7;color:#166534;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+              </svg>
+              Verified
+            </span>
+            @else
+            <span style="background:#fef3c7;color:#92400e;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,17A1.5,1.5 0 0,1 10.5,15.5A1.5,1.5 0 0,1 12,14A1.5,1.5 0 0,1 13.5,15.5A1.5,1.5 0 0,1 12,17M12,10A1,1 0 0,1 13,11V13A1,1 0 0,1 12,14A1,1 0 0,1 11,13V11A1,1 0 0,1 12,10Z"/>
+              </svg>
+              Pending Verification
+            </span>
+            @endif
+          </div>
+          
+          <div style="display:flex;gap:12px">
+            @if(!($employee->bank_verified ?? false))
+            <button style="background:#f59e0b;color:white;padding:8px 16px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+                <path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/>
+              </svg>
+              Verify Account
+            </button>
+            @endif
+            
+            <button style="background:#6b7280;color:white;padding:8px 16px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+                <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+              </svg>
+              Download Bank Form
+            </button>
+          </div>
+        </div>
+        
+        @if(!$employee->bank_name)
+        <!-- Empty State -->
+        <div style="text-align:center;padding:60px 20px;color:#6b7280;border:2px dashed #e5e7eb;border-radius:16px;margin-top:24px">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="#d1d5db" style="margin:0 auto 20px">
+            <path d="M11.5,1L2,6V8H21V6M16,10V17H19V19H5V17H8V10H10V17H14V10"/>
+          </svg>
+          <div style="font-size:18px;font-weight:600;margin-bottom:8px">No Banking Details Available</div>
+          <div style="font-size:14px;margin-bottom:20px">Add banking information to enable payroll processing</div>
+          <button onclick="editBankDetails()" style="background:#3b82f6;color:white;padding:12px 24px;border:none;border-radius:8px;font-weight:600;cursor:pointer">
+            Add Bank Details
+          </button>
+        </div>
+        @endif
       </div>
-      
-      <div style="margin-bottom:32px">
-        <label style="display:block;font-weight:600;color:#374151;margin-bottom:8px;font-size:16px">Account Number:</label>
-        <div style="padding:14px 18px;border:1px solid #d1d5db;border-radius:8px;font-size:16px;background:#f9fafb;color:#374151">Not Available</div>
-      </div>
-      
-      <button style="background:#6b7280;color:white;padding:12px 24px;border:none;border-radius:8px;font-weight:600;cursor:not-allowed;font-size:16px;width:100%" disabled>
-        No Bank Details Available
-      </button>
     </div>
   </div>
 
@@ -366,17 +618,170 @@
     margin-bottom: 8px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
-
+  
+  /* Document Upload Styles */
+  .document-upload-area:hover {
+    border-color: #3b82f6 !important;
+    background: #eff6ff !important;
+  }
+  
+  .document-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    transform: translateY(-2px);
+  }
+  
+  .document-category:hover {
+    border-color: #3b82f6 !important;
+    background: #eff6ff !important;
+  }
+  
+  /* Button Hover Effects */
+  button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  button:active {
+    transform: translateY(0);
+  }
+  
+  /* Bank Details Styles */
+  .bank-field {
+    transition: all 0.2s ease;
+  }
+  
+  .bank-field:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  /* Search Input Styles */
+  input[type="text"]:focus,
+  select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  /* Status Badge Animations */
+  .status-badge {
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+  
+  /* Responsive Design */
   @media (max-width: 768px) {
     #personal > div {
       grid-template-columns: 1fr !important;
     }
+    
+    .tabbar {
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    
+    .tab-btn {
+      flex-shrink: 0;
+    }
+    
+    /* Document grid responsive */
+    #documents .document-grid {
+      grid-template-columns: 1fr !important;
+    }
+    
+    /* Bank details responsive */
+    #bank .bank-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    /* Employee header responsive */
+    .employee-header {
+      flex-direction: column !important;
+      gap: 16px !important;
+    }
+    
+    .employee-header > div {
+      width: 100% !important;
+    }
+    
+    /* Tab content padding */
+    .tab-content {
+      padding: 16px !important;
+    }
+    
+    /* Modal responsive */
+    .modal-content {
+      width: 95% !important;
+      margin: 20px !important;
+    }
+  }
+  
+  /* Loading States */
+  .loading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  
+  .loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #3b82f6;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Smooth transitions */
+  * {
+    transition: all 0.2s ease;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
   }
 </style>
 @endpush
 
 @push('scripts')
 <script>
+  let accountNumberVisible = false;
+  const fullAccountNumber = '{{ $employee->account_number ?? "" }}';
+  
   function switchTab(tabName) {
     // Hide all tab contents
     document.querySelectorAll('.tab-content').forEach(tab => {
@@ -406,5 +811,197 @@
       selectedBtn.style.borderBottomColor = '#0ea5e9';
     }
   }
+  
+  function openUploadModal() {
+    // Create modal for document upload
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    `;
+    
+    modal.innerHTML = `
+      <div style="background: white; border-radius: 16px; padding: 32px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h3 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;">Upload Document</h3>
+          <button onclick="closeModal()" style="background: none; border: none; font-size: 24px; color: #6b7280; cursor: pointer;">&times;</button>
+        </div>
+        
+        <form id="documentUploadForm">
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Document Type</label>
+            <select name="document_type" style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
+              <option value="resume">Resume/CV</option>
+              <option value="id">ID Proof</option>
+              <option value="address">Address Proof</option>
+              <option value="education">Educational Certificate</option>
+              <option value="contract">Contract</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Document Name</label>
+            <input type="text" name="document_name" placeholder="Enter document name" style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
+          </div>
+          
+          <div style="margin-bottom: 24px;">
+            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Select File</label>
+            <div style="border: 2px dashed #e5e7eb; border-radius: 8px; padding: 40px; text-align: center; background: #f9fafb;">
+              <input type="file" id="documentFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display: none;">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="#6b7280" style="margin: 0 auto 12px;">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+              </svg>
+              <div style="font-weight: 600; color: #374151; margin-bottom: 4px;">Click to upload or drag and drop</div>
+              <div style="font-size: 12px; color: #6b7280;">PDF, DOC, DOCX, JPG, PNG (Max 10MB)</div>
+              <button type="button" onclick="document.getElementById('documentFile').click()" style="background: #3b82f6; color: white; padding: 8px 16px; border: none; border-radius: 6px; margin-top: 12px; cursor: pointer;">Choose File</button>
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button type="button" onclick="closeModal()" style="background: #f3f4f6; color: #374151; padding: 12px 24px; border: 1px solid #d1d5db; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+            <button type="submit" style="background: #3b82f6; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Upload Document</button>
+          </div>
+        </form>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add event listener for form submission
+    document.getElementById('documentUploadForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Handle document upload here
+      alert('Document upload functionality would be implemented here');
+      closeModal();
+    });
+    
+    window.closeModal = function() {
+      document.body.removeChild(modal);
+    };
+  }
+  
+  function uploadDocument(type) {
+    openUploadModal();
+    // Pre-select document type
+    setTimeout(() => {
+      const select = document.querySelector('select[name="document_type"]');
+      if (select) {
+        select.value = type;
+      }
+    }, 100);
+  }
+  
+  function editBankDetails() {
+    // Create modal for bank details editing
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    `;
+    
+    modal.innerHTML = `
+      <div style="background: white; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h3 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;">Edit Bank Details</h3>
+          <button onclick="closeBankModal()" style="background: none; border: none; font-size: 24px; color: #6b7280; cursor: pointer;">&times;</button>
+        </div>
+        
+        <form id="bankDetailsForm">
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
+            <div>
+              <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Bank Name</label>
+              <input type="text" name="bank_name" value="{{ $employee->bank_name ?? '' }}" placeholder="Enter bank name" style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Branch Name</label>
+              <input type="text" name="branch_name" value="{{ $employee->branch_name ?? '' }}" placeholder="Enter branch name" style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
+            </div>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
+            <div>
+              <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">IFSC Code</label>
+              <input type="text" name="ifsc_code" value="{{ $employee->ifsc_code ?? '' }}" placeholder="Enter IFSC code" style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; text-transform: uppercase;">
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Account Type</label>
+              <select name="account_type" style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
+                <option value="savings" {{ ($employee->account_type ?? '') == 'savings' ? 'selected' : '' }}>Savings Account</option>
+                <option value="current" {{ ($employee->account_type ?? '') == 'current' ? 'selected' : '' }}>Current Account</option>
+                <option value="salary" {{ ($employee->account_type ?? '') == 'salary' ? 'selected' : '' }}>Salary Account</option>
+              </select>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 24px;">
+            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Account Number</label>
+            <input type="text" name="account_number" value="{{ $employee->account_number ?? '' }}" placeholder="Enter account number" style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
+          </div>
+          
+          <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button type="button" onclick="closeBankModal()" style="background: #f3f4f6; color: #374151; padding: 12px 24px; border: 1px solid #d1d5db; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+            <button type="submit" style="background: #3b82f6; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add event listener for form submission
+    document.getElementById('bankDetailsForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Handle bank details update here
+      alert('Bank details update functionality would be implemented here');
+      closeBankModal();
+    });
+    
+    window.closeBankModal = function() {
+      document.body.removeChild(modal);
+    };
+  }
+  
+  function toggleAccountNumber() {
+    const accountNumberElement = document.getElementById('accountNumber');
+    if (!accountNumberElement || !fullAccountNumber) return;
+    
+    accountNumberVisible = !accountNumberVisible;
+    
+    if (accountNumberVisible) {
+      accountNumberElement.textContent = fullAccountNumber;
+    } else {
+      const maskedNumber = '*'.repeat(fullAccountNumber.length - 4) + fullAccountNumber.slice(-4);
+      accountNumberElement.textContent = maskedNumber;
+    }
+  }
+  
+  // Document search functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('documentSearch');
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        // Implement document search functionality here
+        console.log('Searching for:', searchTerm);
+      });
+    }
+  });
 </script>
 @endpush
