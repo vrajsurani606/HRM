@@ -39,36 +39,36 @@
       <tbody>
         @forelse($quotations as $index => $quotation)
         <tr>
-          {{-- <td>
-            <div class="action-icons">
-              <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit" onclick="window.location='{{ route('quotations.edit', $quotation->id) }}'" style="cursor: pointer;">
-              <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print" onclick="window.open('{{ route('quotations.download', $quotation->id) }}')" style="cursor: pointer;">
-              <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete" onclick="confirmDelete({{ $quotation->id }})" style="cursor: pointer;">
-              <img class="action-icon" src="{{ asset('action_icon/discount.svg') }}" alt="Discount" style="cursor: pointer;">
-              <img class="action-icon" src="{{ asset('action_icon/pluse.svg') }}" alt="Add" onclick="window.location='{{ route('quotations.show', $quotation->id) }}'" style="cursor: pointer;">
-            </div>
-          </td> --}}
-
           <td>
+             {{-- <a href="{{ route('quotations.print', $quotation->id) }}" title="Print Quotation" aria-label="Print Quotation">
+              <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon">
+            </a> --}}
             <a href="{{ route('quotations.edit', $quotation->id) }}" title="Edit" aria-label="Edit">
               <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon">
             </a>
-            <a href="{{ route('quotations.download', $quotation->id) }}" title="Print" target="_blank">
+            <a href="{{ route('quotations.download', $quotation->id) }}" title="Print Quotation" target="_blank">
               <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon">
             </a>
-           
+            
+            @if(in_array($quotation->id, $confirmedQuotationIds ?? []))
+              <a href="{{ route('quotations.template-list', $quotation->id) }}" title="View Template List" aria-label="View Template List">
+                <img src="{{ asset('action_icon/temp_list_icon.svg') }}" alt="Template List" class="action-icon">
+              </a>
+            @else
+              <a href="{{ route('quotation.follow-up', $quotation->id) }}" title="Follow Up" aria-label="Follow Up">
+                <img src="{{ asset('action_icon/followup.svg') }}" alt="Follow Up" class="action-icon" style="width:20px;height:20px;">
+              </a>
+            @endif
+            
             <button type="button" onclick="confirmDelete({{ $quotation->id }})" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
               <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon">
             </button>
-            <a href="#" title="Template List" target="_blank">
-              <img src="{{ asset('action_icon/temp_list_icon.svg') }}" alt="Template List" class="action-icon">
-            </a>
             <a href="#" title="Create Company" target="_blank">
               <img src="{{ asset('action_icon/create_company.svg') }}" alt="Create Company" class="action-icon">
             </a>
           </td>
           <td>{{ $quotations->firstItem() + $index }}</td>
-          <td>{{ $quotation->unique_code ?? 'N/A' }}</td>
+          <td>{{ $quotation->unique_code ?? 'N/A' }}</td> 
           <td>{{ Str::limit($quotation->company_name ?? 'N/A', 30) }}</td>
           <td>{{ $quotation->contact_number_1 ?? 'N/A' }}</td>
           <td>{{ $quotation->updated_at ? $quotation->updated_at->format('d/m/Y') : 'N/A' }}</td>

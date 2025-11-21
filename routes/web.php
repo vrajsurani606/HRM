@@ -114,8 +114,16 @@ Route::middleware('auth')->group(function () {
     Route::get('inquiry/{id}/quotation', [QuotationController::class, 'createFromInquiry'])->name('quotation.create-from-inquiry');
     Route::get('quotations/company/{id}', [QuotationController::class, 'getCompanyDetails'])->name('quotations.company.details');
     Route::get('quotations/{id}/download', [QuotationController::class, 'download'])->name('quotations.download');
+    Route::get('quotations/{id}/print', [QuotationController::class, 'download'])->name('quotations.print');
     Route::get('quotations/{id}/contract-pdf', [QuotationController::class, 'generateContractPdf'])->name('quotations.contract.pdf');
     Route::get('quotations/{id}/contract-png', [QuotationController::class, 'generateContractPng'])->name('quotations.contract.png');
+    Route::get('quotations/{id}/contract-file', [QuotationController::class, 'viewContractFile'])->name('quotations.contract.file');
+    Route::get('quotation/{id}/follow-up', [QuotationController::class, 'followUp'])->name('quotation.follow-up');
+    Route::post('quotation/{id}/follow-up', [QuotationController::class, 'storeFollowUp'])->name('quotation.follow-up.store');
+    Route::post('quotation-followups/{followUp}/confirm', [QuotationController::class, 'confirmFollowUp'])->name('quotation.follow-up.confirm');
+    Route::get('quotation/{id}/template-list', [QuotationController::class, 'templateList'])->name('quotations.template-list');
+    Route::get('quotation/{id}/create-proforma', [QuotationController::class, 'createProforma'])->name('quotations.create-proforma');
+    Route::post('quotation/{id}/store-proforma', [QuotationController::class, 'storeProforma'])->name('quotations.store-proforma');
 
     // Companies
     Route::resource('companies', CompanyController::class);

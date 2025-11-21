@@ -171,4 +171,14 @@ class Quotation extends Model
     {
         return $this->belongsTo(Company::class, 'customer_id');
     }
+
+    public function followUps()
+    {
+        return $this->hasMany(QuotationFollowUp::class);
+    }
+
+    public function proformas()
+    {
+        return $this->hasMany(Proforma::class);
+    }
 }

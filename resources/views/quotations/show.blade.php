@@ -70,6 +70,9 @@
                     <a href="{{ route('quotations.edit', $quotation->id) }}" class="btn btn-primary">
                         <i class="fas fa-edit"></i> Edit Quotation
                     </a>
+                    <a href="{{ route('quotation.follow-up', $quotation->id) }}" class="btn btn-info">
+                        <i class="fas fa-tasks"></i> Follow Up
+                    </a>
                     <a href="{{ route('quotations.contract.pdf', $quotation->id) }}" class="btn btn-danger" target="_blank">
                         <i class="fas fa-file-pdf"></i> Generate PDF Contract
                     </a>

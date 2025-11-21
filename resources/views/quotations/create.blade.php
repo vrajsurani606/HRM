@@ -17,9 +17,11 @@
 
 @section('content')
 
+<!-- Error/Success Messages -->
+
 <div class="hrp-card">
   <div class="Rectangle-30 hrp-compact">
-    <form id="quotationForm" method="POST" action="{{ route('quotations.store') }}"
+    <form id="quotationForm" method="POST" action="{{ route('quotations.store') }}" enctype="multipart/form-data"
       class="hrp-form grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
       @csrf
       <input type="hidden" name="inquiry_id" value="{{ isset($inquiry) ? $inquiry->id : '' }}">
@@ -86,11 +88,13 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div class="md:col-span-1">
           <label class="hrp-label">GST No:</label>
-          <input class="Rectangle-29" name="gst_no" placeholder="Enter GST No" value="{{ old('gst_no') }}">
+          <input class="Rectangle-29 @error('gst_no') is-invalid @enderror" name="gst_no" placeholder="Enter GST No" value="{{ old('gst_no') }}">
+          @error('gst_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div class="md:col-span-1">
           <label class="hrp-label">PAN No:</label>
-          <input class="Rectangle-29" name="pan_no" placeholder="Enter PAN No" value="{{ old('pan_no') }}">
+          <input class="Rectangle-29 @error('pan_no') is-invalid @enderror" name="pan_no" placeholder="Enter PAN No" value="{{ old('pan_no') }}">
+          @error('pan_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
@@ -104,7 +108,7 @@
         <div class="md:col-span-1">
           <label class="hrp-label">Company Type</label>
           <div class="relative">
-            <select name="company_type" class="hrp-input Rectangle-29" style="
+            <select name="company_type" class="hrp-input Rectangle-29 @error('company_type') is-invalid @enderror" style="
               padding-right: 32px;
               -webkit-appearance: none;
               -moz-appearance: none;
@@ -136,6 +140,7 @@
               <option value="REAL_ESTATE" {{ old('company_type') == 'REAL_ESTATE' ? 'selected' : '' }}>REAL ESTATE</option>
               <option value="OTHER" {{ old('company_type') == 'OTHER' ? 'selected' : '' }}>OTHER</option>
             </select>
+            @error('company_type')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
         </div>
       </div>
@@ -144,11 +149,12 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div class="md:col-span-1">
           <label class="hrp-label">Nature Of Work:</label>
-          <input class="Rectangle-29" name="nature_of_work" placeholder="Enter Nature" value="{{ old('nature_of_work') }}">
+          <input class="Rectangle-29 @error('nature_of_work') is-invalid @enderror" name="nature_of_work" placeholder="Enter Nature" value="{{ old('nature_of_work') }}">
+          @error('nature_of_work')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div class="md:col-span-1">
           <label class="hrp-label">City:</label>
-          <select class="Rectangle-29-select" name="city">
+          <select class="Rectangle-29-select @error('city') is-invalid @enderror" name="city">
             <option value="" {{ !old('city') ? 'selected' : '' }}>Select City</option>
             <option value="Ahmedabad" {{ old('city') == 'Ahmedabad' ? 'selected' : '' }}>Ahmedabad</option>
             <option value="Surat" {{ old('city') == 'Surat' ? 'selected' : '' }}>Surat</option>
@@ -176,6 +182,7 @@
             <option value="Coimbatore">Coimbatore</option>
             <option>Vadodara</option>
           </select>
+          @error('city')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
 
@@ -183,11 +190,12 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Scope of Work:</label>
-          <textarea class="Rectangle-29 Rectangle-29-textarea" name="scope_of_work" placeholder="Enter Scope" style="min-height:80px">{{ old('scope_of_work') }}</textarea>
+          <textarea class="Rectangle-29 Rectangle-29-textarea @error('scope_of_work') is-invalid @enderror" name="scope_of_work" placeholder="Enter Scope" style="min-height:80px">{{ old('scope_of_work') }}</textarea>
+          @error('scope_of_work')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
           <label class="hrp-label">Address:</label>
-          <textarea class="Rectangle-29 Rectangle-29-textarea" name="address" placeholder="Enter Experience Previous Company Name" style="min-height:80px">{{ old('address') }}</textarea>
+          <textarea class="Rectangle-29 Rectangle-29-textarea @error('address') is-invalid @enderror" name="address" placeholder="Enter Experience Previous Company Name" style="min-height:80px">{{ old('address') }}</textarea>
           @error('address')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
@@ -195,13 +203,13 @@
       <!-- Row 6 -->
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
-          <label class="hrp-label">Contact Person 1:</label>
-          <input class="Rectangle-29" name="contact_person_1" placeholder="Enter Contact Person Name" value="{{ old('contact_person_1') }}" required>
+          <label class="hrp-label">Contact Person 1: <span class="text-red-500">*</span></label>
+          <input class="Rectangle-29 @error('contact_person_1') is-invalid @enderror" name="contact_person_1" placeholder="Enter Contact Person Name" value="{{ old('contact_person_1') }}" required>
           @error('contact_person_1')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
-          <label class="hrp-label">Contact Number 1:</label>
-          <input class="Rectangle-29" name="contact_number_1" placeholder="Enter Mobile No" type="tel" pattern="\d{10}" maxlength="10" inputmode="numeric" value="{{ old('contact_number_1') }}" required>
+          <label class="hrp-label">Contact Number 1: <span class="text-red-500">*</span></label>
+          <input class="Rectangle-29 @error('contact_number_1') is-invalid @enderror" name="contact_number_1" placeholder="Enter Mobile No" type="tel" pattern="\d{10}" maxlength="10" inputmode="numeric" value="{{ old('contact_number_1') }}" required>
           @error('contact_number_1')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
@@ -210,24 +218,26 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Position 1:</label>
-          <input class="Rectangle-29" name="position_1" placeholder="Enter Position" value="{{ old('position_1') }}">
+          <input class="Rectangle-29 @error('position_1') is-invalid @enderror" name="position_1" placeholder="Enter Position" value="{{ old('position_1') }}">
           @error('position_1')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
           <label class="hrp-label">Contract Copy:</label>
-          <div class="upload-pill Rectangle-29">
+          <div class="upload-pill Rectangle-29 @error('contract_copy') is-invalid @enderror">
             <div class="choose">Choose File</div>
             <div class="filename" id="contractCopyName">No File Chosen</div>
             <input id="contractCopyInput" name="contract_copy" type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
           </div>
+          @error('contract_copy')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
 
       <!-- Row 8 -->
       <div>
         <label class="hrp-label">Contract Short Details:</label>
-        <textarea class="Rectangle-29 Rectangle-29-textarea" name="contract_details" placeholder="Enter Your Details"
+        <textarea class="Rectangle-29 Rectangle-29-textarea @error('contract_details') is-invalid @enderror" name="contract_details" placeholder="Enter Your Details"
           style="height:58px;resize:none;">{{ old('contract_details') }}</textarea>
+        @error('contract_details')<small class="hrp-error">{{ $message }}</small>@enderror
       </div>
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
@@ -751,6 +761,12 @@
 <div class="hrp-actions" style="margin-top: 40px;">
   <button type="button" onclick="debugFormSubmission();" class="hrp-btn hrp-btn-primary">Add Quotation</button>
 </div>
+
+<!-- Hidden inputs for subtotals -->
+<input type="hidden" name="basic_subtotal" id="hidden_basic_subtotal" value="0">
+<input type="hidden" name="additional_subtotal" id="hidden_additional_subtotal" value="0">
+<input type="hidden" name="maintenance_subtotal" id="hidden_maintenance_subtotal" value="0">
+
     </form>
 @push('styles')
 <style>
@@ -841,6 +857,9 @@ function calculateAdditionalCostTotal() {
     let total = 0;
     document.querySelectorAll('.additional-total').forEach(i => total += parseFloat(i.value) || 0);
     document.getElementById('additionalCostTotal').innerHTML = `Total: ₹${total.toFixed(2)}`;
+    // Update hidden input
+    const hiddenInput = document.getElementById('hidden_additional_subtotal');
+    if (hiddenInput) hiddenInput.value = total.toFixed(2);
     updateContractAmountWithPremium();
 }
 
@@ -856,6 +875,9 @@ function calculateMaintenanceCostTotal() {
     let total = 0;
     document.querySelectorAll('.maintenance-total').forEach(i => total += parseFloat(i.value) || 0);
     document.getElementById('maintenanceCostTotal').innerHTML = `Total: ₹${total.toFixed(2)}`;
+    // Update hidden input
+    const hiddenInput = document.getElementById('hidden_maintenance_subtotal');
+    if (hiddenInput) hiddenInput.value = total.toFixed(2);
     updateContractAmountWithPremium();
 }
 
@@ -871,6 +893,9 @@ function calculateBasicCostTotal() {
     let total = 0;
     document.querySelectorAll('.basic-total').forEach(i => total += parseFloat(i.value) || 0);
     document.getElementById('basicCostTotal').innerHTML = `Total: ₹${total.toFixed(2)}`;
+    // Update hidden input
+    const hiddenInput = document.getElementById('hidden_basic_subtotal');
+    if (hiddenInput) hiddenInput.value = total.toFixed(2);
     updateContractAmountWithPremium();
 }
 
@@ -1060,6 +1085,20 @@ function filterEmptyServiceRows() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+
+    // Handle file input display
+    const contractCopyInput = document.getElementById('contractCopyInput');
+    const contractCopyName = document.getElementById('contractCopyName');
+    
+    if (contractCopyInput && contractCopyName) {
+        contractCopyInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                contractCopyName.textContent = this.files[0].name;
+            } else {
+                contractCopyName.textContent = 'No File Chosen';
+            }
+        });
+    }
 
     //
     // REPOPULATE OLD DATA FOR REPEATERS
@@ -1534,6 +1573,37 @@ document.addEventListener('DOMContentLoaded', function() {
 function debugFormSubmission() {
     const form = document.getElementById('quotationForm');
     
+    // Validate that at least one service is entered
+    const services1Rows = document.querySelectorAll('.services-table-1 tbody tr');
+    let hasValidService = false;
+    let validServiceCount = 0;
+    
+    services1Rows.forEach((row) => {
+        const descInput = row.querySelector('input[name="services_1[description][]"]');
+        if (descInput?.value && descInput.value.trim() !== '') {
+            hasValidService = true;
+            validServiceCount++;
+        }
+    });
+    
+    if (!hasValidService) {
+        // Show error message
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #fee; border: 2px solid #fcc; color: #c33; padding: 20px; border-radius: 8px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
+        errorDiv.innerHTML = '<strong>Validation Error:</strong><br>Please add at least one service before submitting the quotation.';
+        document.body.appendChild(errorDiv);
+        
+        // Scroll to services section
+        document.querySelector('.services-table-1')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Remove error after 5 seconds
+        setTimeout(() => errorDiv.remove(), 5000);
+        
+        return false;
+    }
+    
+    console.log(`Submitting quotation with ${validServiceCount} service(s)`);
+    
     // Remove any existing hidden repeater inputs
     form.querySelectorAll('input[type="hidden"]').forEach(input => {
         if (input.name.includes('[description][]') || input.name.includes('[quantity][]') || 
@@ -1543,21 +1613,30 @@ function debugFormSubmission() {
         }
     });
     
-    // Handle services_1 repeater
-    const services1Rows = document.querySelectorAll('.services-table-1 tbody tr');
-    services1Rows.forEach((row) => {
+    // Handle services_1 repeater - disable original inputs and create hidden ones
+    const services1RowsForProcessing = document.querySelectorAll('.services-table-1 tbody tr');
+    services1RowsForProcessing.forEach((row) => {
         const descInput = row.querySelector('input[name="services_1[description][]"]');
         const qtyInput = row.querySelector('input[name="services_1[quantity][]"]');
         const rateInput = row.querySelector('input[name="services_1[rate][]"]');
         const totalInput = row.querySelector('input[name="services_1[total][]"]');
         
-        if (descInput?.value) addHiddenInput(form, 'services_1[description][]', descInput.value);
-        if (qtyInput?.value) addHiddenInput(form, 'services_1[quantity][]', qtyInput.value);
-        if (rateInput?.value) addHiddenInput(form, 'services_1[rate][]', rateInput.value);
-        if (totalInput?.value) addHiddenInput(form, 'services_1[total][]', totalInput.value);
+        // Disable original inputs to prevent double submission
+        if (descInput) descInput.disabled = true;
+        if (qtyInput) qtyInput.disabled = true;
+        if (rateInput) rateInput.disabled = true;
+        if (totalInput) totalInput.disabled = true;
+        
+        // Only add hidden inputs if description has actual content
+        if (descInput?.value && descInput.value.trim() !== '') {
+            addHiddenInput(form, 'services_1[description][]', descInput.value);
+            addHiddenInput(form, 'services_1[quantity][]', qtyInput?.value || '0');
+            addHiddenInput(form, 'services_1[rate][]', rateInput?.value || '0');
+            addHiddenInput(form, 'services_1[total][]', totalInput?.value || '0');
+        }
     });
     
-    // Handle services_2 repeater
+    // Handle services_2 repeater - disable original inputs and create hidden ones
     const services2Rows = document.querySelectorAll('.services-table-2 tbody tr');
     services2Rows.forEach((row) => {
         const descSelect = row.querySelector('select');
@@ -1567,15 +1646,26 @@ function debugFormSubmission() {
         const percentInput = row.querySelector('input.completion-percent');
         const termsInput = row.querySelector('input[placeholder="Enter Terms"]');
         
-        if (descSelect?.value) addHiddenInput(form, 'services_2[description][]', descSelect.value);
-        if (qtyInput?.value) addHiddenInput(form, 'services_2[quantity][]', qtyInput.value);
-        if (rateInput?.value) addHiddenInput(form, 'services_2[rate][]', rateInput.value);
-        if (totalInput?.value) addHiddenInput(form, 'services_2[total][]', totalInput.value);
-        if (percentInput?.value) addHiddenInput(form, 'services_2[completion_percent][]', percentInput.value);
-        if (termsInput?.value) addHiddenInput(form, 'services_2[completion_terms][]', termsInput.value);
+        // Disable original inputs to prevent double submission
+        if (descSelect) descSelect.disabled = true;
+        if (qtyInput) qtyInput.disabled = true;
+        if (rateInput) rateInput.disabled = true;
+        if (totalInput) totalInput.disabled = true;
+        if (percentInput) percentInput.disabled = true;
+        if (termsInput) termsInput.disabled = true;
+        
+        // Only add hidden inputs if description is selected
+        if (descSelect?.value && descSelect.value.trim() !== '') {
+            addHiddenInput(form, 'services_2[description][]', descSelect.value);
+            addHiddenInput(form, 'services_2[quantity][]', qtyInput?.value || '0');
+            addHiddenInput(form, 'services_2[rate][]', rateInput?.value || '0');
+            addHiddenInput(form, 'services_2[total][]', totalInput?.value || '0');
+            addHiddenInput(form, 'services_2[completion_percent][]', percentInput?.value || '0');
+            addHiddenInput(form, 'services_2[completion_terms][]', termsInput?.value || '');
+        }
     });
     
-    // Handle basic_cost repeater
+    // Handle basic_cost repeater - disable original inputs and create hidden ones
     const basicRows = document.querySelectorAll('#basicCostTable tbody tr');
     basicRows.forEach((row) => {
         const descInput = row.querySelector('input[name="basic_cost[description][]"]');
@@ -1583,13 +1673,22 @@ function debugFormSubmission() {
         const rateInput = row.querySelector('input[name="basic_cost[rate][]"]');
         const totalInput = row.querySelector('input[name="basic_cost[total][]"]');
         
-        if (descInput?.value) addHiddenInput(form, 'basic_cost[description][]', descInput.value);
-        if (qtyInput?.value) addHiddenInput(form, 'basic_cost[quantity][]', qtyInput.value);
-        if (rateInput?.value) addHiddenInput(form, 'basic_cost[rate][]', rateInput.value);
-        if (totalInput?.value) addHiddenInput(form, 'basic_cost[total][]', totalInput.value);
+        // Disable original inputs
+        if (descInput) descInput.disabled = true;
+        if (qtyInput) qtyInput.disabled = true;
+        if (rateInput) rateInput.disabled = true;
+        if (totalInput) totalInput.disabled = true;
+        
+        // Only add hidden inputs if description has actual content
+        if (descInput?.value && descInput.value.trim() !== '') {
+            addHiddenInput(form, 'basic_cost[description][]', descInput.value);
+            addHiddenInput(form, 'basic_cost[quantity][]', qtyInput?.value || '0');
+            addHiddenInput(form, 'basic_cost[rate][]', rateInput?.value || '0');
+            addHiddenInput(form, 'basic_cost[total][]', totalInput?.value || '0');
+        }
     });
     
-    // Handle additional_cost repeater
+    // Handle additional_cost repeater - disable original inputs and create hidden ones
     const additionalRows = document.querySelectorAll('#additionalCostTable tbody tr');
     additionalRows.forEach((row) => {
         const descInput = row.querySelector('input[name="additional_cost[description][]"]');
@@ -1597,13 +1696,22 @@ function debugFormSubmission() {
         const rateInput = row.querySelector('input[name="additional_cost[rate][]"]');
         const totalInput = row.querySelector('input[name="additional_cost[total][]"]');
         
-        if (descInput?.value) addHiddenInput(form, 'additional_cost[description][]', descInput.value);
-        if (qtyInput?.value) addHiddenInput(form, 'additional_cost[quantity][]', qtyInput.value);
-        if (rateInput?.value) addHiddenInput(form, 'additional_cost[rate][]', rateInput.value);
-        if (totalInput?.value) addHiddenInput(form, 'additional_cost[total][]', totalInput.value);
+        // Disable original inputs
+        if (descInput) descInput.disabled = true;
+        if (qtyInput) qtyInput.disabled = true;
+        if (rateInput) rateInput.disabled = true;
+        if (totalInput) totalInput.disabled = true;
+        
+        // Only add hidden inputs if description has actual content
+        if (descInput?.value && descInput.value.trim() !== '') {
+            addHiddenInput(form, 'additional_cost[description][]', descInput.value);
+            addHiddenInput(form, 'additional_cost[quantity][]', qtyInput?.value || '0');
+            addHiddenInput(form, 'additional_cost[rate][]', rateInput?.value || '0');
+            addHiddenInput(form, 'additional_cost[total][]', totalInput?.value || '0');
+        }
     });
     
-    // Handle maintenance_cost repeater
+    // Handle maintenance_cost repeater - disable original inputs and create hidden ones
     const maintenanceRows = document.querySelectorAll('#maintenanceCostTable tbody tr');
     maintenanceRows.forEach((row) => {
         const descInput = row.querySelector('input[name="maintenance_cost[description][]"]');
@@ -1611,10 +1719,19 @@ function debugFormSubmission() {
         const rateInput = row.querySelector('input[name="maintenance_cost[rate][]"]');
         const totalInput = row.querySelector('input[name="maintenance_cost[total][]"]');
         
-        if (descInput?.value) addHiddenInput(form, 'maintenance_cost[description][]', descInput.value);
-        if (qtyInput?.value) addHiddenInput(form, 'maintenance_cost[quantity][]', qtyInput.value);
-        if (rateInput?.value) addHiddenInput(form, 'maintenance_cost[rate][]', rateInput.value);
-        if (totalInput?.value) addHiddenInput(form, 'maintenance_cost[total][]', totalInput.value);
+        // Disable original inputs
+        if (descInput) descInput.disabled = true;
+        if (qtyInput) qtyInput.disabled = true;
+        if (rateInput) rateInput.disabled = true;
+        if (totalInput) totalInput.disabled = true;
+        
+        // Only add hidden inputs if description has actual content
+        if (descInput?.value && descInput.value.trim() !== '') {
+            addHiddenInput(form, 'maintenance_cost[description][]', descInput.value);
+            addHiddenInput(form, 'maintenance_cost[quantity][]', qtyInput?.value || '0');
+            addHiddenInput(form, 'maintenance_cost[rate][]', rateInput?.value || '0');
+            addHiddenInput(form, 'maintenance_cost[total][]', totalInput?.value || '0');
+        }
     });
     
     console.log('Fixed all repeaters for form submission');
@@ -1634,18 +1751,26 @@ document.getElementById('quotationForm').addEventListener('submit', function(e) 
     // Prevent the default form submission
     e.preventDefault();
     
-    // Process services_1 table
+    // Process services_1 table - disable inputs in empty rows
     const services1Rows = document.querySelectorAll('.services-table-1 tbody tr');
     let hasValidRows = false;
     
     services1Rows.forEach((row) => {
-        const description = row.querySelector('input[name="services_1[description][]"]')?.value.trim();
-        const quantity = row.querySelector('input[name="services_1[quantity][]"]')?.value.trim();
-        const rate = row.querySelector('input[name="services_1[rate][]"]')?.value.trim();
+        const descInput = row.querySelector('input[name="services_1[description][]"]');
+        const qtyInput = row.querySelector('input[name="services_1[quantity][]"]');
+        const rateInput = row.querySelector('input[name="services_1[rate][]"]');
+        const totalInput = row.querySelector('input[name="services_1[total][]"]');
         
-        // If all fields are empty, remove the row
-        if (!description && (!quantity || quantity === '0') && (!rate || rate === '0')) {
-            row.remove();
+        const description = descInput?.value.trim();
+        const quantity = qtyInput?.value.trim();
+        const rate = rateInput?.value.trim();
+        
+        // If description is empty, disable all inputs in this row so they won't be submitted
+        if (!description || description === '') {
+            if (descInput) descInput.disabled = true;
+            if (qtyInput) qtyInput.disabled = true;
+            if (rateInput) rateInput.disabled = true;
+            if (totalInput) totalInput.disabled = true;
         } else {
             hasValidRows = true;
         }
@@ -1674,18 +1799,28 @@ document.getElementById('quotationForm').addEventListener('submit', function(e) 
         tbody.appendChild(row);
     }
 
-    // Process services_2 table
+    // Process services_2 table - disable inputs in empty rows
     const services2Rows = document.querySelectorAll('.services-table-2 tbody tr');
     let hasValidRows2 = false;
     
     services2Rows.forEach((row) => {
-        const description = row.querySelector('select[name="services_2[description][]"]')?.value;
-        const quantity = row.querySelector('input[name="services_2[quantity][]"]')?.value.trim();
-        const rate = row.querySelector('input[name="services_2[rate][]"]')?.value.trim();
+        const descSelect = row.querySelector('select[name="services_2[description][]"]');
+        const qtyInput = row.querySelector('input[name="services_2[quantity][]"]');
+        const rateInput = row.querySelector('input[name="services_2[rate][]"]');
+        const totalInput = row.querySelector('input[name="services_2[total][]"]');
+        const percentInput = row.querySelector('input[name="services_2[completion_percent][]"]');
+        const termsInput = row.querySelector('input[name="services_2[completion_terms][]"]');
         
-        // If all fields are empty, remove the row
-        if (!description && (!quantity || quantity === '0') && (!rate || rate === '0')) {
-            row.remove();
+        const description = descSelect?.value;
+        
+        // If description is empty, disable all inputs in this row
+        if (!description || description === '') {
+            if (descSelect) descSelect.disabled = true;
+            if (qtyInput) qtyInput.disabled = true;
+            if (rateInput) rateInput.disabled = true;
+            if (totalInput) totalInput.disabled = true;
+            if (percentInput) percentInput.disabled = true;
+            if (termsInput) termsInput.disabled = true;
         }
     });
     
