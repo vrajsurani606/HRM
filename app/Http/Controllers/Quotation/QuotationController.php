@@ -72,9 +72,43 @@ class QuotationController extends Controller
     /**
      * Export quotations to Excel
      */
-    public function export()
+    public function export(Request $request)
     {
-        return redirect()->back()->with('info', 'Excel export feature will be available soon.');
+        try {
+            $query = Quotation::query()->orderBy('created_at', 'desc');
+            
+            // Apply filters if provided
+            if ($request->filled('quotation_no')) {
+                $query->where('unique_code', 'like', '%' . $request->quotation_no . '%');
+            }
+            
+            if ($request->filled('from_date')) {
+                $query->whereDate('created_at', '>=', $request->from_date);
+            }
+            
+            if ($request->filled('to_date')) {
+                $query->whereDate('created_at', '<=', $request->to_date);
+            }
+            
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('unique_code', 'like', '%' . $search . '%')
+                      ->orWhere('company_name', 'like', '%' . $search . '%')
+                      ->orWhere('contact_number_1', 'like', '%' . $search . '%');
+                });
+            }
+            
+            $quotations = $query->get();
+            
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\QuotationsExport($quotations), 
+                'quotations_' . date('Y-m-d_His') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            \Log::error('Error exporting quotations: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error exporting quotations: ' . $e->getMessage());
+        }
     }
 
     public function getCompanyDetails($id): JsonResponse
@@ -611,8 +645,37 @@ class QuotationController extends Controller
 
     public function createFromInquiry(int $id): View
     {
-        $inquiry = Inquiry::findOrFail($id);
-        return view('quotations.create', compact('inquiry'));
+        $inquiry = Inquiry::with('followUps')->findOrFail($id);
+        
+        // Generate next quotation code
+        $lastQuotation = Quotation::orderByDesc('id')->first();
+        $nextNumber = 1;
+        if ($lastQuotation && !empty($lastQuotation->unique_code)) {
+            if (preg_match('/(\d+)$/', $lastQuotation->unique_code, $matches)) {
+                $nextNumber = ((int) $matches[1]) + 1;
+            }
+        }
+        $nextCode = 'CMS/QUAT/' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        
+        // Get companies for dropdown
+        $companies = Company::select('id', 'company_name')
+            ->orderBy('company_name')
+            ->get();
+        
+        // Pre-populate quotation data from inquiry
+        $quotationData = [
+            'company_name' => $inquiry->company_name,
+            'address' => $inquiry->company_address,
+            'contact_person' => $inquiry->contact_name,
+            'contact_number_1' => $inquiry->company_phone,
+            'email' => $inquiry->company_email ?? '',
+            'gst_no' => $inquiry->gst_no ?? '',
+            'industry_type' => $inquiry->industry_type,
+            'quotation_date' => date('Y-m-d'),
+            'inquiry_id' => $inquiry->id,
+        ];
+        
+        return view('quotations.create', compact('inquiry', 'nextCode', 'companies', 'quotationData'));
     }
 
     /**
@@ -637,6 +700,26 @@ class QuotationController extends Controller
         // $filename = 'quotation-' . str_replace(['/', '\\'], '-', $quotation->unique_code) . '.pdf';
         
         // return $pdf->download($filename);
+    }
+
+    /**
+     * View/Download contract file
+     */
+    public function viewContractFile(int $id)
+    {
+        $quotation = Quotation::findOrFail($id);
+        
+        if (!$quotation->contract_copy) {
+            abort(404, 'Contract file not found');
+        }
+        
+        $filePath = storage_path('app/public/' . $quotation->contract_copy);
+        
+        if (!file_exists($filePath)) {
+            abort(404, 'Contract file not found');
+        }
+        
+        return response()->file($filePath);
     }
 
     /**
@@ -760,16 +843,38 @@ class QuotationController extends Controller
 
     public function templateList(int $id): View
     {
-        $quotation = Quotation::with(['followUps' => function ($q) {
-            $q->where('is_confirm', true)->latest();
-        }, 'proformas'])->findOrFail($id);
+        $quotation = Quotation::with('proformas')->findOrFail($id);
         
-        return view('quotations.template_list', compact('quotation'));
+        // Generate templates based on payment terms (services_2)
+        $templates = [];
+        
+        if ($quotation->terms_description && is_array($quotation->terms_description)) {
+            foreach ($quotation->terms_description as $index => $description) {
+                if (!empty($description)) {
+                    $completionPercent = $quotation->terms_completion[$index] ?? 0;
+                    $completionTerms = $quotation->completion_terms[$index] ?? '';
+                    $amount = $quotation->terms_total[$index] ?? 0;
+                    
+                    $templates[] = [
+                        'index' => $index,
+                        'description' => $description,
+                        'completion_percent' => $completionPercent,
+                        'completion_terms' => $completionTerms,
+                        'amount' => $amount,
+                        'quantity' => $quotation->terms_quantity[$index] ?? 1,
+                        'rate' => $quotation->terms_rate[$index] ?? 0,
+                    ];
+                }
+            }
+        }
+        
+        return view('quotations.template_list', compact('quotation', 'templates'));
     }
 
-    public function createProforma(int $id): View
+    public function createProforma(Request $request, int $id)
     {
         $quotation = Quotation::findOrFail($id);
+        $templateIndex = $request->get('template');
         
         // Generate next proforma code
         $lastProforma = Proforma::orderByDesc('id')->first();
@@ -781,7 +886,25 @@ class QuotationController extends Controller
         }
         $nextCode = 'CMS/PROF/' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
         
-        return view('quotations.create_proforma', compact('quotation', 'nextCode'));
+        // Get template data if template index is provided
+        $templateData = null;
+        if ($templateIndex !== null && isset($quotation->terms_description[$templateIndex])) {
+            $templateData = [
+                'description' => $quotation->terms_description[$templateIndex] ?? '',
+                'completion_percent' => $quotation->terms_completion[$templateIndex] ?? 0,
+                'completion_terms' => $quotation->completion_terms[$templateIndex] ?? '',
+                'amount' => $quotation->terms_total[$templateIndex] ?? 0,
+                'quantity' => $quotation->terms_quantity[$templateIndex] ?? 1,
+                'rate' => $quotation->terms_rate[$templateIndex] ?? 0,
+            ];
+        }
+        
+        // Redirect to performas.create with data
+        return redirect()->route('performas.create', [
+            'quotation_id' => $quotation->id,
+            'template_data' => $templateData ? json_encode($templateData) : null,
+            'template_index' => $templateIndex,
+        ]);
     }
 
     public function storeProforma(Request $request, int $id): RedirectResponse

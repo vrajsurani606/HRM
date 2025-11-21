@@ -1,115 +1,106 @@
 @extends('layouts.macos')
-@section('page_title', 'Tax Invoices')
-@push('styles')
-<link rel="stylesheet" href="{{ asset('new_theme/css/invoice-table.css') }}">
-@endpush
+@section('page_title', 'Invoice List')
 @section('content')
-<div class="hrp-content">
-  <!-- Filter Row -->
-  <div class="jv-filter">
-    <input type="text" class="filter-pill" placeholder="Bill Name">
-    <input type="text" class="filter-pill" placeholder="Proforma No.">
-    <input type="text" class="filter-pill" placeholder="Mobile No.">
-    <input type="date" class="filter-pill" placeholder="From : dd/mm/yyyy">
-    <input type="date" class="filter-pill" placeholder="To : dd/mm/yyyy">
-    <button type="button" class="filter-search" aria-label="Search">
-      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-      </svg>
-    </button>
-    <div class="filter-right">
-      <input class="filter-pill" placeholder="Search here...">
-      <a href="#" class="pill-btn pill-success">+ Add</a>
-    </div>
-  </div>
 
-  <!-- Data Table -->
-  <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
-    <table>
-      <thead>
-        <tr>
-          <th>Action</th>
-          <th>Serial No.</th>
-          <th>Invoice No.</th>
-          <th>Invoice Date.</th>
-          <th>Bill To</th>
-          <th>Mobile. No.</th>
-          <th>Grand Total</th>
-          <th>Total Tax</th>
-          <th>Total Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <div class="action-icons">
-              <img src="{{ asset('action_icon/edit.svg') }}" class="action-icon" width="16" height="16">
-              <img src="{{ asset('action_icon/delete.svg') }}" class="action-icon" width="16" height="16">
-              <img src="{{ asset('action_icon/print.svg') }}" class="action-icon" width="16" height="16">
-            </div>
-          </td>
-          <td>1</td>
-          <td>CMS/PFM/OO04</td>
-          <td>16-07-2025</td>
-          <td>Human Pathology & Clinical Lab</td>
-          <td>9316187694</td>
-          <td>80,000</td>
-          <td>14400</td>
-          <td>Scheduled</td>
-        </tr>
-        <tr>
-          <td>
-            <div class="action-icons">
-              <img src="{{ asset('action_icon/edit.svg') }}" class="action-icon" width="16" height="16">
-              <img src="{{ asset('action_icon/delete.svg') }}" class="action-icon" width="16" height="16">
-              <img src="{{ asset('action_icon/print.svg') }}" class="action-icon" width="16" height="16">
-            </div>
-          </td>
-          <td>2</td>
-          <td>CMS/PFM/OO05</td>
-          <td>16-07-2025</td>
-          <td>QC Chemist</td>
-          <td>9316187694</td>
-          <td>2,80,000</td>
-          <td>0</td>
-          <td>No</td>
-        </tr>
-        <tr>
-          <td>
-            <div class="action-icons">
-              <img src="{{ asset('action_icon/edit.svg') }}" class="action-icon" width="16" height="16">
-              <img src="{{ asset('action_icon/delete.svg') }}" class="action-icon" width="16" height="16">
-              <img src="{{ asset('action_icon/print.svg') }}" class="action-icon" width="16" height="16">
-            </div>
-          </td>
-          <td>3</td>
-          <td>CMS/PFM/OO06</td>
-          <td>16-07-2025</td>
-          <td>Crest Data</td>
-          <td>9316187694</td>
-          <td>2,80,000</td>
-          <td>0</td>
-          <td>Scheduled</td>
-        </tr>
-        <tr>
-          <td>
-            <div class="action-icons">
-              <img src="{{ asset('action_icon/edit.svg') }}" class="action-icon" width="16" height="16">
-              <img src="{{ asset('action_icon/delete.svg') }}" class="action-icon" width="16" height="16">
-              <img src="{{ asset('action_icon/print.svg') }}" class="action-icon" width="16" height="16">
-            </div>
-          </td>
-          <td>4</td>
-          <td>CMS/PFM/OO07</td>
-          <td>16-07-2025</td>
-          <td>Narayan Infotech</td>
-          <td>9316187694</td>
-          <td>1,40,000</td>
-          <td>50000</td>
-          <td>Scheduled</td>
-        </tr>
-      </tbody>
-    </table>
+<!-- Filter Row -->
+<form method="GET" action="{{ route('invoices.index') }}" class="jv-filter performa-filter">
+  <input type="text" name="search" placeholder="Search Invoice No, Company..." class="filter-pill" value="{{ request('search') }}" />
+  <select name="invoice_type" class="filter-pill">
+    <option value="">All Types</option>
+    <option value="gst" {{ request('invoice_type') == 'gst' ? 'selected' : '' }}>GST Invoice</option>
+    <option value="without_gst" {{ request('invoice_type') == 'without_gst' ? 'selected' : '' }}>Without GST</option>
+  </select>
+  <input type="date" name="from_date" placeholder="From : dd/mm/yyyy" class="filter-pill" value="{{ request('from_date') }}" />
+  <input type="date" name="to_date" placeholder="To : dd/mm/yyyy" class="filter-pill" value="{{ request('to_date') }}" />
+  <button type="submit" class="filter-search" aria-label="Search">
+    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+    </svg>
+  </button>
+  <div class="filter-right">
+    <a href="#" class="pill-btn pill-success">Excel</a>
   </div>
+</form>
+
+<!-- Data Table -->
+<div class="JV-datatble JV-datatble--zoom striped-surface striped-surface--full table-wrap pad-none">
+  <table>
+    <thead>
+      <tr>
+        <th>Action</th>
+        <th>Serial No.</th>
+        <th>Invoice No</th>
+        <th>Invoice Date</th>
+        <th>Invoice Type</th>
+        <th>Proforma No</th>
+        <th>Bill To</th>
+        <th>Mobile No.</th>
+        <th>Grand Total</th>
+        <th>Total Tax</th>
+        <th>Total Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      @forelse($invoices as $index => $invoice)
+      <tr>
+        <td>
+          <div class="action-icons">
+            <a href="{{ route('invoices.show', $invoice->id) }}">
+              <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
+            </a>
+            <a href="{{ route('invoices.print', $invoice->id) }}" target="_blank">
+              <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
+            </a>
+            <form action="{{ route('invoices.destroy', $invoice->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this invoice?');">
+              @csrf
+              @method('DELETE')
+              <button type="submit" style="border:none;background:none;padding:0;cursor:pointer;">
+                <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+              </button>
+            </form>
+          </div>
+        </td>
+        <td>{{ $invoices->firstItem() + $index }}</td>
+        <td>{{ $invoice->unique_code }}</td>
+        <td>{{ $invoice->invoice_date ? $invoice->invoice_date->format('d-m-Y') : '-' }}</td>
+        <td>
+          @if($invoice->invoice_type == 'gst')
+            <span style="background: #E8F0FC; color: #456DB5; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">GST</span>
+          @else
+            <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">Without GST</span>
+          @endif
+        </td>
+        <td>{{ $invoice->proforma ? $invoice->proforma->unique_code : '-' }}</td>
+        <td>{{ $invoice->company_name }}</td>
+        <td>{{ $invoice->mobile_no ?? '-' }}</td>
+        <td>₹{{ number_format($invoice->sub_total ?? 0, 2) }}</td>
+        <td>₹{{ number_format($invoice->total_tax_amount ?? 0, 2) }}</td>
+        <td>₹{{ number_format($invoice->final_amount ?? 0, 2) }}</td>
+      </tr>
+      @empty
+      <tr>
+        <td colspan="11" class="text-center py-4">No invoices found</td>
+      </tr>
+      @endforelse
+    </tbody>
+  </table>
 </div>
+
+<!-- Pagination -->
+<div class="pagination-wrapper">
+  {{ $invoices->links() }}
+</div>
+
+@if(session('status'))
+<div class="alert alert-success mt-4">
+  {{ session('status') }}
+</div>
+@endif
+
+@if(session('error'))
+<div class="alert alert-danger mt-4">
+  {{ session('error') }}
+</div>
+@endif
+
 @endsection

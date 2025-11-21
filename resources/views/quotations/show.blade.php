@@ -1,90 +1,172 @@
-@extends('layouts.app')
+@extends('layouts.macos')
+@section('page_title', 'Quotation Details')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Quotation Details</h4>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <h5>Company Information</h5>
-                            <p><strong>Company Name:</strong> {{ $quotation->company_name ?? 'N/A' }}</p>
-                            <p><strong>GST No:</strong> {{ $quotation->gst_no ?? 'N/A' }}</p>
-                            <p><strong>PAN No:</strong> {{ $quotation->pan_no ?? 'N/A' }}</p>
-                            <p><strong>Address:</strong> {{ $quotation->address ?? 'N/A' }}</p>
-                            <p><strong>City:</strong> {{ $quotation->city ?? 'N/A' }}</p>
-                            <p><strong>Nature of Work:</strong> {{ $quotation->nature_of_work ?? 'N/A' }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h5>Quotation Details</h5>
-                            <p><strong>Quotation #:</strong> {{ $quotation->unique_code ?? 'N/A' }}</p>
-                            <p><strong>Date:</strong> {{ $quotation->quotation_date ? \Carbon\Carbon::parse($quotation->quotation_date)->format('d/m/Y') : 'N/A' }}</p>
-                            <p><strong>Status:</strong> <span class="badge bg-{{ $quotation->status === 'draft' ? 'warning' : 'success' }}">{{ ucfirst($quotation->status) }}</span></p>
-                            <p><strong>Contract Amount:</strong> {{ $quotation->contract_amount ? '₹' . number_format($quotation->contract_amount, 2) : 'N/A' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <h5>Scope of Work</h5>
-                            <div class="border p-3">
-                                {!! nl2br(e($quotation->scope_of_work)) ?? 'No scope of work provided.' !!}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12">
-                            <h5>Contact Information</h5>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Contact Person 1:</strong> {{ $quotation->contact_person_1 ?? 'N/A' }}</p>
-                                    <p><strong>Position:</strong> {{ $quotation->position_1 ?? 'N/A' }}</p>
-                                    <p><strong>Contact Number:</strong> {{ $quotation->contact_number_1 ?? 'N/A' }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Email:</strong> {{ $quotation->company_email ?? 'N/A' }}</p>
-                                    <p><strong>Project Start Date:</strong> {{ $quotation->project_start_date ? \Carbon\Carbon::parse($quotation->project_start_date)->format('d/m/Y') : 'N/A' }}</p>
-                                    <p><strong>Tentative Completion:</strong> {{ $quotation->tentative_complete_date ? \Carbon\Carbon::parse($quotation->tentative_complete_date)->format('d/m/Y') : 'N/A' }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    @if($quotation->contract_copy_path)
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <h5>Contract Document</h5>
-                            <a href="{{ asset('storage/' . $quotation->contract_copy_path) }}" target="_blank" class="btn btn-primary">
-                                <i class="fas fa-file-download"></i> Download Contract
-                            </a>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-                <div class="card-footer">
-                    <a href="{{ route('quotations.edit', $quotation->id) }}" class="btn btn-primary">
-                        <i class="fas fa-edit"></i> Edit Quotation
-                    </a>
-                    <a href="{{ route('quotation.follow-up', $quotation->id) }}" class="btn btn-info">
-                        <i class="fas fa-tasks"></i> Follow Up
-                    </a>
-                    <a href="{{ route('quotations.contract.pdf', $quotation->id) }}" class="btn btn-danger" target="_blank">
-                        <i class="fas fa-file-pdf"></i> Generate PDF Contract
-                    </a>
-                    <a href="{{ route('quotations.contract.png', $quotation->id) }}" class="btn btn-success" target="_blank">
-                        <i class="fas fa-image"></i> Generate PNG Contract
-                    </a>
-                    <a href="{{ route('quotations.index') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to List
-                    </a>
-                </div>
-            </div>
-        </div>
+<div class="inquiry-index-container">
+  
+  <!-- Header Section -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+      <h2 style="margin: 0; font-size: 24px; font-weight: 700; color: #111827;"></h2>
+      <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;"></p>
     </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="{{ route('quotations.edit', $quotation->id) }}" class="pill-btn" style="background:#3b82f6;color:#ffffff;padding:10px 20px;">
+        Edit
+      </a>
+      <a href="{{ route('quotations.download', $quotation->id) }}" class="pill-btn pill-success" style="padding:10px 20px;" target="_blank">
+        Print PDF
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+    
+    <!-- Company Information Card -->
+    <div class="Rectangle-30 hrp-compact">
+      <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+        Company Information
+      </h3>
+      <div style="display: grid; gap: 12px;">
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">Company Name</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827;">{{ $quotation->company_name ?? 'N/A' }}</p>
+        </div>
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">GST No</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827;">{{ $quotation->gst_no ?? 'N/A' }}</p>
+        </div>
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">PAN No</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827;">{{ $quotation->pan_no ?? 'N/A' }}</p>
+        </div>
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">Address</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827;">{{ $quotation->address ?? 'N/A' }}</p>
+        </div>
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">City</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827;">{{ $quotation->city ?? 'N/A' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quotation Details Card -->
+    <div class="Rectangle-30 hrp-compact">
+      <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+        Quotation Details
+      </h3>
+      <div style="display: grid; gap: 12px;">
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">Quotation Code</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827; font-weight: 600;">{{ $quotation->unique_code ?? 'N/A' }}</p>
+        </div>
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">Quotation Date</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827;">{{ $quotation->quotation_date ? \Carbon\Carbon::parse($quotation->quotation_date)->format('d/m/Y') : 'N/A' }}</p>
+        </div>
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">Status</label>
+          <p style="margin: 4px 0 0 0;">
+            <span style="display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; background: {{ $quotation->status === 'confirmed' ? '#d1fae5' : '#fef3c7' }}; color: {{ $quotation->status === 'confirmed' ? '#065f46' : '#92400e' }};">
+              {{ ucfirst($quotation->status ?? 'Draft') }}
+            </span>
+          </p>
+        </div>
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">Contract Amount</label>
+          <p style="margin: 4px 0 0 0; font-size: 18px; color: #111827; font-weight: 700;">{{ $quotation->contract_amount ? '₹ ' . number_format($quotation->contract_amount, 2) : 'N/A' }}</p>
+        </div>
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">Tentative Completion</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827;">{{ $quotation->tentative_complete_date ? \Carbon\Carbon::parse($quotation->tentative_complete_date)->format('d/m/Y') : 'N/A' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact Information -->
+  <div class="Rectangle-30 hrp-compact" style="margin-bottom: 24px;">
+    <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+      Contact Information
+    </h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+      <div style="display: grid; gap: 12px;">
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">Contact Person</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827;">{{ $quotation->contact_person_1 ?? 'N/A' }}</p>
+        </div>
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">Position</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827;">{{ $quotation->position_1 ?? 'N/A' }}</p>
+        </div>
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">Contact Number</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827;">{{ $quotation->contact_number_1 ?? 'N/A' }}</p>
+        </div>
+      </div>
+      <div style="display: grid; gap: 12px;">
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">Email</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827;">{{ $quotation->company_email ?? 'N/A' }}</p>
+        </div>
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">Project Start Date</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827;">{{ $quotation->project_start_date ? \Carbon\Carbon::parse($quotation->project_start_date)->format('d/m/Y') : 'N/A' }}</p>
+        </div>
+        <div>
+          <label style="font-size: 12px; color: #6b7280; font-weight: 500;">Nature of Work</label>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #111827;">{{ $quotation->nature_of_work ?? 'N/A' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scope of Work -->
+  @if($quotation->scope_of_work)
+  <div class="Rectangle-30 hrp-compact" style="margin-bottom: 24px;">
+    <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+      Scope of Work
+    </h3>
+    <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+      <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.6; white-space: pre-wrap;">{{ $quotation->scope_of_work }}</p>
+    </div>
+  </div>
+  @endif
+
+  <!-- Contract Document -->
+  @if($quotation->contract_copy_path)
+  <div class="Rectangle-30 hrp-compact" style="margin-bottom: 24px;">
+    <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+      Contract Document
+    </h3>
+    <a href="{{ route('quotations.view-contract-file', $quotation->id) }}" target="_blank" class="pill-btn pill-success" style="padding:10px 20px;">
+      View Contract Document
+    </a>
+  </div>
+  @endif
+
+  <!-- Action Buttons -->
+  <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px;">
+    <a href="{{ route('quotations.index') }}" class="pill-btn" style="background:#6b7280;color:#ffffff;padding:10px 20px;">
+      ← Back to List
+    </a>
+    <a href="{{ route('quotation.follow-up', $quotation->id) }}" class="pill-btn" style="background:#f59e0b;color:#ffffff;padding:10px 20px;">
+      Follow Up
+    </a>
+    <a href="{{ route('quotations.template-list', $quotation->id) }}" class="pill-btn pill-success" style="padding:10px 20px;">
+      View Templates
+    </a>
+  </div>
+
 </div>
+@endsection
+
+@section('breadcrumb')
+  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+  <span class="hrp-bc-sep">›</span>
+  <a href="{{ route('quotations.index') }}" style="font-weight:800;color:#0f0f0f;text-decoration:none">Quotation Management</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">{{ $quotation->unique_code }}</span>
 @endsection

@@ -88,7 +88,7 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div class="md:col-span-1">
           <label class="hrp-label">GST No:</label>
-          <input class="Rectangle-29 @error('gst_no') is-invalid @enderror" name="gst_no" placeholder="Enter GST No" value="{{ old('gst_no') }}">
+          <input class="Rectangle-29 @error('gst_no') is-invalid @enderror" name="gst_no" placeholder="Enter GST No" value="{{ old('gst_no', $quotationData['gst_no'] ?? '') }}">
           @error('gst_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div class="md:col-span-1">
@@ -100,7 +100,7 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div class="md:col-span-1">
           <label class="hrp-label">Company Name: <span class="text-red-500">*</span></label>
-          <input class="Rectangle-29 @error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name', isset($inquiry) ? $inquiry->company_name : '') }}" placeholder="Enter company name" required>
+          <input class="Rectangle-29 @error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name', $quotationData['company_name'] ?? '') }}" placeholder="Enter company name" required>
           @error('company_name')
               <small class="hrp-error">{{ $message }}</small>
           @enderror
@@ -195,7 +195,7 @@
         </div>
         <div>
           <label class="hrp-label">Address:</label>
-          <textarea class="Rectangle-29 Rectangle-29-textarea @error('address') is-invalid @enderror" name="address" placeholder="Enter Experience Previous Company Name" style="min-height:80px">{{ old('address') }}</textarea>
+          <textarea class="Rectangle-29 Rectangle-29-textarea @error('address') is-invalid @enderror" name="address" placeholder="Enter Address" style="min-height:80px">{{ old('address', $quotationData['address'] ?? '') }}</textarea>
           @error('address')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
@@ -204,12 +204,12 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Contact Person 1: <span class="text-red-500">*</span></label>
-          <input class="Rectangle-29 @error('contact_person_1') is-invalid @enderror" name="contact_person_1" placeholder="Enter Contact Person Name" value="{{ old('contact_person_1') }}" required>
+          <input class="Rectangle-29 @error('contact_person_1') is-invalid @enderror" name="contact_person_1" placeholder="Enter Contact Person Name" value="{{ old('contact_person_1', $quotationData['contact_person'] ?? '') }}" required>
           @error('contact_person_1')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
           <label class="hrp-label">Contact Number 1: <span class="text-red-500">*</span></label>
-          <input class="Rectangle-29 @error('contact_number_1') is-invalid @enderror" name="contact_number_1" placeholder="Enter Mobile No" type="tel" pattern="\d{10}" maxlength="10" inputmode="numeric" value="{{ old('contact_number_1') }}" required>
+          <input class="Rectangle-29 @error('contact_number_1') is-invalid @enderror" name="contact_number_1" placeholder="Enter Mobile No" type="tel" pattern="\d{10}" maxlength="10" inputmode="numeric" value="{{ old('contact_number_1', $quotationData['contact_number_1'] ?? '') }}" required>
           @error('contact_number_1')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
@@ -242,7 +242,7 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Company Email: <span class="text-red-500">*</span></label>
-          <input class="Rectangle-29 @error('company_email') is-invalid @enderror" type="email" name="company_email" value="{{ old('company_email', isset($inquiry) ? $inquiry->email : '') }}" placeholder="Add Mail-Id" required>
+          <input class="Rectangle-29 @error('company_email') is-invalid @enderror" type="email" name="company_email" value="{{ old('company_email', $quotationData['email'] ?? '') }}" placeholder="Add Mail-Id" required>
           @error('company_email')
               <small class="hrp-error">{{ $message }}</small>
           @enderror

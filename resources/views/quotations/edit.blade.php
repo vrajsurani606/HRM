@@ -167,7 +167,7 @@
           
           @if($quotation->contract_copy)
           <div style="margin-bottom: 10px;">
-            <a href="{{ asset('storage/' . $quotation->contract_copy) }}" target="_blank" 
+            <a href="{{ route('quotations.contract.file', $quotation->id) }}" target="_blank" 
                style="color: #3b82f6; text-decoration: underline; font-size: 14px;">
               📄 {{ basename($quotation->contract_copy) }}
             </a>
@@ -227,40 +227,45 @@
 
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;">
       @php
+      // Map form field names to database column names
       $features = [
-          'sample_management' => 'Sample Management',
-          'user_friendly_interface' => 'User-Friendly Interface',
-          'contact_management' => 'Contact Management',
-          'test_management' => 'Test Management',
-          'employee_management' => 'Employee Management',
-          'lead_opportunity_management' => 'Lead and Opportunity Management',
-          'data_integrity_security' => 'Data Integrity and Security',
-          'recruitment_onboarding' => 'Recruitment and Onboarding',
-          'sales_automation' => 'Sales Automation',
-          'reporting_analytics' => 'Reporting and Analytics',
-          'payroll_management' => 'Payroll Management',
-          'customer_service_management' => 'Customer Service Management',
-          'inventory_management' => 'Inventory Management',
-          'training_development' => 'Training and Development',
-          'integration_capabilities_lab' => 'Integration Capabilities (Lab)',
-          'employee_self_service' => 'Employee Self-Service Portal',
-          'marketing_automation' => 'Marketing Automation',
-          'regulatory_compliance' => 'Regulatory Compliance',
-          'analytics_reporting' => 'Analytics and Reporting',
-          'integration_capabilities_crm' => 'Integration Capabilities (CRM)',
-          'workflow_automation' => 'Workflow Automation',
-          'integration_capabilities_hr' => 'Integration Capabilities (HR)'
+          'sample_management' => ['label' => 'Sample Management', 'db' => 'sample_management'],
+          'user_friendly_interface' => ['label' => 'User-Friendly Interface', 'db' => 'user_friendly_interface'],
+          'contact_management' => ['label' => 'Contact Management', 'db' => 'contact_management'],
+          'test_management' => ['label' => 'Test Management', 'db' => 'test_management'],
+          'employee_management' => ['label' => 'Employee Management', 'db' => 'employee_management'],
+          'lead_opportunity_management' => ['label' => 'Lead and Opportunity Management', 'db' => 'lead_opportunity_management'],
+          'data_integrity_security' => ['label' => 'Data Integrity and Security', 'db' => 'data_integrity_security'],
+          'recruitment_onboarding' => ['label' => 'Recruitment and Onboarding', 'db' => 'recruitment_onboarding'],
+          'sales_automation' => ['label' => 'Sales Automation', 'db' => 'sales_automation'],
+          'reporting_analytics' => ['label' => 'Reporting and Analytics', 'db' => 'reporting_analytics'],
+          'payroll_management' => ['label' => 'Payroll Management', 'db' => 'payroll_management'],
+          'customer_service_management' => ['label' => 'Customer Service Management', 'db' => 'customer_service_management'],
+          'inventory_management' => ['label' => 'Inventory Management', 'db' => 'inventory_management'],
+          'training_development' => ['label' => 'Training and Development', 'db' => 'training_development'],
+          'integration_capabilities_lab' => ['label' => 'Integration Capabilities (Lab)', 'db' => 'integration_lab'],
+          'employee_self_service' => ['label' => 'Employee Self-Service Portal', 'db' => 'employee_self_service_portal'],
+          'marketing_automation' => ['label' => 'Marketing Automation', 'db' => 'marketing_automation'],
+          'regulatory_compliance' => ['label' => 'Regulatory Compliance', 'db' => 'regulatory_compliance'],
+          'analytics_reporting' => ['label' => 'Analytics and Reporting', 'db' => 'analytics_reporting'],
+          'integration_capabilities_crm' => ['label' => 'Integration Capabilities (CRM)', 'db' => 'integration_crm'],
+          'workflow_automation' => ['label' => 'Workflow Automation', 'db' => 'workflow_automation'],
+          'integration_capabilities_hr' => ['label' => 'Integration Capabilities (HR)', 'db' => 'integration_hr']
       ];
       @endphp
 
-      @foreach($features as $key => $label)
+      @foreach($features as $key => $feature)
+      @php
+        $dbColumn = $feature['db'];
+        $isChecked = $quotation->$dbColumn ?? false;
+      @endphp
       <label style="display: flex; align-items: center; cursor: pointer;" class="custom-checkbox">
         <input type="checkbox" name="features[]" value="{{ $key }}" style="display: none;" 
-               {{ $quotation->$key ? 'checked' : '' }}>
-        <div class="checkbox-box" style="width: 16px; height: 16px; border: 2px solid #000; background: {{ $quotation->$key ? '#000' : 'white' }}; margin-right: 8px; display: flex; align-items: center; justify-content: center;">
-          <span class="checkmark" style="color: white; font-size: 12px; font-weight: bold; display: {{ $quotation->$key ? 'block' : 'none' }};">✓</span>
+               {{ $isChecked ? 'checked' : '' }}>
+        <div class="checkbox-box" style="width: 16px; height: 16px; border: 2px solid #000; background: {{ $isChecked ? '#000' : 'white' }}; margin-right: 8px; display: flex; align-items: center; justify-content: center;">
+          <span class="checkmark" style="color: white; font-size: 12px; font-weight: bold; display: {{ $isChecked ? 'block' : 'none' }};">✓</span>
         </div>
-        {{ $label }}
+        {{ $feature['label'] }}
       </label>
       @endforeach
     </div>

@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Proforma extends Model
+class Invoice extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'quotation_id',
-        'template_index',
+        'proforma_id',
         'unique_code',
-        'proforma_date',
+        'invoice_date',
+        'invoice_type',
         'company_name',
         'bill_no',
         'address',
@@ -44,7 +44,7 @@ class Proforma extends Model
     ];
 
     protected $casts = [
-        'proforma_date' => 'date',
+        'invoice_date' => 'date',
         'description' => 'array',
         'sac_code' => 'array',
         'quantity' => 'array',
@@ -66,8 +66,8 @@ class Proforma extends Model
         'billing_item' => 'decimal:2',
     ];
 
-    public function quotation()
+    public function proforma()
     {
-        return $this->belongsTo(Quotation::class);
+        return $this->belongsTo(Proforma::class);
     }
 }
