@@ -45,6 +45,9 @@
       <tr>
         <td>
           <div class="action-icons">
+            <a href="{{ route('invoices.edit', $invoice->id) }}">
+              <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+            </a>
             <a href="{{ route('invoices.show', $invoice->id) }}">
               <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
             </a>
@@ -90,17 +93,4 @@
 <div class="pagination-wrapper">
   {{ $invoices->links() }}
 </div>
-
-@if(session('status'))
-<div class="alert alert-success mt-4">
-  {{ session('status') }}
-</div>
-@endif
-
-@if(session('error'))
-<div class="alert alert-danger mt-4">
-  {{ session('error') }}
-</div>
-@endif
-
 @endsection

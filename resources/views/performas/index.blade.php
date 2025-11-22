@@ -54,9 +54,15 @@
             <a href="{{ route('performas.print', $proforma->id) }}" target="_blank">
               <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
             </a>
-            <a href="{{ route('performas.convert', $proforma->id) }}" title="Convert to Invoice" aria-label="Convert to Invoice">
+            @if($proforma->canConvert())
+            <a href="{{ route('performas.convert', $proforma->id) }}" title="Convert to Invoice ({{ $proforma->hasGstInvoice() ? 'Without GST available' : ($proforma->hasWithoutGstInvoice() ? 'GST available' : 'Both available') }})" aria-label="Convert to Invoice">
               <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert" class="action-icon">
             </a>
+            @else
+            <span title="Both GST and Without GST invoices already generated" style="opacity: 0.3; cursor: not-allowed; display: inline-block;">
+              <img src="{{ asset('action_icon/convert.svg') }}" alt="Converted" class="action-icon" style="pointer-events: none;">
+            </span>
+            @endif
           </div>
         </td>
         <td>{{ $performas->firstItem() + $index }}</td>

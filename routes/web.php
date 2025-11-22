@@ -137,7 +137,7 @@ Route::middleware('auth')->group(function () {
     Route::get('performas/{id}/convert', [\App\Http\Controllers\Invoice\InvoiceController::class, 'convertForm'])->name('performas.convert');
     Route::post('performas/{id}/convert', [\App\Http\Controllers\Invoice\InvoiceController::class, 'convert'])->name('performas.convert.store');
     Route::get('invoices/{id}/print', [\App\Http\Controllers\Invoice\InvoiceController::class, 'print'])->name('invoices.print');
-    Route::resource('invoices', \App\Http\Controllers\Invoice\InvoiceController::class)->except(['create', 'store', 'edit', 'update']); // invoices.index, show, destroy
+    Route::resource('invoices', \App\Http\Controllers\Invoice\InvoiceController::class)->except(['create', 'store']); // invoices.index, show, edit, update, destroy
 
     // Receipts & (Vouchers disabled)
     Route::resource('receipts', ReceiptController::class); // receipts.index, receipts.create

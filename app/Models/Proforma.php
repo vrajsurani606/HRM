@@ -70,4 +70,34 @@ class Proforma extends Model
     {
         return $this->belongsTo(Quotation::class);
     }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'proforma_id');
+    }
+
+    public function hasInvoice()
+    {
+        return $this->invoices()->exists();
+    }
+
+    public function hasGstInvoice()
+    {
+        return $this->invoices()->where('invoice_type', 'gst')->exists();
+    }
+
+    public function hasWithoutGstInvoice()
+    {
+        return $this->invoices()->where('invoice_type', 'without_gst')->exists();
+    }
+
+    public function hasBothInvoices()
+    {
+        return $this->hasGstInvoice() && $this->hasWithoutGstInvoice();
+    }
+
+    public function canConvert()
+    {
+        return !$this->hasBothInvoices();
+    }
 }

@@ -47,6 +47,12 @@ class InvoiceController extends Controller
     {
         $proforma = Proforma::findOrFail($proformaId);
         
+        // Check if both invoices already exist
+        if ($proforma->hasBothInvoices()) {
+            return redirect()->route('performas.index')
+                ->with('error', 'This proforma has already been converted to both GST and Without GST invoices.');
+        }
+        
         // Generate next GST invoice code (for display only)
         $allGstInvoices = Invoice::where('unique_code', 'like', 'CMS/INV/%')
             ->pluck('unique_code');
@@ -79,7 +85,11 @@ class InvoiceController extends Controller
         $nextWgNumber = $maxWgNumber + 1;
         $nextWgCode = 'CMS/WGINV/' . str_pad($nextWgNumber, 4, '0', STR_PAD_LEFT);
         
-        return view('invoices.convert', compact('proforma', 'nextGstCode', 'nextWgCode'));
+        // Check which invoice types are already generated
+        $hasGstInvoice = $proforma->hasGstInvoice();
+        $hasWithoutGstInvoice = $proforma->hasWithoutGstInvoice();
+        
+        return view('invoices.convert', compact('proforma', 'nextGstCode', 'nextWgCode', 'hasGstInvoice', 'hasWithoutGstInvoice'));
     }
 
     public function convert(Request $request, int $proformaId): RedirectResponse
@@ -91,6 +101,17 @@ class InvoiceController extends Controller
                 'invoice_date' => ['required', 'date'],
                 'invoice_type' => ['required', 'in:gst,without_gst'],
             ]);
+            
+            // Check if this invoice type already exists
+            if ($validated['invoice_type'] === 'gst' && $proforma->hasGstInvoice()) {
+                return redirect()->back()
+                    ->with('error', 'A GST invoice has already been generated for this proforma.');
+            }
+            
+            if ($validated['invoice_type'] === 'without_gst' && $proforma->hasWithoutGstInvoice()) {
+                return redirect()->back()
+                    ->with('error', 'A Without GST invoice has already been generated for this proforma.');
+            }
             
             // Generate unique code based on invoice type
             if ($validated['invoice_type'] === 'gst') {
@@ -128,39 +149,85 @@ class InvoiceController extends Controller
             }
             
             // Create invoice from proforma data
-            $invoiceData = [
-                'proforma_id' => $proforma->id,
-                'unique_code' => $uniqueCode,
-                'invoice_date' => $validated['invoice_date'],
-                'invoice_type' => $validated['invoice_type'],
-                'company_name' => $proforma->company_name,
-                'bill_no' => $proforma->bill_no,
-                'address' => $proforma->address,
-                'gst_no' => $proforma->gst_no,
-                'mobile_no' => $proforma->mobile_no,
-                'description' => $proforma->description,
-                'sac_code' => $proforma->sac_code,
-                'quantity' => $proforma->quantity,
-                'rate' => $proforma->rate,
-                'total' => $proforma->total,
-                'sub_total' => $proforma->sub_total,
-                'discount_percent' => $proforma->discount_percent,
-                'discount_amount' => $proforma->discount_amount,
-                'retention_percent' => $proforma->retention_percent,
-                'retention_amount' => $proforma->retention_amount,
-                'cgst_percent' => $proforma->cgst_percent,
-                'cgst_amount' => $proforma->cgst_amount,
-                'sgst_percent' => $proforma->sgst_percent,
-                'sgst_amount' => $proforma->sgst_amount,
-                'igst_percent' => $proforma->igst_percent,
-                'igst_amount' => $proforma->igst_amount,
-                'final_amount' => $proforma->final_amount,
-                'total_tax_amount' => $proforma->total_tax_amount,
-                'billing_item' => $proforma->billing_item,
-                'type_of_billing' => $proforma->type_of_billing,
-                'tds_amount' => $proforma->tds_amount,
-                'remark' => $proforma->remark,
-            ];
+            // For Without GST invoices, recalculate amounts excluding GST
+            if ($validated['invoice_type'] === 'without_gst') {
+                // Calculate final amount without GST
+                $subTotal = $proforma->sub_total ?? 0;
+                $discountAmount = $proforma->discount_amount ?? 0;
+                $retentionAmount = $proforma->retention_amount ?? 0;
+                
+                // Final amount = Subtotal - Discount - Retention (NO GST)
+                $finalAmount = $subTotal - $discountAmount - $retentionAmount;
+                
+                $invoiceData = [
+                    'proforma_id' => $proforma->id,
+                    'unique_code' => $uniqueCode,
+                    'invoice_date' => $validated['invoice_date'],
+                    'invoice_type' => $validated['invoice_type'],
+                    'company_name' => $proforma->company_name,
+                    'bill_no' => $proforma->bill_no,
+                    'address' => $proforma->address,
+                    'gst_no' => null, // No GST number for without_gst invoices
+                    'mobile_no' => $proforma->mobile_no,
+                    'description' => $proforma->description,
+                    'sac_code' => $proforma->sac_code,
+                    'quantity' => $proforma->quantity,
+                    'rate' => $proforma->rate,
+                    'total' => $proforma->total,
+                    'sub_total' => $subTotal,
+                    'discount_percent' => $proforma->discount_percent,
+                    'discount_amount' => $discountAmount,
+                    'retention_percent' => $proforma->retention_percent,
+                    'retention_amount' => $retentionAmount,
+                    'cgst_percent' => 0,
+                    'cgst_amount' => 0,
+                    'sgst_percent' => 0,
+                    'sgst_amount' => 0,
+                    'igst_percent' => 0,
+                    'igst_amount' => 0,
+                    'final_amount' => $finalAmount,
+                    'total_tax_amount' => 0,
+                    'billing_item' => $proforma->billing_item,
+                    'type_of_billing' => $proforma->type_of_billing,
+                    'tds_amount' => $proforma->tds_amount,
+                    'remark' => $proforma->remark,
+                ];
+            } else {
+                // GST Invoice - copy all data as is
+                $invoiceData = [
+                    'proforma_id' => $proforma->id,
+                    'unique_code' => $uniqueCode,
+                    'invoice_date' => $validated['invoice_date'],
+                    'invoice_type' => $validated['invoice_type'],
+                    'company_name' => $proforma->company_name,
+                    'bill_no' => $proforma->bill_no,
+                    'address' => $proforma->address,
+                    'gst_no' => $proforma->gst_no,
+                    'mobile_no' => $proforma->mobile_no,
+                    'description' => $proforma->description,
+                    'sac_code' => $proforma->sac_code,
+                    'quantity' => $proforma->quantity,
+                    'rate' => $proforma->rate,
+                    'total' => $proforma->total,
+                    'sub_total' => $proforma->sub_total,
+                    'discount_percent' => $proforma->discount_percent,
+                    'discount_amount' => $proforma->discount_amount,
+                    'retention_percent' => $proforma->retention_percent,
+                    'retention_amount' => $proforma->retention_amount,
+                    'cgst_percent' => $proforma->cgst_percent,
+                    'cgst_amount' => $proforma->cgst_amount,
+                    'sgst_percent' => $proforma->sgst_percent,
+                    'sgst_amount' => $proforma->sgst_amount,
+                    'igst_percent' => $proforma->igst_percent,
+                    'igst_amount' => $proforma->igst_amount,
+                    'final_amount' => $proforma->final_amount,
+                    'total_tax_amount' => $proforma->total_tax_amount,
+                    'billing_item' => $proforma->billing_item,
+                    'type_of_billing' => $proforma->type_of_billing,
+                    'tds_amount' => $proforma->tds_amount,
+                    'remark' => $proforma->remark,
+                ];
+            }
             
             $invoice = Invoice::create($invoiceData);
             
@@ -178,6 +245,34 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::with('proforma')->findOrFail($id);
         return view('invoices.show', compact('invoice'));
+    }
+
+    public function edit(int $id): View
+    {
+        $invoice = Invoice::with('proforma')->findOrFail($id);
+        return view('invoices.edit', compact('invoice'));
+    }
+
+    public function update(Request $request, int $id): RedirectResponse
+    {
+        try {
+            $invoice = Invoice::findOrFail($id);
+            
+            $validated = $request->validate([
+                'unique_code' => ['required', 'string', 'max:255', 'unique:invoices,unique_code,' . $id],
+                'invoice_date' => ['required', 'date'],
+            ]);
+            
+            $invoice->update($validated);
+            
+            return redirect()->route('invoices.index')
+                ->with('status', 'Invoice updated successfully');
+                
+        } catch (\Exception $e) {
+            \Log::error('Error updating invoice: ' . $e->getMessage());
+            return redirect()->back()->withInput()
+                ->with('error', 'Error updating invoice: ' . $e->getMessage());
+        }
     }
 
     public function print(int $id): View

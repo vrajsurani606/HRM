@@ -30,7 +30,9 @@
                 <h3 class="font-semibold text-lg mb-3 text-gray-700">Customer Information</h3>
                 <p class="mb-2"><strong>Company:</strong> {{ $invoice->company_name }}</p>
                 <p class="mb-2"><strong>Mobile:</strong> {{ $invoice->mobile_no ?? '-' }}</p>
+                @if($invoice->invoice_type === 'gst')
                 <p class="mb-2"><strong>GST No:</strong> {{ $invoice->gst_no ?? '-' }}</p>
+                @endif
                 @if($invoice->address)
                 <p class="mb-2"><strong>Address:</strong> {{ $invoice->address }}</p>
                 @endif
@@ -94,16 +96,22 @@
                         <td class="py-2 text-right font-semibold">₹{{ number_format($invoice->retention_amount, 2) }}</td>
                     </tr>
                     @endif
-                    @if($invoice->cgst_amount > 0)
+                    @if($invoice->invoice_type === 'gst' && $invoice->cgst_amount > 0)
                     <tr>
                         <td class="py-2 text-right pr-4">CGST ({{ $invoice->cgst_percent }}%):</td>
                         <td class="py-2 text-right font-semibold">₹{{ number_format($invoice->cgst_amount, 2) }}</td>
                     </tr>
                     @endif
-                    @if($invoice->sgst_amount > 0)
+                    @if($invoice->invoice_type === 'gst' && $invoice->sgst_amount > 0)
                     <tr>
                         <td class="py-2 text-right pr-4">SGST ({{ $invoice->sgst_percent }}%):</td>
                         <td class="py-2 text-right font-semibold">₹{{ number_format($invoice->sgst_amount, 2) }}</td>
+                    </tr>
+                    @endif
+                    @if($invoice->invoice_type === 'gst' && $invoice->igst_amount > 0)
+                    <tr>
+                        <td class="py-2 text-right pr-4">IGST ({{ $invoice->igst_percent }}%):</td>
+                        <td class="py-2 text-right font-semibold">₹{{ number_format($invoice->igst_amount, 2) }}</td>
                     </tr>
                     @endif
                     <tr class="border-t-2 border-gray-300">

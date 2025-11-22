@@ -383,7 +383,9 @@
                         <p><strong>CHITRI ENLARGE SOFT IT HUB PVT. LTD.</strong></p>
                         <p>401/B, RISE ON PLAZA, SARKHEJ JAKAT NAKA,</p>
                         <p>SURAT, 390006.</p>
+                        @if($invoice->invoice_type === 'gst')
                         <p>GST. NO.: 24AAMCC4413E1Z1</p>
+                        @endif
                         <p>Mo. (+91) 72763 23999</p>
                     </div>
                 </div>
@@ -395,7 +397,7 @@
                         @if($invoice->address)
                         <p>{{ $invoice->address }}</p>
                         @endif
-                        @if($invoice->gst_no)
+                        @if($invoice->invoice_type === 'gst' && $invoice->gst_no)
                         <p>GST. NO.: {{ $invoice->gst_no }}</p>
                         @endif
                         @if($invoice->mobile_no)
@@ -474,16 +476,22 @@
                             <td>₹{{ number_format($invoice->retention_amount, 2) }}</td>
                         </tr>
                         @endif
-                        @if($invoice->cgst_amount > 0)
+                        @if($invoice->invoice_type === 'gst' && $invoice->cgst_amount > 0)
                         <tr>
                             <td>CGST ({{ $invoice->cgst_percent }}%)</td>
                             <td>₹{{ number_format($invoice->cgst_amount, 2) }}</td>
                         </tr>
                         @endif
-                        @if($invoice->sgst_amount > 0)
+                        @if($invoice->invoice_type === 'gst' && $invoice->sgst_amount > 0)
                         <tr>
                             <td>SGST ({{ $invoice->sgst_percent }}%)</td>
                             <td>₹{{ number_format($invoice->sgst_amount, 2) }}</td>
+                        </tr>
+                        @endif
+                        @if($invoice->invoice_type === 'gst' && $invoice->igst_amount > 0)
+                        <tr>
+                            <td>IGST ({{ $invoice->igst_percent }}%)</td>
+                            <td>₹{{ number_format($invoice->igst_amount, 2) }}</td>
                         </tr>
                         @endif
                         <tr class="total-amount-row">

@@ -40,8 +40,12 @@
           <label class="hrp-label">Invoice Type: <span class="text-red-500">*</span></label>
           <select class="Rectangle-29-select @error('invoice_type') is-invalid @enderror" name="invoice_type" id="invoiceType" required>
             <option value="">Select Type</option>
-            <option value="gst" {{ old('invoice_type') == 'gst' ? 'selected' : '' }}>GST Invoice</option>
-            <option value="without_gst" {{ old('invoice_type') == 'without_gst' ? 'selected' : '' }}>Without GST Invoice</option>
+            <option value="gst" {{ old('invoice_type') == 'gst' ? 'selected' : '' }} {{ $hasGstInvoice ? 'disabled' : '' }}>
+              GST Invoice {{ $hasGstInvoice ? '(Already Generated)' : '' }}
+            </option>
+            <option value="without_gst" {{ old('invoice_type') == 'without_gst' ? 'selected' : '' }} {{ $hasWithoutGstInvoice ? 'disabled' : '' }}>
+              Without GST Invoice {{ $hasWithoutGstInvoice ? '(Already Generated)' : '' }}
+            </option>
           </select>
           @error('invoice_type')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
