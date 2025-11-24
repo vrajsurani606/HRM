@@ -208,7 +208,7 @@ function submitLeave(event) {
       if (typeof toastr !== 'undefined') {
         toastr.success(data.message || 'Leave request submitted successfully!');
       } else {
-        alert(data.message || 'Leave request submitted successfully!');
+        toastr.success(data.message || 'Leave request submitted successfully!');
       }
       closeCreateModal();
       setTimeout(() => location.reload(), 1000);
@@ -216,7 +216,7 @@ function submitLeave(event) {
       if (typeof toastr !== 'undefined') {
         toastr.error(data.message || 'Error submitting leave request');
       } else {
-        alert(data.message || 'Error submitting leave request');
+        toastr.error(data.message || 'Error submitting leave request');
       }
     }
   })
@@ -225,9 +225,12 @@ function submitLeave(event) {
     if (typeof toastr !== 'undefined') {
       toastr.error('Error submitting leave request');
     } else {
-      alert('Error submitting leave request');
+      toastr.error('Error submitting leave request');
     }
   });
 }
 </script>
 @endsection
+
+
+

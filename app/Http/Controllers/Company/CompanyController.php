@@ -157,6 +157,9 @@ class CompanyController extends Controller
 
     public function show(CompanyModel $company): View
     {
+        // Load quotations with the company
+        $company->load('quotations');
+        
         return view('companies.show', compact('company'));
     }
 

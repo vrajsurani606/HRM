@@ -126,4 +126,12 @@ class Company extends Model
      * @return string
      */
     // Default route key name is 'id'
+    
+    /**
+     * Get all quotations for this company
+     */
+    public function quotations()
+    {
+        return $this->hasMany(Quotation::class, 'customer_id');
+    }
 }

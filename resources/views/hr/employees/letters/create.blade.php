@@ -609,7 +609,7 @@ $(document).ready(function() {
                 $('#reference_number').val(response.reference_number);
             },
             error: function() {
-                alert('Error generating reference number');
+                toastr.error('Error generating reference number');
             }
         });
     });
@@ -696,7 +696,7 @@ $(document).ready(function() {
                     var errorMsg = xhr.responseJSON && xhr.responseJSON.message 
                         ? xhr.responseJSON.message 
                         : 'An error occurred while saving. Please try again.';
-                    alert(errorMsg);
+                    toastr.error(errorMsg);
                 }
             }
         });
@@ -706,3 +706,4 @@ $(document).ready(function() {
 @endpush
 
 @endsection
+

@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if company is selected
     if (!companySelect.value) {
       e.preventDefault();
-      alert('Please select a company name');
+      toastr.warning('Please select a company name');
       companySelect.focus();
       return false;
     }
@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if invoice type is selected
     if (!invoiceTypeSelect.value) {
       e.preventDefault();
-      alert('Please select an invoice type');
+      toastr.warning('Please select an invoice type');
       invoiceTypeSelect.focus();
       return false;
     }
@@ -383,14 +383,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (checkedInvoices.length === 0) {
       e.preventDefault();
-      alert('Please select at least one unpaid invoice');
+      toastr.warning('Please select at least one unpaid invoice');
       return false;
     }
     
     // Check if received amount is valid
     if (receivedValue <= 0) {
       e.preventDefault();
-      alert('Received amount must be greater than zero');
+      toastr.warning('Received amount must be greater than zero');
       return false;
     }
     
@@ -400,3 +400,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @endsection
+
+
+
+

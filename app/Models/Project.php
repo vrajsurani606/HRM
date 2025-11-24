@@ -9,9 +9,10 @@ class Project extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'stage_id', 'due_date', 'total_tasks', 'completed_tasks'];
+    protected $fillable = ['name', 'description', 'company_id', 'stage_id', 'start_date', 'due_date', 'priority', 'status', 'total_tasks', 'completed_tasks', 'budget'];
 
     protected $casts = [
+        'start_date' => 'date',
         'due_date' => 'date',
     ];
 
@@ -20,8 +21,33 @@ class Project extends Model
         return $this->belongsTo(ProjectStage::class, 'stage_id');
     }
 
+    public function company()
+    {
+        return $this->belongsTo(\App\Models\Company::class, 'company_id');
+    }
+
     public function getProgressAttribute()
     {
         return $this->total_tasks > 0 ? round(($this->completed_tasks / $this->total_tasks) * 100) : 0;
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(ProjectTask::class)->whereNull('parent_id')->orderBy('order');
+    }
+
+    public function allTasks()
+    {
+        return $this->hasMany(ProjectTask::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(ProjectComment::class)->with('user')->orderBy('created_at', 'asc');
+    }
+
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'project_members')->withPivot('role')->withTimestamps();
     }
 }

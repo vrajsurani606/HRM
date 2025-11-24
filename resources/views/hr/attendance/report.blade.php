@@ -201,10 +201,10 @@ function deleteAttendance(id) {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        alert('Attendance record deleted successfully!');
+        toastr.success('Attendance record deleted successfully!');
         location.reload();
       } else {
-        alert('Error deleting record: ' + (data.message || 'Unknown error'));
+        toastr.error('Error deleting record: ' + (data.message || 'Unknown error'));
       }
     })
     .catch(error => {
@@ -220,3 +220,5 @@ function printAttendance(id) {
 }
 </script>
 @endsection
+
+

@@ -10,6 +10,13 @@
 @endsection
 
 @section('content')
+
+    @php
+      $allowedTabs = ['quotation','template','proforma','invoice','receipt','project','ticket'];
+      $reqTab = request()->get('tab');
+      $activeTab = in_array($reqTab, $allowedTabs) ? $reqTab : 'quotation';
+    @endphp
+
     @if(session('success'))
         <div class="alert alert-success" style="background: #d4edda; color: #155724; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
             {{ session('success') }}
@@ -17,127 +24,127 @@
     @endif
     
     <!-- Top two-column details -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-bottom: 30px; background: #e5e7eb;">
-      <div style="background: white; padding: 20px; display: flex; flex-direction: column; align-items: center;">
-        <h3 style="font-weight: 600; margin-bottom: 20px; color: #333; background: #F0F0F0; padding: 10px; text-align: center; border-radius: 6px; width: 100%;">Company Details</h3>
-        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Unique Code</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->unique_code ? $company->unique_code : '-' }}</span>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-bottom: 30px; background: #d1d5db;">
+      <div style="background: #f9fafb; padding: 25px 40px; display: flex; flex-direction: column; align-items: center;">
+        <h3 style="font-weight: 600; font-size: 16px; margin-bottom: 20px; color: #1f2937; background: #e5e7eb; padding: 12px 20px; text-align: center; border-radius: 0px; width: 100%;">Company Details</h3>
+        <div style="display: flex; flex-direction: column; gap: 0px; max-width: 600px; width: 100%;">
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Unique Code</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->unique_code ?? '-' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Company Name</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->company_name ? $company->company_name : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Name</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_name ? $company->company_name : '-' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Company Address</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->company_address ? $company->company_address : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Address</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_address ? $company->company_address : '-' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Company Gst No</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->gst_no ? $company->gst_no : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Gst No</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->gst_no ? $company->gst_no : '---' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Company Pan No</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->pan_no ? $company->pan_no : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Pan No</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->pan_no ? $company->pan_no : '---' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Other</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->other_details ? $company->other_details : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Other</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->other_details ? $company->other_details : '---' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Company Type</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->company_type ? $company->company_type : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Type</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_type ? $company->company_type : '-' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Company Email</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->company_email ? $company->company_email : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Email</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_email ? $company->company_email : '-' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Company Password</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->company_password ? $company->company_password : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Password</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_password ? '••••••••' : '-' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Company Employee Email</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->company_employee_email ? $company->company_employee_email : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Employee Email</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_employee_email ? $company->company_employee_email : '-' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Company Employee Password</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->company_employee_password ? $company->company_employee_password : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Employee Password</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_employee_password ? '••••••••' : '-' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Company City</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->city ? $company->city : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 10px 12px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company City</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->city ? $company->city : '-' }}</span>
           </div>
         </div>
       </div>
-      <div style="background: white; padding: 20px; display: flex; flex-direction: column; align-items: center;">
-        <h3 style="font-weight: 600; margin-bottom: 20px; color: #333; background: #F0F0F0; padding: 10px; text-align: center; border-radius: 6px; width: 100%;">Person's Details</h3>
-        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Person Name</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->person_name_1 ? $company->person_name_1 : '-' }}</span>
+      <div style="background: #f9fafb; padding: 25px 40px; display: flex; flex-direction: column; align-items: center;">
+        <h3 style="font-weight: 600; font-size: 16px; margin-bottom: 20px; color: #1f2937; background: #e5e7eb; padding: 12px 20px; text-align: center; border-radius: 0px; width: 100%;">Person's Details</h3>
+        <div style="display: flex; flex-direction: column; gap: 0px; max-width: 600px; width: 100%;">
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Name</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_name_1 ? $company->person_name_1 : 'Undefined' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Person Number</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->person_number_1 ? $company->person_number_1 : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Number</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_number_1 ? $company->person_number_1 : 'Undefined' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Person Position</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->person_position_1 ? $company->person_position_1 : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Position</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_position_1 ? $company->person_position_1 : 'Undefined' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Person Name</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->person_name_2 ? $company->person_name_2 : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Name</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_name_2 ? $company->person_name_2 : 'Undefined' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Person Number</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->person_number_2 ? $company->person_number_2 : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Number</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_number_2 ? $company->person_number_2 : 'Undefined' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Person Position</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->person_position_2 ? $company->person_position_2 : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Position</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_position_2 ? $company->person_position_2 : 'Undefined' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Person Name</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->person_name_3 ? $company->person_name_3 : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Name</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_name_3 ? $company->person_name_3 : 'Undefined' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Person Number</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->person_number_3 ? $company->person_number_3 : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Number</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_number_3 ? $company->person_number_3 : 'Undefined' }}</span>
           </div>
-          <div style="display: flex; align-items: center; padding: 6px 0;">
-            <span style="color: #333; font-weight: 500; width: 320px; text-align: left;">Person Position</span>
-            <span style="color: #333; width: 40px; text-align: center; font-weight: 600; display: flex; justify-content: center;">:</span>
-            <span style="color: #333; font-weight: 600; text-align: left; flex: 1;">{{ $company->person_position_3 ? $company->person_position_3 : '-' }}</span>
+          <div style="display: flex; align-items: center; padding: 10px 12px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Position</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_position_3 ? $company->person_position_3 : 'Undefined' }}</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Documents Row -->
-    <div style="margin-bottom: 30px;">
-      <div style="font-weight: 600; margin-bottom: 15px; color: #333;">All Documents :</div>
+    <div style="margin-bottom: 30px; padding: 0 20px;">
+      <div style="font-weight: 600; margin-bottom: 20px; color: #1f2937; font-size: 15px; padding-left: 5px;">All Documents :</div>
       <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;">
         <!-- Company Logo -->
         <div style="background: white; border-radius: 8px; padding: 15px; border: 1px solid #e5e7eb;">
@@ -257,19 +264,23 @@
     </div>
 
     <!-- Tabs -->
-    <div style="margin-bottom: 20px;">
-      <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; border-bottom: 1px solid #e5e7eb;">
-        <button style="background: #000; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer;" data-tab="quotation">🗂️ Quotation List</button>
-        <button style="background: #f3f4f6; color: #374151; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer;" data-tab="template">📋 Template List</button>
-        <button style="background: #f3f4f6; color: #374151; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer;" data-tab="proforma">📄 Proforma Mana.</button>
-        <button style="background: #f3f4f6; color: #374151; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer;" data-tab="invoice">🧾 Invoice Mana.</button>
-        <button style="background: #f3f4f6; color: #374151; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer;" data-tab="receipt">🧾 The Receipt</button>
-        <button style="background: #f3f4f6; color: #374151; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer;" data-tab="project">📋 Project</button>
-        <button style="background: #f3f4f6; color: #374151; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer;" data-tab="ticket">🎫 Ticket</button>
+    <div id="company-tabs" style="margin-bottom: 20px; padding: 0 20px;">
+      <div style="display: flex; align-items: center; gap: 0px; overflow-x: auto; padding: 15px 20px; background: #F0F0F0; margin-bottom: 20px;">
+        <button class="tab-button" style="background: transparent; color: {{ $activeTab==='quotation' ? '#000' : '#6b7280' }}; border: none; padding: 0px; font-size: 14px; cursor: pointer; font-weight: {{ $activeTab==='quotation' ? '600' : '400' }};" data-tab="quotation">🗂️ Quotation List</button>
+        <span style="color: #9ca3af; margin: 0 12px;">|</span>
+        <button class="tab-button" style="background: transparent; color: {{ $activeTab==='template' ? '#000' : '#6b7280' }}; border: none; padding: 0px; font-size: 14px; cursor: pointer; font-weight: {{ $activeTab==='template' ? '600' : '400' }};" data-tab="template">📋 Template List</button>
+        <span style="color: #9ca3af; margin: 0 12px;">|</span>
+        <button class="tab-button" style="background: transparent; color: {{ $activeTab==='proforma' ? '#000' : '#6b7280' }}; border: none; padding: 0px; font-size: 14px; cursor: pointer; font-weight: {{ $activeTab==='proforma' ? '600' : '400' }};" data-tab="proforma">📄 Proforma Mana.</button>
+        <span style="color: #9ca3af; margin: 0 12px;">|</span>
+        <button class="tab-button" style="background: transparent; color: {{ $activeTab==='invoice' ? '#000' : '#6b7280' }}; border: none; padding: 0px; font-size: 14px; cursor: pointer; font-weight: {{ $activeTab==='invoice' ? '600' : '400' }};" data-tab="invoice">🧾 Invoice Mana.</button>
+        <span style="color: #9ca3af; margin: 0 12px;">|</span>
+        <button class="tab-button" style="background: transparent; color: {{ $activeTab==='receipt' ? '#000' : '#6b7280' }}; border: none; padding: 0px; font-size: 14px; cursor: pointer; font-weight: {{ $activeTab==='receipt' ? '600' : '400' }};" data-tab="receipt">🧾 The Receipt</button>
+        <span style="color: #9ca3af; margin: 0 12px;">|</span>
+        <button class="tab-button" style="background: transparent; color: {{ $activeTab==='ticket' ? '#000' : '#6b7280' }}; border: none; padding: 0px; font-size: 14px; cursor: pointer; font-weight: {{ $activeTab==='ticket' ? '600' : '400' }};" data-tab="ticket">🎫 Ticket</button>
       </div>
 
       <!-- Tab contents -->
-      <div id="tab-quotation" style="margin-top: 20px;">
+      <div id="tab-quotation" style="padding: 0 20px; display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
           <div style="display: flex; align-items: center; gap: 10px;">
             <input type="text" placeholder="Search here..." style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; width: 200px;">
@@ -332,7 +343,7 @@
       </div>
 
       <!-- Template List Tab -->
-      <div id="tab-template" style="margin-top: 20px; display: none;">
+      <div id="tab-template" style="padding: 0 20px; display: none;">
         <div style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
           <table style="width: 100%; border-collapse: collapse;">
             <thead>
@@ -375,7 +386,7 @@
       </div>
 
       <!-- Proforma Tab -->
-      <div id="tab-proforma" style="margin-top: 20px; display: none;">
+      <div id="tab-proforma" style="padding: 0 20px; display: none;">
         <div style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
           <table style="width: 100%; border-collapse: collapse;">
             <thead>
@@ -425,7 +436,7 @@
       </div>
 
       <!-- Invoice Management Tab -->
-      <div id="tab-invoice" style="margin-top: 20px; display: none;">
+      <div id="tab-invoice" style="padding: 0 20px; display: none;">
         <div style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
           <table style="width: 100%; border-collapse: collapse;">
             <thead>
@@ -475,7 +486,7 @@
                   <div style="display: flex; gap: 8px; align-items: center;">
                    <div style="width: 24px; height: 24px;border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;" title="Generate">
                       <img src="{{ asset('action_icon/generate.svg') }}" alt="generate" style="width: 14px; height: 14px;">
-                    </div>
+                      </div>
                     <div style="width: 24px; height: 24px;border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;" title="Convert">
                       <img src="{{ asset('action_icon/convert.svg') }}" alt="convert" style="width: 14px; height: 14px;">
                     </div>
@@ -491,7 +502,7 @@
       </div>
 
       <!-- Receipt Tab -->
-      <div id="tab-receipt" style="margin-top: 20px; display: none;">
+      <div id="tab-receipt" style="padding: 0 20px; display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
           <div style="display: flex; align-items: center; gap: 10px;">
             <input type="text" placeholder="Receipt No." style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; width: 120px;">
@@ -537,7 +548,7 @@
       </div>
 
       <!-- Project Tab -->
-      <div id="tab-project" style="margin-top: 20px; display: none;">
+      <div id="tab-project" style="padding: 0 20px; display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
           <div style="display: flex; align-items: center; gap: 10px;">
             <input type="text" placeholder="Receipt No." style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; width: 120px;">
@@ -583,7 +594,7 @@
       </div>
 
       <!-- Ticket Tab -->
-      <div id="tab-ticket" style="margin-top: 20px; display: none;">
+      <div id="tab-ticket" style="padding: 0 20px; display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
           <div style="display: flex; align-items: center; gap: 10px;">
             <select style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; width: 140px; color: #9ca3af;">
@@ -674,65 +685,90 @@
         </div>
       </div>
     </div>
-@endsection
 
-@section('breadcrumb')
-  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
-  <span class="hrp-bc-sep">›</span>
-  <span class="hrp-bc-current">Company Details</span>
-@endsection
-
-@push('scripts')
 <script>
-  document.querySelectorAll('[data-tab]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (btn.hasAttribute('disabled')) return;
-      const name = btn.getAttribute('data-tab');
-      // toggle active button styles
-      document.querySelectorAll('[data-tab]').forEach(b => {
-        if (!b.hasAttribute('disabled')) {
-          b.style.background = '#f3f4f6';
-          b.style.color = '#374151';
-        }
-      });
-      btn.style.background = '#000';
-      btn.style.color = 'white';
-      // toggle sections
-      document.getElementById('tab-quotation').style.display = 'none';
-      document.getElementById('tab-template').style.display = 'none';
-      document.getElementById('tab-proforma').style.display = 'none';
-      document.getElementById('tab-invoice').style.display = 'none';
-      document.getElementById('tab-receipt').style.display = 'none';
-      document.getElementById('tab-project').style.display = 'none';
-      document.getElementById('tab-ticket').style.display = 'none';
-      const map = { quotation: 'tab-quotation', template: 'tab-template', proforma: 'tab-proforma', invoice: 'tab-invoice', receipt: 'tab-receipt', project: 'tab-project', ticket: 'tab-ticket' };
-      const target = map[name];
-      if (target) document.getElementById(target).style.display = 'block';
+document.addEventListener('DOMContentLoaded', function() {
+  // Tab switching
+  var tabButtons = document.querySelectorAll('[data-tab]');
+  var allTabIds = ['tab-quotation', 'tab-template', 'tab-proforma', 'tab-invoice', 'tab-receipt', 'tab-project', 'tab-ticket'];
+  
+  function switchTo(tabName) {
+    if (!tabName) return;
+    
+    console.log('Switching to tab:', tabName); // Debug log
+    
+    // Force hide all tabs with !important
+    allTabIds.forEach(function(tabId) {
+      var tab = document.getElementById(tabId);
+      if (tab) {
+        tab.style.setProperty('display', 'none', 'important');
+      }
+    });
+
+    // Update button styles
+    tabButtons.forEach(function(b) {
+      b.style.background = 'transparent';
+      b.style.color = '#6b7280';
+      b.style.fontWeight = '400';
+      if (b.getAttribute('data-tab') === tabName) {
+        b.style.color = '#000';
+        b.style.fontWeight = '600';
+      }
+    });
+
+    // Show selected tab with !important
+    var selectedTab = document.getElementById('tab-' + tabName);
+    if (selectedTab) {
+      selectedTab.style.setProperty('display', 'block', 'important');
+      console.log('Showing tab:', selectedTab.id); // Debug log
+    } else {
+      console.log('Tab not found:', 'tab-' + tabName); // Debug log
+    }
+
+    // Persist selection in URL and storage
+    try {
+      var url = new URL(window.location.href);
+      url.searchParams.set('tab', tabName);
+      history.replaceState(null, '', url.toString());
+      localStorage.setItem('companyViewActiveTab', tabName);
+    } catch (e) { /* noop */ }
+  }
+
+  // Wire click handlers
+  tabButtons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var tabName = this.getAttribute('data-tab');
+      switchTo(tabName);
     });
   });
 
-  // File upload functionality
-  document.getElementById('fileUpload').addEventListener('change', function(e) {
-    const files = e.target.files;
-    if (files.length > 0) {
-      alert(`${files.length} file(s) selected for upload`);
-      // Add your upload logic here
-    }
-  });
+  // Initial tab selection: ?tab=, #tab-<name>, localStorage, default
+  var initialTab = (function() {
+    try {
+      var url = new URL(window.location.href);
+      var q = url.searchParams.get('tab');
+      if (q) return q;
+      if (window.location.hash && window.location.hash.indexOf('#tab-') === 0) {
+        return window.location.hash.replace('#tab-', '');
+      }
+      var saved = localStorage.getItem('companyViewActiveTab');
+      if (saved) return saved;
+    } catch (e) { /* noop */ }
+    return 'quotation';
+  })();
 
-  // Print functionality
-  window.printQuotationList = function() {
-    const printContent = document.getElementById('tab-quotation').innerHTML;
-    const originalContent = document.body.innerHTML;
-    document.body.innerHTML = `
-      <div style="padding: 20px;">
-        <h2 style="text-align: center; margin-bottom: 20px;">Quotation List</h2>
-        ${printContent}
-      </div>
-    `;
-    window.print();
-    document.body.innerHTML = originalContent;
-    location.reload();
-  };
+  switchTo(initialTab);
+  
+  // File upload
+  var fileUpload = document.getElementById('fileUpload');
+  if (fileUpload) {
+    fileUpload.addEventListener('change', function(e) {
+      if (this.files.length > 0) {
+        alert(this.files.length + ' file(s) selected');
+      }
+    });
+  }
+});
 </script>
-@endpush
+
+@endsection

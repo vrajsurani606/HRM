@@ -62,7 +62,7 @@ Route::prefix('leaves')->middleware('auth')->group(function () {
 Route::get('/api/employee/{employeeId}/paid-leave-balance', [App\Http\Controllers\Leave\LeaveController::class, 'getPaidLeaveBalance'])->middleware('auth');
 
 // API route for employee leave balance (HR/Admin)
-Route::get('/api/employee/{employeeId}/leave-balance', [App\Http\Controllers\LeaveController::class, 'getEmployeeBalance'])->middleware('auth');
+Route::get('/api/employee/{employeeId}/leave-balance', [App\Http\Controllers\Leave\LeaveController::class, 'getEmployeeBalance'])->middleware('auth');
 
 // Company Holidays Routes
 Route::prefix('holidays')->middleware('auth')->group(function () {
@@ -148,6 +148,22 @@ Route::middleware('auth')->group(function () {
     Route::resource('projects', ProjectController::class);
     Route::post('project-stages', [ProjectController::class, 'storeStage'])->name('project-stages.store');
     Route::patch('projects/{project}/stage', [ProjectController::class, 'updateProjectStage'])->name('projects.update-stage');
+    
+    // Project Tasks
+    Route::get('projects/{project}/tasks', [ProjectController::class, 'getTasks'])->name('projects.tasks.index');
+    Route::post('projects/{project}/tasks', [ProjectController::class, 'storeTasks'])->name('projects.tasks.store');
+    Route::patch('projects/{project}/tasks/{task}', [ProjectController::class, 'updateTask'])->name('projects.tasks.update');
+    Route::delete('projects/{project}/tasks/{task}', [ProjectController::class, 'deleteTask'])->name('projects.tasks.delete');
+    
+    // Project Comments
+    Route::get('projects/{project}/comments', [ProjectController::class, 'getComments'])->name('projects.comments.index');
+    Route::post('projects/{project}/comments', [ProjectController::class, 'storeComment'])->name('projects.comments.store');
+    
+    // Project Members
+    Route::get('projects/{project}/members', [ProjectController::class, 'getMembers'])->name('projects.members.index');
+    Route::get('projects/{project}/available-users', [ProjectController::class, 'getAvailableUsers'])->name('projects.members.available');
+    Route::post('projects/{project}/members', [ProjectController::class, 'addMember'])->name('projects.members.add');
+    Route::delete('projects/{project}/members/{user}', [ProjectController::class, 'removeMember'])->name('projects.members.remove');
 
     // Performa & Invoices
     Route::get('performas/{id}/print', [PerformaController::class, 'print'])->name('performas.print');

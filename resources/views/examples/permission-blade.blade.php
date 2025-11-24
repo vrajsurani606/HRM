@@ -125,9 +125,22 @@
 
 <script>
 function confirmDelete() {
-    if (confirm('Are you sure you want to delete this employee?')) {
-        alert('Employee deleted successfully!');
-    }
+    Swal.fire({
+        title: 'Delete Employee?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete it',
+        cancelButtonText: 'Cancel',
+        customClass: { popup: 'perfect-swal-popup' }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Perform delete action here
+            toastr.success('Employee deleted successfully!');
+        }
+    });
 }
 </script>
 @endsection

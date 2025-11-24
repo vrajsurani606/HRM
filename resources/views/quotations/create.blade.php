@@ -1039,7 +1039,7 @@ async function fetchCustomerDetails(companyId) {
 
     const data = await response.json().catch(() => ({}));
     if (!data.success || !data.data) {
-        alert('No company data found.');
+        toastr.error('No company data found');
         return;
     }
 

@@ -575,7 +575,7 @@ document.getElementById('payrollForm').addEventListener('submit', function(e) {
         if (typeof toastr !== 'undefined') {
             toastr.error('Please fill all required fields');
         } else {
-            alert('Please fill all required fields');
+            toastr.error('Please fill all required fields');
         }
         return;
     }
@@ -594,3 +594,4 @@ document.getElementById('payrollForm').addEventListener('submit', function(e) {
   <span class="hrp-bc-sep">›</span>
   <span class="hrp-bc-current">Create Payroll</span>
 @endsection
+

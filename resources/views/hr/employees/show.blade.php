@@ -425,7 +425,7 @@
   let accountNumberVisible=false;
   const fullAccountNumber='{{ $employee->bank_account_no ?? "" }}';
   function switchTab(tabName){document.querySelectorAll('.tab-content').forEach(t=>{t.classList.remove('active');t.style.display='none'});document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('active');b.style.color='#718096';b.style.borderBottomColor='transparent'});const tab=document.getElementById(tabName);if(tab){tab.classList.add('active');tab.style.display='block'};const btn=document.querySelector(`[onclick="switchTab('${tabName}')"]`);if(btn){btn.classList.add('active');btn.style.color='#0ea5e9';btn.style.borderBottomColor='#0ea5e9'}}
-  function editBankDetails(){alert('Bank details update form to be implemented.');}
+  function editBankDetails(){toastr.info('Bank details update form to be implemented');}
   async function copyText(text){
     const buttons = document.querySelectorAll('button');
     try{
@@ -531,3 +531,4 @@
   }
 </script>
 @endpush
+
