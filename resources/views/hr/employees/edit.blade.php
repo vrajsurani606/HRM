@@ -18,21 +18,21 @@
         <!-- Employee Name -->
         <div>
           <label class="hrp-label">Employee Name:</label>
-          <input name="name" value="{{ old('name', $employee->name) }}" placeholder="Enter Full Name" class="hrp-input Rectangle-29" required>
+          <input name="name" value="{{ old('name', $employee->name ?? optional($employee->user)->name) }}" placeholder="Enter Full Name" class="hrp-input Rectangle-29" required>
           @error('name')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <!-- Employee Mobile No -->
         <div>
           <label class="hrp-label">Employee Mobile No:</label>
-          <input name="mobile_no" value="{{ old('mobile_no', $employee->mobile_no) }}" placeholder="Enter Mobile Number" class="hrp-input Rectangle-29">
+          <input name="mobile_no" value="{{ old('mobile_no', $employee->mobile_no ?? optional($employee->user)->mobile_no) }}" placeholder="Enter Mobile Number" class="hrp-input Rectangle-29">
           @error('mobile_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <!-- Employee Address -->
         <div>
           <label class="hrp-label">Employee Address:</label>
-          <textarea name="address" placeholder="Enter Address" class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('address', $employee->address) }}</textarea>
+          <textarea name="address" placeholder="Enter Address" class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('address', $employee->address ?? optional($employee->user)->address) }}</textarea>
           @error('address')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
@@ -53,7 +53,7 @@
         <!-- Employee Email -->
         <div>
           <label class="hrp-label">Employee Email:</label>
-          <input name="email" type="email" value="{{ old('email', $employee->email) }}" placeholder="Enter Email" class="hrp-input Rectangle-29" required>
+          <input name="email" type="email" value="{{ old('email', $employee->email ?? optional($employee->user)->email) }}" placeholder="Enter Email" class="hrp-input Rectangle-29" required>
           @error('email')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         

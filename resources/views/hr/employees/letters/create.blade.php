@@ -75,8 +75,11 @@
 @section('content')
 <div class="hrp-card">
     <div class="Rectangle-30 hrp-compact">
-        <form method="POST" action="{{ route('employees.letters.store', $employee) }}" enctype="multipart/form-data" class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3" id="letterForm">
+        <form method="POST" action="{{ isset($letter) ? route('employees.letters.update', ['employee'=>$employee, 'letter'=>$letter]) : route('employees.letters.store', $employee) }}" enctype="multipart/form-data" class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3" id="letterForm">
             @csrf
+            @if(isset($letter))
+                @method('PUT')
+            @endif
             
             <div>
                 <label class="hrp-label">Employee Name:</label>
@@ -85,13 +88,13 @@
             
             <div>
                 <label class="hrp-label">Employee ID:</label>
-                <input type="text" class="hrp-input Rectangle-29" value="{{ $employee->employee_id }}" readonly>
+                <input type="text" class="hrp-input Rectangle-29" value="{{ $employee->code }}" readonly>
             </div>
             
             <div>
                 <label class="hrp-label">Reference Number: <span class="text-red-500">*</span></label>
                 <div class="flex">
-                    <input type="text" name="reference_number" id="reference_number" value="{{ $referenceNumber }}" 
+                    <input type="text" name="reference_number" id="reference_number" value="{{ old('reference_number', $referenceNumber) }}" 
                            class="hrp-input Rectangle-29 flex-grow" readonly>
                     <button type="button" id="generateRefBtn" class="ml-2 px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                         <i class="fas fa-sync-alt"></i>
@@ -106,19 +109,20 @@
             <div>
                 <label class="hrp-label">Letter Type: <span class="text-red-500">*</span></label>
                 <select name="type" id="type" class="hrp-input Rectangle-29" required>
+                    @php($t = old('type', isset($letter) ? $letter->type : ''))
                     <option value="">-- Select Type --</option>
-                    <option value="offer" {{ old('type') == 'offer' ? 'selected' : '' }}>Offer Letter</option>
-                    <option value="joining" {{ old('type') == 'joining' ? 'selected' : '' }}>Joining Letter</option>
-                    <option value="confidentiality" {{ old('type') == 'confidentiality' ? 'selected' : '' }}>Confidentiality Letter</option>
-                    <option value="impartiality" {{ old('type') == 'impartiality' ? 'selected' : '' }}>Impartiality Letter</option>
-                    <option value="experience" {{ old('type') == 'experience' ? 'selected' : '' }}>Experience Letter</option>
-                    <option value="agreement" {{ old('type') == 'agreement' ? 'selected' : '' }}>Agreement Letter</option>
-                    <option value="warning" {{ old('type') == 'warning' ? 'selected' : '' }}>Warning Letter</option>
-                    <option value="termination" {{ old('type') == 'termination' ? 'selected' : '' }}>Termination Letter</option>
-                    <option value="increment" {{ old('type') == 'increment' ? 'selected' : '' }}>Increment Letter</option>
-                    <option value="internship_offer" {{ old('type') == 'internship_offer' ? 'selected' : '' }}>Internship Offer Letter</option>
-                    <option value="internship_letter" {{ old('type') == 'internship_letter' ? 'selected' : '' }}>Internship Letter</option>
-                    <option value="other" {{ old('type') == 'other' ? 'selected' : '' }}>Other</option>
+                    <option value="offer" {{ $t == 'offer' ? 'selected' : '' }}>Offer Letter</option>
+                    <option value="joining" {{ $t == 'joining' ? 'selected' : '' }}>Joining Letter</option>
+                    <option value="confidentiality" {{ $t == 'confidentiality' ? 'selected' : '' }}>Confidentiality Letter</option>
+                    <option value="impartiality" {{ $t == 'impartiality' ? 'selected' : '' }}>Impartiality Letter</option>
+                    <option value="experience" {{ $t == 'experience' ? 'selected' : '' }}>Experience Letter</option>
+                    <option value="agreement" {{ $t == 'agreement' ? 'selected' : '' }}>Agreement Letter</option>
+                    <option value="warning" {{ $t == 'warning' ? 'selected' : '' }}>Warning Letter</option>
+                    <option value="termination" {{ $t == 'termination' ? 'selected' : '' }}>Termination Letter</option>
+                    <option value="increment" {{ $t == 'increment' ? 'selected' : '' }}>Increment Letter</option>
+                    <option value="internship_offer" {{ $t == 'internship_offer' ? 'selected' : '' }}>Internship Offer Letter</option>
+                    <option value="internship_letter" {{ $t == 'internship_letter' ? 'selected' : '' }}>Internship Letter</option>
+                    <option value="other" {{ $t == 'other' ? 'selected' : '' }}>Other</option>
                 </select>
                 @error('type')
                     <small class="hrp-error">{{ $message }}</small>
@@ -128,7 +132,7 @@
             <div>
                 <label class="hrp-label">Title: <span class="text-red-500">*</span></label>
                 <input type="text" name="title" id="title" class="hrp-input Rectangle-29" 
-                       placeholder="Enter letter title" value="{{ old('title') }}" required>
+                       placeholder="Enter letter title" value="{{ old('title', isset($letter)?$letter->title:'') }}" required>
                 @error('title')
                     <small class="hrp-error">{{ $message }}</small>
                 @enderror
@@ -137,7 +141,7 @@
             <div>
                 <label class="hrp-label">Issue Date: <span class="text-red-500">*</span></label>
                 <input type="date" name="issue_date" id="issue_date" class="hrp-input Rectangle-29" 
-                       value="{{ old('issue_date', now()->format('Y-m-d')) }}" required>
+                       value="{{ old('issue_date', isset($letter) ? optional($letter->issue_date)->format('Y-m-d') : now()->format('Y-m-d')) }}" required>
                 @error('issue_date')
                     <small class="hrp-error">{{ $message }}</small>
                 @enderror
@@ -149,7 +153,7 @@
                     <div>
                         <label class="hrp-label">Start Date: <span class="text-red-500">*</span></label>
                         <input type="date" name="start_date" id="start_date" class="hrp-input Rectangle-29" 
-                               value="{{ optional($employee->joining_date)->format('Y-m-d') }}">
+                               value="{{ old('start_date', isset($letter)?optional($letter->start_date)->format('Y-m-d'):optional($employee->joining_date)->format('Y-m-d')) }}">
                         @error('start_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -157,7 +161,7 @@
                     <div>
                         <label class="hrp-label">End Date: <span class="text-red-500">*</span></label>
                         <input type="date" name="end_date" id="end_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('end_date', now()->format('Y-m-d')) }}">
+                               value="{{ old('end_date', isset($letter)?optional($letter->end_date)->format('Y-m-d'):now()->format('Y-m-d')) }}">
                         @error('end_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -171,7 +175,7 @@
                     <div>
                         <label class="hrp-label">Termination Date (Last Working Day): <span class="text-red-500">*</span></label>
                         <input type="date" name="end_date" id="termination_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('end_date') }}">
+                               value="{{ old('end_date', isset($letter)?optional($letter->end_date)->format('Y-m-d'):null) }}">
                         <small class="text-xs text-gray-500">Employee's last working day</small>
                         @error('end_date')
                             <small class="hrp-error">{{ $message }}</small>
@@ -189,7 +193,7 @@
                 <div>
                     <label class="hrp-label">Reason for Termination:</label>
                     <textarea name="content" id="termination_reason" class="form-control summernote-notes w-full" 
-                             placeholder="Enter detailed reason for termination (e.g., consistently low performance despite prior discussions and performance improvement plans)" style="min-height: 200px;">{{ old('content') }}</textarea>
+                             placeholder="Enter detailed reason for termination (e.g., consistently low performance despite prior discussions and performance improvement plans)" style="min-height: 200px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
                     @error('content')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -202,7 +206,7 @@
                     <div>
                         <label class="hrp-label">Current Salary: <span class="text-red-500">*</span></label>
                         <input type="number" name="monthly_salary" id="current_salary" class="hrp-input Rectangle-29" 
-                               placeholder="Current monthly salary" value="{{ old('monthly_salary') }}">
+                               placeholder="Current monthly salary" value="{{ old('monthly_salary', isset($letter)?$letter->monthly_salary:'') }}">
                         @error('monthly_salary')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -210,7 +214,7 @@
                     <div>
                         <label class="hrp-label">New Salary: <span class="text-red-500">*</span></label>
                         <input type="number" name="increment_amount" id="new_salary" class="hrp-input Rectangle-29" 
-                               placeholder="New monthly salary" value="{{ old('increment_amount') }}">
+                               placeholder="New monthly salary" value="{{ old('increment_amount', isset($letter)?$letter->increment_amount:'') }}">
                         @error('increment_amount')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -218,7 +222,7 @@
                     <div>
                         <label class="hrp-label">Effective Date: <span class="text-red-500">*</span></label>
                         <input type="date" name="increment_effective_date" id="increment_effective_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('increment_effective_date') }}">
+                               value="{{ old('increment_effective_date', isset($letter)?optional($letter->increment_effective_date)->format('Y-m-d'):null) }}">
                         @error('increment_effective_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -232,7 +236,7 @@
                     <div>
                         <label class="hrp-label">Position: <span class="text-red-500">*</span></label>
                         <input type="text" name="internship_position" id="internship_position" class="hrp-input Rectangle-29" 
-                               placeholder="e.g., Full Stack Developer" value="{{ old('internship_position') }}">
+                               placeholder="e.g., Full Stack Developer" value="{{ old('internship_position', isset($letter)?$letter->internship_position:'') }}">
                         @error('internship_position')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -240,7 +244,7 @@
                     <div>
                         <label class="hrp-label">Start Date:</label>
                         <input type="date" name="internship_start_date" id="internship_start_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('internship_start_date') }}">
+                               value="{{ old('internship_start_date', isset($letter)?optional($letter->internship_start_date)->format('Y-m-d'):null) }}">
                         @error('internship_start_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -248,7 +252,7 @@
                     <div>
                         <label class="hrp-label">End Date:</label>
                         <input type="date" name="internship_end_date" id="internship_end_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('internship_end_date') }}">
+                               value="{{ old('internship_end_date', isset($letter)?optional($letter->internship_end_date)->format('Y-m-d'):null) }}">
                         @error('internship_end_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -257,7 +261,7 @@
                 <div>
                     <label class="hrp-label">Address:</label>
                     <textarea name="internship_address" id="internship_address" class="hrp-input Rectangle-29" rows="3" 
-                             placeholder="Enter complete address">{{ old('internship_address') }}</textarea>
+                             placeholder="Enter complete address">{{ old('internship_address', isset($letter)?$letter->internship_address:'') }}</textarea>
                     @error('internship_address')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -299,7 +303,7 @@
                 <div>
                     <label class="hrp-label">Warning Content: <span class="text-red-500">*</span></label>
                     <textarea name="content" id="warning_content" class="form-control summernote-notes w-full" 
-                             placeholder="Enter detailed warning content (e.g., specific issues, expected improvements, consequences)" style="min-height: 200px;">{{ old('content') }}</textarea>
+                             placeholder="Enter detailed warning content (e.g., specific issues, expected improvements, consequences)" style="min-height: 200px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
                     @error('content')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -311,7 +315,7 @@
                 <div>
                     <label class="hrp-label">Subject: <span class="text-red-500">*</span></label>
                     <input type="text" id="other_subject" class="hrp-input Rectangle-29" 
-                           placeholder="Enter letter subject" value="{{ old('subject') }}">
+                           placeholder="Enter letter subject" value="{{ old('subject', isset($letter)?$letter->subject:'') }}">
                     @error('subject')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -319,7 +323,7 @@
                 <div>
                     <label class="hrp-label">Content: <span class="text-red-500">*</span></label>
                     <textarea name="content" id="other_content" class="form-control summernote w-full" 
-                             placeholder="Enter letter content" style="min-height: 300px;">{{ old('content') }}</textarea>
+                             placeholder="Enter letter content" style="min-height: 300px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
                     @error('content')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -331,7 +335,7 @@
                 <div class="col-span-2 mt-4">
                     <label class="hrp-label">Notes:</label>
                     <input type="text" name="notes" id="notes" class="hrp-input Rectangle-29" 
-                           placeholder="Any additional notes about this letter" value="{{ old('notes') }}">
+                           placeholder="Any additional notes about this letter" value="{{ old('notes', isset($letter)?$letter->notes:'') }}">
                     @error('notes')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -369,13 +373,13 @@
                     <div class="mt-6 pt-4 border-t border-gray-200">
                                             <div class="md:col-span-2">
                             <label class="hrp-label">Probation Period (bulleted lines):</label>
-                            <textarea name="probation_period" rows="4" class="hrp-textarea Rectangle-29 Rectangle-29-textarea" placeholder="Enter each point on new line">{{ old('probation_period', $offer->probation_period ?? '') }}</textarea>
+                            <textarea name="probation_period" rows="4" class="hrp-textarea Rectangle-29 Rectangle-29-textarea" placeholder="Enter each point on new line">{{ old('probation_period', isset($letter)?$letter->probation_period:'') }}</textarea>
                             @error('probation_period')<small class="hrp-error">{{ $message }}</small>@enderror
                             </div>
 
                             <div class="md:col-span-2">
                             <label class="hrp-label">Salary & Increment (bulleted lines):</label>
-                            <textarea name="salary_increment" rows="4" class="hrp-textarea Rectangle-29 Rectangle-29-textarea" placeholder="Enter each point on new line">{{ old('salary_increment', $offer->salary_increment ?? '') }}</textarea>
+                            <textarea name="salary_increment" rows="4" class="hrp-textarea Rectangle-29 Rectangle-29-textarea" placeholder="Enter each point on new line">{{ old('salary_increment', isset($letter)?$letter->salary_increment:'') }}</textarea>
                             @error('salary_increment')<small class="hrp-error">{{ $message }}</small>@enderror
                             </div>
                     </div>
@@ -387,7 +391,7 @@
             <div class="md:col-span-2">
                 <div class="hrp-actions">
                     <button type="submit" class="hrp-btn hrp-btn-primary" id="submitBtn">
-                        <i class="fas fa-save mr-1"></i> Save Letter
+                        <i class="fas fa-save mr-1"></i> {{ isset($letter) ? 'Update Letter' : 'Save Letter' }}
                     </button>
                 </div>
             </div>

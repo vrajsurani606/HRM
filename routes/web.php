@@ -48,6 +48,7 @@ Route::prefix('attendance')->middleware('auth')->group(function () {
 // Leave Management Routes
 Route::prefix('leaves')->middleware('auth')->group(function () {
     Route::get('/', [App\Http\Controllers\Leave\LeaveController::class, 'index'])->name('leaves.index');
+    Route::get('/create', [App\Http\Controllers\Leave\LeaveController::class, 'create'])->name('leaves.create');
     Route::post('/', [App\Http\Controllers\Leave\LeaveController::class, 'store'])->name('leaves.store');
     Route::get('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'show'])->name('leaves.show');
     Route::put('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'update'])->name('leaves.update');
@@ -90,6 +91,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/letters', [EmployeeController::class, 'storeLetter'])->name('employees.letters.store');
         Route::get('/letters/{letter}/view', [EmployeeController::class, 'viewLetter'])->name('employees.letters.view');
         Route::get('/letters/{letter}/print', [EmployeeController::class, 'print'])->name('employees.letters.print');
+        Route::get('/letters/{letter}/edit', [EmployeeController::class, 'editLetter'])->name('employees.letters.edit');
+        Route::put('/letters/{letter}', [EmployeeController::class, 'updateLetter'])->name('employees.letters.update');
+        Route::delete('/letters/{letter}', [EmployeeController::class, 'destroyLetter'])->name('employees.letters.destroy');
         // Digital Card routes
         Route::get('/digital-card/create', [\App\Http\Controllers\HR\DigitalCardController::class, 'create'])->name('employees.digital-card.create');
         Route::post('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'store'])->name('employees.digital-card.store');
@@ -146,13 +150,15 @@ Route::middleware('auth')->group(function () {
 
     // Projects
     Route::resource('projects', ProjectController::class);
+    Route::get('projects/{project}/overview', [ProjectController::class, 'overview'])->name('projects.overview');
     Route::post('project-stages', [ProjectController::class, 'storeStage'])->name('project-stages.store');
     Route::patch('projects/{project}/stage', [ProjectController::class, 'updateProjectStage'])->name('projects.update-stage');
     
     // Project Tasks
     Route::get('projects/{project}/tasks', [ProjectController::class, 'getTasks'])->name('projects.tasks.index');
     Route::post('projects/{project}/tasks', [ProjectController::class, 'storeTasks'])->name('projects.tasks.store');
-    Route::patch('projects/{project}/tasks/{task}', [ProjectController::class, 'updateTask'])->name('projects.tasks.update');
+    Route::put('projects/{project}/tasks/{task}', [ProjectController::class, 'updateTask'])->name('projects.tasks.update');
+    Route::patch('projects/{project}/tasks/{task}', [ProjectController::class, 'updateTask']);
     Route::delete('projects/{project}/tasks/{task}', [ProjectController::class, 'deleteTask'])->name('projects.tasks.delete');
     
     // Project Comments
@@ -208,7 +214,9 @@ Route::middleware('auth')->group(function () {
     // Settings
     Route::resource('settings', SettingController::class)->only(['index','update']);
 
-    // Payroll Management
+    // Payroll Management (define specific routes BEFORE resource to avoid {payroll} catch-all)
+    Route::get('payroll/bulk', [PayrollController::class, 'bulkForm'])->name('payroll.bulk');
+    Route::post('payroll/bulk-generate', [PayrollController::class, 'bulkGenerate'])->name('payroll.bulk-generate');
     Route::resource('payroll', PayrollController::class);
     Route::post('/payroll/get-employee-salary', [PayrollController::class, 'getEmployeeSalary'])->name('payroll.get-employee-salary');
     Route::get('/rules', [RuleController::class, 'index'])->name('rules.index');

@@ -47,12 +47,15 @@
 
     <div class="filter-right">
       <input name="q" class="filter-pill" placeholder="Search employee..." value="{{ request('q') }}">
-      <button type="button" class="pill-btn pill-success" onclick="openAddPayrollModal()" style="display: flex; align-items: center; gap: 8px;">
+      <a href="{{ route('payroll.create') }}" class="pill-btn pill-success" style="display: flex; align-items: center; gap: 8px; text-decoration:none;">
         <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
           <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
         </svg>
         Add Payroll
-      </button>
+      </a>
+      <a href="{{ route('payroll.bulk') }}" class="pill-btn" style="margin-left:8px; background:#2563eb; color:#fff; text-decoration:none;">
+        Bulk Generate
+      </a>
     </div>
   </form>
 
@@ -61,42 +64,67 @@
     <table>
       <thead>
         <tr>
-          <th style="width: 100px; text-align: center;">Action</th>
-          <th style="width: 100px;">EMP Code</th>
-          <th style="width: 200px;">Employee</th>
-          <th style="width: 120px;">Month</th>
-          <th style="width: 80px;">Year</th>
-          <th style="width: 130px;">Basic Salary</th>
-          <th style="width: 120px;">Allowances</th>
-          <th style="width: 100px;">Bonuses</th>
-          <th style="width: 120px;">Deductions</th>
-          <th style="width: 100px;">Tax</th>
-          <th style="width: 130px;">Net Salary</th>
-          <th style="width: 120px;">Status</th>
-          <th style="width: 130px;">Payment Date</th>
+          <th style="width: 80px; text-align: center;">Action</th>
+          <th style="width: 90px;">EMP Code</th>
+          <th style="width: 180px;">Employee</th>
+          <th style="width: 100px;">Month/Year</th>
+          <th style="width: 110px;">Basic Salary</th>
+          <th style="width: 100px;">HRA</th>
+          <th style="width: 90px;">Medical</th>
+          <th style="width: 90px;">City Allow</th>
+          <th style="width: 90px;">Tiffin</th>
+          <th style="width: 80px;">Bonuses</th>
+          <th style="width: 80px;">PF</th>
+          <th style="width: 80px;">PT</th>
+          <th style="width: 80px;">ESIC</th>
+          <th style="width: 100px;">Leave Ded</th>
+          <th style="width: 120px;">Net Salary</th>
+          <th style="width: 90px;">Status</th>
         </tr>
       </thead>
       <tbody>
         @forelse($payrolls as $payroll)
+          @php
+            // Calculate detailed breakdown
+            $totalAllowances = ($payroll->hra ?? 0) + ($payroll->medical_allowance ?? 0) + 
+                              ($payroll->city_allowance ?? 0) + ($payroll->tiffin_allowance ?? 0) + 
+                              ($payroll->assistant_allowance ?? 0) + ($payroll->dearness_allowance ?? 0);
+            $totalDeductions = ($payroll->pf ?? 0) + ($payroll->professional_tax ?? 0) + 
+                              ($payroll->tds ?? 0) + ($payroll->esic ?? 0) + 
+                              ($payroll->security_deposit ?? 0) + ($payroll->leave_deduction ?? 0);
+            $calculatedNetSalary = ($payroll->basic_salary + $totalAllowances + ($payroll->bonuses ?? 0)) - $totalDeductions;
+          @endphp
           <tr>
-            <td style="text-align: center; padding: 14px;">
-              <div style="display: inline-flex; gap: 8px; align-items: center;">
-                <img src="{{ asset('action_icon/view.svg') }}" alt="View" style="cursor: pointer; width: 18px; height: 18px;" onclick="viewPayroll({{ $payroll->id }})" title="View">
-                <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" style="cursor: pointer; width: 18px; height: 18px;" onclick="editPayroll({{ $payroll->id }})" title="Edit">
-                <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 18px; height: 18px;" onclick="deletePayroll({{ $payroll->id }})" title="Delete">
+            <td style="text-align: center; padding: 12px;">
+              <div style="display: inline-flex; gap: 6px; align-items: center;">
+                <img src="{{ asset('action_icon/view.svg') }}" alt="View" style="cursor: pointer; width: 16px; height: 16px;" onclick="viewPayroll({{ $payroll->id }})" title="View Salary Slip">
+                <a href="{{ route('payroll.edit', $payroll->id) }}" title="Edit">
+                  <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" style="cursor: pointer; width: 16px; height: 16px;">
+                </a>
+                <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 16px; height: 16px;" onclick="deletePayroll({{ $payroll->id }})" title="Delete">
               </div>
             </td>
-            <td style="padding: 14px 16px;">{{ $payroll->employee->code ?? 'N/A' }}</td>
-            <td style="padding: 14px 16px;">{{ $payroll->employee->name ?? 'N/A' }}</td>
-            <td style="padding: 14px 16px;">{{ $payroll->month }}</td>
-            <td style="padding: 14px 16px;">{{ $payroll->year }}</td>
-            <td style="padding: 14px 16px; text-align: right;">₹{{ number_format($payroll->basic_salary, 2) }}</td>
-            <td style="padding: 14px 16px; text-align: right;">₹{{ number_format($payroll->allowances, 2) }}</td>
-            <td style="padding: 14px 16px; text-align: right;">₹{{ number_format($payroll->bonuses, 2) }}</td>
-            <td style="padding: 14px 16px; text-align: right; color: #ef4444;">₹{{ number_format($payroll->deductions, 2) }}</td>
-            <td style="padding: 14px 16px; text-align: right; color: #ef4444;">₹{{ number_format($payroll->tax, 2) }}</td>
-            <td style="padding: 14px 16px; text-align: right; font-weight: 700; color: #10b981;">₹{{ number_format($payroll->net_salary, 2) }}</td>
-            <td style="padding: 14px 16px;">
+            <td style="padding: 12px 8px; font-weight: 600; color: #1e40af;">{{ $payroll->employee->code ?? 'N/A' }}</td>
+            <td style="padding: 12px 8px;">
+              <div style="font-weight: 600; color: #1f2937;">{{ $payroll->employee->name ?? 'N/A' }}</div>
+              <div style="font-size: 11px; color: #6b7280;">{{ $payroll->employee->position ?? 'N/A' }}</div>
+            </td>
+            <td style="padding: 12px 8px; text-align: center;">
+              <div style="font-weight: 600; color: #1f2937;">{{ $payroll->month }}</div>
+              <div style="font-size: 11px; color: #6b7280;">{{ $payroll->year }}</div>
+            </td>
+            <td style="padding: 12px 8px; text-align: right; font-weight: 600;">₹{{ number_format($payroll->basic_salary, 0) }}</td>
+            <td style="padding: 12px 8px; text-align: right; color: #059669;">₹{{ number_format($payroll->hra ?? 0, 0) }}</td>
+            <td style="padding: 12px 8px; text-align: right; color: #059669;">₹{{ number_format($payroll->medical_allowance ?? 0, 0) }}</td>
+            <td style="padding: 12px 8px; text-align: right; color: #059669;">₹{{ number_format($payroll->city_allowance ?? 0, 0) }}</td>
+            <td style="padding: 12px 8px; text-align: right; color: #059669;">₹{{ number_format($payroll->tiffin_allowance ?? 0, 0) }}</td>
+            <td style="padding: 12px 8px; text-align: right; color: #0d9488;">₹{{ number_format($payroll->bonuses ?? 0, 0) }}</td>
+            <td style="padding: 12px 8px; text-align: right; color: #dc2626;">₹{{ number_format($payroll->pf ?? 0, 0) }}</td>
+            <td style="padding: 12px 8px; text-align: right; color: #dc2626;">₹{{ number_format($payroll->professional_tax ?? 0, 0) }}</td>
+            <td style="padding: 12px 8px; text-align: right; color: #dc2626;">₹{{ number_format($payroll->esic ?? 0, 0) }}</td>
+            <td style="padding: 12px 8px; text-align: right; color: #dc2626;">₹{{ number_format($payroll->leave_deduction ?? 0, 0) }}</td>
+            <td style="padding: 12px 8px; text-align: right; font-weight: 700; color: #10b981; font-size: 15px;">₹{{ number_format($calculatedNetSalary, 0) }}</td>
+            <td style="padding: 12px 8px; text-align: center;">
               @php
                 $statusColors = [
                   'pending' => '#f59e0b',
@@ -105,14 +133,14 @@
                 ];
                 $statusColor = $statusColors[$payroll->status] ?? '#6b7280';
               @endphp
-              <span style="color: {{ $statusColor }}; font-weight: 600; font-size: 14px;">{{ ucfirst($payroll->status) }}</span>
+              <span style="color: {{ $statusColor }}; font-weight: 600; font-size: 12px; padding: 4px 8px; border-radius: 12px; background: {{ $statusColor }}20;">{{ ucfirst($payroll->status) }}</span>
             </td>
-            <td style="padding: 14px 16px;">{{ $payroll->payment_date ? $payroll->payment_date->format('d M, Y') : '-' }}</td>
           </tr>
         @empty
           <tr>
-            <td colspan="13" style="text-align: center; padding: 40px; color: #9ca3af;">
+            <td colspan="16" style="text-align: center; padding: 40px; color: #9ca3af;">
               <p style="font-weight: 600; margin: 0;">No payroll records found</p>
+              <p style="font-size: 14px; margin: 8px 0 0 0;">Try adjusting your filters or create a new payroll record</p>
             </td>
           </tr>
         @endforelse
@@ -188,27 +216,65 @@
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-        <div>
-          <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Allowances</label>
-          <input type="number" name="allowances" id="payroll_allowances" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" oninput="calculateNetSalary()">
-        </div>
-        
-        <div>
-          <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Bonuses</label>
-          <input type="number" name="bonuses" id="payroll_bonuses" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" oninput="calculateNetSalary()">
+      <!-- Detailed Allowances Section -->
+      <div style="background: #f0fdf4; border: 1px solid #10b981; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+        <h4 style="margin: 0 0 10px 0; color: #065f46; font-size: 14px;">💰 Allowances Breakdown</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+          <div>
+            <label style="display: block; margin-bottom: 3px; font-weight: 600; font-size: 12px;">HRA</label>
+            <input type="number" name="hra" id="payroll_hra" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" oninput="calculateNetSalary()">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 3px; font-weight: 600; font-size: 12px;">Medical Allowance</label>
+            <input type="number" name="medical_allowance" id="payroll_medical_allowance" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" oninput="calculateNetSalary()">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 3px; font-weight: 600; font-size: 12px;">City Allowance</label>
+            <input type="number" name="city_allowance" id="payroll_city_allowance" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" oninput="calculateNetSalary()">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 3px; font-weight: 600; font-size: 12px;">Tiffin Allowance</label>
+            <input type="number" name="tiffin_allowance" id="payroll_tiffin_allowance" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" oninput="calculateNetSalary()">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 3px; font-weight: 600; font-size: 12px;">Assistant Allowance</label>
+            <input type="number" name="assistant_allowance" id="payroll_assistant_allowance" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" oninput="calculateNetSalary()">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 3px; font-weight: 600; font-size: 12px;">Bonuses</label>
+            <input type="number" name="bonuses" id="payroll_bonuses" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" oninput="calculateNetSalary()">
+          </div>
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-        <div>
-          <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Deductions</label>
-          <input type="number" name="deductions" id="payroll_deductions" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" oninput="calculateNetSalary()">
-        </div>
-        
-        <div>
-          <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Tax</label>
-          <input type="number" name="tax" id="payroll_tax" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" oninput="calculateNetSalary()">
+      <!-- Detailed Deductions Section -->
+      <div style="background: #fef2f2; border: 1px solid #ef4444; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+        <h4 style="margin: 0 0 10px 0; color: #991b1b; font-size: 14px;">📉 Deductions Breakdown</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+          <div>
+            <label style="display: block; margin-bottom: 3px; font-weight: 600; font-size: 12px;">PF (12%)</label>
+            <input type="number" name="pf" id="payroll_pf" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" oninput="calculateNetSalary()">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 3px; font-weight: 600; font-size: 12px;">Professional Tax</label>
+            <input type="number" name="professional_tax" id="payroll_professional_tax" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" oninput="calculateNetSalary()">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 3px; font-weight: 600; font-size: 12px;">TDS</label>
+            <input type="number" name="tds" id="payroll_tds" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" oninput="calculateNetSalary()">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 3px; font-weight: 600; font-size: 12px;">ESIC (0.75%)</label>
+            <input type="number" name="esic" id="payroll_esic" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" oninput="calculateNetSalary()">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 3px; font-weight: 600; font-size: 12px;">Security Deposit</label>
+            <input type="number" name="security_deposit" id="payroll_security_deposit" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" oninput="calculateNetSalary()">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 3px; font-weight: 600; font-size: 12px;">Leave Deduction</label>
+            <input type="number" name="leave_deduction" id="payroll_leave_deduction" min="0" step="0.01" placeholder="0.00" value="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" oninput="calculateNetSalary()">
+          </div>
         </div>
       </div>
 
@@ -308,10 +374,25 @@ function loadEmployeeSalaryData() {
       
       // Auto-fill salary fields
       document.getElementById('payroll_basic_salary').value = data.basic_salary;
-      document.getElementById('payroll_allowances').value = data.allowances;
-      document.getElementById('payroll_bonuses').value = data.bonuses;
-      document.getElementById('payroll_deductions').value = data.deductions;
-      document.getElementById('payroll_tax').value = data.tax;
+      
+      // Auto-calculate allowances based on basic salary
+      const basicSalary = parseFloat(data.basic_salary);
+      document.getElementById('payroll_hra').value = (basicSalary * 0.40).toFixed(2); // 40% HRA
+      document.getElementById('payroll_medical_allowance').value = (basicSalary * 0.15).toFixed(2); // 15% Medical
+      document.getElementById('payroll_city_allowance').value = (basicSalary * 0.10).toFixed(2); // 10% City
+      document.getElementById('payroll_tiffin_allowance').value = (basicSalary * 0.10).toFixed(2); // 10% Tiffin
+      document.getElementById('payroll_assistant_allowance').value = (basicSalary * 0.05).toFixed(2); // 5% Assistant
+      
+      // Auto-calculate deductions
+      document.getElementById('payroll_pf').value = (basicSalary * 0.12).toFixed(2); // 12% PF
+      document.getElementById('payroll_esic').value = (basicSalary * 0.0075).toFixed(2); // 0.75% ESIC
+      document.getElementById('payroll_professional_tax').value = '200.00'; // Fixed PT
+      
+      // Leave deduction if any personal leave taken
+      if (data.personal_leave_used > 0) {
+        const perDaySalary = parseFloat(data.per_day_salary);
+        document.getElementById('payroll_leave_deduction').value = (perDaySalary * data.personal_leave_used).toFixed(2);
+      }
       
       // Update info display
       document.getElementById('info_working_days').textContent = data.working_days + ' / ' + data.days_in_month;
@@ -343,12 +424,27 @@ function closePayrollModal() {
 
 function calculateNetSalary() {
   const basicSalary = parseFloat(document.getElementById('payroll_basic_salary').value) || 0;
-  const allowances = parseFloat(document.getElementById('payroll_allowances').value) || 0;
-  const bonuses = parseFloat(document.getElementById('payroll_bonuses').value) || 0;
-  const deductions = parseFloat(document.getElementById('payroll_deductions').value) || 0;
-  const tax = parseFloat(document.getElementById('payroll_tax').value) || 0;
   
-  const netSalary = (basicSalary + allowances + bonuses) - (deductions + tax);
+  // Calculate total allowances
+  const hra = parseFloat(document.getElementById('payroll_hra').value) || 0;
+  const medicalAllowance = parseFloat(document.getElementById('payroll_medical_allowance').value) || 0;
+  const cityAllowance = parseFloat(document.getElementById('payroll_city_allowance').value) || 0;
+  const tiffinAllowance = parseFloat(document.getElementById('payroll_tiffin_allowance').value) || 0;
+  const assistantAllowance = parseFloat(document.getElementById('payroll_assistant_allowance').value) || 0;
+  const bonuses = parseFloat(document.getElementById('payroll_bonuses').value) || 0;
+  
+  // Calculate total deductions
+  const pf = parseFloat(document.getElementById('payroll_pf').value) || 0;
+  const professionalTax = parseFloat(document.getElementById('payroll_professional_tax').value) || 0;
+  const tds = parseFloat(document.getElementById('payroll_tds').value) || 0;
+  const esic = parseFloat(document.getElementById('payroll_esic').value) || 0;
+  const securityDeposit = parseFloat(document.getElementById('payroll_security_deposit').value) || 0;
+  const leaveDeduction = parseFloat(document.getElementById('payroll_leave_deduction').value) || 0;
+  
+  const totalAllowances = hra + medicalAllowance + cityAllowance + tiffinAllowance + assistantAllowance;
+  const totalDeductions = pf + professionalTax + tds + esic + securityDeposit + leaveDeduction;
+  
+  const netSalary = (basicSalary + totalAllowances + bonuses) - totalDeductions;
   document.getElementById('net_salary_display').textContent = '₹' + netSalary.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
@@ -405,10 +501,22 @@ function editPayroll(id) {
       document.getElementById('payroll_month').value = payroll.month;
       document.getElementById('payroll_year').value = payroll.year;
       document.getElementById('payroll_basic_salary').value = payroll.basic_salary;
-      document.getElementById('payroll_allowances').value = payroll.allowances;
-      document.getElementById('payroll_bonuses').value = payroll.bonuses;
-      document.getElementById('payroll_deductions').value = payroll.deductions;
-      document.getElementById('payroll_tax').value = payroll.tax;
+      
+      // Fill detailed allowances
+      document.getElementById('payroll_hra').value = payroll.hra || 0;
+      document.getElementById('payroll_medical_allowance').value = payroll.medical_allowance || 0;
+      document.getElementById('payroll_city_allowance').value = payroll.city_allowance || 0;
+      document.getElementById('payroll_tiffin_allowance').value = payroll.tiffin_allowance || 0;
+      document.getElementById('payroll_assistant_allowance').value = payroll.assistant_allowance || 0;
+      document.getElementById('payroll_bonuses').value = payroll.bonuses || 0;
+      
+      // Fill detailed deductions
+      document.getElementById('payroll_pf').value = payroll.pf || 0;
+      document.getElementById('payroll_professional_tax').value = payroll.professional_tax || 0;
+      document.getElementById('payroll_tds').value = payroll.tds || 0;
+      document.getElementById('payroll_esic').value = payroll.esic || 0;
+      document.getElementById('payroll_security_deposit').value = payroll.security_deposit || 0;
+      document.getElementById('payroll_leave_deduction').value = payroll.leave_deduction || 0;
       document.getElementById('payroll_payment_date').value = payroll.payment_date || '';
       document.getElementById('payroll_payment_method').value = payroll.payment_method || '';
       document.getElementById('payroll_status').value = payroll.status;

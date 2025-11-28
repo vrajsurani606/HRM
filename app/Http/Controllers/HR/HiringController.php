@@ -62,112 +62,150 @@ class HiringController extends Controller
         ]);
     }
 
-    public function convert(Request $request, $id)
-    {
-        $lead = HiringLead::findOrFail($id);
-        
-        if ($request->isMethod('GET')) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'suggested_email' => strtolower(str_replace(' ', '.', $lead->person_name)) . '@company.com'
-                ]);
-            }
-            
-            $positions = ['Developer', 'Designer', 'Manager', 'HR', 'Sales', 'Marketing', 'Accountant', 'Other'];
-            $nextCode = Employee::nextCode();
-            
-            return view('hr.employees.convert', [
-                'lead' => $lead,
-                'positions' => $positions,
-                'nextCode' => $nextCode,
-                'page_title' => 'Convert Lead to Employee - ' . $lead->person_name,
+ public function convert(Request $request, $id)
+{
+    $lead = HiringLead::findOrFail($id);
+
+    // GET REQUEST (Show Form)
+    if ($request->isMethod('GET')) {
+        if ($request->ajax()) {
+            return response()->json([
+                'suggested_email' => strtolower(str_replace(' ', '.', $lead->person_name)) . '@company.com'
             ]);
         }
-        
-        // Handle POST request for conversion
-        $data = $request->validate([
-            'email' => 'required|email|unique:users,email|unique:employees,email',
-            'password' => 'required|string|min:6',
+
+        $positions = ['Developer', 'Designer', 'Manager', 'HR', 'Sales', 'Marketing', 'Accountant', 'Other'];
+        $nextCode = Employee::nextCode();
+
+        return view('hr.employees.convert', [
+            'lead' => $lead,
+            'positions' => $positions,
+            'nextCode' => $nextCode,
+            'page_title' => 'Convert Lead to Employee - ' . $lead->person_name,
         ]);
-        
-        try {
-            // Check if user already exists
-            $existingUser = User::where('email', $data['email'])->first();
-            if ($existingUser) {
-                throw new \Exception('A user with this email already exists.');
-            }
-            
-            // Check if employee already exists
-            $existingEmployee = Employee::where('email', $data['email'])->first();
-            if ($existingEmployee) {
-                throw new \Exception('An employee with this email already exists.');
-            }
-            
-            DB::transaction(function () use ($data, $lead) {
-                $user = User::create([
-                    'name' => $lead->person_name,
-                    'email' => $data['email'],
-                    'password' => bcrypt($data['password']),
-                    'mobile_no' => $lead->mobile_no,
-                    'address' => $lead->address,
-                ]);
-                
-                try {
-                    $user->assignRole('employee');
-                } catch (\Exception $e) {
-                    // Role assignment failed, continue without it
-                }
-                
-                Employee::create([
-                    'code' => Employee::nextCode(),
-                    'name' => $lead->person_name,
-                    'email' => $data['email'],
-                    'mobile_no' => $lead->mobile_no,
-                    'address' => $lead->address,
-                    'position' => $lead->position,
-                    'user_id' => $user->id,
-                ]);
-                
-                try {
-                    $lead->update(['status' => 'converted']);
-                } catch (\Exception $e) {
-                    // Status field might not exist, continue
-                }
-            });
-            
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Lead converted to employee successfully'
-                ]);
-            }
-            
-            return redirect()->route('hiring.index')->with('success', 'Lead converted to employee successfully');
-            
-        } catch (\Exception $e) {
-            \Log::error('Employee conversion failed', [
-                'lead_id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Conversion failed: ' . $e->getMessage()
-                ], 422);
-            }
-            
-            return back()->withErrors(['error' => 'Conversion failed: ' . $e->getMessage()]);
-        }
     }
+
+    // POST Request – Convert Lead
+    $data = $request->validate([
+        'email' => 'required|email|unique:users,email|unique:employees,email',
+        'password' => 'required|string|min:6',
+    ]);
+
+    try {
+        // Check if user exists
+        if (User::where('email', $data['email'])->exists()) {
+            throw new \Exception('A user with this email already exists.');
+        }
+
+        // Check if employee exists
+        if (Employee::where('email', $data['email'])->exists()) {
+            throw new \Exception('An employee with this email already exists.');
+        }
+
+        DB::transaction(function () use ($data, $lead) {
+
+            $user = User::create([
+                'name'      => $lead->person_name,
+                'email'     => $data['email'],
+                'password'  => bcrypt($data['password']),
+                'mobile_no' => $lead->mobile_no,
+                'address'   => $lead->address,
+            ]);
+
+            // Assign role if exists
+            try {
+                $user->assignRole('employee');
+            } catch (\Exception $e) {}
+
+            Employee::create([
+                'code'      => Employee::nextCode(),
+                'name'      => $lead->person_name,
+                'email'     => $data['email'],
+                'mobile_no' => $lead->mobile_no,
+                'address'   => $lead->address,
+                'position'  => $lead->position,
+                'user_id'   => $user->id,
+            ]);
+
+            // Update lead status (if exists)
+            try {
+                $lead->update(['status' => 'converted']);
+            } catch (\Exception $e) {}
+
+        });
+
+        // SUCCESS – AJAX
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Lead converted to employee successfully'
+            ]);
+        }
+
+        // SUCCESS – Web
+        return redirect()
+            ->route('hiring.index')
+            ->with('success', 'Lead converted to employee successfully');
+
+    } catch (\Exception $e) {
+
+        \Log::error('Employee conversion failed', [
+            'lead_id' => $id,
+            'error' => $e->getMessage()
+        ]);
+
+        // ERROR – AJAX
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()  // simple msg only
+            ], 422);
+        }
+
+        // ERROR – Web
+        return back()->withErrors([
+            'error' => $e->getMessage() // simple msg only
+        ]);
+    }
+}
+
 
     public function create()
     {
         $nextCode = HiringLead::nextCode();
+        $positions = [
+            'Full Stack Developer',
+            'Frontend Developer', 
+            'Backend Developer',
+            'Mobile App Developer',
+            'UI/UX Designer',
+            'Graphic Designer',
+            'Project Manager',
+            'Team Lead',
+            'HR Executive',
+            'HR Manager',
+            'Sales Executive',
+            'Sales Manager',
+            'Marketing Executive',
+            'Digital Marketing Specialist',
+            'Content Writer',
+            'SEO Specialist',
+            'Business Analyst',
+            'Quality Assurance Engineer',
+            'DevOps Engineer',
+            'System Administrator',
+            'Accountant',
+            'Finance Manager',
+            'Customer Support Executive',
+            'Operations Manager',
+            'Intern',
+            'Reciptionist',
+            'Other'
+        ];
         return view('hr.hiring.create', [
             'page_title' => 'Add New Hiring Lead',
             'nextCode' => $nextCode,
+            'positions' => $positions,
         ]);
     }
 
@@ -202,9 +240,38 @@ class HiringController extends Controller
 
     public function edit(HiringLead $hiring)
     {
+        $positions = [
+            'Full Stack Developer',
+            'Frontend Developer', 
+            'Backend Developer',
+            'Mobile App Developer',
+            'UI/UX Designer',
+            'Graphic Designer',
+            'Project Manager',
+            'Team Lead',
+            'HR Executive',
+            'HR Manager',
+            'Sales Executive',
+            'Sales Manager',
+            'Marketing Executive',
+            'Digital Marketing Specialist',
+            'Content Writer',
+            'SEO Specialist',
+            'Business Analyst',
+            'Quality Assurance Engineer',
+            'DevOps Engineer',
+            'System Administrator',
+            'Accountant',
+            'Finance Manager',
+            'Customer Support Executive',
+            'Operations Manager',
+            'Intern',
+            'Other'
+        ];
         return view('hr.hiring.edit', [
             'page_title' => 'Edit Hiring Lead',
             'lead' => $hiring,
+            'positions' => $positions,
         ]);
     }
 

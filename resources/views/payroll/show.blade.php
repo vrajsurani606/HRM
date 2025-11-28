@@ -93,7 +93,7 @@
                 <div class="company-name">CHITRI ENLARGE SOFT IT HUB PVT. LTD</div>
                 <div class="company-address">
                     Raj Imperia, Police Station, 244/45, Vraj Chowk, near Sarthana, Vrajbhumi Twp Sector-1, Nana Varachha, Surat, Gujarat 395006<br>
-                    📞 +91 72763 23999, +91 88301 86457 | 📧 hr@chitrienlarge.com
+                    📞 +91 72763 23999| 📧 hr@chitrienlarge.com | cesihpl.com
                 </div>
             </div>
         </div>
@@ -146,21 +146,44 @@
                 ->sum('total_days') ?? 0;
             
             $totalLeave = $casualLeave + $medicalLeave + $personalLeave;
-            $workingDays = $daysInMonth - $totalLeave;
+            // Working days = Total days - unpaid leaves only (personal leaves)
+            $workingDays = $daysInMonth - $personalLeave;
+            $paidLeaveDays = $casualLeave + $medicalLeave;
             $perDaySalary = $daysInMonth > 0 ? $payroll->basic_salary / $daysInMonth : 0;
             
-            // Calculate allowance breakdown (assuming allowances field contains total)
-            $totalAllowances = $payroll->allowances;
-            $hra = $totalAllowances * 0.50; // 50% of allowances
-            $cityAllowance = $totalAllowances * 0.25; // 25% of allowances
-            $medicalAllowance = $totalAllowances * 0.25; // 25% of allowances
+            // Use actual database values for allowances and deductions
+            $actualHra = $payroll->hra ?? 0;
+            $actualMedicalAllowance = $payroll->medical_allowance ?? 0;
+            $actualCityAllowance = $payroll->city_allowance ?? 0;
+            $actualTiffinAllowance = $payroll->tiffin_allowance ?? 0;
+            $actualAssistantAllowance = $payroll->assistant_allowance ?? 0;
+            $actualDearnessAllowance = $payroll->dearness_allowance ?? 0;
+            
+            $actualPf = $payroll->pf ?? 0;
+            $actualProfessionalTax = $payroll->professional_tax ?? 0;
+            $actualTds = $payroll->tds ?? 0;
+            $actualEsic = $payroll->esic ?? 0;
+            $actualSecurityDeposit = $payroll->security_deposit ?? 0;
+            $actualLeaveDeduction = $payroll->leave_deduction ?? 0;
+            
+            // Calculate gross earnings properly by summing all allowances
+            $totalAllowances = $actualHra + $actualMedicalAllowance + $actualCityAllowance + 
+                              $actualTiffinAllowance + $actualAssistantAllowance + $actualDearnessAllowance;
+            $grossEarnings = $payroll->basic_salary + $totalAllowances + $payroll->bonuses;
+            $totalDeductionsActual = $actualPf + $actualProfessionalTax + $actualTds + $actualEsic + $actualSecurityDeposit + $actualLeaveDeduction;
+            
+            // Verify leave deduction calculation
+            $calculatedLeaveDeduction = $personalLeave * $perDaySalary;
+            
+            // Calculate net salary
+            $calculatedNetSalary = $grossEarnings - $totalDeductionsActual;
         @endphp
         
         <div class="section-header">ATTENDANCE & LEAVE SUMMARY</div>
         <table class="info-table">
             <tr>
                 <td>Total Days in Month</td><td>{{ $daysInMonth }}</td>
-                <td>Working Days</td><td>{{ $workingDays }}</td>
+                <td>Actual Working Days</td><td>{{ $workingDays }}</td>
             </tr>
             <tr>
                 <td>Casual Leave (Paid)</td><td>{{ $casualLeave }}</td>
@@ -168,11 +191,11 @@
             </tr>
             <tr>
                 <td>Personal Leave (Unpaid)</td><td>{{ $personalLeave }}</td>
-                <td>Total Leave Days</td><td>{{ $totalLeave }}</td>
+                <td>Total Paid Leave Days</td><td>{{ $paidLeaveDays }}</td>
             </tr>
             <tr>
                 <td>Per Day Salary</td><td>₹ {{ number_format($perDaySalary, 2) }}</td>
-                <td>Payable Days</td><td>{{ $workingDays }}</td>
+                <td>Payable Days</td><td>{{ $daysInMonth - $personalLeave }}</td>
             </tr>
         </table>
         
@@ -190,48 +213,60 @@
                 <tr>
                     <td>Basic Salary</td>
                     <td class="amount">{{ number_format($payroll->basic_salary, 2) }}</td>
-                    <td>Leave Deduction ({{ $personalLeave }} days)</td>
-                    <td class="amount">{{ number_format($payroll->deductions, 2) }}</td>
+                    <td>Provident Fund (PF)</td>
+                    <td class="amount">{{ number_format($actualPf, 2) }}</td>
                 </tr>
                 <tr>
                     <td>House Rent Allowance (HRA)</td>
-                    <td class="amount">{{ number_format($hra, 2) }}</td>
+                    <td class="amount">{{ number_format($actualHra, 2) }}</td>
                     <td>Professional Tax (PT)</td>
-                    <td class="amount">{{ number_format($payroll->tax, 2) }}</td>
-                </tr>
-                <tr>
-                    <td>City Compensatory Allowance</td>
-                    <td class="amount">{{ number_format($cityAllowance, 2) }}</td>
-                    <td>Provident Fund (PF)</td>
-                    <td class="amount">0.00</td>
+                    <td class="amount">{{ number_format($actualProfessionalTax, 2) }}</td>
                 </tr>
                 <tr>
                     <td>Medical Allowance</td>
-                    <td class="amount">{{ number_format($medicalAllowance, 2) }}</td>
-                    <td>Employee State Insurance (ESI)</td>
-                    <td class="amount">0.00</td>
-                </tr>
-                <tr>
-                    <td>Special Allowance / Bonus</td>
-                    <td class="amount">{{ number_format($payroll->bonuses, 2) }}</td>
+                    <td class="amount">{{ number_format($actualMedicalAllowance, 2) }}</td>
                     <td>Tax Deducted at Source (TDS)</td>
-                    <td class="amount">0.00</td>
+                    <td class="amount">{{ number_format($actualTds, 2) }}</td>
                 </tr>
                 <tr>
-                    <td>Other Earnings</td>
-                    <td class="amount">0.00</td>
-                    <td>Other Deductions</td>
-                    <td class="amount">0.00</td>
+                    <td>City Compensatory Allowance</td>
+                    <td class="amount">{{ number_format($actualCityAllowance, 2) }}</td>
+                    <td>Employee State Insurance (ESIC)</td>
+                    <td class="amount">{{ number_format($actualEsic, 2) }}</td>
+                </tr>
+                <tr>
+                    <td>Tiffin Allowance</td>
+                    <td class="amount">{{ number_format($actualTiffinAllowance, 2) }}</td>
+                    <td>Security Deposit</td>
+                    <td class="amount">{{ number_format($actualSecurityDeposit, 2) }}</td>
+                </tr>
+                <tr>
+                    <td>Assistant Allowance</td>
+                    <td class="amount">{{ number_format($actualAssistantAllowance, 2) }}</td>
+                    <td>Leave Deduction ({{ $personalLeave }} days)</td>
+                    <td class="amount">{{ number_format($calculatedLeaveDeduction, 2) }}</td>
+                </tr>
+                <tr>
+                    <td>Dearness Allowance</td>
+                    <td class="amount">{{ number_format($actualDearnessAllowance, 2) }}</td>
+                    <td>-</td>
+                    <td class="amount">-</td>
+                </tr>
+                <tr>
+                    <td>Special Bonus</td>
+                    <td class="amount">{{ number_format($payroll->bonuses, 2) }}</td>
+                    <td>-</td>
+                    <td class="amount">-</td>
                 </tr>
                 <tr class="total-row">
                     <td><strong>GROSS EARNINGS</strong></td>
-                    <td class="amount">{{ number_format($payroll->basic_salary + $payroll->allowances + $payroll->bonuses, 2) }}</td>
+                    <td class="amount">{{ number_format($grossEarnings, 2) }}</td>
                     <td><strong>TOTAL DEDUCTIONS</strong></td>
-                    <td class="amount">{{ number_format($payroll->deductions + $payroll->tax, 2) }}</td>
+                    <td class="amount">{{ number_format($totalDeductionsActual, 2) }}</td>
                 </tr>
                 <tr class="net-salary-row">
                     <td colspan="3"><strong>NET SALARY (Take Home Salary)</strong></td>
-                    <td class="amount">{{ number_format($payroll->net_salary, 2) }}</td>
+                    <td class="amount">{{ number_format($calculatedNetSalary, 2) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -252,11 +287,31 @@
                 <td>{{ now()->format('d-M-Y h:i A') }}</td>
             </tr>
         </table>
-        @if($payroll->notes)
-        <div style="border-left: 3px solid #f59e0b; background: #fffbeb; padding: 12px; margin: 20px 0; font-size: 10pt;">
-            <strong>Note:</strong> {{ $payroll->notes }}
-        </div>
-        @endif
+        
+        <!-- Important Notes Section -->
+        {{-- <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 20px 0; font-size: 10pt;">
+            <div style="font-weight: bold; color: #1e40af; margin-bottom: 8px;">📋 SALARY CALCULATION NOTES:</div>
+            <ul style="margin: 0; padding-left: 20px; line-height: 1.6; color: #4b5563;">
+                <li><strong>Basic Salary:</strong> ₹{{ number_format($payroll->basic_salary, 2) }} for {{ $daysInMonth }} days</li>
+                <li><strong>Per Day Salary:</strong> ₹{{ number_format($perDaySalary, 2) }}</li>
+                <li><strong>Total Allowances:</strong> ₹{{ number_format($totalAllowances, 2) }}</li>
+                <li><strong>Gross Earnings:</strong> Basic (₹{{ number_format($payroll->basic_salary, 2) }}) + Allowances (₹{{ number_format($totalAllowances, 2) }}) + Bonus (₹{{ number_format($payroll->bonuses, 2) }}) = ₹{{ number_format($grossEarnings, 2) }}</li>
+                <li><strong>Leave Deduction:</strong> {{ $personalLeave }} unpaid days × ₹{{ number_format($perDaySalary, 2) }} = ₹{{ number_format($calculatedLeaveDeduction, 2) }}</li>
+                <li><strong>Total Deductions:</strong> ₹{{ number_format($totalDeductionsActual, 2) }}</li>
+                <li><strong>Net Salary:</strong> Gross (₹{{ number_format($grossEarnings, 2) }}) - Deductions (₹{{ number_format($totalDeductionsActual, 2) }}) = ₹{{ number_format($calculatedNetSalary, 2) }}</li>
+                <li><strong>Leave Policy:</strong> Casual & Medical leaves are paid, Personal leaves are unpaid</li>
+            </ul>
+            @if(abs($calculatedLeaveDeduction - $actualLeaveDeduction) > 0.01)
+            <div style="margin-top: 8px; padding: 8px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 4px;">
+                <strong style="color: #92400e;">Note:</strong> Calculated leave deduction (₹{{ number_format($calculatedLeaveDeduction, 2) }}) differs from stored value (₹{{ number_format($actualLeaveDeduction, 2) }})
+            </div>
+            @endif
+            @if($payroll->notes)
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e2e8f0;">
+                <strong style="color: #dc2626;">Additional Note:</strong> {{ $payroll->notes }}
+            </div>
+            @endif
+        </div> --}}
         
         <div class="signatures">
             <div class="signature-box">

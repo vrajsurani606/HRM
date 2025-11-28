@@ -1,12 +1,34 @@
 @extends('layouts.macos')
-@section('page_title', 'Create Payroll Entry')
+@section('page_title', isset($payroll) ? 'Edit Payroll Entry' : 'Create Payroll Entry')
 
 @section('content')
+@push('styles')
+<style>
+  /* Layout polish */
+  .payroll-section { margin-top: 20px; }
+  .payroll-section .section-header { display:flex; align-items:center; justify-content:space-between; padding-bottom: 8px; margin-bottom: 12px; border-bottom: 2px solid #e5e7eb; }
+  .payroll-section .section-header h4 { margin:0; font-size:14px; font-weight:700; color:#111827; }
+  .payroll-section .section-header small { color:#6b7280; }
+  .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 768px){ .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+  .hrp-label { font-size:12px; font-weight:600; color:#374151; margin-bottom:6px; display:block; }
+  .hrp-input, .Rectangle-29-select { height: 40px; }
+  .summary-panel { background:#f9fafb; border:2px solid #e5e7eb; border-radius:8px; padding:14px; display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; }
+  .summary-panel .metric { display:flex; flex-direction:column; gap:6px; }
+  .summary-panel .metric .title { font-size: 12px; color:#6b7280; font-weight:600; }
+  .summary-panel .metric .value { font-size: 18px; font-weight:800; color:#111827; }
+  .summary-panel .metric .value.net { color:#0891b2; }
+</style>
+@endpush
 <!-- Card 1: Employee Details -->
 <div class="hrp-card">
   <div class="Rectangle-30 hrp-compact">
-    <form method="POST" action="{{ route('payroll.store') }}" enctype="multipart/form-data" class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3" id="payrollForm">
+    <form method="POST" action="{{ isset($payroll) ? route('payroll.update', $payroll->id) : route('payroll.store') }}" enctype="multipart/form-data" class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3" id="payrollForm">
       @csrf
+      @if(isset($payroll))
+        @method('PUT')
+      @endif
       
       <!-- Hidden fields for controller -->
       <input type="hidden" name="allowances" id="allowances_hidden" value="0">
@@ -20,7 +42,7 @@
         <select name="employee_id" id="employee_id" class="Rectangle-29 Rectangle-29-select" onchange="loadEmployeeSalaryData()">
           <option value="">Select Employee</option>
           @foreach($employees as $emp)
-            <option value="{{ $emp->id }}">{{ $emp->name }} - {{ $emp->code }}</option>
+            <option value="{{ $emp->id }}" {{ (string)old('employee_id', isset($payroll)?$payroll->employee_id:'') === (string)$emp->id ? 'selected' : '' }}>{{ $emp->name }} - {{ $emp->code }}</option>
           @endforeach
         </select>
         @error('employee_id')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -28,7 +50,7 @@
 
       <div>
         <label class="hrp-label">Employee ID:</label>
-        <input name="emp_code" id="emp_code" value="{{ old('emp_code') }}" class="hrp-input Rectangle-29" readonly placeholder="Auto-filled">
+        <input name="emp_code" id="emp_code" value="{{ old('emp_code', isset($payroll) && $payroll->employee ? $payroll->employee->code : '') }}" class="hrp-input Rectangle-29" readonly placeholder="Auto-filled">
         @error('emp_code')<small class="hrp-error">{{ $message }}</small>@enderror
       </div>
 
@@ -37,19 +59,19 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
           <div>
             <label class="hrp-label">Bank Name:</label>
-            <input name="bank_name" id="bank_name" value="{{ old('bank_name') }}" placeholder="Auto-filled" class="hrp-input Rectangle-29" readonly>
+            <input name="bank_name" id="bank_name" value="{{ old('bank_name', isset($payroll) && $payroll->employee ? ($payroll->employee->bank_name ?? '') : '') }}" placeholder="Auto-filled" class="hrp-input Rectangle-29" readonly>
             @error('bank_name')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div>
             <label class="hrp-label">Bank Account Number:</label>
-            <input name="bank_account_no" id="bank_account_no" value="{{ old('bank_account_no') }}" placeholder="Auto-filled" class="hrp-input Rectangle-29" readonly>
+            <input name="bank_account_no" id="bank_account_no" value="{{ old('bank_account_no', isset($payroll) && $payroll->employee ? ($payroll->employee->bank_account_no ?? '') : '') }}" placeholder="Auto-filled" class="hrp-input Rectangle-29" readonly>
             @error('bank_account_no')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div>
             <label class="hrp-label">IFSC Code:</label>
-            <input name="ifsc_code" id="ifsc_code" value="{{ old('ifsc_code') }}" placeholder="Auto-filled" class="hrp-input Rectangle-29" readonly>
+            <input name="ifsc_code" id="ifsc_code" value="{{ old('ifsc_code', isset($payroll) && $payroll->employee ? ($payroll->employee->bank_ifsc ?? '') : '') }}" placeholder="Auto-filled" class="hrp-input Rectangle-29" readonly>
             @error('ifsc_code')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
         </div>
@@ -63,7 +85,8 @@
             <select name="month" id="month" class="Rectangle-29 Rectangle-29-select" onchange="loadEmployeeSalaryData()">
               <option value="">Select Month</option>
               @foreach($months as $m)
-                <option value="{{ $m }}" {{ $m == date('F') ? 'selected' : '' }}>{{ $m }}</option>
+                @php($selMonth = old('month', isset($payroll)?$payroll->month:date('F')))
+                <option value="{{ $m }}" {{ $m == $selMonth ? 'selected' : '' }}>{{ $m }}</option>
               @endforeach
             </select>
             @error('month')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -74,7 +97,8 @@
             <select name="year" id="year" class="Rectangle-29 Rectangle-29-select" onchange="loadEmployeeSalaryData()">
               <option value="">Select Year</option>
               @for($y = date('Y'); $y >= date('Y') - 5; $y--)
-                <option value="{{ $y }}" {{ $y == date('Y') ? 'selected' : '' }}>{{ $y }}</option>
+                @php($selYear = old('year', isset($payroll)?$payroll->year:date('Y')))
+                <option value="{{ $y }}" {{ (int)$y === (int)$selYear ? 'selected' : '' }}>{{ $y }}</option>
               @endfor
             </select>
             @error('year')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -102,7 +126,7 @@
             <select name="total_working_days" id="total_working_days" class="Rectangle-29 Rectangle-29-select" form="payrollForm" onchange="calculateNetSalary()">
               <option value="">Select Days</option>
               @for($d = 1; $d <= 31; $d++)
-                <option value="{{ $d }}">{{ $d }}</option>
+                <option value="{{ $d }}" {{ (string)old('total_working_days', isset($payroll)?($payroll->total_working_days ?? ''):'') === (string)$d ? 'selected' : '' }}>{{ $d }}</option>
               @endfor
             </select>
             @error('total_working_days')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -113,7 +137,7 @@
             <select name="attended_working_days" id="attended_working_days" class="Rectangle-29 Rectangle-29-select" form="payrollForm">
               <option value="">Select Days</option>
               @for($d = 0; $d <= 31; $d++)
-                <option value="{{ $d }}">{{ $d }}</option>
+                <option value="{{ $d }}" {{ (string)old('attended_working_days', isset($payroll)?($payroll->attended_working_days ?? ''):'') === (string)$d ? 'selected' : '' }}>{{ $d }}</option>
               @endfor
             </select>
             @error('attended_working_days')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -121,93 +145,79 @@
         </div>
       </div>
 
-      <!-- Leave Section -->
-      <div class="md:col-span-2" style="margin-bottom: 15px;">
-        <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 15px;">
-          <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: #374151;">Leave Details</h4>
+      <!-- Leave Section (Grouped: Paid vs Unpaid) -->
+      <div class="md:col-span-2 payroll-section">
+        <div class="section-header">
+          <h4>Leave Details</h4>
+          <small>Paid: Casual/Medical/Holiday. Unpaid: Personal (deducted).</small>
         </div>
-        
-        <!-- Total Leave -->
-        <div style="margin-bottom: 12px;">
-          <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #6b7280;">Total Leave</p>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
-            <div>
-              <label class="hrp-label">Casual Leave:</label>
-              <select name="casual_leave" id="casual_leave" class="Rectangle-29 Rectangle-29-select" form="payrollForm">
-                <option value="">Select Days</option>
-                @for($d = 0; $d <= 30; $d++)
-                  <option value="{{ $d }}">{{ $d }}</option>
-                @endfor
-              </select>
-              @error('casual_leave')<small class="hrp-error">{{ $message }}</small>@enderror
-            </div>
 
-            <div>
-              <label class="hrp-label">Medical Leave:</label>
-              <select name="medical_leave" id="medical_leave" class="Rectangle-29 Rectangle-29-select" form="payrollForm">
-                <option value="">Select Days</option>
-                @for($d = 0; $d <= 30; $d++)
-                  <option value="{{ $d }}">{{ $d }}</option>
-                @endfor
-              </select>
-              @error('medical_leave')<small class="hrp-error">{{ $message }}</small>@enderror
-            </div>
-
-            <div>
-              <label class="hrp-label">Personal Leave:</label>
-              <input type="number" name="personal_leave_total" id="personal_leave_total" value="{{ old('personal_leave_total', 0) }}" placeholder="0.0" class="hrp-input Rectangle-29" form="payrollForm" step="0.5" min="0" max="30" readonly style="background: #f7fafc;">
-              @error('personal_leave_total')<small class="hrp-error">{{ $message }}</small>@enderror
-            </div>
+        <!-- Summary Row -->
+        <div class="summary-panel" style="margin-bottom:12px;">
+          <div class="metric">
+            <span class="title">Total Leave</span>
+            <span class="value" id="badge_total_leave">0</span>
+          </div>
+          <div class="metric">
+            <span class="title">Paid Leave</span>
+            <span class="value" id="badge_paid_leave">0</span>
+          </div>
+          <div class="metric">
+            <span class="title">Unpaid Leave</span>
+            <span class="value" id="badge_unpaid_leave">0</span>
           </div>
         </div>
 
-        <!-- Paid Leave -->
-        <div style="margin-bottom: 12px;">
-          <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #10b981;">Paid Leave</p>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
-            <div>
-              <label class="hrp-label">Casual Leave (Paid):</label>
-              <select name="casual_leave_paid" id="casual_leave_paid" class="Rectangle-29 Rectangle-29-select" form="payrollForm">
-                <option value="">Select Days</option>
-                @for($d = 0; $d <= 30; $d++)
-                  <option value="{{ $d }}">{{ $d }}</option>
-                @endfor
-              </select>
-              @error('casual_leave_paid')<small class="hrp-error">{{ $message }}</small>@enderror
+        <div class="grid-2">
+          <!-- Paid Column -->
+          <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:8px; padding:12px;">
+            <div class="section-header" style="border-bottom:1px dashed #e5e7eb; margin-bottom:10px;">
+              <h4 style="font-size:13px;">Paid Leave</h4>
+              <small>Not deducted</small>
             </div>
-
-            <div>
-              <label class="hrp-label">Medical Leave (Paid):</label>
-              <select name="medical_leave_paid" id="medical_leave_paid" class="Rectangle-29 Rectangle-29-select" form="payrollForm">
-                <option value="">Select Days</option>
-                @for($d = 0; $d <= 30; $d++)
-                  <option value="{{ $d }}">{{ $d }}</option>
-                @endfor
-              </select>
-              @error('medical_leave_paid')<small class="hrp-error">{{ $message }}</small>@enderror
+            <div class="grid-3">
+              <div>
+                <label class="hrp-label">Casual</label>
+                <select name="casual_leave" id="casual_leave" class="Rectangle-29 Rectangle-29-select" form="payrollForm" onchange="updateLeaveTotals()">
+                  @for($d = 0; $d <= 30; $d++)
+                    <option value="{{ $d }}" {{ (string)old('casual_leave', isset($payroll)?($payroll->casual_leave ?? 0):0) === (string)$d ? 'selected' : '' }}>{{ $d }}</option>
+                  @endfor
+                </select>
+              </div>
+              <div>
+                <label class="hrp-label">Medical</label>
+                <select name="medical_leave" id="medical_leave" class="Rectangle-29 Rectangle-29-select" form="payrollForm" onchange="updateLeaveTotals()">
+                  @for($d = 0; $d <= 30; $d++)
+                    <option value="{{ $d }}" {{ (string)old('medical_leave', isset($payroll)?($payroll->medical_leave ?? 0):0) === (string)$d ? 'selected' : '' }}>{{ $d }}</option>
+                  @endfor
+                </select>
+              </div>
+              <div>
+                <label class="hrp-label">Holiday</label>
+                <select name="holiday_leave" id="holiday_leave" class="Rectangle-29 Rectangle-29-select" form="payrollForm" onchange="updateLeaveTotals()">
+                  @for($d = 0; $d <= 30; $d++)
+                    <option value="{{ $d }}" {{ (string)old('holiday_leave', isset($payroll)?($payroll->holiday_leave ?? 0):0) === (string)$d ? 'selected' : '' }}>{{ $d }}</option>
+                  @endfor
+                </select>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Unpaid Leave -->
-        <div style="margin-bottom: 12px;">
-          <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #ef4444;">Unpaid Leave</p>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
-            <div>
-              <label class="hrp-label">Personal Leave (Unpaid):</label>
-              <input type="number" name="personal_leave_unpaid" id="personal_leave_unpaid" value="{{ old('personal_leave_unpaid', 0) }}" placeholder="0.0" class="hrp-input Rectangle-29" form="payrollForm" step="0.5" min="0" max="30" oninput="calculateNetSalary()" readonly style="background: #fef2f2;">
-              @error('personal_leave_unpaid')<small class="hrp-error">{{ $message }}</small>@enderror
+          <!-- Unpaid Column -->
+          <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:8px; padding:12px;">
+            <div class="section-header" style="border-bottom:1px dashed #e5e7eb; margin-bottom:10px;">
+              <h4 style="font-size:13px;">Unpaid Leave</h4>
+              <small>Deducted from salary</small>
             </div>
-
-            <div>
-              <label class="hrp-label">Balance Leave:</label>
-              <select name="balance_leave" id="balance_leave" class="Rectangle-29 Rectangle-29-select" form="payrollForm">
-                <option value="">Select Days</option>
-                @for($d = 0; $d <= 30; $d++)
-                  <option value="{{ $d }}">{{ $d }}</option>
-                @endfor
-              </select>
-              @error('balance_leave')<small class="hrp-error">{{ $message }}</small>@enderror
+            <div class="grid-2">
+              <div>
+                <label class="hrp-label">Personal (Unpaid)</label>
+                <input type="number" name="personal_leave_unpaid" id="personal_leave_unpaid" value="{{ old('personal_leave_unpaid', isset($payroll)?($payroll->personal_leave_unpaid ?? 0):0) }}" class="hrp-input Rectangle-29" form="payrollForm" step="0.5" min="0" max="30" oninput="updateLeaveTotals()">
+              </div>
+              <div>
+                <label class="hrp-label">Unpaid (Auto)</label>
+                <input type="number" id="unpaid_leave_total" value="0" class="hrp-input Rectangle-29" readonly style="background:#f7fafc;">
+              </div>
             </div>
           </div>
         </div>
@@ -221,28 +231,51 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
           <div>
             <label class="hrp-label">Basic Salary:</label>
-            <input type="number" name="basic_salary" id="basic_salary" value="{{ old('basic_salary', 0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
+            <input type="number" name="basic_salary" id="basic_salary" value="{{ old('basic_salary', isset($payroll)?$payroll->basic_salary:0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
             @error('basic_salary')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div>
             <label class="hrp-label">City Compensatory Allowance:</label>
-            <input type="number" name="city_allowance" id="city_allowance" value="{{ old('city_allowance', 0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
+            <input type="number" name="city_allowance" id="city_allowance" value="{{ old('city_allowance', isset($payroll)?($payroll->city_allowance ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
             @error('city_allowance')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div>
             <label class="hrp-label">HRA:</label>
-            <input type="number" name="hra" id="hra" value="{{ old('hra', 0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
+            <input type="number" name="hra" id="hra" value="{{ old('hra', isset($payroll)?($payroll->hra ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
             @error('hra')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div>
             <label class="hrp-label">Medical Allowance:</label>
-            <input type="number" name="medical_allowance" id="medical_allowance" value="{{ old('medical_allowance', 0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
+            <input type="number" name="medical_allowance" id="medical_allowance" value="{{ old('medical_allowance', isset($payroll)?($payroll->medical_allowance ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
             @error('medical_allowance')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
+          <div>
+            <label class="hrp-label">Tiffin Allowance:</label>
+            <input type="number" name="tiffin_allowance" id="tiffin_allowance" value="{{ old('tiffin_allowance', isset($payroll)?($payroll->tiffin_allowance ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
+            @error('tiffin_allowance')<small class="hrp-error">{{ $message }}</small>@enderror
+          </div>
+
+          <div>
+            <label class="hrp-label">Assistant Allowance:</label>
+            <input type="number" name="assistant_allowance" id="assistant_allowance" value="{{ old('assistant_allowance', isset($payroll)?($payroll->assistant_allowance ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
+            @error('assistant_allowance')<small class="hrp-error">{{ $message }}</small>@enderror
+          </div>
+
+          <div>
+            <label class="hrp-label">Dearness Allowance:</label>
+            <input type="number" name="dearness_allowance" id="dearness_allowance" value="{{ old('dearness_allowance', isset($payroll)?($payroll->dearness_allowance ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
+            @error('dearness_allowance')<small class="hrp-error">{{ $message }}</small>@enderror
+          </div>
+
+          <div>
+            <label class="hrp-label">Bonuses:</label>
+            <input type="number" name="bonuses" id="bonuses" value="{{ old('bonuses', isset($payroll)?($payroll->bonuses ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
+            @error('bonuses')<small class="hrp-error">{{ $message }}</small>@enderror
+          </div>
 
         </div>
       </div>
@@ -255,37 +288,37 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
           <div>
             <label class="hrp-label">PF:</label>
-            <input type="number" name="pf" id="pf" value="{{ old('pf', 0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
+            <input type="number" name="pf" id="pf" value="{{ old('pf', isset($payroll)?($payroll->pf ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
             @error('pf')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div>
             <label class="hrp-label">TDS:</label>
-            <input type="number" name="tds" id="tds" value="{{ old('tds', 0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
+            <input type="number" name="tds" id="tds" value="{{ old('tds', isset($payroll)?($payroll->tds ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
             @error('tds')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div>
             <label class="hrp-label">Professional Tax:</label>
-            <input type="number" name="professional_tax" id="professional_tax" value="{{ old('professional_tax', 0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
+            <input type="number" name="professional_tax" id="professional_tax" value="{{ old('professional_tax', isset($payroll)?($payroll->professional_tax ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
             @error('professional_tax')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div>
             <label class="hrp-label">ESIC:</label>
-            <input type="number" name="esic" id="esic" value="{{ old('esic', 0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
+            <input type="number" name="esic" id="esic" value="{{ old('esic', isset($payroll)?($payroll->esic ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
             @error('esic')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div>
             <label class="hrp-label">Security Deposit:</label>
-            <input type="number" name="security_deposit" id="security_deposit" value="{{ old('security_deposit', 0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
+            <input type="number" name="security_deposit" id="security_deposit" value="{{ old('security_deposit', isset($payroll)?($payroll->security_deposit ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" step="0.01" min="0" oninput="calculateNetSalary()">
             @error('security_deposit')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div>
             <label class="hrp-label">Leave Deduction:</label>
-            <input type="number" name="leave_deduction" id="leave_deduction" value="{{ old('leave_deduction', 0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" readonly style="background: #fef2f2;">
+            <input type="number" name="leave_deduction" id="leave_deduction" value="{{ old('leave_deduction', isset($payroll)?($payroll->leave_deduction ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" readonly style="background: #fef2f2;">
             @error('leave_deduction')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
@@ -297,22 +330,23 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
             <label class="hrp-label" style="color: #10b981; font-weight: 700; font-size: 14px;">Total Income:</label>
-            <input type="number" name="total_income" id="total_income" value="{{ old('total_income', 0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" readonly style="background: #f0fff4; font-weight: 700; font-size: 16px; color: #10b981; border-color: #10b981; border-width: 2px;">
+            <input type="number" name="total_income" id="total_income" value="{{ old('total_income', isset($payroll)?($payroll->total_income ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" readonly style="background: #f0fff4; font-weight: 700; font-size: 16px; color: #10b981; border-color: #10b981; border-width: 2px;">
             @error('total_income')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div>
             <label class="hrp-label" style="color: #ef4444; font-weight: 700; font-size: 14px;">Total Deduction:</label>
-            <input type="number" name="deduction_total" id="deduction_total" value="{{ old('deduction_total', 0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" readonly style="background: #fef2f2; font-weight: 700; font-size: 16px; color: #ef4444; border-color: #ef4444; border-width: 2px;">
+            <input type="number" name="deduction_total" id="deduction_total" value="{{ old('deduction_total', isset($payroll)?($payroll->deduction_total ?? 0):0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" readonly style="background: #fef2f2; font-weight: 700; font-size: 16px; color: #ef4444; border-color: #ef4444; border-width: 2px;">
             @error('deduction_total')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div>
             <label class="hrp-label" style="color: #0891b2; font-weight: 700; font-size: 14px;">Net Salary:</label>
-            <input type="number" name="net_salary" id="net_salary" value="{{ old('net_salary', 0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" readonly style="background: #ecfeff; font-weight: 700; font-size: 18px; color: #0891b2; border-color: #0891b2; border-width: 2px;">
+            <input type="number" name="net_salary" id="net_salary" value="{{ old('net_salary', isset($payroll)?$payroll->net_salary:0) }}" placeholder="0.00" class="hrp-input Rectangle-29" form="payrollForm" readonly style="background: #ecfeff; font-weight: 700; font-size: 18px; color: #0891b2; border-color: #0891b2; border-width: 2px;">
             @error('net_salary')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
         </div>
+
       </div>
 
     </div>
@@ -327,9 +361,10 @@
       <div>
         <label class="hrp-label">Payment Status:</label>
         <select name="status" id="payment_status" class="Rectangle-29 Rectangle-29-select" form="payrollForm" onchange="togglePaymentFields()">
-          <option value="pending" selected>Pending</option>
-          <option value="paid">Paid</option>
-          <option value="cancelled">Cancelled</option>
+          @php($selStatus = old('status', isset($payroll)?$payroll->status:'pending'))
+          <option value="pending" {{ $selStatus==='pending'?'selected':'' }}>Pending</option>
+          <option value="paid" {{ $selStatus==='paid'?'selected':'' }}>Paid</option>
+          <option value="cancelled" {{ $selStatus==='cancelled'?'selected':'' }}>Cancelled</option>
         </select>
         @error('status')<small class="hrp-error">{{ $message }}</small>@enderror
       </div>
@@ -338,29 +373,30 @@
         <label class="hrp-label">Payment Method:</label>
         <select name="payment_method" id="payment_method" class="Rectangle-29 Rectangle-29-select" form="payrollForm" onchange="toggleTransactionField()">
           <option value="">Select Method</option>
-          <option value="Cash">Cash</option>
-          <option value="Bank Transfer">Bank Transfer</option>
-          <option value="Cheque">Cheque</option>
-          <option value="UPI">UPI</option>
+          @php($pm = old('payment_method', isset($payroll)?$payroll->payment_method:''))
+          <option value="Cash" {{ $pm==='Cash'?'selected':'' }}>Cash</option>
+          <option value="Bank Transfer" {{ $pm==='Bank Transfer'?'selected':'' }}>Bank Transfer</option>
+          <option value="Cheque" {{ $pm==='Cheque'?'selected':'' }}>Cheque</option>
+          <option value="UPI" {{ $pm==='UPI'?'selected':'' }}>UPI</option>
         </select>
         @error('payment_method')<small class="hrp-error">{{ $message }}</small>@enderror
       </div>
 
       <div id="paymentDateField" style="display: none;">
         <label class="hrp-label">Payment Date:</label>
-        <input type="date" name="payment_date" id="payment_date" value="{{ old('payment_date') }}" class="hrp-input Rectangle-29" form="payrollForm">
+        <input type="date" name="payment_date" id="payment_date" value="{{ old('payment_date', isset($payroll)&&$payroll->payment_date ? optional($payroll->payment_date)->format('Y-m-d') : '') }}" class="hrp-input Rectangle-29" form="payrollForm">
         @error('payment_date')<small class="hrp-error">{{ $message }}</small>@enderror
       </div>
 
       <div id="transactionIdField" class="md:col-span-2" style="display: none;">
         <label class="hrp-label">Transaction ID / Reference:</label>
-        <input name="transaction_id" id="transaction_id" value="{{ old('transaction_id') }}" placeholder="Enter Transaction ID or Reference Number" class="hrp-input Rectangle-29" form="payrollForm">
+        <input name="transaction_id" id="transaction_id" value="{{ old('transaction_id', isset($payroll)?($payroll->transaction_id ?? ''):'') }}" placeholder="Enter Transaction ID or Reference Number" class="hrp-input Rectangle-29" form="payrollForm">
         @error('transaction_id')<small class="hrp-error">{{ $message }}</small>@enderror
       </div>
 
       <div class="md:col-span-2">
         <div class="hrp-actions">
-          <button type="submit" form="payrollForm" class="hrp-btn hrp-btn-primary">Create Payroll Entry</button>
+          <button type="submit" form="payrollForm" class="hrp-btn hrp-btn-primary">{{ isset($payroll) ? 'Update Payroll Entry' : 'Create Payroll Entry' }}</button>
         </div>
       </div>
 
@@ -371,6 +407,79 @@
 @push('scripts')
 <script>
 (function(){
+  // If all 3 are set, load employee data on page load (for edit prefill)
+  try {
+    var eid = document.getElementById('employee_id')?.value;
+    var m = document.getElementById('month')?.value;
+    var y = document.getElementById('year')?.value;
+    if (eid && m && y) {
+      loadEmployeeSalaryData();
+    }
+
+function updateLeaveTotals(){
+  const casual = parseFloat(document.getElementById('casual_leave')?.value || 0) || 0;
+  const medical = parseFloat(document.getElementById('medical_leave')?.value || 0) || 0;
+  const holiday = parseFloat(document.getElementById('holiday_leave')?.value || 0) || 0;
+  const personalUnpaid = parseFloat(document.getElementById('personal_leave_unpaid')?.value || 0) || 0;
+  const total = casual + medical + holiday + personalUnpaid;
+  const totalEl = document.getElementById('total_leave_total');
+  if (totalEl) totalEl.value = total.toFixed(1).replace(/\.0$/, '');
+  // Summary badges
+  const bTotal = document.getElementById('badge_total_leave');
+  const bPaid = document.getElementById('badge_paid_leave');
+  const bUnpaid = document.getElementById('badge_unpaid_leave');
+  const unpaidBox = document.getElementById('unpaid_leave_total');
+  const paid = casual + medical + holiday;
+  if (bTotal) bTotal.textContent = total.toString();
+  if (bPaid) bPaid.textContent = paid.toString();
+  if (bUnpaid) bUnpaid.textContent = personalUnpaid.toString();
+  if (unpaidBox) unpaidBox.value = personalUnpaid.toString();
+  calculateNetSalary();
+}
+
+function calculateNetSalary() {
+  // Earnings
+  const basic = parseFloat(document.getElementById('basic_salary')?.value || 0) || 0;
+  const city = parseFloat(document.getElementById('city_allowance')?.value || 0) || 0;
+  const hra = parseFloat(document.getElementById('hra')?.value || 0) || 0;
+  const medAllow = parseFloat(document.getElementById('medical_allowance')?.value || 0) || 0;
+  const totalIncome = basic + city + hra + medAllow;
+  const incomeEl = document.getElementById('total_income');
+  if (incomeEl) incomeEl.value = totalIncome.toFixed(2);
+
+  // Leave deduction (personal unpaid only)
+  const totalDays = parseFloat(document.getElementById('total_working_days')?.value || 0) || 30;
+  const personalUnpaid = parseFloat(document.getElementById('personal_leave_unpaid')?.value || 0) || 0;
+  const perDay = totalDays ? (basic / totalDays) : 0;
+  const leaveDeduction = perDay * personalUnpaid;
+  const leaveEl = document.getElementById('leave_deduction');
+  if (leaveEl) leaveEl.value = leaveDeduction.toFixed(2);
+
+  // Other deductions
+  const pf = parseFloat(document.getElementById('pf')?.value || 0) || 0;
+  const tds = parseFloat(document.getElementById('tds')?.value || 0) || 0;
+  const proTax = parseFloat(document.getElementById('professional_tax')?.value || 0) || 0;
+  const esic = parseFloat(document.getElementById('esic')?.value || 0) || 0;
+  const security = parseFloat(document.getElementById('security_deposit')?.value || 0) || 0;
+  const totalDeductions = pf + tds + proTax + esic + security + leaveDeduction;
+  const dedEl = document.getElementById('deduction_total');
+  if (dedEl) dedEl.value = totalDeductions.toFixed(2);
+
+  // Net
+  const net = totalIncome - totalDeductions;
+  const netEl = document.getElementById('net_salary');
+  if (netEl) netEl.value = net.toFixed(2);
+
+  // Update summary badges
+  const dti = document.getElementById('display_total_income'); if (dti) dti.textContent = totalIncome.toFixed(2);
+  const dtd = document.getElementById('display_deduction_total'); if (dtd) dtd.textContent = totalDeductions.toFixed(2);
+  const dns = document.getElementById('display_net_salary'); if (dns) dns.textContent = net.toFixed(2);
+}
+  } catch(e) { /* no-op */ }
+
+  // Initialize payment fields visibility based on current status
+  try { togglePaymentFields(); } catch(e) {}
+
   calculateNetSalary();
 })();
 
@@ -448,27 +557,13 @@ function loadEmployeeSalaryData() {
             setSelectValue('total_working_days', data.days_in_month || 30);
             setSelectValue('attended_working_days', data.working_days || 0);
             
-            // Fill leave data
-            console.log('Setting leave values:', {
-                casual: data.casual_leave_used,
-                medical: data.medical_leave_used,
-                personal: data.personal_leave_used,
-                balance: data.paid_leave_balance
-            });
-            
-            // Total Leave section
+            // Fill leave data (structured)
             setSelectValue('casual_leave', data.casual_leave_used || 0);
             setSelectValue('medical_leave', data.medical_leave_used || 0);
-            // Personal Leave - use direct value for decimal support (7.5, etc)
-            document.getElementById('personal_leave_total').value = data.personal_leave_used || 0;
-            
-            // Paid Leave section
-            setSelectValue('casual_leave_paid', data.casual_leave_used || 0);
-            setSelectValue('medical_leave_paid', data.medical_leave_used || 0);
-            
-            // Unpaid Leave section - use direct value for decimal support
-            document.getElementById('personal_leave_unpaid').value = data.personal_leave_used || 0;
-            setSelectValue('balance_leave', data.paid_leave_balance || 12);
+            setSelectValue('holiday_leave', data.holiday_leave_used || 0);
+            const personal = parseFloat(data.personal_leave_used || 0);
+            document.getElementById('personal_leave_unpaid').value = personal;
+            updateLeaveTotals();
             
             // Fill salary - Basic Salary only, rest are manual entry (default 0)
             document.getElementById('basic_salary').value = data.basic_salary || 0;
@@ -526,14 +621,19 @@ function calculateNetSalary() {
     const hra = parseFloat(document.getElementById('hra').value) || 0;
     const cityAllowance = parseFloat(document.getElementById('city_allowance').value) || 0;
     const medicalAllowance = parseFloat(document.getElementById('medical_allowance').value) || 0;
+    const tiffinAllowance = parseFloat(document.getElementById('tiffin_allowance').value) || 0;
+    const assistantAllowance = parseFloat(document.getElementById('assistant_allowance').value) || 0;
+    const dearnessAllowance = parseFloat(document.getElementById('dearness_allowance').value) || 0;
+    const bonuses = parseFloat(document.getElementById('bonuses').value) || 0;
     
     // Calculate total allowances (everything except basic salary)
-    const allowances = hra + cityAllowance + medicalAllowance;
-    const totalIncome = basicSalary + allowances;
+    const allowances = hra + cityAllowance + medicalAllowance + tiffinAllowance + assistantAllowance + dearnessAllowance;
+    const totalIncome = basicSalary + allowances + bonuses;
     document.getElementById('total_income').value = totalIncome.toFixed(2);
     
     // Update hidden allowances field
     document.getElementById('allowances_hidden').value = allowances.toFixed(2);
+    document.getElementById('bonuses_hidden').value = bonuses.toFixed(2);
     
     // Get deductions
     const pf = parseFloat(document.getElementById('pf').value) || 0;

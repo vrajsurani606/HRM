@@ -38,7 +38,34 @@ class EmployeeController extends Controller
 
     public function create()
     {
-        $positions = ['Developer', 'Designer', 'Manager', 'HR', 'Sales', 'Marketing', 'Accountant', 'Other'];
+        $positions = [
+            'Full Stack Developer',
+            'Frontend Developer', 
+            'Backend Developer',
+            'Mobile App Developer',
+            'UI/UX Designer',
+            'Graphic Designer',
+            'Project Manager',
+            'Team Lead',
+            'HR Executive',
+            'HR Manager',
+            'Sales Executive',
+            'Sales Manager',
+            'Marketing Executive',
+            'Digital Marketing Specialist',
+            'Content Writer',
+            'SEO Specialist',
+            'Business Analyst',
+            'Quality Assurance Engineer',
+            'DevOps Engineer',
+            'System Administrator',
+            'Accountant',
+            'Finance Manager',
+            'Customer Support Executive',
+            'Operations Manager',
+            'Intern',
+            'Other'
+        ];
         $nextCode = Employee::nextCode();
         
         return view('hr.employees.create', [
@@ -53,6 +80,9 @@ class EmployeeController extends Controller
         $data = $request->validate([
             'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:employees,email',
+            'gender' => 'nullable|in:male,female,other',
+            'date_of_birth' => 'nullable|date',
+            'marital_status' => 'nullable|in:single,married,other',
             'mobile_no' => 'nullable|string|max:30',
             'address' => 'nullable|string',
             'position' => 'nullable|string|max:190',
@@ -61,11 +91,16 @@ class EmployeeController extends Controller
             'reference_no' => 'nullable|string|max:50',
             'aadhaar_no' => 'nullable|string|max:20',
             'pan_no' => 'nullable|string|max:20',
+            'highest_qualification' => 'nullable|string|max:190',
+            'year_of_passing' => 'nullable|integer|min:1900|max:2100',
             'bank_name' => 'nullable|string|max:190',
             'bank_account_no' => 'nullable|string|max:50',
             'bank_ifsc' => 'nullable|string|max:20',
             'experience_type' => 'nullable|in:YES,NO',
             'previous_company_name' => 'nullable|string|max:190',
+            'previous_designation' => 'nullable|string|max:190',
+            'duration' => 'nullable|string|max:190',
+            'reason_for_leaving' => 'nullable|string',
             'previous_salary' => 'nullable|numeric|min:0',
             'current_offer_amount' => 'nullable|numeric|min:0',
             'has_incentive' => 'nullable|in:YES,NO',
@@ -277,7 +312,35 @@ class EmployeeController extends Controller
 
     public function edit(Employee $employee)
     {
-        $positions = ['Developer', 'Designer', 'Manager', 'HR', 'Sales', 'Marketing', 'Accountant', 'Other'];
+        $employee->load('user');
+        $positions = [
+            'Full Stack Developer',
+            'Frontend Developer', 
+            'Backend Developer',
+            'Mobile App Developer',
+            'UI/UX Designer',
+            'Graphic Designer',
+            'Project Manager',
+            'Team Lead',
+            'HR Executive',
+            'HR Manager',
+            'Sales Executive',
+            'Sales Manager',
+            'Marketing Executive',
+            'Digital Marketing Specialist',
+            'Content Writer',
+            'SEO Specialist',
+            'Business Analyst',
+            'Quality Assurance Engineer',
+            'DevOps Engineer',
+            'System Administrator',
+            'Accountant',
+            'Finance Manager',
+            'Customer Support Executive',
+            'Operations Manager',
+            'Intern',
+            'Other'
+        ];
         $incentiveOptions = ['YES', 'NO'];
         
         return view('hr.employees.edit', [
@@ -295,6 +358,9 @@ class EmployeeController extends Controller
             'status' => 'nullable|in:active,inactive',
             'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:employees,email,'.$employee->id,
+            'gender' => 'nullable|in:male,female,other',
+            'date_of_birth' => 'nullable|date',
+            'marital_status' => 'nullable|in:single,married,other',
             'mobile_no' => 'nullable|string|max:30',
             'address' => 'nullable|string',
             'position' => 'nullable|string|max:190',
@@ -303,11 +369,16 @@ class EmployeeController extends Controller
             'reference_no' => 'nullable|string|max:50',
             'aadhaar_no' => 'nullable|string|max:20',
             'pan_no' => 'nullable|string|max:20',
+            'highest_qualification' => 'nullable|string|max:190',
+            'year_of_passing' => 'nullable|integer|min:1900|max:2100',
             'bank_name' => 'nullable|string|max:190',
             'bank_account_no' => 'nullable|string|max:50',
             'bank_ifsc' => 'nullable|string|max:20',
             'experience_type' => 'nullable|in:YES,NO',
             'previous_company_name' => 'nullable|string|max:190',
+            'previous_designation' => 'nullable|string|max:190',
+            'duration' => 'nullable|string|max:190',
+            'reason_for_leaving' => 'nullable|string',
             'previous_salary' => 'nullable|numeric|min:0',
             'current_offer_amount' => 'nullable|numeric|min:0',
             'has_incentive' => 'nullable|in:YES,NO',
@@ -498,6 +569,104 @@ class EmployeeController extends Controller
         
         return $referenceNumber;
     }
+    
+    /**
+     * Display a specific letter (simple view placeholder).
+     */
+    public function viewLetter(Employee $employee, EmployeeLetter $letter)
+    {
+        return view('hr.employees.letters.print', [
+            'employee' => $employee,
+            'letter' => $letter,
+        ]);
+    }
+
+    /**
+     * Show the form for editing a letter.
+     */
+    public function editLetter(Employee $employee, EmployeeLetter $letter)
+    {
+        return view('hr.employees.letters.create', [
+            'employee' => $employee,
+            'letter' => $letter,
+            'referenceNumber' => $letter->reference_number,
+            'page_title' => 'Edit Letter - ' . $employee->name,
+        ]);
+    }
+
+    /**
+     * Update an existing letter.
+     */
+    public function updateLetter(Request $request, Employee $employee, EmployeeLetter $letter)
+    {
+        // Normalize potential array inputs
+        if (is_array($request->input('subject'))) {
+            $request->merge(['subject' => implode(' ', array_filter($request->input('subject')))]);
+        }
+        if (is_array($request->input('content'))) {
+            $request->merge(['content' => implode("\n\n", array_filter($request->input('content')))]);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'type' => 'required|string|in:appointment,offer,joining,confidentiality,impartiality,experience,agreement,relieving,confirmation,warning,termination,increment,internship_offer,internship_letter,other',
+            'subject' => 'required_if:type,other|nullable|string|max:255',
+            'content' => 'required_if:type,other,warning,termination|nullable|string',
+            'issue_date' => 'required|date',
+            'reference_number' => 'required|string|unique:employee_letters,reference_number,' . $letter->id,
+            'notes' => 'nullable|string',
+            'monthly_salary' => 'nullable|numeric|min:0',
+            'annual_ctc' => 'nullable|numeric|min:0',
+            'reporting_manager' => 'nullable|string|max:190',
+            'working_hours' => 'nullable|string|max:190',
+            'date_of_joining' => 'nullable|date',
+            'probation_period' => 'nullable',
+            'salary_increment' => 'nullable',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'increment_amount' => 'nullable|numeric|min:0',
+            'increment_effective_date' => 'nullable|date',
+            'internship_position' => 'nullable|string|max:190',
+            'internship_start_date' => 'nullable|date',
+            'internship_end_date' => 'nullable|date|after_or_equal:internship_start_date',
+            'internship_address' => 'nullable|string',
+            'warning_content' => 'nullable|string',
+        ]);
+
+        try {
+            if (isset($validated['probation_period']) && is_array($validated['probation_period'])) {
+                $validated['probation_period'] = json_encode(array_filter($validated['probation_period']));
+            }
+            if (isset($validated['salary_increment']) && is_array($validated['salary_increment'])) {
+                $validated['salary_increment'] = json_encode(array_filter($validated['salary_increment']));
+            }
+
+            $letter->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'redirect' => route('employees.letters.index', $employee)
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error updating letter: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update letter. ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Remove the specified letter from storage.
+     */
+    public function destroyLetter(Employee $employee, EmployeeLetter $letter)
+    {
+        $letter->delete();
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+        return redirect()->route('employees.letters.index', $employee)->with('success', 'Letter deleted');
+    }
     // public function print(Employee $employee, EmployeeLetter $letter)
     // {
     //     $company = "Chaitri"; // or however you get company info
@@ -559,10 +728,19 @@ class EmployeeController extends Controller
                 
             default:
                 // For other letter types, use the standard print view
+                // Allow tuning offsets for background header/footer via query
+                $screenTop = (int) request()->query('screen_top', 260);
+                $screenBottom = (int) request()->query('screen_bottom', 120);
+                $printTop = (int) request()->query('print_top', 60);
+                $printBottom = (int) request()->query('print_bottom', 35);
                 return view('hr.employees.letters.print', [
                     'employee' => $employee,
                     'letter' => $letter,
-                    'company' => $company
+                    'company' => $company,
+                    'screen_top_px' => $screenTop,
+                    'screen_bottom_px' => $screenBottom,
+                    'print_top_mm' => $printTop,
+                    'print_bottom_mm' => $printBottom,
                 ]);
         }
     }

@@ -33,6 +33,12 @@ class PayrollController extends Controller
             $query->where('employee_id', $request->employee_id);
         }
 
+        // Default to current month/year if no filters provided
+        if (!$request->filled('month') && !$request->filled('year')) {
+            $query->where('month', date('F'));
+            $query->where('year', date('Y'));
+        }
+
         // Search
         if ($request->filled('q')) {
             $q = $request->q;
@@ -55,6 +61,128 @@ class PayrollController extends Controller
         return view('payroll.index', compact('payrolls', 'employees', 'months', 'years'));
     }
 
+    /**
+     * Show bulk salary generation form
+     */
+    public function bulkForm(): View
+    {
+        $employees = Employee::orderBy('name')->get();
+        $months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                   'July', 'August', 'September', 'October', 'November', 'December'];
+        $years = range(date('Y'), date('Y') - 5);
+        return view('payroll.bulk', compact('employees', 'months', 'years'));
+    }
+
+    /**
+     * Generate payrolls in bulk for selected/all employees for a month/year
+     */
+    public function bulkGenerate(Request $request)
+    {
+        $data = $request->validate([
+            'month' => 'required|string',
+            'year' => 'required|integer|min:2000|max:' . (date('Y') + 1),
+            'employee_ids' => 'nullable|array',
+            'employee_ids.*' => 'integer|exists:employees,id',
+            'all_employees' => 'nullable|boolean',
+            'status' => 'nullable|in:pending,paid,cancelled',
+            'payment_date' => 'nullable|date',
+            'payment_method' => 'nullable|string',
+        ]);
+
+        $month = $data['month'];
+        $year = (int)$data['year'];
+        $status = $data['status'] ?? 'pending';
+        $paymentDate = $data['payment_date'] ?? null;
+        $paymentMethod = $data['payment_method'] ?? null;
+
+        $employeesQuery = Employee::query();
+        if (!($data['all_employees'] ?? false)) {
+            $ids = $data['employee_ids'] ?? [];
+            $employeesQuery->whereIn('id', $ids);
+        }
+        $employees = $employeesQuery->get();
+
+        $created = 0; $updated = 0; $errors = [];
+        foreach ($employees as $emp) {
+            try {
+                $basicSalary = $emp->current_offer_amount ?? 0;
+                // Days in month
+                $monthNumber = date('n', strtotime($month . ' 1'));
+                $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $monthNumber, $year);
+
+                // Leave breakdown (paid vs unpaid)
+                $casualLeave = \App\Models\Leave::where('employee_id', $emp->id)
+                    ->where('leave_type', 'casual')->where('status', 'approved')
+                    ->whereYear('start_date', $year)->whereMonth('start_date', $monthNumber)
+                    ->sum('total_days') ?? 0;
+                $medicalLeave = \App\Models\Leave::where('employee_id', $emp->id)
+                    ->where('leave_type', 'medical')->where('status', 'approved')
+                    ->whereYear('start_date', $year)->whereMonth('start_date', $monthNumber)
+                    ->sum('total_days') ?? 0;
+                $holidayLeave = \App\Models\Leave::where('employee_id', $emp->id)
+                    ->where('leave_type', 'holiday')->where('status', 'approved')
+                    ->whereYear('start_date', $year)->whereMonth('start_date', $monthNumber)
+                    ->sum('total_days') ?? 0;
+                $personalLeave = \App\Models\Leave::where('employee_id', $emp->id)
+                    ->where('leave_type', 'personal')->where('status', 'approved')
+                    ->whereYear('start_date', $year)->whereMonth('start_date', $monthNumber)
+                    ->sum('total_days') ?? 0;
+
+                // Earnings (only basic by default for bulk)
+                $allowances = 0; $bonuses = 0; $tax = 0; // PT as tax can be added later
+
+                // Deductions: unpaid personal leave only
+                $perDay = $daysInMonth > 0 ? ($basicSalary / $daysInMonth) : 0;
+                $leaveDeduction = $perDay * $personalLeave;
+                $otherDeductions = 0;
+                $deductions = $leaveDeduction + $otherDeductions;
+
+                $net = ($basicSalary + $allowances + $bonuses) - ($deductions + $tax);
+
+                $existing = Payroll::where('employee_id', $emp->id)
+                    ->where('month', $month)
+                    ->where('year', $year)
+                    ->first();
+
+                $payload = [
+                    'employee_id' => $emp->id,
+                    'month' => $month,
+                    'year' => $year,
+                    'basic_salary' => $basicSalary,
+                    'allowances' => $allowances,
+                    'bonuses' => $bonuses,
+                    'deductions' => $deductions,
+                    'tax' => $tax,
+                    'net_salary' => $net,
+                    'payment_date' => $paymentDate,
+                    'payment_method' => $paymentMethod,
+                    'status' => $status,
+                    'notes' => null,
+                ];
+
+                if ($existing) {
+                    $existing->update($payload);
+                    $updated++;
+                } else {
+                    Payroll::create($payload);
+                    $created++;
+                }
+            } catch (\Exception $e) {
+                $errors[] = 'EmpID '.$emp->id.': '.$e->getMessage();
+            }
+        }
+
+        $msg = "Bulk generation completed. Created: {$created}, Updated: {$updated}.";
+        if (!empty($errors)) {
+            $msg .= ' Some errors: '.implode(' | ', array_slice($errors,0,3));
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => $msg]);
+        }
+        return redirect()->route('payroll.index')->with('success', $msg);
+    }
+
     public function create(): View
     {
         $employees = Employee::orderBy('name')->get();
@@ -71,34 +199,70 @@ class PayrollController extends Controller
             'month' => 'required|string',
             'year' => 'required|integer|min:2000|max:' . (date('Y') + 1),
             'basic_salary' => 'required|numeric|min:0',
-            'allowances' => 'nullable|numeric|min:0',
+            'hra' => 'nullable|numeric|min:0',
+            'medical_allowance' => 'nullable|numeric|min:0',
+            'city_allowance' => 'nullable|numeric|min:0',
+            'tiffin_allowance' => 'nullable|numeric|min:0',
+            'assistant_allowance' => 'nullable|numeric|min:0',
+            'dearness_allowance' => 'nullable|numeric|min:0',
             'bonuses' => 'nullable|numeric|min:0',
-            'deductions' => 'nullable|numeric|min:0',
-            'tax' => 'nullable|numeric|min:0',
+            'pf' => 'nullable|numeric|min:0',
+            'professional_tax' => 'nullable|numeric|min:0',
+            'tds' => 'nullable|numeric|min:0',
+            'esic' => 'nullable|numeric|min:0',
+            'security_deposit' => 'nullable|numeric|min:0',
+            'leave_deduction' => 'nullable|numeric|min:0',
+            'leave_deduction_days' => 'nullable|numeric|min:0',
             'payment_date' => 'nullable|date',
             'payment_method' => 'nullable|string',
             'status' => 'required|in:pending,paid,cancelled',
             'notes' => 'nullable|string',
         ]);
 
-        // Calculate net salary
+        // Calculate net salary with detailed breakdown
         $basicSalary = $request->basic_salary ?? 0;
-        $allowances = $request->allowances ?? 0;
+        $hra = $request->hra ?? 0;
+        $medicalAllowance = $request->medical_allowance ?? 0;
+        $cityAllowance = $request->city_allowance ?? 0;
+        $tiffinAllowance = $request->tiffin_allowance ?? 0;
+        $assistantAllowance = $request->assistant_allowance ?? 0;
+        $dearnessAllowance = $request->dearness_allowance ?? 0;
+        $totalAllowances = $hra + $medicalAllowance + $cityAllowance + $tiffinAllowance + $assistantAllowance + $dearnessAllowance;
         $bonuses = $request->bonuses ?? 0;
-        $deductions = $request->deductions ?? 0;
-        $tax = $request->tax ?? 0;
         
-        $netSalary = ($basicSalary + $allowances + $bonuses) - ($deductions + $tax);
+        $pf = $request->pf ?? 0;
+        $professionalTax = $request->professional_tax ?? 0;
+        $tds = $request->tds ?? 0;
+        $esic = $request->esic ?? 0;
+        $securityDeposit = $request->security_deposit ?? 0;
+        $leaveDeduction = $request->leave_deduction ?? 0;
+        $leaveDeductionDays = $request->leave_deduction_days ?? 0;
+        
+        $totalDeductions = $pf + $professionalTax + $tds + $esic + $securityDeposit + $leaveDeduction;
+        $netSalary = ($basicSalary + $totalAllowances + $bonuses) - $totalDeductions;
 
         $payroll = Payroll::create([
             'employee_id' => $request->employee_id,
             'month' => $request->month,
             'year' => $request->year,
             'basic_salary' => $basicSalary,
-            'allowances' => $allowances,
+            'hra' => $hra,
+            'dearness_allowance' => $dearnessAllowance,
+            'city_allowance' => $cityAllowance,
+            'medical_allowance' => $medicalAllowance,
+            'tiffin_allowance' => $tiffinAllowance,
+            'assistant_allowance' => $assistantAllowance,
+            'allowances' => $totalAllowances,
             'bonuses' => $bonuses,
-            'deductions' => $deductions,
-            'tax' => $tax,
+            'pf' => $pf,
+            'professional_tax' => $professionalTax,
+            'tds' => $tds,
+            'esic' => $esic,
+            'security_deposit' => $securityDeposit,
+            'leave_deduction' => $leaveDeduction,
+            'leave_deduction_days' => $leaveDeductionDays,
+            'deductions' => $totalDeductions,
+            'tax' => $professionalTax + $tds,
             'net_salary' => $netSalary,
             'payment_date' => $request->payment_date,
             'payment_method' => $request->payment_method,
@@ -131,7 +295,8 @@ class PayrollController extends Controller
             ]);
         }
 
-        return view('payroll.edit', compact('payroll', 'employees', 'months'));
+        // Use the same create view for edit mode to avoid modal popups
+        return view('payroll.create', compact('payroll', 'employees', 'months'));
     }
 
     public function update(Request $request, $id)
@@ -143,8 +308,19 @@ class PayrollController extends Controller
             'month' => 'required|string',
             'year' => 'required|integer|min:2000|max:' . (date('Y') + 1),
             'basic_salary' => 'required|numeric|min:0',
-            'allowances' => 'nullable|numeric|min:0',
+            'hra' => 'nullable|numeric|min:0',
+            'medical_allowance' => 'nullable|numeric|min:0',
+            'city_allowance' => 'nullable|numeric|min:0',
+            'tiffin_allowance' => 'nullable|numeric|min:0',
+            'assistant_allowance' => 'nullable|numeric|min:0',
+            'dearness_allowance' => 'nullable|numeric|min:0',
             'bonuses' => 'nullable|numeric|min:0',
+            'pf' => 'nullable|numeric|min:0',
+            'professional_tax' => 'nullable|numeric|min:0',
+            'tds' => 'nullable|numeric|min:0',
+            'esic' => 'nullable|numeric|min:0',
+            'security_deposit' => 'nullable|numeric|min:0',
+            'leave_deduction' => 'nullable|numeric|min:0',
             'deductions' => 'nullable|numeric|min:0',
             'tax' => 'nullable|numeric|min:0',
             'payment_date' => 'nullable|date',
@@ -153,24 +329,48 @@ class PayrollController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        // Calculate net salary
+        // Calculate net salary with detailed breakdown
         $basicSalary = $request->basic_salary ?? 0;
-        $allowances = $request->allowances ?? 0;
+        $hra = $request->hra ?? 0;
+        $medicalAllowance = $request->medical_allowance ?? 0;
+        $cityAllowance = $request->city_allowance ?? 0;
+        $tiffinAllowance = $request->tiffin_allowance ?? 0;
+        $allowances = $request->allowances ?? ($hra + $medicalAllowance + $cityAllowance + $tiffinAllowance);
         $bonuses = $request->bonuses ?? 0;
+        
+        $pf = $request->pf ?? 0;
+        $professionalTax = $request->professional_tax ?? 0;
+        $tds = $request->tds ?? 0;
+        $esic = $request->esic ?? 0;
+        $securityDeposit = $request->security_deposit ?? 0;
+        $leaveDeduction = $request->leave_deduction ?? 0;
         $deductions = $request->deductions ?? 0;
         $tax = $request->tax ?? 0;
         
-        $netSalary = ($basicSalary + $allowances + $bonuses) - ($deductions + $tax);
+        $totalDeductions = $pf + $professionalTax + $tds + $esic + $securityDeposit + $leaveDeduction + $deductions + $tax;
+        $netSalary = ($basicSalary + $allowances + $bonuses) - $totalDeductions;
 
         $payroll->update([
             'employee_id' => $request->employee_id,
             'month' => $request->month,
             'year' => $request->year,
             'basic_salary' => $basicSalary,
-            'allowances' => $allowances,
+            'hra' => $hra,
+            'medical_allowance' => $medicalAllowance,
+            'city_allowance' => $cityAllowance,
+            'tiffin_allowance' => $tiffinAllowance,
+            'assistant_allowance' => $assistantAllowance,
+            'dearness_allowance' => $dearnessAllowance,
+            'allowances' => $totalAllowances,
             'bonuses' => $bonuses,
-            'deductions' => $deductions,
-            'tax' => $tax,
+            'pf' => $pf,
+            'professional_tax' => $professionalTax,
+            'tds' => $tds,
+            'esic' => $esic,
+            'security_deposit' => $securityDeposit,
+            'leave_deduction' => $leaveDeduction,
+            'deductions' => $totalDeductions,
+            'tax' => $professionalTax + $tds,
             'net_salary' => $netSalary,
             'payment_date' => $request->payment_date,
             'payment_method' => $request->payment_method,

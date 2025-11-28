@@ -68,7 +68,14 @@
         </div>
         <div>
           <label class="hrp-label">Position:</label>
-          <input name="position" value="{{ old('position') }}" placeholder="Enter Position" class="hrp-input Rectangle-29">
+          <select name="position" class="Rectangle-29 Rectangle-29-select" required>
+            <option value="">Select Position</option>
+            @if(isset($positions))
+              @foreach($positions as $pos)
+                <option value="{{ $pos }}" {{ old('position') === $pos ? 'selected' : '' }}>{{ $pos }}</option>
+              @endforeach
+            @endif
+          </select>
           @error('position')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>

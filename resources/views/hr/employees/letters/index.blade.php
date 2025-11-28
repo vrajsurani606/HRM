@@ -244,8 +244,12 @@
                 <i class="fa fa-plus"></i> Add New Letter
             </a>
         </div>
+        <div class="flex items-center gap-2">
+            <button class="action-btn view" id="gridViewBtn"><i class="fa fa-th"></i> Grid</button>
+            <button class="action-btn view" id="listViewBtn"><i class="fa fa-list"></i> List</button>
+        </div>
     </div>
-    <div class="letters-grid">
+    <div class="letters-grid" id="lettersWrap">
         @forelse ($letters as $letter)
             <div class="letter-card">
                 <div class="card-header">
@@ -274,10 +278,10 @@
                        target="_blank">
                         <i class="fa fa-print"></i> Print
                     </a>
-                    <a href="#" class="action-btn edit" title="Edit Letter" target="_blank">
+                    <a href="{{ route('employees.letters.edit', ['employee' => $employee, 'letter' => $letter]) }}" class="action-btn edit" title="Edit Letter" target="_blank">
                         <i class="fa fa-edit"></i> Edit
                     </a>
-                    <form action="#" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this letter?');">
+                    <form action="{{ route('employees.letters.destroy', ['employee' => $employee, 'letter' => $letter]) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this letter?');">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="action-btn delete" title="Delete Letter">
@@ -358,6 +362,7 @@
 @push('scripts')
 <script>
     $(function () {
+
         // Initialize datepicker
         $('.datepicker').datepicker({
             autoclose: true,
@@ -443,5 +448,16 @@
             });
         });
     });
+
+    // Simple Grid/List toggle
+    (function(){
+      const wrap = document.getElementById('lettersWrap');
+      const gridBtn = document.getElementById('gridViewBtn');
+      const listBtn = document.getElementById('listViewBtn');
+      function toGrid(){ if(!wrap) return; wrap.style.display='grid'; wrap.style.gridTemplateColumns='repeat(auto-fill, minmax(300px, 1fr))'; }
+      function toList(){ if(!wrap) return; wrap.style.display='block'; wrap.style.gridTemplateColumns='none'; }
+      if(gridBtn) gridBtn.addEventListener('click', function(e){ e.preventDefault(); toGrid(); });
+      if(listBtn) listBtn.addEventListener('click', function(e){ e.preventDefault(); toList(); });
+    })();
 </script>
 @endpush

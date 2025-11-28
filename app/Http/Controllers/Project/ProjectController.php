@@ -105,9 +105,16 @@ class ProjectController extends Controller
         }
     }
 
-    public function edit(int $id): View
+    public function overview($id)
     {
-        return view('projects.edit', compact('id'));
+        $project = Project::with(['company', 'stage', 'tasks', 'members'])->findOrFail($id);
+        return view('projects.overview', ['id' => $id]);
+    }
+
+    public function edit(int $id)
+    {
+        // Edit is handled via modal in index view
+        return redirect()->route('projects.index');
     }
 
     public function update(Request $request, $id)
@@ -149,9 +156,30 @@ class ProjectController extends Controller
         }
     }
 
-    public function destroy(int $id): RedirectResponse
+    public function destroy(int $id)
     {
-        return back()->with('success', 'Project deleted');
+        try {
+            $project = Project::findOrFail($id);
+            $project->delete();
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Project deleted successfully'
+                ]);
+            }
+            
+            return back()->with('success', 'Project deleted successfully');
+        } catch (\Exception $e) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete project'
+                ], 500);
+            }
+            
+            return back()->with('error', 'Failed to delete project');
+        }
     }
 
     // Task Management Methods
@@ -215,7 +243,7 @@ class ProjectController extends Controller
     // Comment Management Methods
     public function getComments(Project $project)
     {
-        $comments = $project->comments;
+        $comments = $project->comments()->with('user')->orderBy('created_at', 'desc')->get();
         
         return response()->json([
             'success' => true,
@@ -243,7 +271,24 @@ class ProjectController extends Controller
     // Member Management Methods
     public function getMembers(Project $project)
     {
-        $members = $project->members()->get();
+        // Get members with their employee data
+        $members = $project->members()->get()->map(function($user) {
+            $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+            
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'pivot' => $user->pivot,
+                'employee' => $employee ? [
+                    'id' => $employee->id,
+                    'code' => $employee->code,
+                    'position' => $employee->position,
+                    'photo_path' => $employee->photo_path,
+                    'mobile_no' => $employee->mobile_no,
+                ] : null
+            ];
+        });
         
         return response()->json([
             'success' => true,
@@ -253,16 +298,46 @@ class ProjectController extends Controller
 
     public function getAvailableUsers(Project $project)
     {
-        // Get all users except those already in the project
-        $existingMemberIds = $project->members()->pluck('users.id');
-        $availableUsers = \App\Models\User::whereNotIn('id', $existingMemberIds)
-            ->orderBy('name')
-            ->get(['id', 'name', 'email']);
-        
-        return response()->json([
-            'success' => true,
-            'users' => $availableUsers
-        ]);
+        try {
+            // Get all employees
+            $employees = \App\Models\Employee::orderBy('name')->get();
+            
+            // Get existing project member user IDs
+            $existingMemberUserIds = $project->members()->pluck('users.id')->toArray();
+            
+            // Filter and format employees
+            $availableEmployees = $employees->filter(function($employee) use ($existingMemberUserIds) {
+                // Only include employees with user_id and not already in project
+                return $employee->user_id && !in_array($employee->user_id, $existingMemberUserIds);
+            })->map(function($employee) {
+                return [
+                    'id' => $employee->user_id,
+                    'employee_id' => $employee->id,
+                    'name' => $employee->name,
+                    'email' => $employee->email ?? '',
+                    'position' => $employee->position ?? '',
+                    'photo_path' => $employee->photo_path ?? '',
+                    'code' => $employee->code ?? '',
+                ];
+            })->values();
+            
+            return response()->json([
+                'success' => true,
+                'users' => $availableEmployees
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error in getAvailableUsers', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch employees',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function addMember(Request $request, Project $project)

@@ -40,7 +40,8 @@
                             Unlimited
                         </div>
                         <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">
-                            Personal: {{ number_format($leaveBalance->personal_leave_used, 1) }} days used
+                            Personal: {{ number_format($leaveBalance->personal_leave_used, 1) }} days<br>
+                            Holiday: {{ number_format($leaveBalance->holiday_leave_used ?? 0, 1) }} days
                         </div>
                     </div>
                 </div>
@@ -117,7 +118,7 @@
                         <i class="fa fa-info-circle"></i> Calculated Leave Days: <span id="daysCount">0</span> day(s)
                     </div>
                     <div style="font-size: 12px; color: #3b82f6; margin-top: 4px;">
-                        (Excluding weekends and company holidays)
+                        (Excluding weekends)
                     </div>
                 </div>
 
@@ -132,27 +133,6 @@
             </form>
         </div>
     </div>
-
-    <!-- Company Holidays Reference -->
-    @if($holidays->count() > 0)
-    <div class="hrp-card" style="margin-top: 24px;">
-        <div class="hrp-card-header">
-            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Company Holidays {{ now()->year }}</h3>
-        </div>
-        <div class="hrp-card-body">
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px;">
-                @foreach($holidays as $holiday)
-                <div style="background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 3px solid #fbbf24;">
-                    <div style="font-weight: 600; color: #374151; font-size: 14px;">{{ $holiday->name }}</div>
-                    <div style="color: #6b7280; font-size: 12px; margin-top: 4px;">
-                        {{ $holiday->date->format('d M Y') }} ({{ $holiday->date->format('l') }})
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-    @endif
 </div>
 
 <script>

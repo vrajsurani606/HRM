@@ -19,6 +19,412 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(38, 123, 245, 0.15) !important;
 }
+
+/* View Toggle Buttons */
+.view-toggle-group {
+  display: flex;
+  gap: 4px;
+  background: #f3f4f6;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.view-toggle-btn {
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.view-toggle-btn:hover {
+  background: #e5e7eb;
+}
+
+.view-toggle-btn.active {
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.view-toggle-btn svg {
+  color: #6b7280;
+}
+
+.view-toggle-btn.active svg {
+  color: #3b82f6;
+}
+
+/* Grid View Styles */
+.projects-grid-view {
+  display: none;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.projects-grid-view.active {
+  display: grid;
+}
+
+.project-grid-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.project-grid-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.project-grid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 12px;
+}
+
+.project-grid-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.project-grid-stage {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.project-grid-description {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 16px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.project-grid-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.project-grid-progress {
+  flex: 1;
+  margin-right: 12px;
+}
+
+.project-grid-progress-text {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.project-grid-progress-bar {
+  height: 6px;
+  background: #f3f4f6;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.project-grid-progress-fill {
+  height: 100%;
+  background: #10b981;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.project-grid-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.project-grid-action-btn {
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.project-grid-action-btn.btn-view {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.project-grid-action-btn.btn-view svg {
+  color: #3b82f6;
+}
+
+.project-grid-action-btn.btn-view:hover {
+  background: #3b82f6;
+}
+
+.project-grid-action-btn.btn-view:hover svg {
+  color: white;
+}
+
+.project-grid-action-btn.btn-edit {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.project-grid-action-btn.btn-edit svg {
+  color: #f59e0b;
+}
+
+.project-grid-action-btn.btn-edit:hover {
+  background: #f59e0b;
+}
+
+.project-grid-action-btn.btn-edit:hover svg {
+  color: white;
+}
+
+.project-grid-action-btn.btn-delete {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.project-grid-action-btn.btn-delete svg {
+  color: #ef4444;
+}
+
+.project-grid-action-btn.btn-delete:hover {
+  background: #ef4444;
+}
+
+.project-grid-action-btn.btn-delete:hover svg {
+  color: white;
+}
+
+.project-grid-action-btn.btn-overview {
+  border-color: #8b5cf6;
+  background: #f5f3ff;
+}
+
+.project-grid-action-btn.btn-overview svg {
+  color: #8b5cf6;
+}
+
+.project-grid-action-btn.btn-overview:hover {
+  background: #8b5cf6;
+}
+
+.project-grid-action-btn.btn-overview:hover svg {
+  color: white;
+}
+
+/* List View Styles */
+.projects-list-view {
+  display: none;
+  padding: 20px;
+}
+
+.projects-list-view.active {
+  display: block;
+}
+
+.projects-table {
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.projects-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.projects-table thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.projects-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.projects-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.projects-table tbody tr {
+  transition: background 0.2s;
+}
+
+.projects-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.project-list-name {
+  font-weight: 600;
+  color: #1f2937;
+  cursor: pointer;
+}
+
+.project-list-name:hover {
+  color: #3b82f6;
+}
+
+.project-list-stage-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.project-list-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.project-list-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: #f3f4f6;
+  border-radius: 3px;
+  overflow: hidden;
+  max-width: 100px;
+}
+
+.project-list-progress-fill {
+  height: 100%;
+  background: #10b981;
+  border-radius: 3px;
+}
+
+.project-list-progress-text {
+  font-size: 12px;
+  color: #6b7280;
+  min-width: 45px;
+}
+
+.project-list-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.project-list-action-btn {
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.project-list-action-btn.btn-view {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.project-list-action-btn.btn-view svg {
+  color: #3b82f6;
+}
+
+.project-list-action-btn.btn-view:hover {
+  background: #3b82f6;
+}
+
+.project-list-action-btn.btn-view:hover svg {
+  color: white;
+}
+
+.project-list-action-btn.btn-edit {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.project-list-action-btn.btn-edit svg {
+  color: #f59e0b;
+}
+
+.project-list-action-btn.btn-edit:hover {
+  background: #f59e0b;
+}
+
+.project-list-action-btn.btn-edit:hover svg {
+  color: white;
+}
+
+.project-list-action-btn.btn-delete {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.project-list-action-btn.btn-delete svg {
+  color: #ef4444;
+}
+
+.project-list-action-btn.btn-delete:hover {
+  background: #ef4444;
+}
+
+.project-list-action-btn.btn-delete:hover svg {
+  color: white;
+}
+
+.project-list-action-btn.btn-overview {
+  border-color: #8b5cf6;
+  background: #f5f3ff;
+}
+
+.project-list-action-btn.btn-overview svg {
+  color: #8b5cf6;
+}
+
+.project-list-action-btn.btn-overview:hover {
+  background: #8b5cf6;
+}
+
+.project-list-action-btn.btn-overview:hover svg {
+  color: white;
+}
+
+/* Hide kanban board when other views are active */
+.kanban-board.hidden {
+  display: none;
+}
 </style>
 @endpush
 @section('content')
@@ -29,11 +435,32 @@
       <input type="text" class="kanban-search" placeholder="Type to search..">
     </div>
     <div class="header-controls">
-      <div class="board-selector">
-        <span>Designer Board</span>
-        <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
-          <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+      <!-- View Toggle Buttons -->
+      <div class="view-toggle-group">
+        <button class="view-toggle-btn active" data-view="kanban" title="Kanban View">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="18" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="10" rx="1"></rect>
+          </svg>
+        </button>
+        <button class="view-toggle-btn" data-view="grid" title="Grid View">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+          </svg>
+        </button>
+        <button class="view-toggle-btn" data-view="list" title="List View">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+        </button>
       </div>
       <button class="download-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -111,6 +538,148 @@
       </div>
     </div>
     @endforeach
+  </div>
+
+  <!-- Grid View -->
+  <div class="projects-grid-view">
+    @foreach($stages as $stage)
+      @foreach($stage->projects as $project)
+      <div class="project-grid-card" onclick="viewProject({{ $project->id }}, event)">
+        <div class="project-grid-header">
+          <h3 class="project-grid-title">{{ $project->name }}</h3>
+          <span class="project-grid-stage" style="background: {{ $stage->color }}; color: #000;">
+            {{ $stage->name }}
+          </span>
+        </div>
+        
+        @if($project->description)
+        <p class="project-grid-description">{{ $project->description }}</p>
+        @endif
+        
+        <div class="project-grid-meta">
+          <div class="project-grid-progress">
+            <div class="project-grid-progress-text">
+              {{ $project->completed_tasks }}/{{ $project->total_tasks }} Tasks
+            </div>
+            <div class="project-grid-progress-bar">
+              <div class="project-grid-progress-fill" style="width: {{ $project->progress }}%"></div>
+            </div>
+          </div>
+          
+          <div class="project-grid-actions" onclick="event.stopPropagation()">
+            <button class="project-grid-action-btn btn-view" onclick="viewProject({{ $project->id }}, event)" title="View Project">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+            <button class="project-grid-action-btn btn-edit" onclick="editProject({{ $project->id }})" title="Edit Project">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+            </button>
+            <button class="project-grid-action-btn btn-overview" onclick="window.location.href='{{ url('/projects') }}/{{ $project->id }}/overview'" title="Project Overview">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+            </button>
+            <button class="project-grid-action-btn btn-delete" onclick="deleteProject({{ $project->id }})" title="Delete Project">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      @endforeach
+    @endforeach
+  </div>
+
+  <!-- List View -->
+  <div class="projects-list-view">
+    <div class="projects-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Project Name</th>
+            <th>Company</th>
+            <th>Stage</th>
+            <th>Progress</th>
+            <th>Due Date</th>
+            <th>Priority</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($stages as $stage)
+            @foreach($stage->projects as $project)
+            <tr>
+              <td>
+                <span class="project-list-name" onclick="viewProject({{ $project->id }}, event)">
+                  {{ $project->name }}
+                </span>
+              </td>
+              <td>{{ $project->company->company_name ?? 'N/A' }}</td>
+              <td>
+                <span class="project-list-stage-badge" style="background: {{ $stage->color }}; color: #000;">
+                  {{ $stage->name }}
+                </span>
+              </td>
+              <td>
+                <div class="project-list-progress">
+                  <div class="project-list-progress-bar">
+                    <div class="project-list-progress-fill" style="width: {{ $project->progress }}%"></div>
+                  </div>
+                  <span class="project-list-progress-text">{{ $project->progress }}%</span>
+                </div>
+              </td>
+              <td>{{ $project->due_date ? $project->due_date->format('M d, Y') : 'N/A' }}</td>
+              <td>
+                <span style="color: {{ $project->priority === 'high' ? '#ef4444' : ($project->priority === 'medium' ? '#f59e0b' : '#10b981') }}; font-weight: 500; text-transform: capitalize;">
+                  {{ $project->priority ?? 'medium' }}
+                </span>
+              </td>
+              <td>
+                <div class="project-list-actions">
+                  <button class="project-list-action-btn btn-view" onclick="viewProject({{ $project->id }}, event)" title="View Project">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                  <button class="project-list-action-btn btn-edit" onclick="editProject({{ $project->id }})" title="Edit Project">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </button>
+                  <button class="project-list-action-btn btn-overview" onclick="window.location.href='{{ url('/projects') }}/{{ $project->id }}/overview'" title="Project Overview">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="14" width="7" height="7"></rect>
+                      <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                  </button>
+                  <button class="project-list-action-btn btn-delete" onclick="deleteProject({{ $project->id }})" title="Delete Project">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            @endforeach
+          @endforeach
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Create Stage Modal -->
@@ -224,6 +793,84 @@
         <div class="form-actions">
           <button type="button" onclick="closeProjectModal()" class="btn-cancel">Cancel</button>
           <button type="submit" class="btn-create">Create Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Project Modal -->
+  <div id="editProjectModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>Edit Project</h3>
+        <button onclick="closeEditProjectModal()" class="close-btn">&times;</button>
+      </div>
+      <form id="editProjectForm">
+        @csrf
+        @method('PATCH')
+        <input type="hidden" id="editProjectId" name="project_id">
+        
+        <div class="form-group">
+          <label for="editProjectName">Project Name <span style="color: red;">*</span></label>
+          <input type="text" id="editProjectName" name="name" class="form-input" placeholder="Enter project name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editProjectCompany">Select Company</label>
+          <select id="editProjectCompany" name="company_id" class="form-input">
+            <option value="">-- Select Company --</option>
+            @foreach($companies as $company)
+              <option value="{{ $company->id }}">{{ $company->company_name }}</option>
+            @endforeach
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="editProjectDescription">Description</label>
+          <textarea id="editProjectDescription" name="description" class="form-input" rows="3" placeholder="Enter project description"></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div class="form-group">
+            <label for="editProjectStartDate">Start Date</label>
+            <input type="date" id="editProjectStartDate" name="start_date" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label for="editProjectDueDate">Due Date</label>
+            <input type="date" id="editProjectDueDate" name="due_date" class="form-input">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div class="form-group">
+            <label for="editProjectPriority">Priority</label>
+            <select id="editProjectPriority" name="priority" class="form-input">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editProjectStatus">Status</label>
+            <select id="editProjectStatus" name="status" class="form-input">
+              <option value="active">Active</option>
+              <option value="on_hold">On Hold</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="editProjectBudget">Budget</label>
+          <input type="number" id="editProjectBudget" name="budget" class="form-input" placeholder="0.00" step="0.01" min="0">
+        </div>
+
+        <div class="form-actions">
+          <button type="button" onclick="closeEditProjectModal()" class="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-create">Update Project</button>
         </div>
       </form>
     </div>
@@ -441,6 +1088,43 @@
 @push('scripts')
 <script>
 let draggedElement = null;
+
+// View Switching functionality
+document.addEventListener('DOMContentLoaded', function() {
+    initializeViewSwitching();
+    initializeDragAndDrop();
+});
+
+function initializeViewSwitching() {
+    const viewButtons = document.querySelectorAll('.view-toggle-btn');
+    const kanbanView = document.querySelector('.kanban-board');
+    const gridView = document.querySelector('.projects-grid-view');
+    const listView = document.querySelector('.projects-list-view');
+    
+    // Load saved view preference
+    const savedView = localStorage.getItem('projectView') || 'kanban';
+    switchView(savedView);
+    
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const view = this.dataset.view;
+            switchView(view);
+            localStorage.setItem('projectView', view);
+        });
+    });
+    
+    function switchView(view) {
+        // Update button states
+        viewButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === view);
+        });
+        
+        // Show/hide views
+        kanbanView.classList.toggle('hidden', view !== 'kanban');
+        gridView.classList.toggle('active', view === 'grid');
+        listView.classList.toggle('active', view === 'list');
+    }
+}
 
 // Drag and Drop functionality
 document.addEventListener('DOMContentLoaded', function() {
@@ -1721,6 +2405,126 @@ function formatText(format) {
     
     input.value = input.value.substring(0, start) + formattedText + input.value.substring(end);
     input.focus();
+}
+
+// Edit Project Function
+function editProject(projectId) {
+    // Load project data
+    fetch(`{{ url('/projects') }}/${projectId}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.project) {
+            const project = data.project;
+            
+            // Fill form fields
+            document.getElementById('editProjectId').value = project.id;
+            document.getElementById('editProjectName').value = project.name || '';
+            document.getElementById('editProjectDescription').value = project.description || '';
+            document.getElementById('editProjectCompany').value = project.company_id || '';
+            document.getElementById('editProjectStartDate').value = project.start_date || '';
+            document.getElementById('editProjectDueDate').value = project.due_date || '';
+            document.getElementById('editProjectPriority').value = project.priority || 'medium';
+            document.getElementById('editProjectStatus').value = project.status || 'active';
+            document.getElementById('editProjectBudget').value = project.budget || '';
+            
+            // Show modal
+            document.getElementById('editProjectModal').style.display = 'flex';
+        }
+    })
+    .catch(error => {
+        console.error('Error loading project:', error);
+        toastr.error('Error loading project data');
+    });
+}
+
+function closeEditProjectModal() {
+    document.getElementById('editProjectModal').style.display = 'none';
+    document.getElementById('editProjectForm').reset();
+}
+
+// Handle edit form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const editForm = document.getElementById('editProjectForm');
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const projectId = document.getElementById('editProjectId').value;
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            fetch(`{{ url('/projects') }}/${projectId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success('Project updated successfully!');
+                    closeEditProjectModal();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    toastr.error(data.message || 'Failed to update project');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('Error updating project');
+            });
+        });
+    }
+});
+
+// Delete Project Function
+function deleteProject(projectId) {
+    Swal.fire({
+        title: 'Delete Project?',
+        text: "This will delete all tasks, comments, and members associated with this project!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete it',
+        cancelButtonText: 'Cancel',
+        customClass: { popup: 'perfect-swal-popup' }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`{{ url('/projects') }}/${projectId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success('Project deleted successfully!');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    toastr.error('Failed to delete project');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting project:', error);
+                toastr.error('Error deleting project');
+            });
+        }
+    });
 }
 
 // Close modals on outside click
