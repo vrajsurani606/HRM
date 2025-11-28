@@ -27,95 +27,168 @@
         </svg>
       </button>
       <div class="filter-right">
+        <div class="view-toggle-group" style="margin-right:8px;">
+          <button class="view-toggle-btn" data-view="grid" title="Grid View" aria-label="Grid View">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+            </svg>
+          </button>
+          <button class="view-toggle-btn active" data-view="list" title="List View" aria-label="List View">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="8" y1="6" x2="21" y2="6"></line>
+              <line x1="8" y1="12" x2="21" y2="12"></line>
+              <line x1="8" y1="18" x2="21" y2="18"></line>
+              <line x1="3" y1="6" x2="3.01" y2="6"></line>
+              <line x1="3" y1="12" x2="3.01" y2="12"></line>
+              <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+          </button>
+        </div>
         <input type="text" name="search" class="filter-pill" placeholder="Search by name, mobile, code..." value="{{ request('search') }}">
         <a href="{{ route('hiring.index') }}" class="pill-btn pill-secondary">Reset</a>
         <a href="{{ route('hiring.create') }}" class="pill-btn pill-success">+ Add</a>
       </div>
+    </form>
   </div>
-  <div class="JV-datatble JV-datatble--zoom striped-surface striped-surface--full table-wrap pad-none">
-    <table>
-      <thead>
-        <tr>
-          <th>Action</th>
-          <th>Serial No.</th>
-          <th>Hiring Lead Code</th>
-          <th>Person Name</th>
-          <th>Mo. No.</th>
-          <th>Address</th>
-          <th>Position</th>
-          <th>Is Exp.?</th>
-          <th>Exp.</th>
-          <th>Pre. Company</th>
-          <th>Pre. Salary</th>
-          <th>Gender</th>
-          <th>Resume</th>
-        </tr>
-      </thead>
-      <tbody>
-        @forelse($leads as $i => $lead)
-        <tr>
-          <td>
-            <a href="{{ route('hiring.edit', $lead) }}" title="Edit" aria-label="Edit">
-              <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon">
+  <!-- Grid View -->
+  <div class="hiring-grid-view">
+    @forelse($leads as $lead)
+      @php($initial = strtoupper(mb_substr((string)($lead->person_name ?? 'U'), 0, 1)))
+      <div class="hiring-grid-card" onclick="window.location.href='{{ route('hiring.edit', $lead) }}'" title="Edit lead">
+        <div class="hiring-grid-header">
+          <div class="hiring-grid-id">
+            <div class="hiring-avatar">{{ $initial }}</div>
+            <div class="hiring-name-role">
+              <h3 class="hiring-grid-title">{{ $lead->person_name }}</h3>
+              <div class="hiring-role">{{ $lead->position ?? '-' }}</div>
+            </div>
+          </div>
+          <div class="hiring-chips">
+            <span class="chip chip-{{ $lead->is_experience ? 'exp' : 'fresh' }}">{{ $lead->is_experience ? (($lead->experience_count ?? 0).' yrs') : 'Fresher' }}</span>
+            <span class="chip chip-gender">{{ ucfirst($lead->gender ?? '-') }}</span>
+          </div>
+        </div>
+        <p class="hiring-grid-sub">Code: {{ $lead->unique_code }} • Mobile: {{ $lead->mobile_no ?? '-' }}</p>
+        <div class="hiring-grid-meta">
+          <div class="hiring-grid-left">
+            <div class="meta-row"><span class="meta-label">Address</span><span class="meta-value">{{ $lead->address ?? '-' }}</span></div>
+            <div class="meta-row"><span class="meta-label">Prev.</span><span class="meta-value">{{ $lead->experience_previous_company ?? '-' }} {{ $lead->previous_salary ? '• ₹'.$lead->previous_salary : '' }}</span></div>
+          </div>
+          <div class="hiring-grid-actions" onclick="event.stopPropagation()">
+            <a href="{{ route('hiring.edit', $lead) }}" class="hiring-grid-action-btn btn-edit" title="Edit" aria-label="Edit">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
             </a>
-            <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']) }}" title="Print Offer Letter" target="_blank" aria-label="Print Offer Letter">
-              <img src="{{ asset('action_icon/print.svg') }}" alt="Print Offer Letter" class="action-icon">
+            <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']) }}" target="_blank" class="hiring-grid-action-btn btn-print" title="Print Offer Letter" aria-label="Print Offer Letter">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
             </a>
             <form method="POST" action="{{ route('hiring.destroy', $lead) }}" class="delete-form" style="display:inline">
               @csrf @method('DELETE')
-              <button type="button" onclick="confirmDeleteLead(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
-                <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon">
+              <button type="button" class="hiring-grid-action-btn btn-delete" onclick="confirmDeleteLead(this); event.stopPropagation();" title="Delete" aria-label="Delete">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
               </button>
             </form>
-           <a href="{{ route('hiring.convert', $lead->id) }}"
-                  class="convert-btn"
-                  data-id="{{ $lead->id }}"
-                  data-url="{{ route('hiring.convert', $lead->id) }}"
-                  data-name="{{ $lead->person_name }}"
-                  title="Convert to Employee">
-                    <img src="{{ asset('action_icon/convert.svg') }}" class="action-icon">
-                </a>
+            <a href="{{ route('hiring.convert', $lead->id) }}" class="hiring-grid-action-btn btn-convert" title="Convert to Employee" aria-label="Convert to Employee">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,11 12,14 15,11"></polyline><line x1="12" y1="2" x2="12" y2="14"></line></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    @empty
+      <div class="text-center py-3">No records found</div>
+    @endforelse
+  </div>
 
-          </td>
-          <td>
-            @php($sno = ($leads->currentPage()-1) * $leads->perPage() + $i + 1)
-            {{ $sno }}
-          </td>
-          <td>{{ $lead->unique_code }}</td>
-          <td>{{ $lead->person_name }}</td>
-          <td>{{ $lead->mobile_no }}</td>
-          <td>{{ $lead->address }}</td>
-          <td>{{ $lead->position }}</td>
-          <td>
-            @if($lead->is_experience)
-            <span style="display:inline-flex;align-items:center;gap:6px;background:#e8f7ef;color:#0ea05d;font-weight:800;font-size:12px;padding:6px 10px;border-radius:9999px;">
-              <span style="width:8px;height:8px;border-radius:9999px;background:#0ea05d;display:inline-block"></span> Yes
-            </span>
-            @else
-            <span style="display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;color:#6b7280;font-weight:800;font-size:12px;padding:6px 10px;border-radius:9999px;">
-              <span style="width:8px;height:8px;border-radius:9999px;background:#9ca3af;display:inline-block"></span> No
-            </span>
-            @endif
-          </td>
-          <td>{{ $lead->experience_count }}</td>
-          <td>{{ $lead->experience_previous_company }}</td>
-          <td>{{ $lead->previous_salary }}</td>
-          <td class="capitalize">{{ $lead->gender }}</td>
-          <td>
-            @if($lead->resume_path)
-            <a class="hrp-link" href="{{ route('hiring.resume', $lead->id) }}" target="_blank">View</a>
-            @else
-            —
-            @endif
-          </td>
-        </tr>
-        @empty
-        <tr>
-          <td colspan="13" class="text-center py-8">No records found</td>
-        </tr>
-        @endforelse
-      </tbody>
-    </table>
+  <!-- List View -->
+  <div class="hiring-list-view active">
+    <div class="JV-datatble JV-datatble--zoom striped-surface striped-surface--full table-wrap pad-none">
+      <table>
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>Serial No.</th>
+            <th>Hiring Lead Code</th>
+            <th>Person Name</th>
+            <th>Mo. No.</th>
+            <th>Address</th>
+            <th>Position</th>
+            <th>Is Exp.?</th>
+            <th>Exp.</th>
+            <th>Pre. Company</th>
+            <th>Pre. Salary</th>
+            <th>Gender</th>
+            <th>Resume</th>
+          </tr>
+        </thead>
+        <tbody>
+          @forelse($leads as $i => $lead)
+          <tr>
+            <td>
+              <div class="action-icons">
+                <a href="{{ route('hiring.edit', $lead) }}" title="Edit" aria-label="Edit">
+                  <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon">
+                </a>
+                <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']) }}" title="Print Offer Letter" target="_blank" aria-label="Print Offer Letter">
+                  <img src="{{ asset('action_icon/print.svg') }}" alt="Print Offer Letter" class="action-icon">
+                </a>
+                <form method="POST" action="{{ route('hiring.destroy', $lead) }}" class="delete-form" style="display:inline">
+                  @csrf @method('DELETE')
+                  <button type="button" onclick="confirmDeleteLead(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
+                    <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon">
+                  </button>
+                </form>
+                <a href="{{ route('hiring.convert', $lead->id) }}"
+                      class="convert-btn"
+                      data-id="{{ $lead->id }}"
+                      data-url="{{ route('hiring.convert', $lead->id) }}"
+                      data-name="{{ $lead->person_name }}"
+                      title="Convert to Employee">
+                        <img src="{{ asset('action_icon/convert.svg') }}" class="action-icon">
+                  </a>
+              </div>
+            </td>
+            <td>
+              @php($sno = ($leads->currentPage()-1) * $leads->perPage() + $i + 1)
+              {{ $sno }}
+            </td>
+            <td>{{ $lead->unique_code }}</td>
+            <td>{{ $lead->person_name }}</td>
+            <td>{{ $lead->mobile_no }}</td>
+            <td>{{ $lead->address }}</td>
+            <td>{{ $lead->position }}</td>
+            <td>
+              @if($lead->is_experience)
+              <span style="display:inline-flex;align-items:center;gap:6px;background:#e8f7ef;color:#0ea05d;font-weight:800;font-size:12px;padding:6px 10px;border-radius:9999px;">
+                <span style="width:8px;height:8px;border-radius:9999px;background:#0ea05d;display:inline-block"></span> Yes
+              </span>
+              @else
+              <span style="display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;color:#6b7280;font-weight:800;font-size:12px;padding:6px 10px;border-radius:9999px;">
+                <span style="width:8px;height:8px;border-radius:9999px;background:#9ca3af;display:inline-block"></span> No
+              </span>
+              @endif
+            </td>
+            <td>{{ $lead->experience_count }}</td>
+            <td>{{ $lead->experience_previous_company }}</td>
+            <td>{{ $lead->previous_salary }}</td>
+            <td class="capitalize">{{ $lead->gender }}</td>
+            <td>
+              @if($lead->resume_path)
+              <a class="hrp-link" href="{{ route('hiring.resume', $lead->id) }}" target="_blank">View</a>
+              @else
+              —
+              @endif
+            </td>
+          </tr>
+          @empty
+          <tr>
+            <td colspan="13" class="text-center py-8">No records found</td>
+          </tr>
+          @endforelse
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 @endsection
@@ -254,41 +327,112 @@ document.addEventListener('DOMContentLoaded', function() {
 
     });
 });
+
+// Toggle view
+document.addEventListener('DOMContentLoaded', function() {
+  const viewToggleBtns = document.querySelectorAll('.view-toggle-btn');
+  const hiringGridView = document.querySelector('.hiring-grid-view');
+  const hiringListView = document.querySelector('.hiring-list-view');
+
+  viewToggleBtns.forEach((btn) => {
+    btn.addEventListener('click', function() {
+      const view = this.dataset.view;
+      localStorage.setItem('hiringLeadView', view);
+
+      if (view === 'grid') {
+        hiringGridView.classList.add('active');
+        hiringListView.classList.remove('active');
+        this.classList.add('active');
+        document.querySelector('.view-toggle-btn[data-view="list"]').classList.remove('active');
+      } else {
+        hiringGridView.classList.remove('active');
+        hiringListView.classList.add('active');
+        this.classList.add('active');
+        document.querySelector('.view-toggle-btn[data-view="grid"]').classList.remove('active');
+      }
+    });
+  });
+
+  const storedView = localStorage.getItem('hiringLeadView');
+  if (storedView === 'grid') {
+    hiringGridView.classList.add('active');
+    hiringListView.classList.remove('active');
+    document.querySelector('.view-toggle-btn[data-view="grid"]').classList.add('active');
+  } else {
+    hiringGridView.classList.remove('active');
+    hiringListView.classList.add('active');
+    document.querySelector('.view-toggle-btn[data-view="list"]').classList.add('active');
+  }
+});
 </script>
 
+@push('styles')
 <style>
-  .perfect-swal-popup {
-    font-size: 15px !important;
-  }
+  /* Toggle */
+  .view-toggle-group { display:flex; gap:4px; background:#f3f4f6; padding:4px; border-radius:8px; }
+  .view-toggle-btn { padding:8px 12px; background:transparent; border:none; border-radius:6px; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; }
+  .view-toggle-btn:hover { background:#e5e7eb; }
+  .view-toggle-btn.active { background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); }
+  .view-toggle-btn svg { color:#6b7280; }
+  .view-toggle-btn.active svg { color:#3b82f6; }
 
-  .perfect-swal-popup .swal2-title {
-    font-size: 20px !important;
-    font-weight: 600 !important;
-    margin-bottom: 1rem !important;
-  }
+  /* Grid */
+  .hiring-grid-view { display:none; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:16px; padding:12px; }
+  .hiring-grid-view.active { display:grid; }
+  .hiring-list-view { display:none; }
+  .hiring-list-view.active { display:block; }
 
-  .perfect-swal-popup .swal2-content {
-    font-size: 15px !important;
-    margin-bottom: 1.5rem !important;
-    line-height: 1.4 !important;
-  }
+  .hiring-grid-card { background:#fff; border-radius:12px; padding:16px 18px; box-shadow:0 1px 6px rgba(0,0,0,0.06); transition:transform .25s, box-shadow .25s; cursor:pointer; margin-top:4px; }
+  .hiring-grid-card:hover { transform: translateY(-4px); box-shadow:0 4px 16px rgba(0,0,0,0.12); }
+  .hiring-grid-header { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
+  .hiring-grid-id { display:flex; align-items:center; gap:12px; min-width:0; }
+  .hiring-avatar { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; color:#fff; background:linear-gradient(135deg,#3b82f6,#9333ea); }
+  .hiring-name-role { min-width:0; }
+  .hiring-grid-title { font-size:16px; font-weight:700; color:#0f172a; margin:0; line-height:1.2; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .hiring-role { font-size:12px; color:#6b7280; }
+  .hiring-chips { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+  .chip { font-size:11px; padding:4px 8px; border-radius:9999px; font-weight:600; border:1px solid #e5e7eb; background:#fff; color:#374151; }
+  .chip-exp { background:#dcfce7; border-color:#bbf7d0; color:#166534; }
+  .chip-fresh { background:#f3f4f6; border-color:#e5e7eb; color:#374151; }
+  .chip-gender { background:#e0e7ff; border-color:#c7d2fe; color:#3730a3; }
+  .hiring-grid-sub { font-size:12px; color:#6b7280; margin:0 0 12px; }
+  .hiring-grid-meta { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding-top:12px; border-top:1px solid #f3f4f6; }
+  .hiring-grid-left { flex:1; display:flex; flex-direction:column; gap:6px; }
+  .meta-row { display:flex; gap:8px; align-items:center; }
+  .meta-label { font-size:12px; color:#6b7280; min-width:56px; }
+  .meta-value { font-size:13px; color:#111827; }
+  .hiring-grid-actions { display:flex; gap:8px; }
+  .hiring-grid-action-btn { padding:8px; border:1px solid #e5e7eb; background:#fff; border-radius:6px; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; width:32px; height:32px; }
+  .hiring-grid-action-btn.btn-edit { border-color:#f59e0b; background:#fffbeb; }
+  .hiring-grid-action-btn.btn-edit svg { color:#f59e0b; }
+  .hiring-grid-action-btn.btn-edit:hover { background:#f59e0b; }
+  .hiring-grid-action-btn.btn-edit:hover svg { color:#fff; }
+  .hiring-grid-action-btn.btn-print { border-color:#6366f1; background:#eef2ff; }
+  .hiring-grid-action-btn.btn-print svg { color:#6366f1; }
+  .hiring-grid-action-btn.btn-print:hover { background:#6366f1; }
+  .hiring-grid-action-btn.btn-print:hover svg { color:#fff; }
+  .hiring-grid-action-btn.btn-delete { border-color:#ef4444; background:#fef2f2; }
+  .hiring-grid-action-btn.btn-delete svg { color:#ef4444; }
+  .hiring-grid-action-btn.btn-delete:hover { background:#ef4444; }
+  .hiring-grid-action-btn.btn-delete:hover svg { color:#fff; }
+  .hiring-grid-action-btn.btn-convert { border-color:#10b981; background:#ecfdf5; }
+  .hiring-grid-action-btn.btn-convert svg { color:#10b981; }
+  .hiring-grid-action-btn.btn-convert:hover { background:#10b981; }
+  .hiring-grid-action-btn.btn-convert:hover svg { color:#fff; }
 
-  .perfect-swal-popup .swal2-actions {
-    gap: 0.75rem !important;
-    margin-top: 1rem !important;
-  }
-
-  .perfect-swal-popup .swal2-confirm,
-  .perfect-swal-popup .swal2-cancel {
-    font-size: 14px !important;
-    padding: 8px 16px !important;
-    border-radius: 6px !important;
-  }
-
-  .perfect-swal-popup .swal2-icon {
-    margin: 0.5rem auto 1rem !important;
-  }
-
+  /* Fix orphaned CSS line and ensure swal styles remain intact */
+  /* List table alignments */
+  .JV-datatble table td { vertical-align: middle; }
+  .action-icons { display: inline-flex; align-items: center; gap: 8px; }
+  .action-icons form { margin: 0; padding: 0; display: inline-flex; }
+  .action-icons button { display: inline-flex; align-items: center; justify-content: center; padding: 0; margin: 0; line-height: 1; background: transparent; border: 0; cursor: pointer; }
+  .action-icons img.action-icon { display: block; }
+  .perfect-swal-popup { font-size: 15px !important; }
+  .perfect-swal-popup .swal2-title { font-size: 20px !important; font-weight: 600 !important; margin-bottom: 1rem !important; }
+  .perfect-swal-popup .swal2-content { font-size: 15px !important; margin-bottom: 1.5rem !important; line-height: 1.4 !important; }
+  .perfect-swal-popup .swal2-actions { gap: 0.75rem !important; margin-top: 1rem !important; }
+  .perfect-swal-popup .swal2-confirm, .perfect-swal-popup .swal2-cancel { font-size: 14px !important; padding: 8px 16px !important; border-radius: 6px !important; }
+  .perfect-swal-popup .swal2-icon { margin: 0.5rem auto 1rem !important; }
   .perfect-swal-popup .hrp-label {
     display: block;
     margin-bottom: 5px;

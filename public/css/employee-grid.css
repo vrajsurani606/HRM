@@ -1,6 +1,6 @@
 /* Employee Grid Layout */
 .employee-container {
-  padding: 10px;
+  
   background: #f8fafc;
   min-height: 100vh;
 }
@@ -8,7 +8,7 @@
 .employee-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  gap: 16px;
   max-width: 1600px;
   margin: 0 auto;
 }
@@ -25,7 +25,7 @@
   gap: 16px; /* reduced gap to compress vertical space */
   position: relative;
   transition: all 0.3s ease;
-  min-height: 250px;
+  min-height: 220px;
   height: 100%;
 }
 
