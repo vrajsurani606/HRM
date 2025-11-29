@@ -13,7 +13,24 @@ class ReceiptController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Receipt::latest();
+        $query = Receipt::query();
+        
+        // Handle sorting
+        $sortBy = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        // Validate sort column
+        $allowedSorts = ['unique_code', 'company_name', 'receipt_date', 'received_amount', 'invoice_type', 'created_at', 'updated_at'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+        
+        $query->orderBy($sortBy, $sortDirection);
         
         if ($request->filled('search')) {
             $search = $request->search;
@@ -35,7 +52,7 @@ class ReceiptController extends Controller
             $query->whereDate('receipt_date', '<=', $request->to_date);
         }
         
-        $perPage = $request->get('per_page', 25);
+        $perPage = $request->get('per_page', 10);
         $receipts = $query->paginate($perPage)->appends($request->query());
         
         return view('receipts.index', compact('receipts'));
@@ -45,7 +62,7 @@ class ReceiptController extends Controller
     {
         // Note: Receipt code will be generated after invoice type is selected
         // For now, show placeholder
-        $nextCode = 'Will be generated based on invoice type';
+        $nextCode = 'Automaticlly generated based on invoice type';
         
         // Get unique company names from all invoices
         $companies = Invoice::select('company_name')
@@ -109,6 +126,8 @@ class ReceiptController extends Controller
                 'invoice_type' => ['required', 'string', 'in:gst,without_gst'],
                 'invoice_ids' => ['nullable', 'array'],
                 'invoice_ids.*' => ['integer', 'exists:invoices,id'],
+                'partial_amounts' => ['nullable', 'array'],
+                'partial_amounts.*' => ['nullable', 'numeric', 'min:0'],
                 'received_amount' => ['required', 'numeric', 'min:0.01'],
                 'payment_type' => ['nullable', 'string', 'max:255'],
                 'narration' => ['nullable', 'string', 'max:1000'],
@@ -120,23 +139,28 @@ class ReceiptController extends Controller
             
             $receipt = Receipt::create($validated);
             
-            // Update paid amounts for selected invoices
+            // Update paid amounts for selected invoices with partial payment support
             if (!empty($validated['invoice_ids']) && $validated['received_amount'] > 0) {
-                $invoices = Invoice::whereIn('id', $validated['invoice_ids'])->get();
-                $remainingAmount = $validated['received_amount'];
+                $partialAmounts = $request->input('partial_amounts', []);
                 
-                \Log::info('Updating invoice paid amounts', [
+                \Log::info('Updating invoice paid amounts with partial payments', [
                     'receipt_id' => $receipt->id,
                     'invoice_ids' => $validated['invoice_ids'],
+                    'partial_amounts' => $partialAmounts,
                     'received_amount' => $validated['received_amount']
                 ]);
                 
-                foreach ($invoices as $invoice) {
-                    if ($remainingAmount <= 0) break;
+                foreach ($validated['invoice_ids'] as $invoiceId) {
+                    $invoice = Invoice::find($invoiceId);
+                    if (!$invoice) continue;
                     
                     $oldPaidAmount = $invoice->paid_amount;
                     $invoiceBalance = $invoice->final_amount - $invoice->paid_amount;
-                    $paymentForThisInvoice = min($remainingAmount, $invoiceBalance);
+                    
+                    // Use partial amount if specified, otherwise use full balance
+                    $paymentForThisInvoice = isset($partialAmounts[$invoiceId]) && $partialAmounts[$invoiceId] > 0
+                        ? min((float)$partialAmounts[$invoiceId], $invoiceBalance)
+                        : min($validated['received_amount'], $invoiceBalance);
                     
                     $invoice->paid_amount = ($invoice->paid_amount ?? 0) + $paymentForThisInvoice;
                     $invoice->save();
@@ -146,10 +170,9 @@ class ReceiptController extends Controller
                         'invoice_code' => $invoice->unique_code,
                         'old_paid' => $oldPaidAmount,
                         'new_paid' => $invoice->paid_amount,
-                        'payment_applied' => $paymentForThisInvoice
+                        'payment_applied' => $paymentForThisInvoice,
+                        'was_partial' => isset($partialAmounts[$invoiceId])
                     ]);
-                    
-                    $remainingAmount -= $paymentForThisInvoice;
                 }
             }
             

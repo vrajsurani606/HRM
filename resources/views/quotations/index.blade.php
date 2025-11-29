@@ -1,5 +1,43 @@
 @extends('layouts.macos')
 @section('page_title', 'Quotation List')
+
+@push('styles')
+<style>
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-draft {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-confirmed {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-completed {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-cancelled {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="inquiry-index-container">
   <!-- JV Filter -->
@@ -24,31 +62,32 @@
   <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
     <table style="table-layout: auto; width: 100%; min-width: 1200px;">
       <colgroup>
-        <col style="width: 140px; min-width: 140px;">
+        <col style="width: 180px; min-width: 140px;">
         <col style="width: 70px; min-width: 70px;">
         <col style="width: 140px; min-width: 140px;">
         <col style="width: auto; min-width: 200px;">
         <col style="width: 110px; min-width: 110px;">
         <col style="width: 100px; min-width: 100px;">
         <col style="width: 110px; min-width: 110px;">
-        <col style="width: 90px; min-width: 90px;">
-        <col style="width: 80px; min-width: 80px;">
+        <col style="width: 120px; min-width: 120px;">
       </colgroup>
       <thead>
         <tr>
           <th style="text-align: center;">Action</th>
           <th>Sr.No.</th>
-          <th>Code</th>
-          <th>Company Name</th>
+          <th><x-sortable-header column="unique_code" title="Code" /></th>
+          <th><x-sortable-header column="company_name" title="Company Name" /></th>
           <th>Mobile</th>
-          <th>Update</th>
-          <th>Next Update</th>
-          <th>Remark</th>
+          <th><x-sortable-header column="updated_at" title="Update" /></th>
+          <th><x-sortable-header column="tentative_complete_date" title="Next Update" /></th>
           <th>Confirm</th>
         </tr>
       </thead>
       <tbody>
+        <!-- Debug Info: Showing {{ $quotations->count() }} of {{ $quotations->total() }} records (Page {{ $quotations->currentPage() }} of {{ $quotations->lastPage() }}) -->
+        <!-- Per Page Debug: Requested={{ request('per_page', 'not-set') }}, Current={{ $quotations->perPage() }} -->
         @forelse($quotations as $index => $quotation)
+
         <tr>
           <td style="text-align: center; vertical-align: middle;">
             <div class="action-icons">
@@ -73,19 +112,22 @@
                   <img class="action-icon" src="{{ asset('action_icon/follow-up.svg') }}" alt="Follow Up">
                 </a>
               @endif
-
               <button type="button" onclick="confirmDelete({{ $quotation->id }})" title="Delete Quotation" aria-label="Delete Quotation" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
                 <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
               </button>
+               @if($quotation->customer_type === 'new' && !$quotation->customer_id && $quotation->company_email && !in_array(strtolower(trim($quotation->company_email)), $existingCompanyEmails))
+                <button type="button" onclick="confirmConvertToCompany({{ $quotation->id }}, '{{ addslashes($quotation->company_name) }}')" title="Convert to Company" aria-label="Convert to Company" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
+                  <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert to Company" class="action-icon">
+                </button>
+              @endif
             </div>
           </td>
           <td>{{ $quotations->firstItem() + $index }}</td>
           <td>{{ $quotation->unique_code ?? 'N/A' }}</td> 
           <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $quotation->company_name ?? 'N/A' }}">{{ $quotation->company_name ?? 'N/A' }}</td>
-          <td>{{ $quotation->contact_number_1 ?? 'N/A' }}</td>
+          <td style="font-family: monospace; white-space: nowrap;">{{ $quotation->contact_number_1 ?? 'N/A' }}</td>
           <td>{{ $quotation->updated_at ? $quotation->updated_at->format('d/m/Y') : 'N/A' }}</td>
-          <td>{{ $quotation->tentative_complete_date ? $quotation->tentative_complete_date->format('d/m/Y') : 'N/A' }}</td>
-          <td>{{ ucfirst($quotation->status ?? 'Draft') }}</td>
+          <td>{{ $quotation->tentative_complete_date ? $quotation->tentative_complete_date->format('d/m/Y') : 'N/A' }}</td>    
           <td>
             @if(in_array($quotation->id, $confirmedQuotationIds ?? []))
               <div style="width: 20px; height: 20px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
@@ -104,6 +146,7 @@
         </tr>
         @endforelse
       </tbody>
+      </tbody>
     </table>
   </div>
 </div>
@@ -111,10 +154,10 @@
 
 @section('footer_pagination')
   @if(isset($quotations) && method_exists($quotations,'links'))
-  <form method="GET" class="hrp-entries-form">
+  <form method="GET" class="hrp-entries-form" action="{{ route('quotations.index') }}">
     <span>Entries</span>
-    @php($currentPerPage = (int) request()->get('per_page', 25))
-    <select name="per_page" onchange="this.form.submit()">
+    @php($currentPerPage = (int) request()->get('per_page', 10))
+    <select name="per_page" onchange="console.log('Selected:', this.value); console.log('Form action:', this.form.action); this.form.submit()">
       @foreach([10,25,50,100] as $size)
       <option value="{{ $size }}" {{ $currentPerPage === $size ? 'selected' : '' }}>{{ $size }}</option>
       @endforeach
@@ -149,6 +192,27 @@ function confirmDelete(id) {
   }
 }
 
+function confirmConvertToCompany(id, companyName) {
+  const message = `Convert "${companyName}" to Company?\n\nThis will:\n• Create a new company record\n• Create a user account (if email/password provided)\n• Link the quotation to the new company\n• Change customer type from "New" to "Existing"\n\nProceed?`;
+  
+  if(confirm(message)) {
+    // Show loading state
+    const button = event.target.closest('button');
+    const originalContent = button.innerHTML;
+    button.innerHTML = '<span style="color: #ffa500;">Converting...</span>';
+    button.disabled = true;
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/GitVraj/HrPortal/quotations/${id}/convert-to-company`;
+    form.innerHTML = `
+      <input type="hidden" name="_token" value="{{ csrf_token() }}">
+    `;
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+
 // Auto-submit on search input
 document.addEventListener('DOMContentLoaded', function() {
   const searchInput = document.getElementById('globalSearch');
@@ -172,6 +236,15 @@ document.addEventListener('DOMContentLoaded', function() {
         filterForm.submit();
       });
     }
+  });
+  
+  // Prevent form submission when clicking sortable headers
+  const sortableHeaders = document.querySelectorAll('th a[href*="sort="]');
+  sortableHeaders.forEach(header => {
+    header.addEventListener('click', function(e) {
+      e.stopPropagation();
+      // Let the link work normally
+    });
   });
 });
 </script>

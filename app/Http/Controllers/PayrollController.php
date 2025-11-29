@@ -48,9 +48,24 @@ class PayrollController extends Controller
             });
         }
 
-        $payrolls = $query->orderByDesc('year')
-                          ->orderByDesc('created_at')
-                          ->paginate(25)
+        // Handle sorting
+        $sortBy = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        // Validate sort column
+        $allowedSorts = ['month', 'year', 'status', 'basic_salary', 'total_salary', 'created_at', 'updated_at'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+        
+        $perPage = $request->get('per_page', 10);
+        $payrolls = $query->orderBy($sortBy, $sortDirection)
+                          ->paginate($perPage)
                           ->appends($request->query());
 
         $employees = Employee::orderBy('name')->get();

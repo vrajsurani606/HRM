@@ -49,14 +49,14 @@
         <tr>
           <th>Action</th>
           <th>Serial No.</th>
-          <th>Code</th>
-          <th>Inq. Date</th>
-          <th>Comp. Name</th>
+          <th><x-sortable-header column="unique_code" title="Code" /></th>
+          <th><x-sortable-header column="inquiry_date" title="Inq. Date" /></th>
+          <th><x-sortable-header column="company_name" title="Comp. Name" /></th>
           <th>Mo.No.</th>
           <th>Address</th>
-          <th>Person Name</th>
+          <th><x-sortable-header column="contact_name" title="Person Name" /></th>
           <th>Person Position</th>
-          <th>Industry Type</th>
+          <th><x-sortable-header column="industry_type" title="Industry Type" /></th>
           <th>Next Follow Up</th>
           <th>Scope</th>
           <th>Quotation</th>

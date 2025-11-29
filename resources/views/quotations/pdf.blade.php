@@ -318,9 +318,15 @@
                         </div>
                         
                         <div style="font-size: 20px; margin-top: 40px; margin-bottom: 16px; color: #1a1a1a; font-weight: 600;">Sincerely,</div>
-                        <div style="font-size: 17px; margin-bottom: 8px; font-weight: 600; color: #2d3748;">{{ $quotation->prepared_by ?? 'MR. CHINTAN KACHHADIYA' }}</div>
-                        <div style="font-size: 17px; margin-bottom: 8px; font-weight: 600; color: #2d3748;">{{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }}</div>
-                        <div style="font-size: 17px; font-weight: 600; color: #2d3748;">(+91) {{ $quotation->mobile_no ?? '72763 23999' }}</div>
+                        <div style="font-size: 17px; margin-bottom: 8px; font-weight: 600; color: #2d3748;">'MR. CHINTAN KACHHADIYA'</div>
+                        <div style="font-size: 17px; margin-bottom: 8px; font-weight: 600; color: #2d3748;">CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)'</div>
+                        <div style="font-size: 17px; font-weight: 600; color: #2d3748;">
+                            @if($quotation->mobile_no)
+                                {{ str_starts_with($quotation->mobile_no, '+91') ? $quotation->mobile_no : '+91 ' . $quotation->mobile_no }}
+                            @else
+                                +91 72763 23999
+                            @endif
+                        </div>
                     </td>
                 </tr>
             </table>
@@ -561,14 +567,37 @@
                         <div style="font-size: 24px; font-weight: 600; margin-bottom: 15px; margin-top: 30px;">Terms & Conditions:</div>
                         
                         <div style="font-size: 16px; line-height: 1.8; margin-left: 20px;">
-                            <div style="margin-bottom: 10px;"><strong>1.</strong> Quotation is valid till one week from send date. After the expiration of this period, the Quotation may be subject to changes.</div>
-                            <div style="margin-bottom: 10px;"><strong>2.</strong> 18% GST will be extra</div>
-                            <div style="margin-bottom: 10px;"><strong>3.</strong> We will deliver the Software in accordance with the specifications and milestones detailed in the Quotation. Any delays in the project timeline will be communicated to the Client promptly.</div>
-                            <div style="margin-bottom: 10px;"><strong>4.</strong> The Client agrees to provide all necessary materials, access, and cooperation required for the successful completion of the project. Delays caused by the Client may result in an extension of the project timeline and additional charges.</div>
-                            <div style="margin-bottom: 10px;"><strong>5.</strong> Both parties agree to treat any confidential information exchanged during the course of the project as confidential and not to disclose it to third parties.</div>
-                            <div style="margin-bottom: 10px;"><strong>6.</strong> This Agreement constitutes the entire understanding between the parties and supersedes any prior agreements or understandings, whether oral or written</div>
-                            <div style="margin-bottom: 10px;"><strong>7.</strong> Accommodation charges will be in your scope.</div>
-                            <div style="margin-bottom: 10px;"><strong>8.</strong> Payments made are strictly non-refundable. By completing transaction, you agree to these terms without exception.</div>
+                            @php
+                                $termNumber = 1;
+                                $customTerms = is_array($quotation->custom_terms_and_conditions) ? $quotation->custom_terms_and_conditions : json_decode($quotation->custom_terms_and_conditions ?? '[]', true);
+                            @endphp
+                            
+                            {{-- Display Custom Terms First --}}
+                            @if(!empty($customTerms) && is_array($customTerms))
+                                @foreach($customTerms as $customTerm)
+                                    @if(!empty(trim($customTerm)))
+                                        <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> {{ trim($customTerm) }}</div>
+                                        @php $termNumber++; @endphp
+                                    @endif
+                                @endforeach
+                            @endif
+                            
+                            {{-- Default Terms --}}
+                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> Quotation is valid till one week from send date. After the expiration of this period, the Quotation may be subject to changes.</div>
+                            @php $termNumber++; @endphp
+                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> 18% GST will be extra</div>
+                            @php $termNumber++; @endphp
+                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> We will deliver the Software in accordance with the specifications and milestones detailed in the Quotation. Any delays in the project timeline will be communicated to the Client promptly.</div>
+                            @php $termNumber++; @endphp
+                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> The Client agrees to provide all necessary materials, access, and cooperation required for the successful completion of the project. Delays caused by the Client may result in an extension of the project timeline and additional charges.</div>
+                            @php $termNumber++; @endphp
+                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> Both parties agree to treat any confidential information exchanged during the course of the project as confidential and not to disclose it to third parties.</div>
+                            @php $termNumber++; @endphp
+                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> This Agreement constitutes the entire understanding between the parties and supersedes any prior agreements or understandings, whether oral or written</div>
+                            @php $termNumber++; @endphp
+                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> Accommodation charges will be in your scope.</div>
+                            @php $termNumber++; @endphp
+                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> Payments made are strictly non-refundable. By completing transaction, you agree to these terms without exception.</div>
                         </div>
                     </td>
                 </tr>
@@ -740,7 +769,12 @@
                         <strong>Contact Person:</strong> {{ $quotation->prepared_by ?? 'MR. CHINTAN KACHHADIYA' }}
                     </div>
                     <div style="font-size: 16px; color: #ffffff; line-height: 1.8; margin-bottom: 8px;">
-                        <strong>Phone:</strong> (+91) {{ $quotation->mobile_no ?? '72763 23999' }}
+                        <strong>Phone:</strong> 
+                        @if($quotation->mobile_no)
+                            {{ str_starts_with($quotation->mobile_no, '+91') ? $quotation->mobile_no : '+91 ' . $quotation->mobile_no }}
+                        @else
+                            +91 72763 23999
+                        @endif
                     </div>
                     <div style="font-size: 16px; color: #ffffff; line-height: 1.8;">
                         <strong>Company:</strong> {{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD' }}

@@ -59,8 +59,9 @@
       <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
         <div>
           <label class="hrp-label">Unique Code:</label>
-          <input type="text" class="Rectangle-29" value="{{ $nextCode }}" readonly style="background: #f3f4f6;">
+          <input type="text" class="Rectangle-29" value="{{ $nextCode }}" readonly style="background: #949597 !important;" >
         </div>
+ 
         <div>
           <label class="hrp-label">Rec Date: <span class="text-red-500">*</span></label>
           <input type="date" class="Rectangle-29 @error('receipt_date') is-invalid @enderror" name="receipt_date" value="{{ old('receipt_date', date('Y-m-d')) }}" required>

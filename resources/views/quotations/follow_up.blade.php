@@ -136,9 +136,11 @@
       @error('followup_date')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
-      <label class="hrp-label">Next Follow Up Date:</label>
-      <input type="date" class="hrp-input Rectangle-29" name="next_followup_date" value="{{ old('next_followup_date') }}" />
-      @error('next_followup_date')<small class="hrp-error">{{ $message }}</small>@enderror
+      <x-date-input 
+        name="next_followup_date" 
+        label="Next Follow Up Date" 
+        :value="old('next_followup_date')" 
+      />
     </div>
 
     <div class="md:col-span-2">
