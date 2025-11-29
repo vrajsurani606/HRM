@@ -335,7 +335,9 @@ class PayrollController extends Controller
         $medicalAllowance = $request->medical_allowance ?? 0;
         $cityAllowance = $request->city_allowance ?? 0;
         $tiffinAllowance = $request->tiffin_allowance ?? 0;
-        $allowances = $request->allowances ?? ($hra + $medicalAllowance + $cityAllowance + $tiffinAllowance);
+        $assistantAllowance = $request->assistant_allowance ?? 0;
+        $dearnessAllowance = $request->dearness_allowance ?? 0;
+        $totalAllowances = $hra + $medicalAllowance + $cityAllowance + $tiffinAllowance + $assistantAllowance + $dearnessAllowance;
         $bonuses = $request->bonuses ?? 0;
         
         $pf = $request->pf ?? 0;
@@ -348,7 +350,7 @@ class PayrollController extends Controller
         $tax = $request->tax ?? 0;
         
         $totalDeductions = $pf + $professionalTax + $tds + $esic + $securityDeposit + $leaveDeduction + $deductions + $tax;
-        $netSalary = ($basicSalary + $allowances + $bonuses) - $totalDeductions;
+        $netSalary = ($basicSalary + $totalAllowances + $bonuses) - $totalDeductions;
 
         $payroll->update([
             'employee_id' => $request->employee_id,

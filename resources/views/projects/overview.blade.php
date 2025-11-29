@@ -185,14 +185,15 @@
             </svg>
             <span id="projectStartDate">Start: -</span>
           </div>
-          <div class="meta-badge-item">
+          <div class="meta-badge-item" id="dueDateBadge" onclick="openDueDatePicker()" style="cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#dbeafe'; this.style.borderColor='#3b82f6';" onmouseout="this.style.background='#e5e7eb'; this.style.borderColor='transparent';">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
-            <span id="projectDueDate">Due: -</span>
+            <span id="projectDueDate">Due: Click to set</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.5;">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
           </div>
         </div>
       </div>
@@ -1394,6 +1395,104 @@ function loadFiles() {
 function escapeHtml(text) {
     const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
     return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+// Function to open due date picker
+async function openDueDatePicker() {
+    const currentDueDate = projectData?.due_date || '';
+    
+    const { value: dueDate } = await Swal.fire({
+        title: 'Set Project Deadline',
+        html: `
+            <div style="text-align: left; margin-top: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Due Date:</label>
+                <input type="date" id="swalDueDate" class="swal2-input" value="${currentDueDate}" 
+                       style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; margin: 0;">
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#6b7280',
+        customClass: {
+            popup: 'swal2-popup-custom',
+            confirmButton: 'swal2-confirm-custom',
+            cancelButton: 'swal2-cancel-custom'
+        },
+        didOpen: () => {
+            document.getElementById('swalDueDate').focus();
+        },
+        preConfirm: () => {
+            const dueDate = document.getElementById('swalDueDate').value;
+            if (!dueDate) {
+                Swal.showValidationMessage('Please select a due date');
+                return false;
+            }
+            return dueDate;
+        }
+    });
+
+    if (dueDate) {
+        try {
+            const response = await fetch(`{{ url('/projects') }}/${projectId}`, {
+                method: 'PUT',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ due_date: dueDate })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // Update local project data
+                if (projectData) {
+                    projectData.due_date = dueDate;
+                }
+                
+                // Update the display
+                const dueDateElement = document.getElementById('projectDueDate');
+                if (dueDateElement) {
+                    const formattedDate = new Date(dueDate).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                    dueDateElement.textContent = 'Due: ' + formattedDate;
+                }
+                
+                if (typeof toastr !== 'undefined') {
+                    toastr.success('Project deadline updated successfully');
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Project deadline updated successfully',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            } else {
+                throw new Error(data.message || 'Failed to update deadline');
+            }
+        } catch (error) {
+            console.error('Error updating deadline:', error);
+            if (typeof toastr !== 'undefined') {
+                toastr.error('Failed to update project deadline');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update project deadline',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {

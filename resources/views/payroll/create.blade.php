@@ -406,16 +406,7 @@
 
 @push('scripts')
 <script>
-(function(){
-  // If all 3 are set, load employee data on page load (for edit prefill)
-  try {
-    var eid = document.getElementById('employee_id')?.value;
-    var m = document.getElementById('month')?.value;
-    var y = document.getElementById('year')?.value;
-    if (eid && m && y) {
-      loadEmployeeSalaryData();
-    }
-
+// Global functions that need to be accessible from inline handlers
 function updateLeaveTotals(){
   const casual = parseFloat(document.getElementById('casual_leave')?.value || 0) || 0;
   const medical = parseFloat(document.getElementById('medical_leave')?.value || 0) || 0;
@@ -443,7 +434,11 @@ function calculateNetSalary() {
   const city = parseFloat(document.getElementById('city_allowance')?.value || 0) || 0;
   const hra = parseFloat(document.getElementById('hra')?.value || 0) || 0;
   const medAllow = parseFloat(document.getElementById('medical_allowance')?.value || 0) || 0;
-  const totalIncome = basic + city + hra + medAllow;
+  const tiffin = parseFloat(document.getElementById('tiffin_allowance')?.value || 0) || 0;
+  const assistant = parseFloat(document.getElementById('assistant_allowance')?.value || 0) || 0;
+  const dearness = parseFloat(document.getElementById('dearness_allowance')?.value || 0) || 0;
+  const bonuses = parseFloat(document.getElementById('bonuses')?.value || 0) || 0;
+  const totalIncome = basic + city + hra + medAllow + tiffin + assistant + dearness + bonuses;
   const incomeEl = document.getElementById('total_income');
   if (incomeEl) incomeEl.value = totalIncome.toFixed(2);
 
@@ -475,6 +470,17 @@ function calculateNetSalary() {
   const dtd = document.getElementById('display_deduction_total'); if (dtd) dtd.textContent = totalDeductions.toFixed(2);
   const dns = document.getElementById('display_net_salary'); if (dns) dns.textContent = net.toFixed(2);
 }
+
+// Initialize on page load
+(function(){
+  // If all 3 are set, load employee data on page load (for edit prefill)
+  try {
+    var eid = document.getElementById('employee_id')?.value;
+    var m = document.getElementById('month')?.value;
+    var y = document.getElementById('year')?.value;
+    if (eid && m && y) {
+      loadEmployeeSalaryData();
+    }
   } catch(e) { /* no-op */ }
 
   // Initialize payment fields visibility based on current status

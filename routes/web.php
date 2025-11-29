@@ -15,8 +15,8 @@ use App\Http\Controllers\Performa\PerformaController;
 use App\Http\Controllers\Performa\InvoiceController;
 use App\Http\Controllers\Receipt\ReceiptController;
 use App\Http\Controllers\Ticket\TicketController;
-use App\Http\Controllers\AttendanceReportController;
-use App\Http\Controllers\LeaveApprovalController;
+    use App\Http\Controllers\AttendanceReportController;
+    use App\Http\Controllers\LeaveApprovalController;
 use App\Http\Controllers\Event\EventController;
 use App\Http\Controllers\Setting\SettingController; 
 use App\Http\Controllers\MaintenanceController;
@@ -148,10 +148,18 @@ Route::middleware('auth')->group(function () {
          ->name('company.documents.view');
     Route::get('companies-export', [CompanyController::class, 'export'])->name('companies.export');
 
+    // Project Stages Management (must be before projects resource)
+    Route::get('project-stages', [\App\Http\Controllers\Project\ProjectStageController::class, 'index'])->name('project-stages.index');
+    Route::post('project-stages', [\App\Http\Controllers\Project\ProjectStageController::class, 'store'])->name('project-stages.store');
+    Route::post('project-stages/update-order', [\App\Http\Controllers\Project\ProjectStageController::class, 'updateOrder'])->name('project-stages.update-order');
+    Route::get('project-stages/{stage}', [\App\Http\Controllers\Project\ProjectStageController::class, 'show'])->name('project-stages.show');
+    Route::patch('project-stages/{stage}', [\App\Http\Controllers\Project\ProjectStageController::class, 'update'])->name('project-stages.update');
+    Route::delete('project-stages/{stage}', [\App\Http\Controllers\Project\ProjectStageController::class, 'destroy'])->name('project-stages.destroy');
+    
     // Projects
     Route::resource('projects', ProjectController::class);
     Route::get('projects/{project}/overview', [ProjectController::class, 'overview'])->name('projects.overview');
-    Route::post('project-stages', [ProjectController::class, 'storeStage'])->name('project-stages.store');
+    Route::post('project-stages-old', [ProjectController::class, 'storeStage'])->name('project-stages-old.store');
     Route::patch('projects/{project}/stage', [ProjectController::class, 'updateProjectStage'])->name('projects.update-stage');
     
     // Project Tasks
