@@ -54,14 +54,18 @@
         </div>
         <input type="text" name="search" class="filter-pill" placeholder="Search by company, contact, email..." value="{{ request('search') }}">
         <a href="{{ route('companies.index') }}" class="pill-btn pill-secondary">Reset</a>
-        <a href="{{ route('companies.export', request()->query()) }}" class="pill-btn pill-success" id="excel_btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
-            <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
-            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
-          </svg>
-          Excel
-        </a>
-        <a href="{{ route('companies.create') }}" class="pill-btn pill-success">+ Add</a>
+        @can('Companies Management.export company')
+          <a href="{{ route('companies.export', request()->query()) }}" class="pill-btn pill-success" id="excel_btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
+              <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
+              <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+            </svg>
+            Excel
+          </a>
+        @endcan
+        @can('Companies Management.create company')
+          <a href="{{ route('companies.create') }}" class="pill-btn pill-success">+ Add</a>
+        @endcan
       </div>
     </form>
   </div>
@@ -143,18 +147,24 @@
           <tr>
             <td>
               <div class="action-icons">
-                <a href="{{ route('companies.show', $company->id) }}" title="View" aria-label="View">
-                  <img src="{{ asset('action_icon/view.svg') }}" alt="View" class="action-icon">
-                </a>
-                <a href="{{ route('companies.edit', $company->id) }}" title="Edit" aria-label="Edit">
-                  <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon">
-                </a>
-                <form method="POST" action="{{ route('companies.destroy', $company->id) }}" class="delete-form" style="display:inline">
-                  @csrf @method('DELETE')
-                  <button type="button" onclick="confirmDelete(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
-                    <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon">
-                  </button>
-                </form>
+                @can('Companies Management.view company')
+                  <a href="{{ route('companies.show', $company->id) }}" title="View" aria-label="View">
+                    <img src="{{ asset('action_icon/view.svg') }}" alt="View" class="action-icon">
+                  </a>
+                @endcan
+                @can('Companies Management.edit company')
+                  <a href="{{ route('companies.edit', $company->id) }}" title="Edit" aria-label="Edit">
+                    <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon">
+                  </a>
+                @endcan
+                @can('Companies Management.delete company')
+                  <form method="POST" action="{{ route('companies.destroy', $company->id) }}" class="delete-form" style="display:inline">
+                    @csrf @method('DELETE')
+                    <button type="button" onclick="confirmDelete(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
+                      <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon">
+                    </button>
+                  </form>
+                @endcan
               </div>
             </td>
             <td>{{ ($companies->currentPage() - 1) * $companies->perPage() + $i + 1 }}</td>

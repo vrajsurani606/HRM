@@ -19,15 +19,15 @@ class EmployeeController extends Controller
 {
     public function __construct()
     {
-        // Example Spatie permission guards (optional until roles are seeded)
-        // $this->middleware('permission:employees.view')->only(['index','show']);
-        // $this->middleware('permission:employees.create')->only(['create','store']);
-        // $this->middleware('permission:employees.edit')->only(['edit','update']);
-        // $this->middleware('permission:employees.delete')->only(['destroy']);
+        // Permission guards are now implemented in each method
     }
 
     public function index(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.view employee'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         // Skip DataTables if not available
         $employees = Employee::orderByDesc('id')->paginate(12);
         return view('hr.employees.index', [
@@ -38,6 +38,10 @@ class EmployeeController extends Controller
 
     public function create()
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.create employee'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $positions = [
             'Full Stack Developer',
             'Frontend Developer', 
@@ -77,6 +81,10 @@ class EmployeeController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.create employee'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $data = $request->validate([
             'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:employees,email',
@@ -261,6 +269,10 @@ class EmployeeController extends Controller
 
     public function show(Employee $employee)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.view employee'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         // Month/year filters (default to current)
         $month = (int) request('month', now()->month);
         $year  = (int) request('year', now()->year);
@@ -312,6 +324,10 @@ class EmployeeController extends Controller
 
     public function edit(Employee $employee)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.edit employee'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $employee->load('user');
         $positions = [
             'Full Stack Developer',
@@ -353,6 +369,10 @@ class EmployeeController extends Controller
 
     public function update(Request $request, Employee $employee)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.edit employee'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $data = $request->validate([
             'code' => 'nullable|string|max:100',
             'status' => 'nullable|in:active,inactive',
@@ -440,6 +460,10 @@ class EmployeeController extends Controller
 
     public function destroy(Employee $employee)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.delete employee'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $employee->delete();
         return back()->with('success', 'Employee deleted');
     }
@@ -449,6 +473,10 @@ class EmployeeController extends Controller
      */
     public function lettersIndex(Employee $employee)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $letters = $employee->letters()->latest()->paginate(50);
         
         return view('hr.employees.letters.index', [
@@ -463,6 +491,10 @@ class EmployeeController extends Controller
      */
     public function createLetter(Employee $employee)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters create'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $referenceNumber = $this->generateLetterNumber();
         
         return view('hr.employees.letters.create', [
@@ -477,6 +509,10 @@ class EmployeeController extends Controller
      */
    public function storeLetter(Request $request, Employee $employee)
 {
+    if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters create'))) {
+        return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+    }
+    
     // Normalize fields that sometimes come as arrays from the UI
     if (is_array($request->input('subject'))) {
         $request->merge(['subject' => implode(' ', array_filter($request->input('subject')))]);
@@ -575,6 +611,10 @@ class EmployeeController extends Controller
      */
     public function viewLetter(Employee $employee, EmployeeLetter $letter)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters view'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         return view('hr.employees.letters.print', [
             'employee' => $employee,
             'letter' => $letter,
@@ -586,6 +626,10 @@ class EmployeeController extends Controller
      */
     public function editLetter(Employee $employee, EmployeeLetter $letter)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters edit'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         return view('hr.employees.letters.create', [
             'employee' => $employee,
             'letter' => $letter,
@@ -599,6 +643,10 @@ class EmployeeController extends Controller
      */
     public function updateLetter(Request $request, Employee $employee, EmployeeLetter $letter)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters edit'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         // Normalize potential array inputs
         if (is_array($request->input('subject'))) {
             $request->merge(['subject' => implode(' ', array_filter($request->input('subject')))]);
@@ -661,6 +709,13 @@ class EmployeeController extends Controller
      */
     public function destroyLetter(Employee $employee, EmployeeLetter $letter)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters delete'))) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $letter->delete();
         if (request()->ajax()) {
             return response()->json(['success' => true]);
@@ -699,6 +754,10 @@ class EmployeeController extends Controller
 
     public function print(Employee $employee, EmployeeLetter $letter)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters print'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $company = json_decode(json_encode([
             'name' => 'CHITRI ENLARGE SOFT IT HUB PVT. LTD.',
             'address' => 'Shop No. 28, Shagun Building, NH-4, Old Mumbai-Pune Highway, Dehu Road, Kiwale, Dist. Pune - 412101',

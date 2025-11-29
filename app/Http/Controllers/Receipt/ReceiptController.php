@@ -13,6 +13,10 @@ class ReceiptController extends Controller
 {
     public function index(Request $request): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Receipts Management.view receipt'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = Receipt::query();
         
         // Handle sorting
@@ -60,6 +64,10 @@ class ReceiptController extends Controller
     
     public function export(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Receipts Management.export receipt'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $query = Receipt::query()->orderBy('created_at', 'desc');
             
@@ -98,6 +106,10 @@ class ReceiptController extends Controller
 
     public function exportCsv(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Receipts Management.export receipt'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = Receipt::query()->latest();
 
         if ($request->filled('from_date')) {
@@ -170,6 +182,10 @@ class ReceiptController extends Controller
 
     public function create(): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Receipts Management.create receipt'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         // Note: Receipt code will be generated after invoice type is selected
         // For now, show placeholder
         $nextCode = 'Automaticlly generated based on invoice type';
@@ -229,6 +245,10 @@ class ReceiptController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Receipts Management.create receipt'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $validated = $request->validate([
                 'receipt_date' => ['required', 'date_format:d/m/Y'],
@@ -307,12 +327,20 @@ class ReceiptController extends Controller
 
     public function show(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Receipts Management.view receipt'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $receipt = Receipt::findOrFail($id);
         return view('receipts.show', compact('receipt'));
     }
 
     public function edit(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Receipts Management.edit receipt'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $receipt = Receipt::findOrFail($id);
         
         // Get unique company names from all invoices
@@ -331,6 +359,10 @@ class ReceiptController extends Controller
 
     public function update(Request $request, int $id): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Receipts Management.edit receipt'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $receipt = Receipt::findOrFail($id);
             
@@ -436,6 +468,10 @@ class ReceiptController extends Controller
 
     public function destroy(int $id): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Receipts Management.delete receipt'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $receipt = Receipt::findOrFail($id);
             
@@ -490,6 +526,10 @@ class ReceiptController extends Controller
 
     public function print(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Receipts Management.print receipt'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $receipt = Receipt::findOrFail($id);
         return view('receipts.print', compact('receipt'));
     }

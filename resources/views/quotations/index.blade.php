@@ -80,8 +80,12 @@
         </button>
       </div>
       <input type="text" id="globalSearch" placeholder="Search here.." class="filter-pill" name="search" value="{{ request('search') }}">
-      <a href="{{ route('quotations.export.csv', request()->only(['quotation_no','from_date','to_date','search'])) }}" class="pill-btn pill-success">Excel</a>
-      <a href="{{ route('quotations.create') }}" class="pill-btn pill-success">+ Add</a>
+      @can('Quotations Management.export quotation')
+        <a href="{{ route('quotations.export.csv', request()->only(['quotation_no','from_date','to_date','search'])) }}" class="pill-btn pill-success">Excel</a>
+      @endcan
+      @can('Quotations Management.create quotation')
+        <a href="{{ route('quotations.create') }}" class="pill-btn pill-success">+ Add</a>
+      @endcan
     </div>
   </form>
 
@@ -167,37 +171,51 @@
           <tr>
             <td style="text-align: center; vertical-align: middle;">
               <div class="action-icons">
-                <a href="{{ route('quotations.show', $quotation->id) }}" title="View Quotation" aria-label="View Quotation">
-                  <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
-                </a>
+                @can('Quotations Management.view quotation')
+                  <a href="{{ route('quotations.show', $quotation->id) }}" title="View Quotation" aria-label="View Quotation">
+                    <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
+                  </a>
+                @endcan
 
-                <a href="{{ route('quotations.edit', $quotation->id) }}" title="Edit Quotation" aria-label="Edit Quotation">
-                  <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
-                </a>
+                @can('Quotations Management.edit quotation')
+                  <a href="{{ route('quotations.edit', $quotation->id) }}" title="Edit Quotation" aria-label="Edit Quotation">
+                    <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+                  </a>
+                @endcan
 
-                <a href="{{ route('quotations.download', $quotation->id) }}" title="Print Quotation" aria-label="Print Quotation" target="_blank">
-                  <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
-                </a>
+                @can('Quotations Management.download quotation')
+                  <a href="{{ route('quotations.download', $quotation->id) }}" title="Print Quotation" aria-label="Print Quotation" target="_blank">
+                    <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
+                  </a>
+                @endcan
 
                 @if($isConfirmed)
-                  <a href="{{ route('quotations.template-list', $quotation->id) }}" title="View Template List" aria-label="View Template List">
-                    <img class="action-icon" src="{{ asset('action_icon/view_temp_list.svg') }}" alt="Template List">
-                  </a>
+                  @can('Quotations Management.template list')
+                    <a href="{{ route('quotations.template-list', $quotation->id) }}" title="View Template List" aria-label="View Template List">
+                      <img class="action-icon" src="{{ asset('action_icon/view_temp_list.svg') }}" alt="Template List">
+                    </a>
+                  @endcan
                 @else
-                  <a href="{{ route('quotation.follow-up', $quotation->id) }}" title="Follow Up" aria-label="Follow Up">
-                    <img class="action-icon" src="{{ asset('action_icon/follow-up.svg') }}" alt="Follow Up">
-                  </a>
+                  @can('Quotations Management.follow up')
+                    <a href="{{ route('quotation.follow-up', $quotation->id) }}" title="Follow Up" aria-label="Follow Up">
+                      <img class="action-icon" src="{{ asset('action_icon/follow-up.svg') }}" alt="Follow Up">
+                    </a>
+                  @endcan
                 @endif
                 
-                <button type="button" onclick="confirmDelete({{ $quotation->id }})" title="Delete Quotation" aria-label="Delete Quotation" >
-                  <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
-                </button>
+                @can('Quotations Management.delete quotation')
+                  <button type="button" onclick="confirmDelete({{ $quotation->id }})" title="Delete Quotation" aria-label="Delete Quotation" >
+                    <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+                  </button>
+                @endcan
 
-                 @if($quotation->customer_type === 'new' && !$quotation->customer_id && $quotation->company_email && !in_array(strtolower(trim($quotation->company_email)), $existingCompanyEmails))
-                <button type="button" onclick="confirmConvertToCompany({{ $quotation->id }}, '{{ addslashes($quotation->company_name) }}', '{{ addslashes($quotation->company_email) }}', '{{ addslashes($quotation->company_password ?? '') }}')" title="Convert to Company" aria-label="Convert to Company">
-                  <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert to Company" class="action-icon">
-                </button>
-              @endif
+                @if($quotation->customer_type === 'new' && !$quotation->customer_id && $quotation->company_email && !in_array(strtolower(trim($quotation->company_email)), $existingCompanyEmails))
+                  @can('Quotations Management.convert to company')
+                    <button type="button" onclick="confirmConvertToCompany({{ $quotation->id }}, '{{ addslashes($quotation->company_name) }}', '{{ addslashes($quotation->company_email) }}', '{{ addslashes($quotation->company_password ?? '') }}')" title="Convert to Company" aria-label="Convert to Company">
+                      <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert to Company" class="action-icon">
+                    </button>
+                  @endcan
+                @endif
               </div>
             </td>
             <td>{{ $quotations->firstItem() + $index }}</td>

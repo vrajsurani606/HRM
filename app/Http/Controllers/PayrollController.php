@@ -11,6 +11,10 @@ class PayrollController extends Controller
 {
     public function index(Request $request): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.view payroll'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = Payroll::with('employee');
 
         // Filter by month
@@ -81,6 +85,10 @@ class PayrollController extends Controller
      */
     public function bulkForm(): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.bulk generate payroll'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $employees = Employee::orderBy('name')->get();
         $months = ['January', 'February', 'March', 'April', 'May', 'June', 
                    'July', 'August', 'September', 'October', 'November', 'December'];
@@ -93,6 +101,10 @@ class PayrollController extends Controller
      */
     public function bulkGenerate(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.bulk generate payroll'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $data = $request->validate([
             'month' => 'required|string',
             'year' => 'required|integer|min:2000|max:' . (date('Y') + 1),
@@ -260,6 +272,10 @@ class PayrollController extends Controller
 
     public function create(): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.create payroll'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $employees = Employee::orderBy('name')->get();
         $months = ['January', 'February', 'March', 'April', 'May', 'June', 
                    'July', 'August', 'September', 'October', 'November', 'December'];
@@ -269,6 +285,10 @@ class PayrollController extends Controller
     
     public function store(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.create payroll'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'month' => 'required|string',
@@ -407,6 +427,10 @@ class PayrollController extends Controller
 
     public function edit($id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.edit payroll'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $payroll = Payroll::findOrFail($id);
         $employees = Employee::orderBy('name')->get();
         $months = ['January', 'February', 'March', 'April', 'May', 'June', 
@@ -425,6 +449,10 @@ class PayrollController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.edit payroll'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $payroll = Payroll::findOrFail($id);
 
         $request->validate([
@@ -517,12 +545,20 @@ class PayrollController extends Controller
 
     public function show($id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.view payroll'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $payroll = Payroll::with('employee')->findOrFail($id);
         return view('payroll.show', compact('payroll'));
     }
 
     public function destroy($id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.delete payroll'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $payroll = Payroll::findOrFail($id);
         $payroll->delete();
 
@@ -654,6 +690,170 @@ class PayrollController extends Controller
                 'message' => 'Error loading employee data: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Export payrolls to CSV
+     */
+    public function exportCsv(Request $request)
+    {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.export payroll'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+
+        $query = Payroll::with('employee');
+
+        // Apply same filters as index
+        if ($request->filled('month')) {
+            $query->where('month', $request->month);
+        }
+        if ($request->filled('year')) {
+            $query->where('year', $request->year);
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('employee_id')) {
+            $query->where('employee_id', $request->employee_id);
+        }
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->whereHas('employee', function($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('code', 'like', "%{$q}%");
+            });
+        }
+
+        $payrolls = $query->orderBy('created_at', 'desc')->get();
+
+        $filename = 'payrolls_' . date('Y-m-d_His') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function() use ($payrolls) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for Excel UTF-8 support
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // CSV Headers
+            fputcsv($file, [
+                'Employee Code',
+                'Employee Name',
+                'Month',
+                'Year',
+                'Basic Salary',
+                'HRA',
+                'Medical Allowance',
+                'City Allowance',
+                'Tiffin Allowance',
+                'Assistant Allowance',
+                'Dearness Allowance',
+                'Total Allowances',
+                'Bonuses',
+                'PF',
+                'Professional Tax',
+                'TDS',
+                'ESIC',
+                'Security Deposit',
+                'Leave Deduction',
+                'Leave Days',
+                'Total Deductions',
+                'Net Salary',
+                'Payment Date',
+                'Payment Method',
+                'Status',
+                'Notes'
+            ]);
+
+            foreach ($payrolls as $payroll) {
+                $totalAllowances = ($payroll->hra ?? 0) + ($payroll->medical_allowance ?? 0) + 
+                                  ($payroll->city_allowance ?? 0) + ($payroll->tiffin_allowance ?? 0) + 
+                                  ($payroll->assistant_allowance ?? 0) + ($payroll->dearness_allowance ?? 0);
+                $totalDeductions = ($payroll->pf ?? 0) + ($payroll->professional_tax ?? 0) + 
+                                  ($payroll->tds ?? 0) + ($payroll->esic ?? 0) + 
+                                  ($payroll->security_deposit ?? 0) + ($payroll->leave_deduction ?? 0);
+                $netSalary = ($payroll->basic_salary + $totalAllowances + ($payroll->bonuses ?? 0)) - $totalDeductions;
+
+                fputcsv($file, [
+                    $payroll->employee->code ?? 'N/A',
+                    $payroll->employee->name ?? 'N/A',
+                    $payroll->month,
+                    $payroll->year,
+                    number_format($payroll->basic_salary, 2, '.', ''),
+                    number_format($payroll->hra ?? 0, 2, '.', ''),
+                    number_format($payroll->medical_allowance ?? 0, 2, '.', ''),
+                    number_format($payroll->city_allowance ?? 0, 2, '.', ''),
+                    number_format($payroll->tiffin_allowance ?? 0, 2, '.', ''),
+                    number_format($payroll->assistant_allowance ?? 0, 2, '.', ''),
+                    number_format($payroll->dearness_allowance ?? 0, 2, '.', ''),
+                    number_format($totalAllowances, 2, '.', ''),
+                    number_format($payroll->bonuses ?? 0, 2, '.', ''),
+                    number_format($payroll->pf ?? 0, 2, '.', ''),
+                    number_format($payroll->professional_tax ?? 0, 2, '.', ''),
+                    number_format($payroll->tds ?? 0, 2, '.', ''),
+                    number_format($payroll->esic ?? 0, 2, '.', ''),
+                    number_format($payroll->security_deposit ?? 0, 2, '.', ''),
+                    number_format($payroll->leave_deduction ?? 0, 2, '.', ''),
+                    $payroll->leave_deduction_days ?? 0,
+                    number_format($totalDeductions, 2, '.', ''),
+                    number_format($netSalary, 2, '.', ''),
+                    $payroll->payment_date ?? '',
+                    $payroll->payment_method ?? '',
+                    ucfirst($payroll->status),
+                    $payroll->notes ?? ''
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export payrolls to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.export payroll'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+
+        $query = Payroll::with('employee');
+
+        // Apply same filters as index
+        if ($request->filled('month')) {
+            $query->where('month', $request->month);
+        }
+        if ($request->filled('year')) {
+            $query->where('year', $request->year);
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('employee_id')) {
+            $query->where('employee_id', $request->employee_id);
+        }
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->whereHas('employee', function($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('code', 'like', "%{$q}%");
+            });
+        }
+
+        $payrolls = $query->orderBy('created_at', 'desc')->get();
+
+        $filename = 'payrolls_' . date('Y-m-d_His') . '.xlsx';
+        
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\PayrollExport($payrolls), 
+            $filename
+        );
     }
 }
 

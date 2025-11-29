@@ -13,6 +13,10 @@ class InquiryController extends Controller
 {
     public function index(Request $request): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.view inquiry'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = Inquiry::query()->with(['followUps' => function ($q) {
             $q->latest();
         }]);
@@ -75,6 +79,10 @@ class InquiryController extends Controller
 
     public function create(): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.create inquiry'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $lastInquiry = Inquiry::orderByDesc('id')->first();
 
         $nextNumber = 1;
@@ -91,6 +99,10 @@ class InquiryController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.create inquiry'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $validated = $request->validate([
             'inquiry_date'    => ['required','date'],
             'company_name'    => ['required','string','max:255'],
@@ -138,18 +150,30 @@ class InquiryController extends Controller
 
     public function show(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.view inquiry'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $inquiry = Inquiry::findOrFail($id);
         return view('inquiries.show', compact('inquiry'));
     }
 
     public function edit(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.edit inquiry'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $inquiry = Inquiry::findOrFail($id);
         return view('inquiries.edit', compact('inquiry'));
     }
 
     public function update(Request $request, int $id): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.edit inquiry'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $inquiry = Inquiry::findOrFail($id);
         
         $validated = $request->validate([
@@ -181,6 +205,10 @@ class InquiryController extends Controller
 
     public function destroy(int $id): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.delete inquiry'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $inquiry = Inquiry::findOrFail($id);
         $inquiry->delete();
         
@@ -189,6 +217,10 @@ class InquiryController extends Controller
 
     public function export(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.export inquiry'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = Inquiry::query()->latest();
 
         if ($request->filled('from_date')) {
@@ -274,6 +306,10 @@ class InquiryController extends Controller
 
     public function followUp(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.follow up'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $inquiry = Inquiry::findOrFail($id);
         $followUps = $inquiry->followUps()->latest()->get();
 
@@ -282,6 +318,10 @@ class InquiryController extends Controller
 
     public function storeFollowUp(Request $request, int $id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.follow up create'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $inquiry = Inquiry::findOrFail($id);
         
         $validated = $request->validate([
@@ -324,6 +364,13 @@ class InquiryController extends Controller
 
     public function confirmFollowUp(Request $request, int $followUpId)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.follow up confirm'))) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $followUp = InquiryFollowUp::findOrFail($followUpId);
         $followUp->is_confirm = true;
         $followUp->save();

@@ -13,6 +13,10 @@ class InvoiceController extends Controller
 {
     public function index(Request $request): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Invoices Management.view invoice'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = Invoice::with('proforma');
         
         // Handle sorting
@@ -62,6 +66,10 @@ class InvoiceController extends Controller
     
     public function export(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Invoices Management.export invoice'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $query = Invoice::with('proforma')->orderBy('created_at', 'desc');
             
@@ -100,6 +108,10 @@ class InvoiceController extends Controller
 
     public function exportCsv(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Invoices Management.export invoice'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = Invoice::with('proforma')->latest();
 
         if ($request->filled('from_date')) {
@@ -183,6 +195,10 @@ class InvoiceController extends Controller
 
     public function convertForm(int $proformaId): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.convert proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $proforma = Proforma::findOrFail($proformaId);
         
         // Check if both invoices already exist
@@ -232,6 +248,10 @@ class InvoiceController extends Controller
 
     public function convert(Request $request, int $proformaId): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.convert proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $proforma = Proforma::findOrFail($proformaId);
             
@@ -381,18 +401,30 @@ class InvoiceController extends Controller
 
     public function show(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Invoices Management.view invoice'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $invoice = Invoice::with('proforma')->findOrFail($id);
         return view('invoices.show', compact('invoice'));
     }
 
     public function edit(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Invoices Management.edit invoice'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $invoice = Invoice::with('proforma')->findOrFail($id);
         return view('invoices.edit', compact('invoice'));
     }
 
     public function update(Request $request, int $id): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Invoices Management.edit invoice'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $invoice = Invoice::findOrFail($id);
             
@@ -424,12 +456,20 @@ class InvoiceController extends Controller
 
     public function print(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Invoices Management.print invoice'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $invoice = Invoice::with('proforma')->findOrFail($id);
         return view('invoices.print', compact('invoice'));
     }
 
     public function destroy(int $id): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Invoices Management.delete invoice'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $invoice = Invoice::findOrFail($id);
             $invoice->delete();

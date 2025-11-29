@@ -18,8 +18,12 @@
     </svg>
   </button>
   <div class="filter-right">
-    <a href="{{ route('receipts.export.csv', request()->only(['search','invoice_type','from_date','to_date'])) }}" class="pill-btn pill-success">Excel</a>
-    <a href="{{ route('receipts.create') }}" class="pill-btn pill-success">+ Add</a>
+    @can('Receipts Management.export receipt')
+      <a href="{{ route('receipts.export.csv', request()->only(['search','invoice_type','from_date','to_date'])) }}" class="pill-btn pill-success">Excel</a>
+    @endcan
+    @can('Receipts Management.create receipt')
+      <a href="{{ route('receipts.create') }}" class="pill-btn pill-success">+ Add</a>
+    @endcan
   </div>
 </form>
 
@@ -44,22 +48,30 @@
       <tr>
         <td>
           <div class="action-icons">
-            <a href="{{ route('receipts.edit', $receipt->id) }}">
-              <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
-            </a>
-            <a href="{{ route('receipts.show', $receipt->id) }}">
-              <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
-            </a>
-            <a href="{{ route('receipts.print', $receipt->id) }}" target="_blank">
-              <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
-            </a>
-            <form action="{{ route('receipts.destroy', $receipt->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this receipt?');">
-              @csrf
-              @method('DELETE')
-              <button type="submit" style="border:none;background:none;padding:0;cursor:pointer;">
-                <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
-              </button>
-            </form>
+            @can('Receipts Management.view receipt')
+              <a href="{{ route('receipts.show', $receipt->id) }}">
+                <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
+              </a>
+            @endcan
+            @can('Receipts Management.edit receipt')
+              <a href="{{ route('receipts.edit', $receipt->id) }}">
+                <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+              </a>
+            @endcan
+            @can('Receipts Management.print receipt')
+              <a href="{{ route('receipts.print', $receipt->id) }}" target="_blank">
+                <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
+              </a>
+            @endcan
+            @can('Receipts Management.delete receipt')
+              <form action="{{ route('receipts.destroy', $receipt->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this receipt?');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" style="border:none;background:none;padding:0;cursor:pointer;">
+                  <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+                </button>
+              </form>
+            @endcan
           </div>
         </td>
         <td>{{ $receipts->firstItem() + $index }}</td>

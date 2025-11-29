@@ -16,8 +16,12 @@
   </button>
   <div class="filter-right">
     <input type="text" name="search" placeholder="Search here.." class="filter-pill" value="{{ request('search') }}" />
-    <a href="{{ route('performas.export.csv', request()->only(['company_name','unique_code','mobile_no','from_date','to_date','search'])) }}" class="pill-btn pill-success">Excel</a>
-    <a href="{{ route('performas.create') }}" class="pill-btn pill-success">+ Add</a>
+    @can('Proformas Management.export proforma')
+      <a href="{{ route('performas.export.csv', request()->only(['company_name','unique_code','mobile_no','from_date','to_date','search'])) }}" class="pill-btn pill-success">Excel</a>
+    @endcan
+    @can('Proformas Management.create proforma')
+      <a href="{{ route('performas.create') }}" class="pill-btn pill-success">+ Add</a>
+    @endcan
   </div>
 </form>
 <!-- Data Table -->
@@ -42,22 +46,32 @@
       <tr>
         <td style="text-align: center; vertical-align: middle;">
           <div class="action-icons">
-            <a href="{{ route('performas.show', $proforma->id) }}" title="View Proforma" aria-label="View Proforma">
-              <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
-            </a>
-            <a href="{{ route('performas.edit', $proforma->id) }}" title="Edit Proforma" aria-label="Edit Proforma">
-              <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
-            </a>
-            <a href="{{ route('performas.print', $proforma->id) }}" target="_blank" title="Print Proforma" aria-label="Print Proforma">
-              <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
-            </a>
-            <button type="button" onclick="confirmDelete({{ $proforma->id }})" title="Delete Proforma" aria-label="Delete Proforma">
-              <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
-            </button>
+            @can('Proformas Management.view proforma')
+              <a href="{{ route('performas.show', $proforma->id) }}" title="View Proforma" aria-label="View Proforma">
+                <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
+              </a>
+            @endcan
+            @can('Proformas Management.edit proforma')
+              <a href="{{ route('performas.edit', $proforma->id) }}" title="Edit Proforma" aria-label="Edit Proforma">
+                <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+              </a>
+            @endcan
+            @can('Proformas Management.print proforma')
+              <a href="{{ route('performas.print', $proforma->id) }}" target="_blank" title="Print Proforma" aria-label="Print Proforma">
+                <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
+              </a>
+            @endcan
+            @can('Proformas Management.delete proforma')
+              <button type="button" onclick="confirmDelete({{ $proforma->id }})" title="Delete Proforma" aria-label="Delete Proforma">
+                <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+              </button>
+            @endcan
             @if($proforma->canConvert())
-            <a href="{{ route('performas.convert', $proforma->id) }}" title="Convert to Invoice" aria-label="Convert to Invoice">
-              <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert" class="action-icon">
-            </a>
+              @can('Proformas Management.convert proforma')
+                <a href="{{ route('performas.convert', $proforma->id) }}" title="Convert to Invoice" aria-label="Convert to Invoice">
+                  <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert" class="action-icon">
+                </a>
+              @endcan
             @endif
           </div>
         </td>

@@ -24,6 +24,10 @@ class QuotationController extends Controller
 {
     public function index(Request $request): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.view quotation'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $perPage = (int) $request->get('per_page', 10);
             // Ensure per_page is within valid range
@@ -167,6 +171,10 @@ class QuotationController extends Controller
      */
     public function export(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.export quotation'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $query = Quotation::query()->orderBy('created_at', 'desc');
             
@@ -209,6 +217,10 @@ class QuotationController extends Controller
      */
     public function exportCsv(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.export quotation'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = Quotation::query()->latest();
 
         if ($request->filled('from_date')) {
@@ -339,6 +351,10 @@ class QuotationController extends Controller
 
     public function create(): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.create quotation'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $lastQuotation = Quotation::orderByDesc('id')->first();
         $nextNumber = 1;
         
@@ -359,7 +375,11 @@ class QuotationController extends Controller
 
 
     public function store(Request $request): RedirectResponse
-    {   
+    {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.create quotation'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         //dd($request->all());
         // Filter out empty service rows
         $services1 = [
@@ -645,12 +665,20 @@ class QuotationController extends Controller
 
     public function show(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.view quotation'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $quotation = Quotation::findOrFail($id);
         return view('quotations.show', compact('quotation'));
     }
 
     public function edit(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.edit quotation'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $quotation = Quotation::findOrFail($id);
         $companies = Company::select('id', 'company_name')->orderBy('company_name')->get();
         return view('quotations.edit', compact('quotation', 'companies'));
@@ -658,6 +686,10 @@ class QuotationController extends Controller
 
     public function update(Request $request, int $id): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.edit quotation'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $quotation = Quotation::findOrFail($id);
             
@@ -1003,6 +1035,10 @@ class QuotationController extends Controller
      */
     public function destroy(int $id): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.delete quotation'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $quotation = Quotation::findOrFail($id);
             
@@ -1028,6 +1064,10 @@ class QuotationController extends Controller
 
     public function createFromInquiry(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.create quotation'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $inquiry = Inquiry::with('followUps')->findOrFail($id);
         
         // Generate next quotation code
@@ -1076,6 +1116,10 @@ class QuotationController extends Controller
      */
     public function download(int $id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.download quotation'))) {
+            abort(403);
+        }
+        
         $quotation = Quotation::findOrFail($id);
         return view('quotations.pdf', compact('quotation'));
 
@@ -1097,6 +1141,10 @@ class QuotationController extends Controller
      */
     public function viewContractFile(int $id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.contract generate'))) {
+            abort(403);
+        }
+        
         $quotation = Quotation::findOrFail($id);
         
         if (!$quotation->contract_copy) {
@@ -1122,6 +1170,10 @@ class QuotationController extends Controller
 
     public function generateContractPng(int $id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.contract generate'))) {
+            abort(403);
+        }
+        
         $quotation = Quotation::findOrFail($id);
         
         // Generate PDF first
@@ -1168,6 +1220,10 @@ class QuotationController extends Controller
 
     public function followUp(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.follow up'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $quotation = Quotation::findOrFail($id);
         $followUps = $quotation->followUps()->latest()->get();
 
@@ -1176,6 +1232,10 @@ class QuotationController extends Controller
 
     public function storeFollowUp(Request $request, int $id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.follow up create'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $quotation = Quotation::findOrFail($id);
         
         $validated = $request->validate([
@@ -1228,6 +1288,13 @@ class QuotationController extends Controller
 
     public function confirmFollowUp(Request $request, int $followUpId)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.follow up confirm'))) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $followUp = QuotationFollowUp::findOrFail($followUpId);
         $followUp->is_confirm = true;
         $followUp->save();
@@ -1243,6 +1310,10 @@ class QuotationController extends Controller
 
     public function templateList(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.template list'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $quotation = Quotation::with('proformas')->findOrFail($id);
         
         // Generate templates based on payment terms (services_2)
@@ -1273,6 +1344,10 @@ class QuotationController extends Controller
 
     public function createProforma(Request $request, int $id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.create proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $quotation = Quotation::findOrFail($id);
         $templateIndex = $request->get('template');
         
@@ -1309,6 +1384,10 @@ class QuotationController extends Controller
 
     public function storeProforma(Request $request, int $id): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.create proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $quotation = Quotation::findOrFail($id);
             
@@ -1370,6 +1449,10 @@ class QuotationController extends Controller
 
     public function convertToCompany(int $id): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.convert to company'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $quotation = Quotation::findOrFail($id);
             
