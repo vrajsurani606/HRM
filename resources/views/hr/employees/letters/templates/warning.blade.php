@@ -27,7 +27,7 @@
         <li>Impact on work/team/organization</li>
     </ul>
 @endif
-    <p><b>Expected Improvement:</b></p>
+    {{-- <p><b>Expected Improvement:</b></p>
     <ol style="margin-top: 4px;">
         <li>Immediate correction of the identified issues</li>
         <li>Adherence to company policies and procedures</li>
@@ -41,7 +41,7 @@
     <p><b>Support:</b></p>
     <p>The company is committed to supporting your improvement. Please feel free to discuss any challenges or seek guidance from your supervisor or HR department.</p>
 
-    <p>We trust that you will take this matter seriously and work towards immediate improvement.</p>
+    <p>We trust that you will take this matter seriously and work towards immediate improvement.</p> --}}
 
 
 @php

@@ -140,6 +140,8 @@ Route::middleware('auth')->group(function () {
     Route::get('quotation/{id}/template-list', [QuotationController::class, 'templateList'])->name('quotations.template-list');
     Route::get('quotation/{id}/create-proforma', [QuotationController::class, 'createProforma'])->name('quotations.create-proforma');
     Route::post('quotation/{id}/store-proforma', [QuotationController::class, 'storeProforma'])->name('quotations.store-proforma');
+    Route::post('quotations/{id}/convert-to-company', [QuotationController::class, 'convertToCompany'])->name('quotations.convert-to-company');
+    Route::post('quotations/cleanup-orphaned', [QuotationController::class, 'cleanupOrphanedQuotations'])->name('quotations.cleanup-orphaned');
 
     // Companies
     Route::resource('companies', CompanyController::class);
@@ -233,5 +235,16 @@ Route::middleware('auth')->group(function () {
     // Utilities
     Route::get('/clear-cache', [MaintenanceController::class, 'clearCache'])->name('maintenance.clear-cache');
 });
+
+// Direct storage file access route (public access for PDFs and documents)
+Route::get('storage/{path}', function ($path) {
+    $filePath = storage_path('app/public/' . $path);
+    
+    if (!file_exists($filePath)) {
+        abort(404, 'File not found');
+    }
+    
+    return response()->file($filePath);
+})->where('path', '.*')->name('storage.file');
 
 require __DIR__.'/auth.php';

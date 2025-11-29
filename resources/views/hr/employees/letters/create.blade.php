@@ -192,6 +192,7 @@
                 </div>
                 <div>
                     <label class="hrp-label">Reason for Termination:</label>
+                    <small class="text-xs text-gray-500">Maximum 10,000 characters. Content over 2,000 characters will use smaller font in print.</small>
                     <textarea name="content" id="termination_reason" class="form-control summernote-notes w-full" 
                              placeholder="Enter detailed reason for termination (e.g., consistently low performance despite prior discussions and performance improvement plans)" style="min-height: 200px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
                     @error('content')
@@ -302,6 +303,7 @@
             <div id="warningFields" class="hidden col-span-2 space-y-4">
                 <div>
                     <label class="hrp-label">Warning Content: <span class="text-red-500">*</span></label>
+                    <small class="text-xs text-gray-500">Maximum 10,000 characters. Content over 2,000 characters will use smaller font in print.</small>
                     <textarea name="content" id="warning_content" class="form-control summernote-notes w-full" 
                              placeholder="Enter detailed warning content (e.g., specific issues, expected improvements, consequences)" style="min-height: 200px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
                     @error('content')
@@ -322,6 +324,7 @@
                 </div>
                 <div>
                     <label class="hrp-label">Content: <span class="text-red-500">*</span></label>
+                    <small class="text-xs text-gray-500">Maximum 10,000 characters. Content over 2,000 characters will use smaller font in print.</small>
                     <textarea name="content" id="other_content" class="form-control summernote w-full" 
                              placeholder="Enter letter content" style="min-height: 300px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
                     @error('content')
@@ -705,6 +708,54 @@ $(document).ready(function() {
             }
         });
     });
+    
+    // Content length validation and warning
+    function checkContentLength() {
+        const contentFields = ['warning_content', 'termination_reason', 'other_content'];
+        
+        contentFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (!field) return;
+            
+            const checkLength = () => {
+                const content = $(field).summernote('code');
+                const textContent = $('<div>').html(content).text();
+                const length = textContent.length;
+                
+                // Remove existing warning
+                const existingWarning = field.parentElement.querySelector('.content-length-warning');
+                if (existingWarning) existingWarning.remove();
+                
+                if (length > 10000) {
+                    // Show error - exceeds max
+                    const warning = document.createElement('div');
+                    warning.className = 'content-length-warning text-red-600 text-sm mt-2 font-semibold';
+                    warning.innerHTML = `<i class="fas fa-exclamation-circle"></i> Content is too long (${length}/10000 characters). Please reduce content to save.`;
+                    field.parentElement.appendChild(warning);
+                    return false;
+                } else if (length > 3000) {
+                    // Show warning - will use smaller font
+                    const warning = document.createElement('div');
+                    warning.className = 'content-length-warning text-orange-600 text-sm mt-2';
+                    warning.innerHTML = `<i class="fas fa-info-circle"></i> Large content (${length} characters). Font size will be reduced in print for better fit.`;
+                    field.parentElement.appendChild(warning);
+                } else if (length > 2000) {
+                    // Show info - will use slightly smaller font
+                    const warning = document.createElement('div');
+                    warning.className = 'content-length-warning text-blue-600 text-sm mt-2';
+                    warning.innerHTML = `<i class="fas fa-info-circle"></i> Content length: ${length} characters. Font will be slightly reduced in print.`;
+                    field.parentElement.appendChild(warning);
+                }
+                return true;
+            };
+            
+            // Check on change
+            $(field).on('summernote.change', checkLength);
+        });
+    }
+    
+    // Initialize content length checking after summernote is ready
+    setTimeout(checkContentLength, 1000);
 });
 </script>
 @endpush

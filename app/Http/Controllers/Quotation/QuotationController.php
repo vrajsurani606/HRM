@@ -7,10 +7,12 @@ use App\Models\Quotation;
 use App\Models\QuotationFollowUp;
 use App\Models\Proforma;
 use App\Models\Company;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -23,12 +25,45 @@ class QuotationController extends Controller
     public function index(Request $request): View
     {
         try {
-            $perPage = $request->get('per_page', 25);
+            $perPage = (int) $request->get('per_page', 10);
+            // Ensure per_page is within valid range
+            $allowedPerPage = [10, 25, 50, 100];
+            if (!in_array($perPage, $allowedPerPage)) {
+                $perPage = 10;
+            }
+            
+            // Debug logging - remove after testing
+            \Log::info('Quotation pagination debug', [
+                'requested_per_page' => $request->get('per_page'),
+                'final_per_page' => $perPage,
+                'all_params' => $request->all()
+            ]);
+            
+            // Ensure per_page is always set in request for consistency
+            $request->merge(['per_page' => $perPage]);
+            
+
             $query = Quotation::with(['followUps' => function ($q) {
                 $q->where('is_confirm', true)->latest();
             }])
-                ->select('id', 'unique_code', 'company_name', 'contact_number_1', 'quotation_date', 'service_contract_amount', 'created_at', 'updated_at', 'tentative_complete_date')
-                ->orderBy('created_at', 'desc');
+                ->select('id', 'unique_code', 'company_name', 'contact_number_1', 'quotation_date', 'service_contract_amount', 'created_at', 'updated_at', 'tentative_complete_date', 'remark', 'status', 'customer_type', 'company_email', 'customer_id');
+            
+            // Handle sorting
+            $sortBy = $request->get('sort', 'created_at');
+            $sortDirection = $request->get('direction', 'desc');
+            
+            // Validate sort column
+            $allowedSorts = ['unique_code', 'company_name', 'quotation_date', 'service_contract_amount', 'tentative_complete_date', 'status', 'created_at', 'updated_at'];
+            if (!in_array($sortBy, $allowedSorts)) {
+                $sortBy = 'created_at';
+            }
+            
+            // Validate sort direction
+            if (!in_array($sortDirection, ['asc', 'desc'])) {
+                $sortDirection = 'desc';
+            }
+            
+            $query->orderBy($sortBy, $sortDirection);
             
             // Apply filters
             if ($request->filled('quotation_no')) {
@@ -54,18 +89,75 @@ class QuotationController extends Controller
             
             $quotations = $query->paginate($perPage)->appends($request->query());
             
+            // Force per_page to be correct in pagination object
+            $quotations->withPath($request->url())->appends(array_merge($request->query(), ['per_page' => $perPage]));
+            
+            // Temporary debug - remove after testing
+            if ($request->get('debug')) {
+                dd([
+                    'per_page_requested' => $request->get('per_page'),
+                    'per_page_final' => $perPage,
+                    'total_records' => $quotations->total(),
+                    'current_page' => $quotations->currentPage(),
+                    'last_page' => $quotations->lastPage(),
+                    'records_on_this_page' => $quotations->count(),
+                    'all_request_params' => $request->all()
+                ]);
+            }
+            
+            // Check for orphaned quotations (customer_id points to deleted company)
+            $orphanedQuotations = [];
+            foreach ($quotations as $quotation) {
+                if ($quotation->customer_type === 'existing' && $quotation->customer_id) {
+                    $companyExists = Company::where('id', $quotation->customer_id)->exists();
+                    if (!$companyExists) {
+                        $orphanedQuotations[] = $quotation->id;
+                        // Reset to new customer type so convert button shows
+                        $quotation->customer_type = 'new';
+                        $quotation->customer_id = null;
+                    }
+                }
+            }
+            
+            // Update orphaned quotations in database
+            if (!empty($orphanedQuotations)) {
+                Quotation::whereIn('id', $orphanedQuotations)->update([
+                    'customer_type' => 'new',
+                    'customer_id' => null
+                ]);
+                
+                \Log::info('Reset orphaned quotations to new customer type', [
+                    'quotation_ids' => $orphanedQuotations,
+                    'count' => count($orphanedQuotations)
+                ]);
+            }
+            
             // Get quotation IDs with confirmed follow-ups
             $confirmedQuotationIds = QuotationFollowUp::where('is_confirm', true)
                 ->pluck('quotation_id')
                 ->unique()
                 ->toArray();
             
-            return view('quotations.index', compact('quotations', 'confirmedQuotationIds'));
+            // Get emails of existing companies to check for duplicates
+            $existingCompanyEmails = Company::whereNotNull('company_email')
+                ->pluck('company_email')
+                ->map(function($email) {
+                    return strtolower(trim($email));
+                })
+                ->toArray();
+            
+            return view('quotations.index', compact('quotations', 'confirmedQuotationIds', 'existingCompanyEmails'));
         } catch (\Exception $e) {
             Log::error('Quotations index error: ' . $e->getMessage());
-            $quotations = Quotation::paginate(25);
+            $perPage = (int) $request->get('per_page', 10);
+            $allowedPerPage = [10, 25, 50, 100];
+            if (!in_array($perPage, $allowedPerPage)) {
+                $perPage = 10;
+            }
+            $quotations = Quotation::paginate($perPage)->appends($request->query());
             $confirmedQuotationIds = [];
-            return view('quotations.index', compact('quotations', 'confirmedQuotationIds'))->with('error', 'Error loading quotations');
+            $existingCompanyEmails = [];
+            return view('quotations.index', compact('quotations', 'confirmedQuotationIds', 'existingCompanyEmails'))->with('error', 'Error loading quotations');
         }
     }
     
@@ -212,61 +304,26 @@ class QuotationController extends Controller
             }
             $nextCode = 'CMS/QUAT/' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
             
-            // If customer type is "new", create a new company entry
-            $customerId = $request->customer_id;
-            if ($request->customer_type === 'new') {
-                // Validate required fields for new company
-                if (empty($request->city)) {
-                    return redirect()->back()->withInput()
-                        ->with('error', 'City is required when creating a new company.');
+            // Set customer ID (only for existing customers)
+            $customerId = $request->customer_type === 'existing' ? $request->customer_id : null;
+            
+            // Convert date formats from dd/mm/yy to Y-m-d before validation
+            $dateFields = ['quotation_date', 'amc_start_date', 'project_start_date', 'tentative_complete_date', 'tentative_complete_date_2'];
+            foreach ($dateFields as $field) {
+                if ($request->has($field) && !empty($request->$field)) {
+                    $dateValue = $request->$field;
+                    // Check if date is in dd/mm/yy or dd/mm/y format
+                    if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/', $dateValue, $matches)) {
+                        $day = str_pad($matches[1], 2, '0', STR_PAD_LEFT);
+                        $month = str_pad($matches[2], 2, '0', STR_PAD_LEFT);
+                        $year = $matches[3];
+                        // Convert 2-digit year to 4-digit
+                        if (strlen($year) == 2) {
+                            $year = '20' . $year;
+                        }
+                        $request->merge([$field => "$year-$month-$day"]);
+                    }
                 }
-                
-                if (empty($request->state)) {
-                    return redirect()->back()->withInput()
-                        ->with('error', 'State is required when creating a new company.');
-                }
-                
-                // Check if company with same email already exists
-                $existingCompany = Company::where('company_email', $request->company_email)->first();
-                
-                if ($existingCompany) {
-                    return redirect()->back()->withInput()
-                        ->with('error', 'A company with email "' . $request->company_email . '" already exists. Please use "Existing Customer" option or use a different email.');
-                }
-                
-                $companyData = [
-                    'company_name' => $request->company_name,
-                    'company_type' => $request->company_type ?: 'OTHER',
-                    'gst_no' => $request->gst_no,
-                    'pan_no' => $request->pan_no,
-                    'company_address' => $request->address ?: '',
-                    'city' => $request->city,
-                    'state' => $request->state,
-                    'company_email' => $request->company_email,
-                    'company_password' => $request->company_password,
-                    'other_details' => $request->nature_of_work,
-                    'contact_person_name' => $request->contact_person_1,
-                    'contact_person_mobile' => $request->contact_number_1,
-                    'contact_person_position' => $request->position_1,
-                    'person_name_1' => $request->contact_person_1,
-                    'person_number_1' => $request->contact_number_1,
-                    'person_position_1' => $request->position_1,
-                    'person_name_2' => $request->contact_person_2,
-                    'person_number_2' => $request->contact_number_2,
-                    'person_position_2' => $request->position_2,
-                    'person_name_3' => $request->contact_person_3,
-                    'person_number_3' => $request->contact_number_3,
-                    'person_position_3' => $request->position_3,
-                ];
-                
-                $newCompany = Company::create($companyData);
-                $customerId = $newCompany->id;
-                
-                \Log::info('New company created from quotation', [
-                    'company_id' => $newCompany->id,
-                    'company_name' => $newCompany->company_name,
-                    'unique_code' => $newCompany->unique_code
-                ]);
             }
             
             // Validate request data
@@ -326,12 +383,49 @@ class QuotationController extends Controller
                 'basic_subtotal' => ['nullable', 'numeric', 'min:0'],
                 'additional_subtotal' => ['nullable', 'numeric', 'min:0'],
                 'maintenance_subtotal' => ['nullable', 'numeric', 'min:0'],
+                
+                // Custom Terms & Conditions
+                'custom_terms_text' => ['nullable', 'string', 'max:2000'],
+                
+                // Remark
+                'remark' => ['nullable', 'string', 'max:1000'],
             ]);
             
             // Validate that at least one service is provided
             if (empty($services1['description']) || count($services1['description']) === 0) {
                 return redirect()->back()->withInput()
                     ->with('error', 'Please add at least one service to the quotation.');
+            }
+
+            // Process contact numbers - handle country code format
+            if (!empty($validated['contact_number_1'])) {
+                // If it doesn't start with +, add default +91
+                if (!str_starts_with($validated['contact_number_1'], '+')) {
+                    $validated['contact_number_1'] = '+91' . $validated['contact_number_1'];
+                }
+            }
+            if (!empty($validated['mobile_no'])) {
+                // If it doesn't start with +, add default +91
+                if (!str_starts_with($validated['mobile_no'], '+')) {
+                    $validated['mobile_no'] = '+91' . $validated['mobile_no'];
+                }
+            }
+            
+            // Convert date formats from dd/mm/yy to Y-m-d
+            $dateFields = ['quotation_date', 'amc_start_date', 'project_start_date', 'tentative_complete_date', 'tentative_complete_date_2'];
+            foreach ($dateFields as $field) {
+                if (!empty($validated[$field])) {
+                    try {
+                        $validated[$field] = \Carbon\Carbon::createFromFormat('d/m/y', $validated[$field])->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        // If parsing fails, try to parse as Y-m-d (in case it's already in correct format)
+                        try {
+                            $validated[$field] = \Carbon\Carbon::createFromFormat('Y-m-d', $validated[$field])->format('Y-m-d');
+                        } catch (\Exception $e2) {
+                            // If both fail, leave as is
+                        }
+                    }
+                }
             }
 
             // Prepare data for database using validated data
@@ -371,8 +465,9 @@ class QuotationController extends Controller
                 'retention_percent' => $validated['retention_percent'] ?? 0,
                 'tentative_complete_date' => $validated['tentative_complete_date'] ?? null,
                 'prepared_by' => $validated['prepared_by'] ?? null,
-                'mobile_no' => $validated['mobile_no'] ?? null,
+                'mobile_no' => !empty($validated['mobile_no']) ? '+91' . $validated['mobile_no'] : null,
                 'own_company_name' => $validated['footer_company_name'] ?? 'CHITRI INFOTECH PVT LTD',
+                'remark' => $validated['remark'] ?? null,
                 
                 // Service data (from services_1 table) - using filtered data
                 'service_description' => $services1['description'] ?? [],
@@ -390,8 +485,10 @@ class QuotationController extends Controller
                 'completion_terms' => $request->input('services_2.completion_terms', []),
                 'terms_tentative_complete_date' => $validated['tentative_complete_date_2'] ?? null,
                 
-                // Custom terms
-                'custom_terms_and_conditions' => $request->input('custom_terms', []),
+                // Custom terms - convert textarea to array
+                'custom_terms_and_conditions' => !empty($validated['custom_terms_text']) 
+                    ? array_filter(array_map('trim', explode("\n", $validated['custom_terms_text']))) 
+                    : [],
                 
                 // Feature booleans
                 'sample_management' => in_array('sample_management', $request->input('features', [])),
@@ -448,9 +545,6 @@ class QuotationController extends Controller
             $quotation = Quotation::create($data);
 
             $message = 'Quotation created successfully with ID: ' . $quotation->unique_code;
-            if ($request->customer_type === 'new') {
-                $message .= ' and new company added to the company list.';
-            }
 
             return redirect()->route('quotations.index')
                 ->with('status', $message);
@@ -480,6 +574,25 @@ class QuotationController extends Controller
     {
         try {
             $quotation = Quotation::findOrFail($id);
+            
+            // Convert date formats from dd/mm/yy to Y-m-d before validation
+            $dateFields = ['quotation_date', 'amc_start_date', 'project_start_date', 'tentative_complete_date', 'tentative_complete_date_2'];
+            foreach ($dateFields as $field) {
+                if ($request->has($field) && !empty($request->$field)) {
+                    $dateValue = $request->$field;
+                    // Check if date is in dd/mm/yy or dd/mm/y format
+                    if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/', $dateValue, $matches)) {
+                        $day = str_pad($matches[1], 2, '0', STR_PAD_LEFT);
+                        $month = str_pad($matches[2], 2, '0', STR_PAD_LEFT);
+                        $year = $matches[3];
+                        // Convert 2-digit year to 4-digit
+                        if (strlen($year) == 2) {
+                            $year = '20' . $year;
+                        }
+                        $request->merge([$field => "$year-$month-$day"]);
+                    }
+                }
+            }
             
             // Validate request data (same as create)
             $validated = $request->validate([
@@ -538,7 +651,44 @@ class QuotationController extends Controller
                 'basic_subtotal' => ['nullable', 'numeric', 'min:0'],
                 'additional_subtotal' => ['nullable', 'numeric', 'min:0'],
                 'maintenance_subtotal' => ['nullable', 'numeric', 'min:0'],
+                
+                // Custom Terms & Conditions
+                'custom_terms_text' => ['nullable', 'string', 'max:2000'],
+                
+                // Remark
+                'remark' => ['nullable', 'string', 'max:1000'],
             ]);
+
+            // Process contact numbers - handle country code format
+            if (!empty($validated['contact_number_1'])) {
+                // If it doesn't start with +, add default +91
+                if (!str_starts_with($validated['contact_number_1'], '+')) {
+                    $validated['contact_number_1'] = '+91' . $validated['contact_number_1'];
+                }
+            }
+            if (!empty($validated['mobile_no'])) {
+                // If it doesn't start with +, add default +91
+                if (!str_starts_with($validated['mobile_no'], '+')) {
+                    $validated['mobile_no'] = '+91' . $validated['mobile_no'];
+                }
+            }
+            
+            // Convert date formats from dd/mm/yy to Y-m-d
+            $dateFields = ['quotation_date', 'amc_start_date', 'project_start_date', 'tentative_complete_date', 'tentative_complete_date_2'];
+            foreach ($dateFields as $field) {
+                if (!empty($validated[$field])) {
+                    try {
+                        $validated[$field] = \Carbon\Carbon::createFromFormat('d/m/y', $validated[$field])->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        // If parsing fails, try to parse as Y-m-d (in case it's already in correct format)
+                        try {
+                            $validated[$field] = \Carbon\Carbon::createFromFormat('Y-m-d', $validated[$field])->format('Y-m-d');
+                        } catch (\Exception $e2) {
+                            // If both fail, leave as is
+                        }
+                    }
+                }
+            }
 
             // Prepare data using validated data
             $data = [
@@ -577,8 +727,9 @@ class QuotationController extends Controller
                 'tentative_complete_date' => $validated['tentative_complete_date'] ?? null,
                 'terms_tentative_complete_date' => $validated['tentative_complete_date_2'] ?? null,
                 'prepared_by' => $validated['prepared_by'] ?? null,
-                'mobile_no' => $validated['mobile_no'] ?? null,
+                'mobile_no' => !empty($validated['mobile_no']) ? '+91' . $validated['mobile_no'] : null,
                 'own_company_name' => $validated['footer_company_name'] ?? 'CHITRI INFOTECH PVT LTD',
+                'remark' => $validated['remark'] ?? null,
             ];
 
             // Handle services_1 (main services)
@@ -653,8 +804,10 @@ class QuotationController extends Controller
             $data['support_total'] = $maintenanceCost['total'] ?? [];
             $data['support_total_amount'] = $validated['maintenance_subtotal'] ?? 0;
 
-            // Handle custom terms
-            $data['custom_terms_and_conditions'] = $request->input('custom_terms', []);
+            // Handle custom terms - convert textarea to array
+            $data['custom_terms_and_conditions'] = !empty($validated['custom_terms_text']) 
+                ? array_filter(array_map('trim', explode("\n", $validated['custom_terms_text']))) 
+                : [];
             
             // Handle file upload
             if ($request->hasFile('contract_copy')) {
@@ -724,6 +877,11 @@ class QuotationController extends Controller
             ->orderBy('company_name')
             ->get();
         
+        // Try to find matching company by name
+        $matchingCompany = Company::where('company_name', 'LIKE', '%' . $inquiry->company_name . '%')
+            ->orWhere('company_name', $inquiry->company_name)
+            ->first();
+        
         // Pre-populate quotation data from inquiry
         $quotationData = [
             'company_name' => $inquiry->company_name,
@@ -735,6 +893,8 @@ class QuotationController extends Controller
             'industry_type' => $inquiry->industry_type,
             'quotation_date' => date('Y-m-d'),
             'inquiry_id' => $inquiry->id,
+            'customer_type' => $matchingCompany ? 'existing' : 'new',
+            'customer_id' => $matchingCompany ? $matchingCompany->id : null,
         ];
         
         return view('quotations.create', compact('inquiry', 'nextCode', 'companies', 'quotationData'));
@@ -1027,6 +1187,169 @@ class QuotationController extends Controller
             \Log::error('Error creating proforma: ' . $e->getMessage());
             return redirect()->back()->withInput()
                 ->with('error', 'Error creating proforma: ' . $e->getMessage());
+        }
+    }
+
+    public function convertToCompany(int $id): RedirectResponse
+    {
+        try {
+            $quotation = Quotation::findOrFail($id);
+            
+            // Check if quotation is for a new customer
+            if ($quotation->customer_type !== 'new') {
+                return redirect()->back()
+                    ->with('error', 'Only quotations with new customers can be converted to companies.');
+            }
+            
+            // Check if required fields are provided
+            if (empty($quotation->company_name)) {
+                return redirect()->back()
+                    ->with('error', 'Company name is required to convert to company.');
+            }
+            
+            if (empty($quotation->company_email)) {
+                return redirect()->back()
+                    ->with('error', 'Company email is required to convert to company.');
+            }
+            
+            if (empty($quotation->contact_person_1)) {
+                return redirect()->back()
+                    ->with('error', 'Contact person name is required to convert to company.');
+            }
+            
+            if (empty($quotation->contact_number_1)) {
+                return redirect()->back()
+                    ->with('error', 'Contact person mobile number is required to convert to company.');
+            }
+            
+            // Check if company with same email already exists
+            $existingCompany = Company::where('company_email', $quotation->company_email)->first();
+            if ($existingCompany) {
+                return redirect()->back()
+                    ->with('error', 'A company with email "' . $quotation->company_email . '" already exists.');
+            }
+            
+            // Create company from quotation data
+            $companyData = [
+                'company_name' => $quotation->company_name,
+                'company_type' => $quotation->company_type ?? 'OTHER',
+                'gst_no' => $quotation->gst_no ?? '',
+                'pan_no' => $quotation->pan_no ?? '',
+                'other_details' => $quotation->nature_of_work ?? '',
+                'city' => $quotation->city ?? 'Not Specified',
+                'state' => $quotation->state ?? 'Not Specified',
+                'company_address' => $quotation->address ?? 'Address not provided',
+                'company_email' => $quotation->company_email,
+                'company_password' => $quotation->company_password ?? '',
+                'contact_person_name' => $quotation->contact_person_1,
+                'contact_person_mobile' => $quotation->contact_number_1,
+                'contact_person_position' => $quotation->position_1 ?? '',
+                'person_name_1' => $quotation->contact_person_1,
+                'person_number_1' => $quotation->contact_number_1,
+                'person_position_1' => $quotation->position_1 ?? '',
+                'person_name_2' => $quotation->contact_person_2,
+                'person_number_2' => $quotation->contact_number_2,
+                'person_position_2' => $quotation->position_2,
+                'person_name_3' => $quotation->contact_person_3,
+                'person_number_3' => $quotation->contact_number_3,
+                'person_position_3' => $quotation->position_3,
+            ];
+            
+            $newCompany = Company::create($companyData);
+            
+            \Log::info('Company created successfully from quotation conversion', [
+                'company_id' => $newCompany->id,
+                'company_name' => $newCompany->company_name,
+                'unique_code' => $newCompany->unique_code,
+                'quotation_id' => $quotation->id
+            ]);
+            
+            // Create user account for the company if password is provided
+            if (!empty($quotation->company_password)) {
+                // Check if user with this email already exists
+                $existingUser = User::where('email', $quotation->company_email)->first();
+                
+                if (!$existingUser) {
+                    $user = User::create([
+                        'name' => $quotation->contact_person_1,
+                        'email' => $quotation->company_email,
+                        'password' => Hash::make($quotation->company_password),
+                        'mobile_no' => $quotation->contact_number_1 ?? '',
+                        'address' => $quotation->address ?? '',
+                        'company_id' => $newCompany->id
+                    ]);
+                
+                    // Assign customer role
+                    if (class_exists(\Spatie\Permission\Models\Role::class)) {
+                        $customerRole = \Spatie\Permission\Models\Role::where('name', 'customer')->first();
+                        if ($customerRole) {
+                            $user->assignRole($customerRole);
+                        }
+                    }
+                } else {
+                    \Log::warning('User account already exists for email during company conversion', [
+                        'email' => $quotation->company_email,
+                        'company_id' => $newCompany->id
+                    ]);
+                }
+            }
+            
+            // Update quotation to link to the new company
+            $quotation->update([
+                'customer_type' => 'existing',
+                'customer_id' => $newCompany->id
+            ]);
+            
+            return redirect()->back()
+                ->with('success', 'Company "' . $quotation->company_name . '" has been created successfully and linked to the quotation.');
+                
+        } catch (\Exception $e) {
+            \Log::error('Error converting quotation to company: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error converting to company: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Cleanup orphaned quotations (where customer_id points to deleted companies)
+     */
+    public function cleanupOrphanedQuotations(): RedirectResponse
+    {
+        try {
+            // Find quotations with customer_id pointing to non-existent companies
+            $orphanedQuotations = Quotation::where('customer_type', 'existing')
+                ->whereNotNull('customer_id')
+                ->whereNotExists(function ($query) {
+                    $query->select('id')
+                        ->from('companies')
+                        ->whereColumn('companies.id', 'quotations.customer_id');
+                })
+                ->get();
+
+            if ($orphanedQuotations->count() > 0) {
+                // Reset orphaned quotations to new customer type
+                $quotationIds = $orphanedQuotations->pluck('id')->toArray();
+                
+                Quotation::whereIn('id', $quotationIds)->update([
+                    'customer_type' => 'new',
+                    'customer_id' => null
+                ]);
+
+                \Log::info('Manual cleanup of orphaned quotations completed', [
+                    'quotation_ids' => $quotationIds,
+                    'count' => count($quotationIds)
+                ]);
+
+                return redirect()->back()
+                    ->with('success', 'Cleaned up ' . count($quotationIds) . ' orphaned quotations. Convert buttons are now available.');
+            } else {
+                return redirect()->back()
+                    ->with('info', 'No orphaned quotations found.');
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error cleaning up orphaned quotations: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error cleaning up orphaned quotations: ' . $e->getMessage());
         }
     }
 }

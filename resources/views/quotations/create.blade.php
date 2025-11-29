@@ -42,19 +42,20 @@
         @enderror
       </div>
       <div>
-        <label class="hrp-label">Quotation Date: <span class="text-red-500">*</span></label>
-        <input type="date" class="Rectangle-29 @error('quotation_date') is-invalid @enderror" name="quotation_date" value="{{ old('quotation_date', date('Y-m-d')) }}" required>
-        @error('quotation_date')
-            <small class="hrp-error">{{ $message }}</small>
-        @enderror
+        <x-date-input 
+          name="quotation_date" 
+          label="Quotation Date" 
+          :value="old('quotation_date', date('d/m/y'))" 
+          required="true" 
+        />
       </div>
 
       <!-- Row 2: Which Customer / Select Customer -->
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-        <div class="md:col-span-1">
+        <div>
           <label class="hrp-label">Which Customer: <span class="text-red-500">*</span></label>
           @php
-              $customerType = old('customer_type', isset($inquiry) ? 'existing' : 'new');
+              $customerType = old('customer_type', $quotationData['customer_type'] ?? 'new');
           @endphp
           <select class="Rectangle-29-select @error('customer_type') is-invalid @enderror" name="customer_type" id="customer_type" required>
             <option value="new" {{ $customerType == 'new' ? 'selected' : '' }}>New Customer</option>
@@ -64,10 +65,10 @@
               <small class="hrp-error">{{ $message }}</small>
           @enderror
         </div>
-        <div class="lg:col-span-1 {{ isset($inquiry) ? '' : 'hidden' }}" id="existing_customer_field">
+        <div class="lg:col-span-1 {{ $customerType == 'existing' ? '' : 'hidden' }}" id="existing_customer_field">
           <label class="hrp-label">Select Customer: <span class="text-red-500">*</span></label>
           @php
-              $selectedCustomerId = old('customer_id', isset($inquiry) && isset($inquiry->id) ? $inquiry->id : '');
+              $selectedCustomerId = old('customer_id', $quotationData['customer_id'] ?? '');
           @endphp
           <select class="Rectangle-29-select @error('customer_id') is-invalid @enderror" name="customer_id" id="customer_id" {{ $customerType == 'existing' ? 'required' : '' }}>
             <option value="">Select Customer</option>
@@ -84,130 +85,59 @@
           @enderror
         </div>
       </div>
-      <!-- Row 3: GST / PAN in one row -->
+
+      <!-- Basic Information Fields -->
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-        <div class="md:col-span-1">
+        <div>
           <label class="hrp-label">GST No:</label>
           <input class="Rectangle-29 @error('gst_no') is-invalid @enderror" name="gst_no" placeholder="Enter GST No" value="{{ old('gst_no', $quotationData['gst_no'] ?? '') }}">
           @error('gst_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
-        <div class="md:col-span-1">
+        <div>
           <label class="hrp-label">PAN No:</label>
           <input class="Rectangle-29 @error('pan_no') is-invalid @enderror" name="pan_no" placeholder="Enter PAN No" value="{{ old('pan_no') }}">
           @error('pan_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
+
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-        <div class="md:col-span-1">
+        <div>
           <label class="hrp-label">Company Name: <span class="text-red-500">*</span></label>
-          <input class="Rectangle-29 @error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name', $quotationData['company_name'] ?? '') }}" placeholder="Enter company name" required>
+          <input class="Rectangle-29 @error('company_name') is-invalid @enderror" id="company_name" name="company_name" value="{{ old('company_name', $quotationData['company_name'] ?? '') }}" placeholder="Enter company name" required>
           @error('company_name')
               <small class="hrp-error">{{ $message }}</small>
           @enderror
         </div>
-        <div class="md:col-span-1">
+        <div>
           <label class="hrp-label">Company Type</label>
-          <div class="relative">
-            <select name="company_type" class="hrp-input Rectangle-29 @error('company_type') is-invalid @enderror" style="
-              padding-right: 32px;
-              -webkit-appearance: none;
-              -moz-appearance: none;
-              appearance: none;
-              background-image: url(\" data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpolyline points='6 9 12 15 18 9' %3E%3C/polyline%3E%3C/svg%3E\");
-              background-repeat: no-repeat;
-              background-position: right 12px center;
-              background-size: 16px 16px;
-              cursor: pointer;
-              width: 100%;
-              text-transform: uppercase;
-              font-size: 14px;
-              line-height: 1.5; ">
-              <option value="" disabled {{ !old('company_type') ? 'selected' : '' }}>SELECT COMPANY TYPE</option>
-              <option value=" AUTOMOBILE" {{ old('company_type') == ' AUTOMOBILE' ? 'selected' : '' }}>AUTOMOBILE</option>
-              <option value="FMCG" {{ old('company_type') == 'FMCG' ? 'selected' : '' }}>FMCG (FAST-MOVING CONSUMER GOODS)</option>
-              <option value="IT" {{ old('company_type') == 'IT' ? 'selected' : '' }}>INFORMATION TECHNOLOGY</option>
-              <option value="MANUFACTURING" {{ old('company_type') == 'MANUFACTURING' ? 'selected' : '' }}>MANUFACTURING</option>
-              <option value="CONSTRUCTION" {{ old('company_type') == 'CONSTRUCTION' ? 'selected' : '' }}>CONSTRUCTION</option>
-              <option value="HEALTHCARE" {{ old('company_type') == 'HEALTHCARE' ? 'selected' : '' }}>HEALTHCARE</option>
-              <option value="EDUCATION" {{ old('company_type') == 'EDUCATION' ? 'selected' : '' }}>EDUCATION</option>
-              <option value="FINANCE" {{ old('company_type') == 'FINANCE' ? 'selected' : '' }}>FINANCE & BANKING</option>
-              <option value="RETAIL" {{ old('company_type') == 'RETAIL' ? 'selected' : '' }}>RETAIL</option>
-              <option value="TELECOM" {{ old('company_type') == 'TELECOM' ? 'selected' : '' }}>TELECOMMUNICATIONS</option>
-              <option value="HOSPITALITY" {{ old('company_type') == 'HOSPITALITY' ? 'selected' : '' }}>HOSPITALITY</option>
-              <option value="TRANSPORT" {{ old('company_type') == 'TRANSPORT' ? 'selected' : '' }}>TRANSPORT & LOGISTICS</option>
-              <option value="ENERGY" {{ old('company_type') == 'ENERGY' ? 'selected' : '' }}>ENERGY & UTILITIES</option>
-              <option value="MEDIA" {{ old('company_type') == 'MEDIA' ? 'selected' : '' }}>MEDIA & ENTERTAINMENT</option>
-              <option value="REAL_ESTATE" {{ old('company_type') == 'REAL_ESTATE' ? 'selected' : '' }}>REAL ESTATE</option>
-              <option value="OTHER" {{ old('company_type') == 'OTHER' ? 'selected' : '' }}>OTHER</option>
-            </select>
-            @error('company_type')<small class="hrp-error">{{ $message }}</small>@enderror
-          </div>
+          <select name="company_type" class="Rectangle-29-select">
+            <option value="">SELECT COMPANY TYPE</option>
+            <option value="AUTOMOBILE" {{ old('company_type') == 'AUTOMOBILE' ? 'selected' : '' }}>AUTOMOBILE</option>
+            <option value="FMCG" {{ old('company_type') == 'FMCG' ? 'selected' : '' }}>FMCG</option>
+            <option value="IT" {{ old('company_type') == 'IT' ? 'selected' : '' }}>INFORMATION TECHNOLOGY</option>
+            <option value="HEALTHCARE" {{ old('company_type') == 'HEALTHCARE' ? 'selected' : '' }}>HEALTHCARE</option>
+          </select>
         </div>
       </div>
 
-      <!-- Row 4 -->
-      <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
-        <div class="md:col-span-1">
+      <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+        <div>
           <label class="hrp-label">Nature Of Work:</label>
           <input class="Rectangle-29 @error('nature_of_work') is-invalid @enderror" name="nature_of_work" placeholder="Enter Nature" value="{{ old('nature_of_work') }}">
           @error('nature_of_work')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
-        <div class="md:col-span-1">
-          <label class="hrp-label">City: <span class="text-red-500 city-required-indicator" style="display: none;">*</span></label>
-          <select class="Rectangle-29-select @error('city') is-invalid @enderror" name="city" id="city_select">
-            <option value="" {{ !old('city') ? 'selected' : '' }}>Select City</option>
+        <div>
+          <label class="hrp-label">City:</label>
+          <select class="Rectangle-29-select @error('city') is-invalid @enderror" name="city">
+            <option value="">Select City</option>
             <option value="Ahmedabad" {{ old('city') == 'Ahmedabad' ? 'selected' : '' }}>Ahmedabad</option>
             <option value="Surat" {{ old('city') == 'Surat' ? 'selected' : '' }}>Surat</option>
-            <option value="Vadodara" {{ old('city') == 'Vadodara' ? 'selected' : '' }}>Vadodara</option>
-            <option value="Rajkot">Rajkot</option>
-            <option value="Bhavnagar">Bhavnagar</option>
-            <option value="Jamnagar">Jamnagar</option>
-            <option value="Gandhinagar">Gandhinagar</option>
-            <option value="Mumbai">Mumbai</option>
-            <option value="Pune">Pune</option>
-            <option value="Nashik">Nashik</option>
-            <option value="Delhi">Delhi</option>
-            <option value="Noida">Noida</option>
-            <option value="Gurugram">Gurugram</option>
-            <option value="Bengaluru">Bengaluru</option>
-            <option value="Chennai">Chennai</option>
-            <option value="Hyderabad">Hyderabad</option>
-            <option value="Kolkata">Kolkata</option>
-            <option value="Jaipur">Jaipur</option>
-            <option value="Indore">Indore</option>
-            <option value="Bhopal">Bhopal</option>
-            <option value="Lucknow">Lucknow</option>
-            <option value="Patna">Patna</option>
-            <option value="Chandigarh">Chandigarh</option>
-            <option value="Coimbatore">Coimbatore</option>
-            <option>Vadodara</option>
+            <option value="Mumbai" {{ old('city') == 'Mumbai' ? 'selected' : '' }}>Mumbai</option>
           </select>
           @error('city')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
-        <div class="md:col-span-1">
-          <label class="hrp-label">State: <span class="text-red-500 state-required-indicator" style="display: none;">*</span></label>
-          <select class="Rectangle-29-select @error('state') is-invalid @enderror" name="state" id="state_select">
-            <option value="" {{ !old('state') ? 'selected' : '' }}>Select State</option>
-            <option value="Gujarat" {{ old('state') == 'Gujarat' ? 'selected' : '' }}>Gujarat</option>
-            <option value="Maharashtra" {{ old('state') == 'Maharashtra' ? 'selected' : '' }}>Maharashtra</option>
-            <option value="Delhi" {{ old('state') == 'Delhi' ? 'selected' : '' }}>Delhi</option>
-            <option value="Karnataka" {{ old('state') == 'Karnataka' ? 'selected' : '' }}>Karnataka</option>
-            <option value="Tamil Nadu" {{ old('state') == 'Tamil Nadu' ? 'selected' : '' }}>Tamil Nadu</option>
-            <option value="Telangana" {{ old('state') == 'Telangana' ? 'selected' : '' }}>Telangana</option>
-            <option value="West Bengal" {{ old('state') == 'West Bengal' ? 'selected' : '' }}>West Bengal</option>
-            <option value="Rajasthan" {{ old('state') == 'Rajasthan' ? 'selected' : '' }}>Rajasthan</option>
-            <option value="Madhya Pradesh" {{ old('state') == 'Madhya Pradesh' ? 'selected' : '' }}>Madhya Pradesh</option>
-            <option value="Uttar Pradesh" {{ old('state') == 'Uttar Pradesh' ? 'selected' : '' }}>Uttar Pradesh</option>
-            <option value="Bihar" {{ old('state') == 'Bihar' ? 'selected' : '' }}>Bihar</option>
-            <option value="Haryana" {{ old('state') == 'Haryana' ? 'selected' : '' }}>Haryana</option>
-            <option value="Punjab" {{ old('state') == 'Punjab' ? 'selected' : '' }}>Punjab</option>
-            <option value="Chandigarh" {{ old('state') == 'Chandigarh' ? 'selected' : '' }}>Chandigarh</option>
-          </select>
-          @error('state')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
       </div>
 
-      <!-- Row 5 -->
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Scope of Work:</label>
@@ -221,21 +151,24 @@
         </div>
       </div>
 
-      <!-- Row 6 -->
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Contact Person 1: <span class="text-red-500">*</span></label>
           <input class="Rectangle-29 @error('contact_person_1') is-invalid @enderror" name="contact_person_1" placeholder="Enter Contact Person Name" value="{{ old('contact_person_1', $quotationData['contact_person'] ?? '') }}" required>
-          @error('contact_person_1')<small class="hrp-error">{{ $message }}</small>@enderror
+          @error('contact_person_1')
+              <small class="hrp-error">{{ $message }}</small>
+          @enderror
         </div>
         <div>
-          <label class="hrp-label">Contact Number 1: <span class="text-red-500">*</span></label>
-          <input class="Rectangle-29 @error('contact_number_1') is-invalid @enderror" name="contact_number_1" placeholder="Enter Mobile No" type="tel" pattern="\d{10}" maxlength="10" inputmode="numeric" value="{{ old('contact_number_1', $quotationData['contact_number_1'] ?? '') }}" required>
-          @error('contact_number_1')<small class="hrp-error">{{ $message }}</small>@enderror
+          <x-phone-input 
+            name="contact_number_1" 
+            label="Contact Number 1" 
+            :value="old('contact_number_1', $quotationData['contact_number_1'] ?? '')" 
+            required="true" 
+          />
         </div>
       </div>
 
-      <!-- Row 7 -->
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Position 1:</label>
@@ -253,25 +186,22 @@
         </div>
       </div>
 
-      <!-- Row 8 -->
       <div>
         <label class="hrp-label">Contract Short Details:</label>
-        <textarea class="Rectangle-29 Rectangle-29-textarea @error('contract_details') is-invalid @enderror" name="contract_details" placeholder="Enter Your Details"
-          style="height:58px;resize:none;">{{ old('contract_details') }}</textarea>
+        <textarea class="Rectangle-29 Rectangle-29-textarea @error('contract_details') is-invalid @enderror" name="contract_details" placeholder="Enter Your Details" style="height:58px;resize:none;">{{ old('contract_details') }}</textarea>
         @error('contract_details')<small class="hrp-error">{{ $message }}</small>@enderror
       </div>
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Company Email: <span class="text-red-500">*</span></label>
-          <input class="Rectangle-29 @error('company_email') is-invalid @enderror" type="email" name="company_email" id="company_email" value="{{ old('company_email', $quotationData['email'] ?? '') }}" placeholder="Add Mail-Id" required>
+          <input class="Rectangle-29 @error('company_email') is-invalid @enderror" type="email" name="company_email" value="{{ old('company_email', $quotationData['email'] ?? '') }}" placeholder="Add Mail-Id" required>
           @error('company_email')
               <small class="hrp-error">{{ $message }}</small>
           @enderror
-          <small id="email_check_message" class="hrp-error" style="display: none;"></small>
         </div>
         <div>
           <label class="hrp-label">Company Password:</label>
-          <input class="Rectangle-29" type="password" name="company_password" placeholder="Enter Company Password" value="{{ old('company_password') }}">
+          <input class="Rectangle-29 @error('company_password') is-invalid @enderror" type="password" name="company_password" placeholder="Enter Company Password" value="{{ old('company_password') }}">
           @error('company_password')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
@@ -646,7 +576,7 @@
   <div class="hrp-form grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-5" style="margin: 30px 0;">
     <div>
       <label class="hrp-label">AMC Start From:</label>
-      <input type="date" class="Rectangle-29" name="amc_start_date" value="{{ old('amc_start_date') }}">
+      <input type="text" class="Rectangle-29 date-picker" name="amc_start_date" placeholder="dd/mm/yy" value="{{ old('amc_start_date') }}" autocomplete="off">
     </div>
     <div>
       <label class="hrp-label">AMC Amount:</label>
@@ -654,7 +584,7 @@
     </div>
     <div>
       <label class="hrp-label">Project Start Date:</label>
-      <input type="date" class="Rectangle-29" name="project_start_date" value="{{ old('project_start_date') }}">
+      <input type="text" class="Rectangle-29 date-picker" name="project_start_date" placeholder="dd/mm/yy" value="{{ old('project_start_date') }}" autocomplete="off">
     </div>
     <div>
       <label class="hrp-label">Completion Time:</label>
@@ -675,7 +605,7 @@
     </div>
     <div>
       <label class="hrp-label">Tentative Complete Date:</label>
-      <input type="date" class="Rectangle-29" name="tentative_complete_date" value="{{ old('tentative_complete_date') }}">
+      <input type="text" class="Rectangle-29 date-picker" name="tentative_complete_date" placeholder="dd/mm/yy" value="{{ old('tentative_complete_date') }}" autocomplete="off">
     </div>
     <div></div>
     <div></div>
@@ -735,8 +665,8 @@
 
     <div class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5" style="margin-top: 20px;">
       <div>
-        <label class="hrp-label">Tentative Complete Date:</label>
-        <input type="date" class="Rectangle-29" name="tentative_complete_date_2" value="{{ old('tentative_complete_date_2') }}">
+        <label class="hrp-label">Services Total Amount:</label>
+        <input type="text" class="Rectangle-29" id="services_total_amount" name="services_total_amount" placeholder="Auto-calculated" readonly value="{{ old('services_total_amount') }}" style="background-color: #f3f4f6; font-weight: 600;">
       </div>
       <div></div>
     </div>
@@ -748,11 +678,10 @@
   <div class="hrp-form grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5" style="margin: 30px 0;">
     <div>
       <label class="hrp-label">Custom Terms & Conditions</label>
-      <div style="position: relative; margin-bottom: 15px;">
-        <input type="text" class="Rectangle-29" placeholder="Add Terms & Condition" style="padding-right: 50px;">
-        <button type="button" class="add-custom-term" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 18px; color: #28a745; cursor: pointer;">+</button>
+      <div style="margin-bottom: 15px;">
+        <textarea name="custom_terms_text" id="custom_terms_text" class="Rectangle-29" rows="4" placeholder="Enter custom terms and conditions (one per line)" style="width: 100%; resize: vertical;">{{ old('custom_terms_text', isset($quotation) && is_array($quotation->custom_terms_and_conditions) ? implode("\n", $quotation->custom_terms_and_conditions) : '') }}</textarea>
+        <small class="text-gray-500">Enter each term on a new line</small>
       </div>
-      <div id="customTermsList"></div>
     </div>
     <div>
       <label class="hrp-label">Prepared By:</label>
@@ -760,15 +689,22 @@
       @error('prepared_by')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
-      <label class="hrp-label">Mobile No.:</label>
-      <input class="Rectangle-29" name="mobile_no" placeholder="Add Mobile No" value="{{ old('mobile_no') }}">
-      @error('mobile_no')<small class="hrp-error">{{ $message }}</small>@enderror
+      <x-phone-input class="Rectangle-29"
+        name="mobile_no" 
+        label="Mobile No." 
+        :value="old('mobile_no')" 
+      />
     </div>
 
-    <div class="md:col-span-3">
+    <div>
       <label class="hrp-label">Company Name:</label>
       <input class="Rectangle-29" name="footer_company_name" value="{{ old('footer_company_name', 'CHITRI INFOTECH PVT LTD') }}">
       @error('footer_company_name')<small class="hrp-error">{{ $message }}</small>@enderror
+    </div>
+    <div>
+      <label class="hrp-label">Remark:</label>
+      <textarea class="Rectangle-29 Rectangle-29-textarea" name="remark" placeholder="Enter remark or notes" rows="2" style="resize: vertical;">{{ old('remark') }}</textarea>
+      @error('remark')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
   </div>
 
@@ -803,6 +739,8 @@
 
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
 <script>
 
@@ -826,23 +764,51 @@ function calculateRowTotal(input) {
     }
     
     calculateContractAmount();
+    calculateServicesTotalAmount();
+}
+
+function calculateServicesTotalAmount() {
+    let servicesTotal = 0;
+    
+    // Sum ONLY totals from services_2 table (Service Terms with Completion %)
+    document.querySelectorAll('.services-table-2 .total').forEach(input => {
+        servicesTotal += parseFloat(input.value) || 0;
+    });
+    
+    // Update the Services Total Amount field
+    const servicesTotalField = document.getElementById('services_total_amount');
+    if (servicesTotalField) {
+        servicesTotalField.value = '₹ ' + servicesTotal.toFixed(2);
+    }
 }
 
 function calculatePercentageAmount(input) {
     const row = input.closest('tr');
     const percentage = parseFloat(input.value) || 0;
+    const quantityInput = row.querySelector('.quantity');
+    const rateInput = row.querySelector('.rate');
+    const totalInput = row.querySelector('.total');
+    
+    // Get the quantity (if not set, default to 1)
+    const quantity = parseFloat(quantityInput?.value) || 1;
+    
+    // Get contract amount for percentage calculation
     const contractAmount = parseFloat(document.getElementById('contract_amount')?.value) || 0;
     
     if (percentage > 0 && contractAmount > 0) {
+        // Calculate percentage of contract amount
         const percentageAmount = (contractAmount * percentage) / 100;
-        const rateInput = row.querySelector('.rate');
-        const quantityInput = row.querySelector('.quantity');
-        const totalInput = row.querySelector('.total');
         
-        // Set quantity to 1 and rate to percentage amount
-        if (quantityInput) quantityInput.value = 1;
-        if (rateInput) rateInput.value = percentageAmount.toFixed(2);
+        // Calculate rate per quantity
+        const ratePerUnit = percentageAmount / quantity;
+        
+        // Update rate and total
+        if (rateInput) rateInput.value = ratePerUnit.toFixed(2);
         if (totalInput) totalInput.value = percentageAmount.toFixed(2);
+    } else if (percentage === 0) {
+        // Reset if percentage is cleared
+        if (rateInput) rateInput.value = '';
+        if (totalInput) totalInput.value = '';
     }
 }
 
@@ -1488,25 +1454,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //
     // ADD MORE CUSTOM TERMS
     //
-    document.querySelector('.add-custom-term')?.addEventListener('click', function() {
-        const input = this.previousElementSibling;
-        const text = input.value.trim();
-        if (!text) return;
-        
-        const container = document.getElementById('standardTermsList');
-        const item = document.createElement('div');
-        item.className = 'standard-term-item';
-        item.style.cssText = 'display: flex; align-items: center; margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;';
-        const termNumber = container.children.length + 1;
-        item.innerHTML = `
-            <span style="margin-right: 15px; font-weight: bold; color: #333;">${termNumber}.</span>
-            <span style="flex: 1; font-size: 14px; color: #333;">${text}</span>
-            <input type="hidden" name="custom_terms[]" value="${text}">
-            <button type="button" class="remove-standard-term" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; margin-left: 10px; cursor: pointer;">×</button>
-        `;
-        container.appendChild(item);
-        input.value = '';
-    });
+    // Custom terms now handled by simple textarea - no JavaScript needed
 
     //
     // REMOVE TERMS
@@ -1519,7 +1467,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function updateTermNumbers() {
-        const container = document.getElementById('standardTermsList');
+        const container = document.getElementById('customTermsList');
         Array.from(container.children).forEach((item, index) => {
             const numberSpan = item.querySelector('span:first-child');
             numberSpan.textContent = (index + 1) + '.';
@@ -1774,6 +1722,21 @@ function debugFormSubmission() {
         }
     });
     
+    // Debug: Check custom terms textarea before submission
+    const customTermsTextarea = form.querySelector('textarea[name="custom_terms_text"]');
+    console.log('=== CUSTOM TERMS DEBUG ===');
+    console.log('Custom terms textarea found:', !!customTermsTextarea);
+    console.log('Custom terms textarea value:', customTermsTextarea?.value);
+    
+    // List all form data
+    const formData = new FormData(form);
+    console.log('All form data:');
+    for (let [key, value] of formData.entries()) {
+        if (key.includes('custom_terms')) {
+            console.log(`FOUND: ${key} = ${value}`);
+        }
+    }
+    
     console.log('Fixed all repeaters for form submission');
     form.submit();
 }
@@ -1917,6 +1880,50 @@ if (companyEmailInput && customerTypeSelect) {
             emailCheckMessage.style.display = 'none';
         }
     });
+}
+
+
+
+// Initialize date pickers with dd/mm/yy format
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/y',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({
+                    marginTop: '2px',
+                    marginLeft: '0px'
+                });
+            }, 0);
+        }
+    });
+});
+
+// Test function to manually add a custom term
+function testAddTerm() {
+    console.log('Test button clicked');
+    const container = document.getElementById('customTermsList');
+    console.log('Container found:', container);
+    const item = document.createElement('div');
+    item.className = 'standard-term-item';
+    item.style.cssText = 'display: flex; align-items: center; margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;';
+    const termNumber = container.children.length + 1;
+    item.innerHTML = `
+        <span style="margin-right: 15px; font-weight: bold; color: #333;">${termNumber}.</span>
+        <span style="flex: 1; font-size: 14px; color: #333;">Test Custom Term ${termNumber}</span>
+        <input type="hidden" name="custom_terms[]" value="Test Custom Term ${termNumber}">
+        <button type="button" class="remove-standard-term" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; margin-left: 10px; cursor: pointer;">×</button>
+    `;
+    container.appendChild(item);
+    console.log('Test term added. Container now has', container.children.length, 'children');
+    
+    // Verify the hidden input was created
+    const hiddenInputs = document.querySelectorAll('input[name="custom_terms[]"]');
+    console.log('Total custom_terms[] inputs:', hiddenInputs.length);
 }
 
 </script>

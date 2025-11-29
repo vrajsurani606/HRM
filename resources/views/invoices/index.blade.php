@@ -29,15 +29,15 @@
       <tr>
         <th>Action</th>
         <th>Serial No.</th>
-        <th>Invoice No</th>
-        <th>Invoice Date</th>
-        <th>Invoice Type</th>
+        <th><x-sortable-header column="unique_code" title="Invoice No" /></th>
+        <th><x-sortable-header column="invoice_date" title="Invoice Date" /></th>
+        <th><x-sortable-header column="invoice_type" title="Invoice Type" /></th>
         <th>Proforma No</th>
-        <th>Bill To</th>
+        <th><x-sortable-header column="company_name" title="Bill To" /></th>
         <th>Mobile No.</th>
         <th>Grand Total</th>
-        <th>Total Tax</th>
-        <th>Total Amount</th>
+        <th><x-sortable-header column="total_tax_amount" title="Total Tax" /></th>
+        <th><x-sortable-header column="final_amount" title="Total Amount" /></th>
       </tr>
     </thead>
     <tbody>
@@ -89,8 +89,21 @@
   </table>
 </div>
 
-<!-- Pagination -->
-<div class="pagination-wrapper">
-  {{ $invoices->links() }}
-</div>
 @endsection
+
+@section('footer_pagination')
+  @if(isset($invoices) && method_exists($invoices,'links'))
+  <form method="GET" class="hrp-entries-form">
+    <span>Entries</span>
+    @php($currentPerPage = (int) request()->get('per_page', 10))
+    <select name="per_page" onchange="this.form.submit()">
+      @foreach([10,25,50,100] as $size)
+      <option value="{{ $size }}" {{ $currentPerPage === $size ? 'selected' : '' }}>{{ $size }}</option>
+      @endforeach
+    </select>
+    @foreach(request()->except(['per_page','page']) as $k => $v)
+    <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+    @endforeach
+  </form>
+  {{ $invoices->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
+  @endif

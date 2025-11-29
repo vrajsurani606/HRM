@@ -147,6 +147,24 @@
   </div>
   @endif
 
+  <!-- Custom Terms & Conditions -->
+  @if($quotation->custom_terms_and_conditions && count($quotation->custom_terms_and_conditions) > 0)
+  <div class="Rectangle-30 hrp-compact" style="margin-bottom: 24px;">
+    <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+      Custom Terms & Conditions
+    </h3>
+    <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+      <ol style="margin: 0; padding-left: 20px; font-size: 14px; color: #374151; line-height: 1.8;">
+        @foreach($quotation->custom_terms_and_conditions as $term)
+          @if(trim($term))
+            <li style="margin-bottom: 8px;">{{ trim($term) }}</li>
+          @endif
+        @endforeach
+      </ol>
+    </div>
+  </div>
+  @endif
+
   <!-- Action Buttons -->
   <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px;">
     <a href="{{ route('quotations.index') }}" class="pill-btn" style="background:#6b7280;color:#ffffff;padding:10px 20px;">

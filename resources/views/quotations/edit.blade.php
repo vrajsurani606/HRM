@@ -39,11 +39,12 @@
         @enderror
       </div>
       <div>
-        <label class="hrp-label">Quotation Date: <span class="text-red-500">*</span></label>
-        <input type="date" class="Rectangle-29 @error('quotation_date') is-invalid @enderror" name="quotation_date" value="{{ old('quotation_date', $quotation->quotation_date?->format('Y-m-d')) }}" required>
-        @error('quotation_date')
-            <small class="hrp-error">{{ $message }}</small>
-        @enderror
+        <x-date-input 
+          name="quotation_date" 
+          label="Quotation Date" 
+          :value="old('quotation_date', $quotation->quotation_date)" 
+          required="true" 
+        />
       </div>
 
       <!-- Row 2: Which Customer / Select Customer -->
@@ -148,11 +149,12 @@
           @enderror
         </div>
         <div>
-          <label class="hrp-label">Contact Number 1: <span class="text-red-500">*</span></label>
-          <input class="Rectangle-29 @error('contact_number_1') is-invalid @enderror" name="contact_number_1" placeholder="Enter Mobile No" type="tel" pattern="\\d{10}" maxlength="10" value="{{ old('contact_number_1', $quotation->contact_number_1) }}" required>
-          @error('contact_number_1')
-              <small class="hrp-error">{{ $message }}</small>
-          @enderror
+          <x-phone-input 
+            name="contact_number_1" 
+            label="Contact Number 1" 
+            :value="old('contact_number_1', $quotation->contact_number_1)" 
+            required="true" 
+          />
         </div>
       </div>
 
@@ -526,8 +528,8 @@
 
     <div class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5" style="margin-top: 20px;">
       <div>
-        <label class="hrp-label">Tentative Complete Date:</label>
-        <input type="date" class="Rectangle-29" name="tentative_complete_date_2" value="{{ old('tentative_complete_date_2', $quotation->terms_tentative_complete_date?->format('Y-m-d')) }}">
+        <label class="hrp-label">Services Total Amount:</label>
+        <input type="text" class="Rectangle-29" id="services_total_amount" name="services_total_amount" placeholder="Auto-calculated" readonly value="{{ old('services_total_amount') }}" style="background-color: #f3f4f6; font-weight: 600;">
       </div>
       <div></div>
     </div>
@@ -538,16 +540,22 @@
 <div class="Rectangle-30 hrp-compact">
   <div class="hrp-form grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-5" style="margin: 30px 0;">
     <div>
-      <label class="hrp-label">AMC Start From:</label>
-      <input type="date" class="Rectangle-29" name="amc_start_date" value="{{ old('amc_start_date', $quotation->amc_start_date?->format('Y-m-d')) }}">
+      <x-date-input 
+        name="amc_start_date" 
+        label="AMC Start From" 
+        :value="old('amc_start_date', $quotation->amc_start_date)" 
+      />
     </div>
     <div>
       <label class="hrp-label">AMC Amount:</label>
       <input class="Rectangle-29" name="amc_amount" placeholder="Enter Amount" value="{{ old('amc_amount', $quotation->amc_amount) }}">
     </div>
     <div>
-      <label class="hrp-label">Project Start Date:</label>
-      <input type="date" class="Rectangle-29" name="project_start_date" value="{{ old('project_start_date', $quotation->project_start_date?->format('Y-m-d')) }}">
+      <x-date-input 
+        name="project_start_date" 
+        label="Project Start Date" 
+        :value="old('project_start_date', $quotation->project_start_date)" 
+      />
     </div>
     <div>
       <label class="hrp-label">Completion Time:</label>
@@ -567,28 +575,47 @@
       <input class="Rectangle-29" id="retention_percent" name="retention_percent" type="number" min="0" max="100" step="0.1" placeholder="Enter %" oninput="calculateRetentionAmount()" value="{{ old('retention_percent', $quotation->retention_percent) }}">
     </div>
     <div>
-      <label class="hrp-label">Tentative Complete Date:</label>
-      <input type="date" class="Rectangle-29" name="tentative_complete_date" value="{{ old('tentative_complete_date', $quotation->tentative_complete_date?->format('Y-m-d')) }}">
+      <x-date-input 
+        name="tentative_complete_date" 
+        label="Tentative Complete Date" 
+        :value="old('tentative_complete_date', $quotation->tentative_complete_date)" 
+      />
     </div>
     <div></div>
     <div></div>
   </div>
 </div>
 
-<!-- Footer Section -->
+
+<!-- Terms & Conditions -->
 <div class="Rectangle-30 hrp-compact">
   <div class="hrp-form grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5" style="margin: 30px 0;">
+    <div>
+      <label class="hrp-label">Custom Terms & Conditions</label>
+      <div style="margin-bottom: 15px;">
+        <textarea name="custom_terms_text" id="custom_terms_text" class="Rectangle-29" rows="4" placeholder="Enter custom terms and conditions (one per line)" style="width: 100%; resize: vertical;">{{ old('custom_terms_text', isset($quotation) && is_array($quotation->custom_terms_and_conditions) ? implode("\n", $quotation->custom_terms_and_conditions) : '') }}</textarea>
+        <small class="text-gray-500">Enter each term on a new line</small>
+      </div>
+    </div>
     <div>
       <label class="hrp-label">Prepared By:</label>
       <input class="Rectangle-29" name="prepared_by" placeholder="Enter Name" value="{{ old('prepared_by', $quotation->prepared_by) }}">
     </div>
     <div>
-      <label class="hrp-label">Mobile No.:</label>
-      <input class="Rectangle-29" name="mobile_no" placeholder="Add Mobile No" value="{{ old('mobile_no', $quotation->mobile_no) }}">
+      <x-phone-input 
+        name="mobile_no" 
+        label="Mobile No." 
+        :value="old('mobile_no', $quotation->mobile_no)" 
+      />
     </div>
     <div>
       <label class="hrp-label">Company Name:</label>
       <input class="Rectangle-29" name="footer_company_name" value="{{ old('footer_company_name', $quotation->own_company_name ?? 'CHITRI INFOTECH PVT LTD') }}">
+    </div>
+    <div>
+      <label class="hrp-label">Remark:</label>
+      <textarea class="Rectangle-29 Rectangle-29-textarea" name="remark" placeholder="Enter remark or notes" rows="2" style="resize: vertical;">{{ old('remark', $quotation->remark) }}</textarea>
+      @error('remark')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
   </div>
 </div>
@@ -606,6 +633,8 @@
 
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script>
 // Copy all JavaScript functions from create.blade.php
 function calculateRowTotal(input) {
@@ -614,14 +643,40 @@ function calculateRowTotal(input) {
     const rate = parseFloat(row.querySelector('.rate')?.value) || 0;
     const total = quantity * rate;
     row.querySelector('.total').value = total.toFixed(2);
+    
+    // If this is services_2 table and has completion percentage, calculate percentage amount
+    const percentInput = row.querySelector('.completion-percent');
+    if (percentInput && percentInput.value) {
+        calculatePercentageAmount(percentInput);
+    }
+    
     calculateContractAmount();
+    calculateServicesTotalAmount();
 }
 
 function calculateContractAmount() {
-    let total = 0;
-    document.querySelectorAll('.services-table-1 .total').forEach(i => total += parseFloat(i.value) || 0);
-    document.getElementById('contract_amount').value = total.toFixed(2);
-    document.getElementById('hidden_contract_amount').value = total.toFixed(2);
+    // Check if premium section is visible
+    const premiumSection = document.getElementById('premiumSection');
+    if (premiumSection && premiumSection.style.display === 'block') {
+        updateContractAmountWithPremium();
+    } else {
+        let total = 0;
+        // Calculate total from services_1 table only (main services)
+        document.querySelectorAll('.services-table-1 .total').forEach(i => total += parseFloat(i.value) || 0);
+        
+        document.getElementById('contract_amount').value = total.toFixed(2);
+        document.getElementById('hidden_contract_amount').value = total.toFixed(2);
+        
+        // Recalculate all percentage-based amounts in services_2
+        document.querySelectorAll('.services-table-2 .completion-percent').forEach(input => {
+            if (input.value) calculatePercentageAmount(input);
+        });
+        
+        // Recalculate retention amount
+        calculateRetentionAmount();
+        
+
+    }
 }
 
 function calculateBasicTotal(input) {
@@ -690,18 +745,80 @@ function calculateRetentionAmount() {
 function calculatePercentageAmount(input) {
     const row = input.closest('tr');
     const percentage = parseFloat(input.value) || 0;
+    const quantityInput = row.querySelector('.quantity');
+    const rateInput = row.querySelector('.rate');
+    const totalInput = row.querySelector('.total');
+    
+    // Get the quantity (if not set, default to 1)
+    const quantity = parseFloat(quantityInput?.value) || 1;
+    
+    // Get contract amount for percentage calculation
     const contractAmount = parseFloat(document.getElementById('contract_amount')?.value) || 0;
     
     if (percentage > 0 && contractAmount > 0) {
+        // Calculate percentage of contract amount
         const percentageAmount = (contractAmount * percentage) / 100;
-        const rateInput = row.querySelector('.rate');
-        const quantityInput = row.querySelector('.quantity');
-        const totalInput = row.querySelector('.total');
         
-        if (quantityInput) quantityInput.value = 1;
-        if (rateInput) rateInput.value = percentageAmount.toFixed(2);
+        // Calculate rate per quantity
+        const ratePerUnit = percentageAmount / quantity;
+        
+        // Update rate and total
+        if (rateInput) rateInput.value = ratePerUnit.toFixed(2);
         if (totalInput) totalInput.value = percentageAmount.toFixed(2);
+    } else if (percentage === 0) {
+        // Reset if percentage is cleared
+        if (rateInput) rateInput.value = '';
+        if (totalInput) totalInput.value = '';
     }
+}
+
+function updateContractAmountWithPremium() {
+    let baseTotal = 0;
+    document.querySelectorAll('.services-table-1 .total').forEach(i => baseTotal += parseFloat(i.value) || 0);
+    
+    const premiumTotal = calculateTotalPremiumCost();
+    const finalTotal = baseTotal + premiumTotal;
+    
+    document.getElementById('contract_amount').value = finalTotal.toFixed(2);
+    document.getElementById('hidden_contract_amount').value = finalTotal.toFixed(2);
+    
+    // Recalculate percentage-based amounts
+    document.querySelectorAll('.services-table-2 .completion-percent').forEach(input => {
+        if (input.value) calculatePercentageAmount(input);
+    });
+    
+    // Recalculate retention amount
+    calculateRetentionAmount();
+}
+
+function calculateServicesTotalAmount() {
+    let servicesTotal = 0;
+    
+    // Sum ONLY totals from services_2 table (Service Terms with Completion %)
+    document.querySelectorAll('.services-table-2 .total').forEach(input => {
+        servicesTotal += parseFloat(input.value) || 0;
+    });
+    
+    // Update the Services Total Amount field if it exists
+    const servicesTotalField = document.getElementById('services_total_amount');
+    if (servicesTotalField) {
+        servicesTotalField.value = '₹ ' + servicesTotal.toFixed(2);
+    }
+}
+
+function calculateTotalPremiumCost() {
+    let total = 0;
+    
+    // Basic cost total
+    document.querySelectorAll('.basic-total').forEach(i => total += parseFloat(i.value) || 0);
+    
+    // Additional cost total
+    document.querySelectorAll('.additional-total').forEach(i => total += parseFloat(i.value) || 0);
+    
+    // Maintenance cost total
+    document.querySelectorAll('.maintenance-total').forEach(i => total += parseFloat(i.value) || 0);
+    
+    return total;
 }
 
 function debugFormSubmission() {
@@ -867,6 +984,12 @@ function debugFormSubmission() {
             addHiddenInput(form, 'maintenance_cost[total][]', totalInput?.value || '0');
         }
     });
+    
+    // Debug: Check custom terms textarea before submission
+    const customTermsTextarea = form.querySelector('textarea[name="custom_terms_text"]');
+    console.log('=== CUSTOM TERMS DEBUG ===');
+    console.log('Custom terms textarea found:', !!customTermsTextarea);
+    console.log('Custom terms textarea value:', customTermsTextarea?.value);
     
     console.log('Fixed all repeaters for form submission');
     form.submit();
@@ -1048,11 +1171,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Initial calculations
+    // Initial calculations - recalculate all existing values
+    // Recalculate services_1 totals
+    document.querySelectorAll('.services-table-1 tbody tr').forEach(row => {
+        const quantity = parseFloat(row.querySelector('.quantity')?.value) || 0;
+        const rate = parseFloat(row.querySelector('.rate')?.value) || 0;
+        const totalInput = row.querySelector('.total');
+        if (totalInput && (quantity > 0 || rate > 0)) {
+            totalInput.value = (quantity * rate).toFixed(2);
+        }
+    });
+    
+    // Recalculate services_2 totals
+    document.querySelectorAll('.services-table-2 tbody tr').forEach(row => {
+        const quantity = parseFloat(row.querySelector('.quantity')?.value) || 0;
+        const rate = parseFloat(row.querySelector('.rate')?.value) || 0;
+        const totalInput = row.querySelector('.total');
+        if (totalInput && (quantity > 0 || rate > 0)) {
+            totalInput.value = (quantity * rate).toFixed(2);
+        }
+    });
+    
     calculateContractAmount();
+    calculateServicesTotalAmount();
     calculateBasicCostTotal();
     calculateAdditionalCostTotal();
     calculateMaintenanceCostTotal();
+    
+    // Date pickers are now handled by the x-date-input component
 });
 </script>
 @endpush

@@ -53,7 +53,23 @@ class HiringController extends Controller
             });
         }
 
-        $leads = $query->latest()->paginate(25);
+        // Handle sorting
+        $sortBy = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        // Validate sort column
+        $allowedSorts = ['person_name', 'mobile_no', 'position', 'gender', 'experience_count', 'created_at', 'updated_at'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+        
+        $perPage = $request->get('per_page', 10);
+        $leads = $query->orderBy($sortBy, $sortDirection)->paginate($perPage)->appends($request->query());
         
         return view('hr.hiring.index', [
             'page_title' => 'Hiring Lead List',

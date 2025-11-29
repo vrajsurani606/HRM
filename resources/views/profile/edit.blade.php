@@ -147,8 +147,11 @@
 
               <!-- Date of Birth -->
               <div>
-                <label class="hrp-label">Date of Birth :</label>
-                <input type="date" name="date_of_birth" value="{{ old('date_of_birth', $employee->date_of_birth ? $employee->date_of_birth->format('Y-m-d') : '') }}" class="hrp-input Rectangle-29">
+                <x-date-input 
+                  name="date_of_birth" 
+                  label="Date of Birth" 
+                  :value="old('date_of_birth', $employee->date_of_birth)" 
+                />
               </div>
 
               <!-- Mobile No -->

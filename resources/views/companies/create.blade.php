@@ -186,9 +186,12 @@
 
           
           <div style="margin-bottom: 8px;">
-            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Contact Person Mobile No</label>
-            <input name="contact_person_mobile" type="tel" placeholder="Enter Contact Person Mobile No" value="{{ old('contact_person_mobile') }}" class="hrp-input Rectangle-29" pattern="[0-9]{10}" maxlength="10" style="font-size: 14px; line-height: 1.5;">
-            @error('contact_person_mobile')<small class="hrp-error">{{ $message }}</small>@enderror
+            <x-phone-input 
+              name="contact_person_mobile" 
+              label="Contact Person Mobile No" 
+              :value="old('contact_person_mobile')" 
+              placeholder="9876543210"
+            />
           </div>
           
           <div style="margin-bottom: 8px;">

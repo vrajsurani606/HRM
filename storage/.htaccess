@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Allow access to files in app/public/quotations
+    RewriteCond %{REQUEST_URI} ^/storage/quotations/
+    RewriteRule ^quotations/(.*)$ app/public/quotations/$1 [L]
+</IfModule>
+
+# Allow access to PDF files
+<FilesMatch "\.(pdf)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>

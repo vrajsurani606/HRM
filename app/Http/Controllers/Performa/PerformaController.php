@@ -12,7 +12,24 @@ class PerformaController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Proforma::with('quotation')->latest();
+        $query = Proforma::with('quotation');
+        
+        // Handle sorting
+        $sortBy = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        // Validate sort column
+        $allowedSorts = ['unique_code', 'company_name', 'proforma_date', 'final_amount', 'sub_total', 'created_at', 'updated_at'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+        
+        $query->orderBy($sortBy, $sortDirection);
         
         // Apply filters
         if ($request->filled('search')) {
@@ -44,7 +61,7 @@ class PerformaController extends Controller
             $query->whereDate('proforma_date', '<=', $request->to_date);
         }
         
-        $perPage = $request->get('per_page', 25);
+        $perPage = $request->get('per_page', 10);
         $performas = $query->paginate($perPage)->appends($request->query());
         
         return view('performas.index', compact('performas'));

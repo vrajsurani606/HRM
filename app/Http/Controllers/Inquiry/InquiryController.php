@@ -15,7 +15,24 @@ class InquiryController extends Controller
     {
         $query = Inquiry::query()->with(['followUps' => function ($q) {
             $q->latest();
-        }])->latest();
+        }]);
+        
+        // Handle sorting
+        $sortBy = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        // Validate sort column
+        $allowedSorts = ['unique_code', 'inquiry_date', 'company_name', 'contact_name', 'industry_type', 'created_at', 'updated_at'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+        
+        $query->orderBy($sortBy, $sortDirection);
 
         if ($request->filled('from_date')) {
             $query->whereDate('inquiry_date', '>=', $request->input('from_date'));

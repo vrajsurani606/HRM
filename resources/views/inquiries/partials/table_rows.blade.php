@@ -49,7 +49,7 @@
   <td><a href="{{ $inquiry->scope_link }}" class="scope-link">View</a></td>
   <td>
     @if($inquiry->quotation_file)
-      <a href="{{ asset('storage/'.$inquiry->quotation_file) }}" target="_blank" class="scope-link">View</a>
+      <a href="{{ url('public/storage/'.$inquiry->quotation_file) }}" target="_blank" class="scope-link">View</a>
     @else
       —
     @endif

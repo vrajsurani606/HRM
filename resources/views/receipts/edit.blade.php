@@ -63,9 +63,12 @@
           <input type="text" class="Rectangle-29" value="{{ $receipt->unique_code }}" readonly style="background: #f3f4f6;">
         </div>
         <div>
-          <label class="hrp-label">Rec Date: <span class="text-red-500">*</span></label>
-          <input type="date" class="Rectangle-29 @error('receipt_date') is-invalid @enderror" name="receipt_date" value="{{ old('receipt_date', $receipt->receipt_date ? $receipt->receipt_date->format('Y-m-d') : '') }}" required>
-          @error('receipt_date')<small class="hrp-error">{{ $message }}</small>@enderror
+          <x-date-input 
+            name="receipt_date" 
+            label="Rec Date" 
+            :value="old('receipt_date', $receipt->receipt_date)" 
+            required="true" 
+          />
         </div>
         <div>
           <label class="hrp-label">Company Name: <span class="text-red-500">*</span></label>

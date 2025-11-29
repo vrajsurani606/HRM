@@ -1,5 +1,43 @@
 @extends('layouts.macos')
 @section('page_title', 'Quotation List')
+
+@push('styles')
+<style>
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-draft {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-confirmed {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-completed {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-cancelled {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="inquiry-index-container">
   <!-- JV Filter -->
@@ -128,6 +166,11 @@
                     <img class="action-icon" src="{{ asset('action_icon/follow-up.svg') }}" alt="Follow Up">
                   </a>
                 @endif
+                   @if($quotation->customer_type === 'new' && !$quotation->customer_id && $quotation->company_email && !in_array(strtolower(trim($quotation->company_email)), $existingCompanyEmails))
+                <button type="button" onclick="confirmConvertToCompany({{ $quotation->id }}, '{{ addslashes($quotation->company_name) }}')" title="Convert to Company" aria-label="Convert to Company" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
+                  <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert to Company" class="action-icon">
+                </button>
+              @endif
 
                 <button type="button" onclick="confirmDelete({{ $quotation->id }})" title="Delete Quotation" aria-label="Delete Quotation" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
                   <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
@@ -167,10 +210,10 @@
 
 @section('footer_pagination')
   @if(isset($quotations) && method_exists($quotations,'links'))
-  <form method="GET" class="hrp-entries-form">
+  <form method="GET" class="hrp-entries-form" action="{{ route('quotations.index') }}">
     <span>Entries</span>
-    @php($currentPerPage = (int) request()->get('per_page', 25))
-    <select name="per_page" onchange="this.form.submit()">
+    @php($currentPerPage = (int) request()->get('per_page', 10))
+    <select name="per_page" onchange="console.log('Selected:', this.value); console.log('Form action:', this.form.action); this.form.submit()">
       @foreach([10,25,50,100] as $size)
       <option value="{{ $size }}" {{ $currentPerPage === $size ? 'selected' : '' }}>{{ $size }}</option>
       @endforeach
@@ -205,6 +248,27 @@ function confirmDelete(id) {
   }
 }
 
+function confirmConvertToCompany(id, companyName) {
+  const message = `Convert "${companyName}" to Company?\n\nThis will:\n• Create a new company record\n• Create a user account (if email/password provided)\n• Link the quotation to the new company\n• Change customer type from "New" to "Existing"\n\nProceed?`;
+  
+  if(confirm(message)) {
+    // Show loading state
+    const button = event.target.closest('button');
+    const originalContent = button.innerHTML;
+    button.innerHTML = '<span style="color: #ffa500;">Converting...</span>';
+    button.disabled = true;
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/GitVraj/HrPortal/quotations/${id}/convert-to-company`;
+    form.innerHTML = `
+      <input type="hidden" name="_token" value="{{ csrf_token() }}">
+    `;
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+
 // Auto-submit on search input
 document.addEventListener('DOMContentLoaded', function() {
   const searchInput = document.getElementById('globalSearch');
@@ -228,6 +292,15 @@ document.addEventListener('DOMContentLoaded', function() {
         filterForm.submit();
       });
     }
+  });
+  
+  // Prevent form submission when clicking sortable headers
+  const sortableHeaders = document.querySelectorAll('th a[href*="sort="]');
+  sortableHeaders.forEach(header => {
+    header.addEventListener('click', function(e) {
+      e.stopPropagation();
+      // Let the link work normally
+    });
   });
   // View toggle persistence
   const buttons = document.querySelectorAll('.view-toggle-btn');

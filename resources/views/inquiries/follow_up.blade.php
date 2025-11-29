@@ -79,7 +79,7 @@
         <div class="choose">Quotation File</div>
         <div class="filename">
           @if($inquiry->quotation_file)
-            <a href="{{ asset('storage/'.$inquiry->quotation_file) }}" target="_blank" class="scope-link">View File</a>
+            <a href="{{ url('public/storage/'.$inquiry->quotation_file) }}" target="_blank" class="scope-link">View File</a>
           @else
             No File Uploaded
           @endif

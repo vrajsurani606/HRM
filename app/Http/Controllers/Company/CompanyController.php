@@ -19,6 +19,21 @@ class CompanyController extends Controller
     public function index(Request $request): View
     {
         $query = CompanyModel::query();
+        
+        // Handle sorting
+        $sortBy = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        // Validate sort column
+        $allowedSorts = ['company_name', 'gst_no', 'contact_person_name', 'contact_person_mobile', 'company_email', 'unique_code', 'created_at', 'updated_at'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
 
         // Filter by company name
         if ($request->filled('company_name')) {
@@ -48,8 +63,9 @@ class CompanyController extends Controller
             });
         }
 
-        // Order by latest and paginate
-        $companies = $query->latest()->paginate(15)->withQueryString();
+        // Apply sorting and pagination
+        $perPage = $request->get('per_page', 10);
+        $companies = $query->orderBy($sortBy, $sortDirection)->paginate($perPage)->appends($request->query());
 
         return view('companies.index', compact('companies'));
     }

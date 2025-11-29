@@ -27,13 +27,13 @@
       <tr>
         <th>Action</th>
         <th>Serial No.</th>
-        <th>Proforma No</th>
-        <th>Proforma Date</th>
-        <th>Bill To</th>
+        <th><x-sortable-header column="unique_code" title="Proforma No" /></th>
+        <th><x-sortable-header column="proforma_date" title="Proforma Date" /></th>
+        <th><x-sortable-header column="company_name" title="Bill To" /></th>
         <th>Mobile No.</th>
-        <th>Grand Total</th>
+        <th><x-sortable-header column="sub_total" title="Grand Total" /></th>
         <th>Total Tax</th>
-        <th>Total Amount</th>
+        <th><x-sortable-header column="final_amount" title="Total Amount" /></th>
       </tr>
     </thead>
     <tbody>
@@ -83,12 +83,24 @@
   </table>
 </div>
 
-<!-- Pagination -->
-<div class="pagination-wrapper" style="margin-top: 20px; display: flex; justify-content: center;">
-  {{ $performas->links() }}
-</div>
-
 @endsection
+
+@section('footer_pagination')
+  @if(isset($performas) && method_exists($performas,'links'))
+  <form method="GET" class="hrp-entries-form">
+    <span>Entries</span>
+    @php($currentPerPage = (int) request()->get('per_page', 10))
+    <select name="per_page" onchange="this.form.submit()">
+      @foreach([10,25,50,100] as $size)
+      <option value="{{ $size }}" {{ $currentPerPage === $size ? 'selected' : '' }}>{{ $size }}</option>
+      @endforeach
+    </select>
+    @foreach(request()->except(['per_page','page']) as $k => $v)
+    <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+    @endforeach
+  </form>
+  {{ $performas->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
+  @endif
 
 @section('breadcrumb')
   <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
