@@ -29,6 +29,26 @@
       </svg>
     </button>
     <div class="filter-right">
+      <div class="view-toggle-group" style="margin-right:8px;">
+        <button class="view-toggle-btn" data-view="grid" title="Grid View" aria-label="Grid View">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+          </svg>
+        </button>
+        <button class="view-toggle-btn active" data-view="list" title="List View" aria-label="List View">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+        </button>
+      </div>
       <input type="text" class="filter-pill" placeholder="Search here..." id="custom_search" name="search" value="{{ request('search') }}">
       <a href="{{ route('inquiries.export', request()->only(['from_date','to_date','search'])) }}" class="pill-btn pill-success" id="excel_btn">Excel</a>
       <a href="{{ route('inquiries.create') }}" class="pill-btn pill-success">+ Add</a>
@@ -42,30 +62,62 @@
   </div>
   @endif
 
-  <!-- JV Table -->
-  <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
-    <table>
-      <thead>
-        <tr>
-          <th>Action</th>
-          <th>Serial No.</th>
-          <th><x-sortable-header column="unique_code" title="Code" /></th>
-          <th><x-sortable-header column="inquiry_date" title="Inq. Date" /></th>
-          <th><x-sortable-header column="company_name" title="Comp. Name" /></th>
-          <th>Mo.No.</th>
-          <th>Address</th>
-          <th><x-sortable-header column="contact_name" title="Person Name" /></th>
-          <th>Person Position</th>
-          <th><x-sortable-header column="industry_type" title="Industry Type" /></th>
-          <th>Next Follow Up</th>
-          <th>Scope</th>
-          <th>Quotation</th>
-        </tr>
-      </thead>
-      <tbody id="inquiries-table-body">
-        @include('inquiries.partials.table_rows', ['inquiries' => $inquiries])
-      </tbody>
-    </table>
+  <!-- Grid View -->
+  <div class="inquiries-grid-view">
+    @forelse($inquiries as $inq)
+      <div class="inquiry-grid-card" onclick="window.location.href='{{ route('inquiries.show', $inq->id) }}'" title="View inquiry">
+        <div class="inq-grid-header">
+          <h3 class="inq-grid-title">{{ $inq->company_name ?? 'N/A' }}</h3>
+          <span class="inq-grid-badge">{{ $inq->industry_type ?? '—' }}</span>
+        </div>
+        <p class="inq-grid-sub">Code: {{ $inq->code ?? '-' }} • Inq. Date: {{ isset($inq->inquiry_date) ? \Carbon\Carbon::parse($inq->inquiry_date)->format('d M, Y') : '-' }}</p>
+        <div class="inq-grid-meta">
+          <div class="inq-grid-left">
+            <div class="meta-row"><span class="meta-label">Contact</span><span class="meta-value">{{ $inq->person_name ?? '-' }} {{ !empty($inq->mobile_no) ? '• '.$inq->mobile_no : '' }}</span></div>
+            <div class="meta-row"><span class="meta-label">Address</span><span class="meta-value">{{ $inq->address ?? '-' }}</span></div>
+            <div class="meta-row"><span class="meta-label">Next FU</span><span class="meta-value">{{ isset($inq->next_follow_up) ? \Carbon\Carbon::parse($inq->next_follow_up)->format('d M, Y') : '-' }}</span></div>
+          </div>
+          <div class="inq-grid-actions" onclick="event.stopPropagation()">
+            <a class="inq-grid-action-btn btn-view" href="{{ route('inquiries.show', $inq->id) }}" title="View" aria-label="View">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </a>
+            <a class="inq-grid-action-btn btn-edit" href="{{ route('inquiries.edit', $inq->id) }}" title="Edit" aria-label="Edit">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    @empty
+      <div class="text-center py-3">No inquiries found.</div>
+    @endforelse
+  </div>
+
+  <!-- List View -->
+  <div class="inquiries-list-view active">
+    <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
+      <table>
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>Serial No.</th>
+            <th>Code</th>
+            <th>Inq. Date</th>
+            <th>Comp. Name</th>
+            <th>Mo.No.</th>
+            <th>Address</th>
+            <th>Person Name</th>
+            <th>Person Position</th>
+            <th>Industry Type</th>
+            <th>Next Follow Up</th>
+            <th>Scope</th>
+            <th>Quotation</th>
+          </tr>
+        </thead>
+        <tbody id="inquiries-table-body">
+          @include('inquiries.partials.table_rows', ['inquiries' => $inquiries])
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 @endsection
@@ -138,5 +190,66 @@
       });
     }
   });
+
+  // View toggle logic with persistence
+  document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('.view-toggle-btn');
+    const grid = document.querySelector('.inquiries-grid-view');
+    const list = document.querySelector('.inquiries-list-view');
+    if (!buttons.length || !grid || !list) return;
+
+    function applyView(view) {
+      if (view === 'grid') { grid.classList.add('active'); list.classList.remove('active'); }
+      else { list.classList.add('active'); grid.classList.remove('active'); }
+      buttons.forEach(b => b.classList.toggle('active', b.getAttribute('data-view') === view));
+    }
+    const saved = localStorage.getItem('inquiries_view') || 'list';
+    applyView(saved);
+    buttons.forEach(btn => btn.addEventListener('click', function(){
+      const v = this.getAttribute('data-view');
+      localStorage.setItem('inquiries_view', v);
+      applyView(v);
+    }));
+  });
 </script>
+@endpush
+
+@push('styles')
+<style>
+  /* Toggle */
+  .view-toggle-group { display:flex; gap:4px; background:#f3f4f6; padding:4px; border-radius:8px; }
+  .view-toggle-btn { padding:8px 12px; background:transparent; border:none; border-radius:6px; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; }
+  .view-toggle-btn:hover { background:#e5e7eb; }
+  .view-toggle-btn.active { background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); }
+  .view-toggle-btn svg { color:#6b7280; }
+  .view-toggle-btn.active svg { color:#3b82f6; }
+
+  /* Grid */
+  .inquiries-grid-view { display:none; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:16px; padding:12px 12px 12px; }
+  .inquiries-grid-view.active { display:grid; }
+  .inquiries-list-view { display:none;  }
+  .inquiries-list-view.active { display:block; }
+
+  .inquiry-grid-card { background:#fff; border-radius:12px; padding:16px 18px; box-shadow:0 1px 6px rgba(0,0,0,0.06); transition:transform .25s, box-shadow .25s; cursor:pointer; margin-top:4px; }
+  .inquiry-grid-card:hover { transform: translateY(-4px); box-shadow:0 4px 16px rgba(0,0,0,0.12); }
+  .inq-grid-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:10px; }
+  .inq-grid-title { font-size:16px; font-weight:700; color:#0f172a; margin:0; line-height:1.2; max-width:72%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .inq-grid-badge { font-size:11px; padding:4px 8px; border-radius:12px; font-weight:500; background:#eef2ff; color:#3730a3; }
+  .inq-grid-sub { font-size:12px; color:#6b7280; margin:0 0 12px; }
+  .inq-grid-meta { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding-top:12px; border-top:1px solid #f3f4f6; }
+  .inq-grid-left { flex:1; display:flex; flex-direction:column; gap:6px; }
+  .meta-row { display:flex; gap:8px; align-items:center; }
+  .meta-label { font-size:12px; color:#6b7280; min-width:64px; }
+  .meta-value { font-size:13px; color:#111827; }
+  .inq-grid-actions { display:flex; gap:8px; }
+  .inq-grid-action-btn { padding:8px; border:1px solid #e5e7eb; background:#fff; border-radius:6px; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; width:32px; height:32px; }
+  .inq-grid-action-btn.btn-view { border-color:#3b82f6; background:#eff6ff; }
+  .inq-grid-action-btn.btn-view svg { color:#3b82f6; }
+  .inq-grid-action-btn.btn-view:hover { background:#3b82f6; }
+  .inq-grid-action-btn.btn-view:hover svg { color:#fff; }
+  .inq-grid-action-btn.btn-edit { border-color:#f59e0b; background:#fffbeb; }
+  .inq-grid-action-btn.btn-edit svg { color:#f59e0b; }
+  .inq-grid-action-btn.btn-edit:hover { background:#f59e0b; }
+  .inq-grid-action-btn.btn-edit:hover svg { color:#fff; }
+</style>
 @endpush
