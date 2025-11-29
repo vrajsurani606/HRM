@@ -158,28 +158,63 @@ Route::middleware('auth')->group(function () {
     Route::patch('project-stages/{stage}', [\App\Http\Controllers\Project\ProjectStageController::class, 'update'])->name('project-stages.update');
     Route::delete('project-stages/{stage}', [\App\Http\Controllers\Project\ProjectStageController::class, 'destroy'])->name('project-stages.destroy');
     
-    // Projects
-    Route::resource('projects', ProjectController::class);
-    Route::get('projects/{project}/overview', [ProjectController::class, 'overview'])->name('projects.overview');
-    Route::post('project-stages-old', [ProjectController::class, 'storeStage'])->name('project-stages-old.store');
-    Route::patch('projects/{project}/stage', [ProjectController::class, 'updateProjectStage'])->name('projects.update-stage');
+    // Project Materials (MUST be before resource routes)
+    Route::get('projects/{project}/materials', [\App\Http\Controllers\Project\ProjectMaterialController::class, 'getMaterials'])->name('projects.materials.index');
+    Route::post('projects/{project}/materials', [\App\Http\Controllers\Project\ProjectMaterialController::class, 'updateMaterials'])->name('projects.materials.update');
+    Route::post('projects/{project}/materials/create-tasks', [\App\Http\Controllers\Project\ProjectMaterialController::class, 'createTasksFromMaterials'])->name('projects.materials.create-tasks');
+    Route::patch('projects/{project}/materials/{projectMaterial}/toggle', [\App\Http\Controllers\Project\ProjectMaterialController::class, 'toggleCompletion'])->name('projects.materials.toggle');
     
-    // Project Tasks
+    // Add new report to material
+    Route::post('api/materials/{material}/reports', [\App\Http\Controllers\Project\ProjectMaterialController::class, 'addReport'])->name('materials.reports.add');
+    
+    // Project Tasks (MUST be before resource routes)
     Route::get('projects/{project}/tasks', [ProjectController::class, 'getTasks'])->name('projects.tasks.index');
     Route::post('projects/{project}/tasks', [ProjectController::class, 'storeTasks'])->name('projects.tasks.store');
     Route::put('projects/{project}/tasks/{task}', [ProjectController::class, 'updateTask'])->name('projects.tasks.update');
     Route::patch('projects/{project}/tasks/{task}', [ProjectController::class, 'updateTask']);
     Route::delete('projects/{project}/tasks/{task}', [ProjectController::class, 'deleteTask'])->name('projects.tasks.delete');
     
-    // Project Comments
+    // Project Comments (MUST be before resource routes)
     Route::get('projects/{project}/comments', [ProjectController::class, 'getComments'])->name('projects.comments.index');
     Route::post('projects/{project}/comments', [ProjectController::class, 'storeComment'])->name('projects.comments.store');
     
-    // Project Members
+    // Project Members (MUST be before resource routes)
     Route::get('projects/{project}/members', [ProjectController::class, 'getMembers'])->name('projects.members.index');
     Route::get('projects/{project}/available-users', [ProjectController::class, 'getAvailableUsers'])->name('projects.members.available');
     Route::post('projects/{project}/members', [ProjectController::class, 'addMember'])->name('projects.members.add');
     Route::delete('projects/{project}/members/{user}', [ProjectController::class, 'removeMember'])->name('projects.members.remove');
+    
+    // Project Overview (MUST be before resource routes)
+    Route::get('projects/{project}/overview', [ProjectController::class, 'overview'])->name('projects.overview');
+    Route::patch('projects/{project}/stage', [ProjectController::class, 'updateProjectStage'])->name('projects.update-stage');
+    
+    // Projects Resource (MUST be AFTER specific routes)
+    Route::resource('projects', ProjectController::class);
+    Route::post('project-stages-old', [ProjectController::class, 'storeStage'])->name('project-stages-old.store');
+    
+    // Test route for debugging
+    Route::get('test-materials-api', function() {
+        $materials = \App\Models\Material::with('reports')->get();
+        return response()->json([
+            'success' => true,
+            'message' => 'API is working!',
+            'materials_count' => $materials->count(),
+            'materials' => $materials
+        ]);
+    });
+    
+    // Test route with project ID (no model binding)
+    Route::get('test-project-materials/{id}', function($id) {
+        $project = \App\Models\Project::findOrFail($id);
+        $materials = \App\Models\Material::with('reports')->get();
+        return response()->json([
+            'success' => true,
+            'message' => 'Project materials API working!',
+            'project_id' => $project->id,
+            'project_name' => $project->name,
+            'materials_count' => $materials->count()
+        ]);
+    });
 
     // Performa & Invoices
     Route::get('performas/{id}/print', [PerformaController::class, 'print'])->name('performas.print');
