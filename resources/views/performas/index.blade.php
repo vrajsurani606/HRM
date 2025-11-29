@@ -16,7 +16,7 @@
   </button>
   <div class="filter-right">
     <input type="text" name="search" placeholder="Search here.." class="filter-pill" value="{{ request('search') }}" />
-    <a href="#" class="pill-btn pill-success">Excel</a>
+    <a href="{{ route('performas.export.csv', request()->only(['company_name','unique_code','mobile_no','from_date','to_date','search'])) }}" class="pill-btn pill-success">Excel</a>
     <a href="{{ route('performas.create') }}" class="pill-btn pill-success">+ Add</a>
   </div>
 </form>
@@ -25,13 +25,14 @@
   <table>
     <thead>
       <tr>
-        <th>Action</th>
+        <th style="text-align: center;">Action</th>
         <th>Serial No.</th>
         <th><x-sortable-header column="unique_code" title="Proforma No" /></th>
         <th><x-sortable-header column="proforma_date" title="Proforma Date" /></th>
         <th><x-sortable-header column="company_name" title="Bill To" /></th>
         <th>Mobile No.</th>
         <th><x-sortable-header column="sub_total" title="Grand Total" /></th>
+        <th>Discount</th>
         <th>Total Tax</th>
         <th><x-sortable-header column="final_amount" title="Total Amount" /></th>
       </tr>
@@ -39,29 +40,24 @@
     <tbody>
       @forelse($performas as $index => $proforma)
       <tr>
-        <td>
+        <td style="text-align: center; vertical-align: middle;">
           <div class="action-icons">
-            <a href="{{ route('performas.edit', $proforma->id) }}">
+            <a href="{{ route('performas.show', $proforma->id) }}" title="View Proforma" aria-label="View Proforma">
+              <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
+            </a>
+            <a href="{{ route('performas.edit', $proforma->id) }}" title="Edit Proforma" aria-label="Edit Proforma">
               <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
             </a>
-            <form action="{{ route('performas.destroy', $proforma->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this proforma?');">
-              @csrf
-              @method('DELETE')
-              <button type="submit" style="border:none;background:none;padding:0;cursor:pointer;">
-                <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
-              </button>
-            </form>
-            <a href="{{ route('performas.print', $proforma->id) }}" target="_blank">
+            <a href="{{ route('performas.print', $proforma->id) }}" target="_blank" title="Print Proforma" aria-label="Print Proforma">
               <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
             </a>
+            <button type="button" onclick="confirmDelete({{ $proforma->id }})" title="Delete Proforma" aria-label="Delete Proforma">
+              <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+            </button>
             @if($proforma->canConvert())
-            <a href="{{ route('performas.convert', $proforma->id) }}" title="Convert to Invoice ({{ $proforma->hasGstInvoice() ? 'Without GST available' : ($proforma->hasWithoutGstInvoice() ? 'GST available' : 'Both available') }})" aria-label="Convert to Invoice">
+            <a href="{{ route('performas.convert', $proforma->id) }}" title="Convert to Invoice" aria-label="Convert to Invoice">
               <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert" class="action-icon">
             </a>
-            @else
-            <span title="Both GST and Without GST invoices already generated" style="opacity: 0.3; cursor: not-allowed; display: inline-block;">
-              <img src="{{ asset('action_icon/convert.svg') }}" alt="Converted" class="action-icon" style="pointer-events: none;">
-            </span>
             @endif
           </div>
         </td>
@@ -71,12 +67,13 @@
         <td>{{ $proforma->company_name }}</td>
         <td>{{ $proforma->mobile_no ?? '-' }}</td>
         <td>{{ number_format($proforma->sub_total ?? 0, 2) }}</td>
+        <td>{{ number_format($proforma->discount_amount ?? 0, 2) }}</td>
         <td>{{ number_format($proforma->total_tax_amount ?? 0, 2) }}</td>
         <td>{{ number_format($proforma->final_amount ?? 0, 2) }}</td>
       </tr>
       @empty
       <tr>
-        <td colspan="9" style="text-align:center;">No proformas found</td>
+        <td colspan="10" style="text-align:center;">No proformas found</td>
       </tr>
       @endforelse
     </tbody>
@@ -101,6 +98,7 @@
   </form>
   {{ $performas->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
   @endif
+@endsection
 
 @section('breadcrumb')
   <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
@@ -109,3 +107,34 @@
   <span class="hrp-bc-sep">›</span>
   <span class="hrp-bc-current">Proforma List</span>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function confirmDelete(id) {
+  Swal.fire({
+    title: 'Delete this proforma?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel',
+    width: '400px'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/GitVraj/HrPortal/performas/${id}`;
+      form.innerHTML = `
+        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="_method" value="DELETE">
+      `;
+      document.body.appendChild(form);
+      form.submit();
+    }
+  });
+}
+</script>
+@endpush

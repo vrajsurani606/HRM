@@ -42,12 +42,11 @@
         @enderror
       </div>
       <div>
-        <x-date-input 
-          name="quotation_date" 
-          label="Quotation Date" 
-          :value="old('quotation_date', date('d/m/y'))" 
-          required="true" 
-        />
+        <label class="hrp-label">Quotation Date: <span class="text-red-500">*</span></label>
+        <input type="text" class="Rectangle-29 date-picker @error('quotation_date') is-invalid @enderror" name="quotation_date" placeholder="dd/mm/yyyy" value="{{ old('quotation_date', date('d/m/Y')) }}" autocomplete="off" required>
+        @error('quotation_date')
+            <small class="hrp-error">{{ $message }}</small>
+        @enderror
       </div>
 
       <!-- Row 2: Which Customer / Select Customer -->
@@ -112,10 +111,52 @@
           <label class="hrp-label">Company Type</label>
           <select name="company_type" class="Rectangle-29-select">
             <option value="">SELECT COMPANY TYPE</option>
-            <option value="AUTOMOBILE" {{ old('company_type') == 'AUTOMOBILE' ? 'selected' : '' }}>AUTOMOBILE</option>
-            <option value="FMCG" {{ old('company_type') == 'FMCG' ? 'selected' : '' }}>FMCG</option>
-            <option value="IT" {{ old('company_type') == 'IT' ? 'selected' : '' }}>INFORMATION TECHNOLOGY</option>
-            <option value="HEALTHCARE" {{ old('company_type') == 'HEALTHCARE' ? 'selected' : '' }}>HEALTHCARE</option>
+            <option value="INFORMATION_TECHNOLOGY">Information Technology (IT)</option>
+            <option value="SOFTWARE_DEVELOPMENT">Software Development</option>
+            <option value="HARDWARE_ELECTRONICS">Hardware & Electronics</option>
+            <option value="TELECOMMUNICATIONS">Telecommunications</option>
+            <option value="E_COMMERCE">E-Commerce</option>
+            <option value="MANUFACTURING">Manufacturing</option>
+            <option value="AUTOMOBILE">Automobile</option>
+            <option value="AEROSPACE_DEFENSE">Aerospace & Defense</option>
+            <option value="CONSTRUCTION_INFRASTRUCTURE">Construction & Infrastructure</option>
+            <option value="REAL_ESTATE">Real Estate</option>
+            <option value="BANKING_FINANCIAL">Banking & Financial Services</option>
+            <option value="INSURANCE">Insurance</option>
+            <option value="INVESTMENT_ASSET">Investment & Asset Management</option>
+            <option value="HEALTHCARE">Healthcare</option>
+            <option value="PHARMACEUTICALS">Pharmaceuticals</option>
+            <option value="BIOTECHNOLOGY">Biotechnology</option>
+            <option value="MEDICAL_DEVICES">Medical Devices</option>
+            <option value="EDUCATION_TRAINING">Education & Training</option>
+            <option value="RETAIL">Retail</option>
+            <option value="WHOLESALE_DISTRIBUTION">Wholesale & Distribution</option>
+            <option value="LOGISTICS_SUPPLY">Logistics & Supply Chain</option>
+            <option value="TRANSPORTATION">Transportation (Air, Road, Rail, Sea)</option>
+            <option value="FOOD_BEVERAGE">Food & Beverages</option>
+            <option value="HOSPITALITY">Hospitality</option>
+            <option value="TOURISM_TRAVEL">Tourism & Travel</option>
+            <option value="MEDIA_ENTERTAINMENT">Media & Entertainment</option>
+            <option value="ADVERTISING_MARKETING">Advertising & Marketing</option>
+            <option value="PUBLISHING">Publishing</option>
+            <option value="OIL_GAS">Oil & Gas</option>
+            <option value="MINING_METALS">Mining & Metals</option>
+            <option value="CHEMICALS">Chemicals</option>
+            <option value="ENERGY_POWER">Energy & Power</option>
+            <option value="RENEWABLE_ENERGY">Renewable Energy (Solar, Wind)</option>
+            <option value="AGRICULTURE">Agriculture</option>
+            <option value="ENVIRONMENTAL_SERVICES">Environmental Services</option>
+            <option value="LEGAL_SERVICES">Legal Services</option>
+            <option value="CONSULTING_ADVISORY">Consulting & Advisory</option>
+            <option value="HUMAN_RESOURCES">Human Resources Services</option>
+            <option value="BPO_KPO">BPO / KPO</option>
+            <option value="SECURITY_SERVICES">Security Services</option>
+            <option value="FASHION_APPAREL">Fashion & Apparel</option>
+            <option value="TEXTILES">Textiles</option>
+            <option value="SPORTS_FITNESS">Sports & Fitness</option>
+            <option value="NON_PROFIT_NGO">Non-Profit / NGO</option>
+            <option value="GOVERNMENT_PUBLIC">Government & Public Sector</option>
+            <option value="OTHER">Other</option>
           </select>
         </div>
       </div>
@@ -127,12 +168,73 @@
           @error('nature_of_work')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
+          <label class="hrp-label">State:</label>
+          <select class="Rectangle-29-select @error('state') is-invalid @enderror" name="state">
+            <option value="" disabled {{ old('state') ? '' : 'selected' }}>SELECT STATE</option>
+            <option value="andhra_pradesh" {{ old('state') == 'andhra_pradesh' ? 'selected' : '' }}>Andhra Pradesh</option>
+            <option value="arunachal_pradesh" {{ old('state') == 'arunachal_pradesh' ? 'selected' : '' }}>Arunachal Pradesh</option>
+            <option value="assam" {{ old('state') == 'assam' ? 'selected' : '' }}>Assam</option>
+            <option value="bihar" {{ old('state') == 'bihar' ? 'selected' : '' }}>Bihar</option>
+            <option value="chhattisgarh" {{ old('state') == 'chhattisgarh' ? 'selected' : '' }}>Chhattisgarh</option>
+            <option value="goa" {{ old('state') == 'goa' ? 'selected' : '' }}>Goa</option>
+            <option value="gujarat" {{ old('state') == 'gujarat' ? 'selected' : '' }}>Gujarat</option>
+            <option value="haryana" {{ old('state') == 'haryana' ? 'selected' : '' }}>Haryana</option>
+            <option value="himachal_pradesh" {{ old('state') == 'himachal_pradesh' ? 'selected' : '' }}>Himachal Pradesh</option>
+            <option value="jharkhand" {{ old('state') == 'jharkhand' ? 'selected' : '' }}>Jharkhand</option>
+            <option value="karnataka" {{ old('state') == 'karnataka' ? 'selected' : '' }}>Karnataka</option>
+            <option value="kerala" {{ old('state') == 'kerala' ? 'selected' : '' }}>Kerala</option>
+            <option value="maharashtra" {{ old('state') == 'maharashtra' ? 'selected' : '' }}>Maharashtra</option>
+            <option value="madhya_pradesh" {{ old('state') == 'madhya_pradesh' ? 'selected' : '' }}>Madhya Pradesh</option>
+            <option value="odisha" {{ old('state') == 'odisha' ? 'selected' : '' }}>Odisha</option>
+            <option value="punjab" {{ old('state') == 'punjab' ? 'selected' : '' }}>Punjab</option>
+            <option value="rajasthan" {{ old('state') == 'rajasthan' ? 'selected' : '' }}>Rajasthan</option>
+            <option value="tamil_nadu" {{ old('state') == 'tamil_nadu' ? 'selected' : '' }}>Tamil Nadu</option>
+            <option value="telangana" {{ old('state') == 'telangana' ? 'selected' : '' }}>Telangana</option>
+            <option value="uttar_pradesh" {{ old('state') == 'uttar_pradesh' ? 'selected' : '' }}>Uttar Pradesh</option>
+            <option value="uttarakhand" {{ old('state') == 'uttarakhand' ? 'selected' : '' }}>Uttarakhand</option>
+            <option value="west_bengal" {{ old('state') == 'west_bengal' ? 'selected' : '' }}>West Bengal</option>
+            <option value="other" {{ old('state') == 'other' ? 'selected' : '' }}>Other</option>
+          </select>
+          @error('state')<small class="hrp-error">{{ $message }}</small>@enderror
+        </div>
+        <div>
           <label class="hrp-label">City:</label>
           <select class="Rectangle-29-select @error('city') is-invalid @enderror" name="city">
-            <option value="">Select City</option>
-            <option value="Ahmedabad" {{ old('city') == 'Ahmedabad' ? 'selected' : '' }}>Ahmedabad</option>
-            <option value="Surat" {{ old('city') == 'Surat' ? 'selected' : '' }}>Surat</option>
-            <option value="Mumbai" {{ old('city') == 'Mumbai' ? 'selected' : '' }}>Mumbai</option>
+            <option value="" disabled {{ old('city') ? '' : 'selected' }}>SELECT CITY</option>
+            <option value="mumbai" {{ old('city') == 'mumbai' ? 'selected' : '' }}>Mumbai</option>
+            <option value="delhi" {{ old('city') == 'delhi' ? 'selected' : '' }}>Delhi</option>
+            <option value="bengaluru" {{ old('city') == 'bengaluru' ? 'selected' : '' }}>Bengaluru</option>
+            <option value="hyderabad" {{ old('city') == 'hyderabad' ? 'selected' : '' }}>Hyderabad</option>
+            <option value="ahmedabad" {{ old('city') == 'ahmedabad' ? 'selected' : '' }}>Ahmedabad</option>
+            <option value="chennai" {{ old('city') == 'chennai' ? 'selected' : '' }}>Chennai</option>
+            <option value="kolkata" {{ old('city') == 'kolkata' ? 'selected' : '' }}>Kolkata</option>
+            <option value="surat" {{ old('city') == 'surat' ? 'selected' : '' }}>Surat</option>
+            <option value="pune" {{ old('city') == 'pune' ? 'selected' : '' }}>Pune</option>
+            <option value="jaipur" {{ old('city') == 'jaipur' ? 'selected' : '' }}>Jaipur</option>
+            <option value="lucknow" {{ old('city') == 'lucknow' ? 'selected' : '' }}>Lucknow</option>
+            <option value="kanpur" {{ old('city') == 'kanpur' ? 'selected' : '' }}>Kanpur</option>
+            <option value="nagpur" {{ old('city') == 'nagpur' ? 'selected' : '' }}>Nagpur</option>
+            <option value="indore" {{ old('city') == 'indore' ? 'selected' : '' }}>Indore</option>
+            <option value="thane" {{ old('city') == 'thane' ? 'selected' : '' }}>Thane</option>
+            <option value="bhopal" {{ old('city') == 'bhopal' ? 'selected' : '' }}>Bhopal</option>
+            <option value="visakhapatnam" {{ old('city') == 'visakhapatnam' ? 'selected' : '' }}>Visakhapatnam</option>
+            <option value="patna" {{ old('city') == 'patna' ? 'selected' : '' }}>Patna</option>
+            <option value="vadodara" {{ old('city') == 'vadodara' ? 'selected' : '' }}>Vadodara</option>
+            <option value="ghaziabad" {{ old('city') == 'ghaziabad' ? 'selected' : '' }}>Ghaziabad</option>
+            <option value="ludhiana" {{ old('city') == 'ludhiana' ? 'selected' : '' }}>Ludhiana</option>
+            <option value="agra" {{ old('city') == 'agra' ? 'selected' : '' }}>Agra</option>
+            <option value="nashik" {{ old('city') == 'nashik' ? 'selected' : '' }}>Nashik</option>
+            <option value="faridabad" {{ old('city') == 'faridabad' ? 'selected' : '' }}>Faridabad</option>
+            <option value="meerut" {{ old('city') == 'meerut' ? 'selected' : '' }}>Meerut</option>
+            <option value="rajkot" {{ old('city') == 'rajkot' ? 'selected' : '' }}>Rajkot</option>
+            <option value="varanasi" {{ old('city') == 'varanasi' ? 'selected' : '' }}>Varanasi</option>
+            <option value="srinagar" {{ old('city') == 'srinagar' ? 'selected' : '' }}>Srinagar</option>
+            <option value="aurangabad" {{ old('city') == 'aurangabad' ? 'selected' : '' }}>Aurangabad</option>
+            <option value="dhanbad" {{ old('city') == 'dhanbad' ? 'selected' : '' }}>Dhanbad</option>
+            <option value="amritsar" {{ old('city') == 'amritsar' ? 'selected' : '' }}>Amritsar</option>
+            <option value="navi_mumbai" {{ old('city') == 'navi_mumbai' ? 'selected' : '' }}>Navi Mumbai</option>
+            <option value="ranchi" {{ old('city') == 'ranchi' ? 'selected' : '' }}>Ranchi</option>
+            <option value="other" {{ old('city') == 'other' ? 'selected' : '' }}>Other</option>
           </select>
           @error('city')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
@@ -194,15 +296,41 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Company Email: <span class="text-red-500">*</span></label>
-          <input class="Rectangle-29 @error('company_email') is-invalid @enderror" type="email" name="company_email" value="{{ old('company_email', $quotationData['email'] ?? '') }}" placeholder="Add Mail-Id" required>
+          <div style="position: relative;">
+            <input class="Rectangle-29 @error('company_email') is-invalid @enderror" type="email" name="company_email" id="company_email" value="{{ old('company_email', $quotationData['email'] ?? '') }}" placeholder="Add Mail-Id" required style="padding-right: 100px;">
+            <button type="button" onclick="generateEmail()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+          </div>
           @error('company_email')
               <small class="hrp-error">{{ $message }}</small>
           @enderror
         </div>
         <div>
-          <label class="hrp-label">Company Password:</label>
-          <input class="Rectangle-29 @error('company_password') is-invalid @enderror" type="password" name="company_password" placeholder="Enter Company Password" value="{{ old('company_password') }}">
+          <label class="hrp-label">Company Password: <span class="text-red-500 password-required-indicator">*</span></label>
+          <div style="position: relative;">
+            <input class="Rectangle-29 @error('company_password') is-invalid @enderror" type="text" name="company_password" id="company_password" placeholder="Auto-generated password" value="{{ old('company_password') }}" style="padding-right: 100px;">
+            <button type="button" onclick="generatePassword()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+          </div>
           @error('company_password')<small class="hrp-error">{{ $message }}</small>@enderror
+        </div>
+      </div>
+
+      <!-- Employee Credentials Section -->
+      <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+        <div>
+          <label class="hrp-label">Company Employee Email: <span style="color: #6b7280; font-size: 12px;">(Optional)</span></label>
+          <div style="position: relative;">
+            <input class="Rectangle-29 @error('company_employee_email') is-invalid @enderror" type="email" name="company_employee_email" id="company_employee_email" placeholder="Auto-generated email (optional)" value="{{ old('company_employee_email') }}" style="padding-right: 100px;">
+            <button type="button" onclick="generateEmployeeEmail()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+          </div>
+          @error('company_employee_email')<small class="hrp-error">{{ $message }}</small>@enderror
+        </div>
+        <div>
+          <label class="hrp-label">Company Employee Password: <span style="color: #6b7280; font-size: 12px;">(Optional)</span></label>
+          <div style="position: relative;">
+            <input class="Rectangle-29 @error('company_employee_password') is-invalid @enderror" type="text" name="company_employee_password" id="company_employee_password" placeholder="Auto-generated password (optional)" value="{{ old('company_employee_password') }}" style="padding-right: 100px;">
+            <button type="button" onclick="generateEmployeePassword()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+          </div>
+          @error('company_employee_password')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
       <input type="hidden" name="contract_amount" id="hidden_contract_amount" value="{{ old('contract_amount') }}">
@@ -576,7 +704,7 @@
   <div class="hrp-form grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-5" style="margin: 30px 0;">
     <div>
       <label class="hrp-label">AMC Start From:</label>
-      <input type="text" class="Rectangle-29 date-picker" name="amc_start_date" placeholder="dd/mm/yy" value="{{ old('amc_start_date') }}" autocomplete="off">
+      <input type="text" class="Rectangle-29 date-picker" name="amc_start_date" placeholder="dd/mm/yyyy" value="{{ old('amc_start_date') }}" autocomplete="off">
     </div>
     <div>
       <label class="hrp-label">AMC Amount:</label>
@@ -584,7 +712,7 @@
     </div>
     <div>
       <label class="hrp-label">Project Start Date:</label>
-      <input type="text" class="Rectangle-29 date-picker" name="project_start_date" placeholder="dd/mm/yy" value="{{ old('project_start_date') }}" autocomplete="off">
+      <input type="text" class="Rectangle-29 date-picker" name="project_start_date" placeholder="dd/mm/yyyy" value="{{ old('project_start_date') }}" autocomplete="off">
     </div>
     <div>
       <label class="hrp-label">Completion Time:</label>
@@ -605,7 +733,7 @@
     </div>
     <div>
       <label class="hrp-label">Tentative Complete Date:</label>
-      <input type="text" class="Rectangle-29 date-picker" name="tentative_complete_date" placeholder="dd/mm/yy" value="{{ old('tentative_complete_date') }}" autocomplete="off">
+      <input type="text" class="Rectangle-29 date-picker" name="tentative_complete_date" placeholder="dd/mm/yyyy" value="{{ old('tentative_complete_date') }}" autocomplete="off">
     </div>
     <div></div>
     <div></div>
@@ -701,11 +829,11 @@
       <input class="Rectangle-29" name="footer_company_name" value="{{ old('footer_company_name', 'CHITRI INFOTECH PVT LTD') }}">
       @error('footer_company_name')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
-    <div>
+    {{-- <div>
       <label class="hrp-label">Remark:</label>
       <textarea class="Rectangle-29 Rectangle-29-textarea" name="remark" placeholder="Enter remark or notes" rows="2" style="resize: vertical;">{{ old('remark') }}</textarea>
       @error('remark')<small class="hrp-error">{{ $message }}</small>@enderror
-    </div>
+    </div> --}}
   </div>
 
   <!-- Standard Terms -->
@@ -940,6 +1068,20 @@ function toggleCustomerFields(type) {
     const field = document.getElementById('existing_customer_field');
     if (field) field.classList.toggle('hidden', type !== 'existing');
     
+    // Toggle password field requirement based on customer type
+    const passwordField = document.getElementById('company_password');
+    const passwordIndicator = document.querySelector('.password-required-indicator');
+    
+    if (passwordField) {
+        if (type === 'new') {
+            passwordField.setAttribute('required', 'required');
+            if (passwordIndicator) passwordIndicator.style.display = 'inline';
+        } else {
+            passwordField.removeAttribute('required');
+            if (passwordIndicator) passwordIndicator.style.display = 'none';
+        }
+    }
+    
     // Toggle required attribute and visual indicator for city and state
     const citySelect = document.getElementById('city_select');
     const stateSelect = document.getElementById('state_select');
@@ -1012,6 +1154,41 @@ async function fetchCustomerDetails(companyId) {
     const form = document.getElementById('quotationForm');
     const company = data.data;
 
+    // STATE SPECIAL HANDLING
+    const stateSelect = form.querySelector('select[name="state"]');
+    if (stateSelect && company.state) {
+        const value = company.state.trim().toLowerCase();
+        let found = false;
+
+        // First try exact match with option value
+        [...stateSelect.options].forEach((opt, i) => {
+            if (opt.value.toLowerCase() === value) {
+                stateSelect.selectedIndex = i;
+                found = true;
+            }
+        });
+
+        // If not found, try matching with option text
+        if (!found) {
+            [...stateSelect.options].forEach((opt, i) => {
+                if (opt.text.trim().toLowerCase() === value) {
+                    stateSelect.selectedIndex = i;
+                    found = true;
+                }
+            });
+        }
+
+        // If still not found, try partial match
+        if (!found) {
+            [...stateSelect.options].forEach((opt, i) => {
+                if (opt.text.toLowerCase().includes(value) || value.includes(opt.text.toLowerCase())) {
+                    stateSelect.selectedIndex = i;
+                    found = true;
+                }
+            });
+        }
+    }
+
     // CITY SPECIAL HANDLING
     const citySelect = form.querySelector('select[name="city"]');
     if (citySelect && company.city) {
@@ -1043,6 +1220,7 @@ async function fetchCustomerDetails(companyId) {
         pan_no: company.pan_no,
         address: company.address || company.company_address,
         company_email: company.company_email,
+        company_employee_email: company.company_employee_email || '',
         nature_of_work: company.nature_of_work || company.other_details,
         contact_person_1: company.contact_person_1 || company.contact_person_name,
         contact_number_1: company.contact_number_1 || company.contact_person_mobile,
@@ -1053,6 +1231,14 @@ async function fetchCustomerDetails(companyId) {
         const el = form.querySelector(`[name="${field}"]`);
         if (el) el.value = value || '';
     });
+    
+    // For existing customers, clear and disable password field requirement
+    const passwordField = form.querySelector('[name="company_password"]');
+    if (passwordField) {
+        passwordField.value = ''; // Clear password field for existing customers
+        passwordField.removeAttribute('required');
+        passwordField.placeholder = 'Password already set for this company';
+    }
 }
 
 //
@@ -1884,10 +2070,10 @@ if (companyEmailInput && customerTypeSelect) {
 
 
 
-// Initialize date pickers with dd/mm/yy format
+// Initialize date pickers with dd/mm/yyyy format
 $(document).ready(function() {
     $('.date-picker').datepicker({
-        dateFormat: 'dd/mm/y',
+        dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
         changeMonth: true,
         changeYear: true,
         yearRange: '-10:+10',
@@ -1925,6 +2111,189 @@ function testAddTerm() {
     const hiddenInputs = document.querySelectorAll('input[name="custom_terms[]"]');
     console.log('Total custom_terms[] inputs:', hiddenInputs.length);
 }
+
+// Auto-generate email based on company name
+function generateEmail() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const emailInput = document.getElementById('company_email');
+    
+    if (!companyNameInput || !companyNameInput.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Company Name Required',
+            text: 'Please enter company name first to generate email',
+            confirmButtonColor: '#10b981'
+        });
+        return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    
+    // Generate email: company name (lowercase, no spaces) + random 3 digits + @example.com
+    const emailPrefix = companyName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    const randomNum = Math.floor(100 + Math.random() * 900);
+    const email = emailPrefix + randomNum + '@example.com';
+    
+    emailInput.value = email;
+    
+    // Show success message
+    Swal.fire({
+        icon: 'success',
+        title: 'Email Generated!',
+        html: `<p>Email: <strong style="color: #10b981; font-size: 18px;">${email}</strong></p><p style="color: #6b7280; font-size: 13px; margin-top: 10px;">You can edit this email if needed.</p>`,
+        confirmButtonColor: '#10b981',
+        width: '400px'
+    });
+}
+
+// Auto-generate password based on company name
+function generatePassword() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const passwordInput = document.getElementById('company_password');
+    
+    if (!companyNameInput || !companyNameInput.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Company Name Required',
+            text: 'Please enter company name first to generate password',
+            confirmButtonColor: '#3b82f6'
+        });
+        return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    
+    // Generate password: First 3 letters of company name + random 4 digits + special char
+    const prefix = companyName.replace(/[^a-zA-Z]/g, '').substring(0, 3).toLowerCase();
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const specialChars = ['@', '#', '$', '!'];
+    const specialChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+    
+    const password = prefix + randomNum + specialChar;
+    
+    passwordInput.value = password;
+    
+    // Show success message
+    Swal.fire({
+        icon: 'success',
+        title: 'Password Generated!',
+        html: `<p>Password: <strong style="color: #3b82f6; font-size: 18px;">${password}</strong></p><p style="color: #6b7280; font-size: 13px; margin-top: 10px;">Please save this password securely.</p>`,
+        confirmButtonColor: '#3b82f6',
+        width: '400px'
+    });
+}
+
+// Generate both email and password together
+function generateBoth() {
+    generateEmail();
+    setTimeout(() => {
+        generatePassword();
+    }, 500);
+}
+
+// Auto-generate employee email based on company name
+function generateEmployeeEmail() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const emailInput = document.getElementById('company_employee_email');
+    
+    if (!companyNameInput || !companyNameInput.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Company Name Required',
+            text: 'Please enter company name first to generate employee email',
+            confirmButtonColor: '#10b981'
+        });
+        return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    
+    // Generate email: company name (alphanumeric only) + "emp" + random 3 digits + @example.com
+    const emailPrefix = companyName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    const randomNum = Math.floor(100 + Math.random() * 900);
+    const email = emailPrefix + 'emp' + randomNum + '@example.com';
+    
+    emailInput.value = email;
+    
+    // Show success message
+    Swal.fire({
+        icon: 'success',
+        title: 'Employee Email Generated!',
+        html: `<p>Email: <strong style="color: #10b981; font-size: 16px;">${email}</strong></p>`,
+        confirmButtonColor: '#10b981',
+        width: '400px'
+    });
+}
+
+// Auto-generate employee password based on company name
+function generateEmployeePassword() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const passwordInput = document.getElementById('company_employee_password');
+    
+    if (!companyNameInput || !companyNameInput.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Company Name Required',
+            text: 'Please enter company name first to generate employee password',
+            confirmButtonColor: '#10b981'
+        });
+        return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    
+    // Generate password: "Emp" + First 3 letters of company name + random 4 digits + special char
+    const prefix = 'Emp' + companyName.replace(/[^a-zA-Z]/g, '').substring(0, 3);
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const specialChars = ['@', '#', '$', '!'];
+    const specialChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+    
+    const password = prefix + randomNum + specialChar;
+    
+    passwordInput.value = password;
+    
+    // Show success message
+    Swal.fire({
+        icon: 'success',
+        title: 'Employee Password Generated!',
+        html: `<p>Password: <strong style="color: #10b981; font-size: 18px;">${password}</strong></p><p style="color: #6b7280; font-size: 13px; margin-top: 10px;">Please save this password securely.</p>`,
+        confirmButtonColor: '#10b981',
+        width: '400px'
+    });
+}
+
+// Auto-generate email and password when company name changes (for new customers only)
+document.addEventListener('DOMContentLoaded', function() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const customerTypeSelect = document.getElementById('customer_type');
+    const emailInput = document.getElementById('company_email');
+    const passwordInput = document.getElementById('company_password');
+    
+    if (companyNameInput && customerTypeSelect && emailInput && passwordInput) {
+        companyNameInput.addEventListener('blur', function() {
+            // Only auto-generate for new customers and if fields are empty
+            if (customerTypeSelect.value === 'new' && this.value.trim()) {
+                // Generate email if empty
+                if (!emailInput.value) {
+                    const companyName = this.value.trim();
+                    const emailPrefix = companyName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+                    const randomNum = Math.floor(100 + Math.random() * 900);
+                    emailInput.value = emailPrefix + randomNum + '@example.com';
+                }
+                
+                // Generate password if empty
+                if (!passwordInput.value) {
+                    const companyName = this.value.trim();
+                    const prefix = companyName.replace(/[^a-zA-Z]/g, '').substring(0, 3).toLowerCase();
+                    const randomNum = Math.floor(1000 + Math.random() * 9000);
+                    const specialChars = ['@', '#', '$', '!'];
+                    const specialChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+                    passwordInput.value = prefix + randomNum + specialChar;
+                }
+            }
+        });
+    }
+});
 
 </script>
 @endpush

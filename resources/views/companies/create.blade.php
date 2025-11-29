@@ -1,5 +1,8 @@
 @extends('layouts.macos')
 @section('page_title', 'Add Company')
+
+
+
 @section('content')
   <div class="hrp-card">
     {{-- <div class="hrp-card-header flex items-center justify-between gap-4">
@@ -48,26 +51,56 @@
         <select name="company_type" class="hrp-input Rectangle-29"
             style="padding-right:32px; appearance:none; background-repeat:no-repeat;
             background-position:right 12px center; background-size:16px;
-            cursor:pointer; text-transform:uppercase; width:100%;
+            cursor:pointer; width:100%;
             background-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%236b7280\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'/%3E%3C/svg%3E');">
 
             <option value="" disabled {{ old('company_type') ? '' : 'selected' }}>SELECT COMPANY TYPE</option>
-            <option value="AUTOMOBILE" {{ old('company_type') == 'AUTOMOBILE' ? 'selected' : '' }}>AUTOMOBILE</option>
-            <option value="FMCG" {{ old('company_type') == 'FMCG' ? 'selected' : '' }}>FMCG (FAST-MOVING CONSUMER GOODS)</option>
-            <option value="IT" {{ old('company_type') == 'IT' ? 'selected' : '' }}>INFORMATION TECHNOLOGY</option>
-            <option value="MANUFACTURING" {{ old('company_type') == 'MANUFACTURING' ? 'selected' : '' }}>MANUFACTURING</option>
-            <option value="CONSTRUCTION">CONSTRUCTION</option>
-            <option value="HEALTHCARE">HEALTHCARE</option>
-            <option value="EDUCATION">EDUCATION</option>
-            <option value="FINANCE">FINANCE & BANKING</option>
-            <option value="RETAIL">RETAIL</option>
-            <option value="TELECOM">TELECOMMUNICATIONS</option>
-            <option value="HOSPITALITY">HOSPITALITY</option>
-            <option value="TRANSPORT">TRANSPORT & LOGISTICS</option>
-            <option value="ENERGY">ENERGY & UTILITIES</option>
-            <option value="MEDIA">MEDIA & ENTERTAINMENT</option>
-            <option value="REAL_ESTATE">REAL ESTATE</option>
-            <option value="OTHER">OTHER</option>
+            <option value="INFORMATION_TECHNOLOGY">Information Technology (IT)</option>
+            <option value="SOFTWARE_DEVELOPMENT">Software Development</option>
+            <option value="HARDWARE_ELECTRONICS">Hardware & Electronics</option>
+            <option value="TELECOMMUNICATIONS">Telecommunications</option>
+            <option value="E_COMMERCE">E-Commerce</option>
+            <option value="MANUFACTURING">Manufacturing</option>
+            <option value="AUTOMOBILE">Automobile</option>
+            <option value="AEROSPACE_DEFENSE">Aerospace & Defense</option>
+            <option value="CONSTRUCTION_INFRASTRUCTURE">Construction & Infrastructure</option>
+            <option value="REAL_ESTATE">Real Estate</option>
+            <option value="BANKING_FINANCIAL">Banking & Financial Services</option>
+            <option value="INSURANCE">Insurance</option>
+            <option value="INVESTMENT_ASSET">Investment & Asset Management</option>
+            <option value="HEALTHCARE">Healthcare</option>
+            <option value="PHARMACEUTICALS">Pharmaceuticals</option>
+            <option value="BIOTECHNOLOGY">Biotechnology</option>
+            <option value="MEDICAL_DEVICES">Medical Devices</option>
+            <option value="EDUCATION_TRAINING">Education & Training</option>
+            <option value="RETAIL">Retail</option>
+            <option value="WHOLESALE_DISTRIBUTION">Wholesale & Distribution</option>
+            <option value="LOGISTICS_SUPPLY">Logistics & Supply Chain</option>
+            <option value="TRANSPORTATION">Transportation (Air, Road, Rail, Sea)</option>
+            <option value="FOOD_BEVERAGE">Food & Beverages</option>
+            <option value="HOSPITALITY">Hospitality</option>
+            <option value="TOURISM_TRAVEL">Tourism & Travel</option>
+            <option value="MEDIA_ENTERTAINMENT">Media & Entertainment</option>
+            <option value="ADVERTISING_MARKETING">Advertising & Marketing</option>
+            <option value="PUBLISHING">Publishing</option>
+            <option value="OIL_GAS">Oil & Gas</option>
+            <option value="MINING_METALS">Mining & Metals</option>
+            <option value="CHEMICALS">Chemicals</option>
+            <option value="ENERGY_POWER">Energy & Power</option>
+            <option value="RENEWABLE_ENERGY">Renewable Energy (Solar, Wind)</option>
+            <option value="AGRICULTURE">Agriculture</option>
+            <option value="ENVIRONMENTAL_SERVICES">Environmental Services</option>
+            <option value="LEGAL_SERVICES">Legal Services</option>
+            <option value="CONSULTING_ADVISORY">Consulting & Advisory</option>
+            <option value="HUMAN_RESOURCES">Human Resources Services</option>
+            <option value="BPO_KPO">BPO / KPO</option>
+            <option value="SECURITY_SERVICES">Security Services</option>
+            <option value="FASHION_APPAREL">Fashion & Apparel</option>
+            <option value="TEXTILES">Textiles</option>
+            <option value="SPORTS_FITNESS">Sports & Fitness</option>
+            <option value="NON_PROFIT_NGO">Non-Profit / NGO</option>
+            <option value="GOVERNMENT_PUBLIC">Government & Public Sector</option>
+            <option value="OTHER">Other</option>
         </select>
     </div>
     @error('company_type') <small class="hrp-error">{{ $message }}</small> @enderror
@@ -299,37 +332,49 @@
           </div>
           
           <div style="margin-bottom: 8px;">
-            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Email</label>
-            <input name="company_email" type="email" placeholder="Enter Company Email" value="{{ old('company_email') }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Email <span class="text-red-500">*</span></label>
+            <div style="position: relative;">
+              <input name="company_email" id="company_email" type="email" placeholder="Enter Company Email" value="{{ old('company_email') }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;" required>
+              <button type="button" onclick="generateCompanyEmail()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+            </div>
             @error('company_email')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
           
           <div style="margin-bottom: 8px;">
-            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Password</label>
-            <input name="company_password" type="password" placeholder="Enter Company Password (min 8 characters)" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;" autocomplete="new-password">
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Password <span class="text-red-500">*</span></label>
+            <div style="position: relative;">
+              <input name="company_password" id="company_password" type="text" placeholder="Enter Company Password (min 6 characters)" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;" autocomplete="new-password" required>
+              <button type="button" onclick="generateCompanyPassword()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+            </div>
             @error('company_password')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
           
           <div style="margin-bottom: 8px;">
-            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Confirm Password</label>
-            <input name="company_password_confirmation" type="password" placeholder="Confirm Company Password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;" autocomplete="new-password">
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Confirm Password <span class="text-red-500">*</span></label>
+            <input name="company_password_confirmation" id="company_password_confirmation" type="text" placeholder="Confirm Company Password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;" autocomplete="new-password" required>
           </div>
           
           <div style="margin-bottom: 8px;">
-            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Employee Email</label>
-            <input name="company_employee_email" type="email" placeholder="Enter Company Employee Email (must be different from company email)" value="{{ old('company_employee_email') }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Employee Email <span style="color: #6b7280; font-size: 12px;">(Optional)</span></label>
+            <div style="position: relative;">
+              <input name="company_employee_email" id="company_employee_email_create" type="email" placeholder="Enter Company Employee Email (optional)" value="{{ old('company_employee_email') }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;">
+              <button type="button" onclick="generateEmployeeEmailCreate()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+            </div>
             @error('company_employee_email')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
           
           <div style="margin-bottom: 8px;">
-            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Employee Password</label>
-            <input name="company_employee_password" type="password" placeholder="Enter Employee Password (min 8 characters)" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;" autocomplete="new-password">
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Employee Password <span style="color: #6b7280; font-size: 12px;">(Optional)</span></label>
+            <div style="position: relative;">
+              <input name="company_employee_password" id="company_employee_password_create" type="text" placeholder="Enter Employee Password (optional)" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;" autocomplete="new-password">
+              <button type="button" onclick="generateEmployeePasswordCreate()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+            </div>
             @error('company_employee_password')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
           
           <div style="margin-bottom: 8px;">
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Confirm Employee Password</label>
-            <input name="company_employee_password" type="password" placeholder="Enter Company Employee Password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
+            <input name="company_employee_password_confirmation" id="company_employee_password_confirmation_create" type="text" placeholder="Confirm Employee Password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
           </div>
           
           <div class="md:col-span-2" style="margin-top: 20px;">
@@ -345,6 +390,91 @@
 
 @push('scripts')
 <script>
+  // Auto-generate company email based on company name
+  function generateCompanyEmail() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const emailInput = document.getElementById('company_email');
+    
+    if (!companyNameInput || !companyNameInput.value) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Company Name Required',
+        text: 'Please enter company name first to generate email',
+        confirmButtonColor: '#10b981'
+      });
+      return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    
+    // Generate email: company name (lowercase, no spaces) + random 3 digits + @example.com
+    const emailPrefix = companyName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    const randomNum = Math.floor(100 + Math.random() * 900);
+    const email = emailPrefix + randomNum + '@example.com';
+    
+    emailInput.value = email;
+    
+    // Show success message
+    Swal.fire({
+      icon: 'success',
+      title: 'Email Generated!',
+      html: `<p>Email: <strong style="color: #10b981; font-size: 18px;">${email}</strong></p><p style="color: #6b7280; font-size: 13px; margin-top: 10px;">You can edit this email if needed.</p>`,
+      confirmButtonColor: '#10b981',
+      width: '400px'
+    });
+  }
+
+  // Auto-generate company password based on company name
+  function generateCompanyPassword() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const passwordInput = document.getElementById('company_password');
+    const confirmPasswordInput = document.getElementById('company_password_confirmation');
+    
+    if (!companyNameInput || !companyNameInput.value) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Company Name Required',
+        text: 'Please enter company name first to generate password',
+        confirmButtonColor: '#3b82f6'
+      });
+      return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    
+    // Generate password: First 3 letters of company name + random 4 digits + special char
+    const prefix = companyName.replace(/[^a-zA-Z]/g, '').substring(0, 3).toLowerCase();
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const specialChars = ['@', '#', '$', '!'];
+    const specialChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+    
+    const password = prefix + randomNum + specialChar;
+    
+    passwordInput.value = password;
+    confirmPasswordInput.value = password;
+    
+    // Show success message
+    Swal.fire({
+      icon: 'success',
+      title: 'Password Generated!',
+      html: `<p>Password: <strong style="color: #3b82f6; font-size: 18px;">${password}</strong></p><p style="color: #6b7280; font-size: 13px; margin-top: 10px;">Password has been copied to confirmation field.</p>`,
+      confirmButtonColor: '#3b82f6',
+      width: '400px'
+    });
+  }
+
+  // Auto-copy password to confirmation field
+  document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('company_password');
+    const confirmPasswordInput = document.getElementById('company_password_confirmation');
+    
+    if (passwordInput && confirmPasswordInput) {
+      passwordInput.addEventListener('input', function() {
+        confirmPasswordInput.value = this.value;
+      });
+    }
+  });
+
   // Function to update file name display
   function updateFileName(input, targetId) {
     const fileName = input.files[0] ? input.files[0].name : 'No File Chosen';
@@ -445,6 +575,86 @@
       });
     }
   })();
+
+  // Auto-generate employee email
+  function generateEmployeeEmailCreate() {
+    console.log('generateEmployeeEmailCreate called');
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const emailInput = document.getElementById('company_employee_email_create');
+    console.log('Company Name Input:', companyNameInput);
+    console.log('Email Input:', emailInput);
+    
+    if (!companyNameInput || !companyNameInput.value) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Company Name Required',
+        text: 'Please enter company name first to generate employee email',
+        confirmButtonColor: '#10b981'
+      });
+      return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    
+    // Generate email: company name (alphanumeric only) + "emp" + random 3 digits + @example.com
+    const emailPrefix = companyName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    const randomNum = Math.floor(100 + Math.random() * 900);
+    const email = emailPrefix + 'emp' + randomNum + '@example.com';
+    
+    emailInput.value = email;
+    
+    // Show success message
+    Swal.fire({
+      icon: 'success',
+      title: 'Employee Email Generated!',
+      html: `<p>Email: <strong style="color: #10b981; font-size: 16px;">${email}</strong></p>`,
+      confirmButtonColor: '#10b981',
+      width: '400px'
+    });
+  }
+
+  // Auto-generate employee password
+  function generateEmployeePasswordCreate() {
+    console.log('generateEmployeePasswordCreate called');
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const passwordInput = document.getElementById('company_employee_password_create');
+    const confirmPasswordInput = document.getElementById('company_employee_password_confirmation_create');
+    console.log('Company Name Input:', companyNameInput);
+    console.log('Password Input:', passwordInput);
+    console.log('Confirm Password Input:', confirmPasswordInput);
+    
+    if (!companyNameInput || !companyNameInput.value) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Company Name Required',
+        text: 'Please enter company name first to generate employee password',
+        confirmButtonColor: '#10b981'
+      });
+      return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    
+    // Generate password: "Emp" + First 3 letters of company name + random 4 digits + special char
+    const prefix = 'Emp' + companyName.replace(/[^a-zA-Z]/g, '').substring(0, 3);
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const specialChars = ['@', '#', '$', '!'];
+    const specialChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+    
+    const password = prefix + randomNum + specialChar;
+    
+    passwordInput.value = password;
+    confirmPasswordInput.value = password;
+    
+    // Show success message
+    Swal.fire({
+      icon: 'success',
+      title: 'Employee Password Generated!',
+      html: `<p>Password: <strong style="color: #10b981; font-size: 18px;">${password}</strong></p><p style="color: #6b7280; font-size: 13px; margin-top: 10px;">Please save this password securely.</p>`,
+      confirmButtonColor: '#10b981',
+      width: '400px'
+    });
+  }
 </script>
 @endpush
 

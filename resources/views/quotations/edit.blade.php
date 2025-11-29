@@ -39,12 +39,11 @@
         @enderror
       </div>
       <div>
-        <x-date-input 
-          name="quotation_date" 
-          label="Quotation Date" 
-          :value="old('quotation_date', $quotation->quotation_date)" 
-          required="true" 
-        />
+        <label class="hrp-label">Quotation Date: <span class="text-red-500">*</span></label>
+        <input type="text" class="Rectangle-29 date-picker @error('quotation_date') is-invalid @enderror" name="quotation_date" placeholder="dd/mm/yyyy" value="{{ old('quotation_date', $quotation->quotation_date ? $quotation->quotation_date->format('d/m/Y') : '') }}" autocomplete="off" required>
+        @error('quotation_date')
+            <small class="hrp-error">{{ $message }}</small>
+        @enderror
       </div>
 
       <!-- Row 2: Which Customer / Select Customer -->
@@ -101,10 +100,52 @@
           <label class="hrp-label">Company Type</label>
           <select name="company_type" class="Rectangle-29-select">
             <option value="">SELECT COMPANY TYPE</option>
-            <option value="AUTOMOBILE" {{ old('company_type', $quotation->company_type) == 'AUTOMOBILE' ? 'selected' : '' }}>AUTOMOBILE</option>
-            <option value="FMCG" {{ old('company_type', $quotation->company_type) == 'FMCG' ? 'selected' : '' }}>FMCG</option>
-            <option value="IT" {{ old('company_type', $quotation->company_type) == 'IT' ? 'selected' : '' }}>INFORMATION TECHNOLOGY</option>
-            <option value="HEALTHCARE" {{ old('company_type', $quotation->company_type) == 'HEALTHCARE' ? 'selected' : '' }}>HEALTHCARE</option>
+            <option value="INFORMATION_TECHNOLOGY" {{ old('company_type', $quotation->company_type) == 'INFORMATION_TECHNOLOGY' ? 'selected' : '' }}>Information Technology (IT)</option>
+            <option value="SOFTWARE_DEVELOPMENT" {{ old('company_type', $quotation->company_type) == 'SOFTWARE_DEVELOPMENT' ? 'selected' : '' }}>Software Development</option>
+            <option value="HARDWARE_ELECTRONICS" {{ old('company_type', $quotation->company_type) == 'HARDWARE_ELECTRONICS' ? 'selected' : '' }}>Hardware & Electronics</option>
+            <option value="TELECOMMUNICATIONS" {{ old('company_type', $quotation->company_type) == 'TELECOMMUNICATIONS' ? 'selected' : '' }}>Telecommunications</option>
+            <option value="E_COMMERCE" {{ old('company_type', $quotation->company_type) == 'E_COMMERCE' ? 'selected' : '' }}>E-Commerce</option>
+            <option value="MANUFACTURING" {{ old('company_type', $quotation->company_type) == 'MANUFACTURING' ? 'selected' : '' }}>Manufacturing</option>
+            <option value="AUTOMOBILE" {{ old('company_type', $quotation->company_type) == 'AUTOMOBILE' ? 'selected' : '' }}>Automobile</option>
+            <option value="AEROSPACE_DEFENSE" {{ old('company_type', $quotation->company_type) == 'AEROSPACE_DEFENSE' ? 'selected' : '' }}>Aerospace & Defense</option>
+            <option value="CONSTRUCTION_INFRASTRUCTURE" {{ old('company_type', $quotation->company_type) == 'CONSTRUCTION_INFRASTRUCTURE' ? 'selected' : '' }}>Construction & Infrastructure</option>
+            <option value="REAL_ESTATE" {{ old('company_type', $quotation->company_type) == 'REAL_ESTATE' ? 'selected' : '' }}>Real Estate</option>
+            <option value="BANKING_FINANCIAL" {{ old('company_type', $quotation->company_type) == 'BANKING_FINANCIAL' ? 'selected' : '' }}>Banking & Financial Services</option>
+            <option value="INSURANCE" {{ old('company_type', $quotation->company_type) == 'INSURANCE' ? 'selected' : '' }}>Insurance</option>
+            <option value="INVESTMENT_ASSET" {{ old('company_type', $quotation->company_type) == 'INVESTMENT_ASSET' ? 'selected' : '' }}>Investment & Asset Management</option>
+            <option value="HEALTHCARE" {{ old('company_type', $quotation->company_type) == 'HEALTHCARE' ? 'selected' : '' }}>Healthcare</option>
+            <option value="PHARMACEUTICALS" {{ old('company_type', $quotation->company_type) == 'PHARMACEUTICALS' ? 'selected' : '' }}>Pharmaceuticals</option>
+            <option value="BIOTECHNOLOGY" {{ old('company_type', $quotation->company_type) == 'BIOTECHNOLOGY' ? 'selected' : '' }}>Biotechnology</option>
+            <option value="MEDICAL_DEVICES" {{ old('company_type', $quotation->company_type) == 'MEDICAL_DEVICES' ? 'selected' : '' }}>Medical Devices</option>
+            <option value="EDUCATION_TRAINING" {{ old('company_type', $quotation->company_type) == 'EDUCATION_TRAINING' ? 'selected' : '' }}>Education & Training</option>
+            <option value="RETAIL" {{ old('company_type', $quotation->company_type) == 'RETAIL' ? 'selected' : '' }}>Retail</option>
+            <option value="WHOLESALE_DISTRIBUTION" {{ old('company_type', $quotation->company_type) == 'WHOLESALE_DISTRIBUTION' ? 'selected' : '' }}>Wholesale & Distribution</option>
+            <option value="LOGISTICS_SUPPLY" {{ old('company_type', $quotation->company_type) == 'LOGISTICS_SUPPLY' ? 'selected' : '' }}>Logistics & Supply Chain</option>
+            <option value="TRANSPORTATION" {{ old('company_type', $quotation->company_type) == 'TRANSPORTATION' ? 'selected' : '' }}>Transportation (Air, Road, Rail, Sea)</option>
+            <option value="FOOD_BEVERAGE" {{ old('company_type', $quotation->company_type) == 'FOOD_BEVERAGE' ? 'selected' : '' }}>Food & Beverages</option>
+            <option value="HOSPITALITY" {{ old('company_type', $quotation->company_type) == 'HOSPITALITY' ? 'selected' : '' }}>Hospitality</option>
+            <option value="TOURISM_TRAVEL" {{ old('company_type', $quotation->company_type) == 'TOURISM_TRAVEL' ? 'selected' : '' }}>Tourism & Travel</option>
+            <option value="MEDIA_ENTERTAINMENT" {{ old('company_type', $quotation->company_type) == 'MEDIA_ENTERTAINMENT' ? 'selected' : '' }}>Media & Entertainment</option>
+            <option value="ADVERTISING_MARKETING" {{ old('company_type', $quotation->company_type) == 'ADVERTISING_MARKETING' ? 'selected' : '' }}>Advertising & Marketing</option>
+            <option value="PUBLISHING" {{ old('company_type', $quotation->company_type) == 'PUBLISHING' ? 'selected' : '' }}>Publishing</option>
+            <option value="OIL_GAS" {{ old('company_type', $quotation->company_type) == 'OIL_GAS' ? 'selected' : '' }}>Oil & Gas</option>
+            <option value="MINING_METALS" {{ old('company_type', $quotation->company_type) == 'MINING_METALS' ? 'selected' : '' }}>Mining & Metals</option>
+            <option value="CHEMICALS" {{ old('company_type', $quotation->company_type) == 'CHEMICALS' ? 'selected' : '' }}>Chemicals</option>
+            <option value="ENERGY_POWER" {{ old('company_type', $quotation->company_type) == 'ENERGY_POWER' ? 'selected' : '' }}>Energy & Power</option>
+            <option value="RENEWABLE_ENERGY" {{ old('company_type', $quotation->company_type) == 'RENEWABLE_ENERGY' ? 'selected' : '' }}>Renewable Energy (Solar, Wind)</option>
+            <option value="AGRICULTURE" {{ old('company_type', $quotation->company_type) == 'AGRICULTURE' ? 'selected' : '' }}>Agriculture</option>
+            <option value="ENVIRONMENTAL_SERVICES" {{ old('company_type', $quotation->company_type) == 'ENVIRONMENTAL_SERVICES' ? 'selected' : '' }}>Environmental Services</option>
+            <option value="LEGAL_SERVICES" {{ old('company_type', $quotation->company_type) == 'LEGAL_SERVICES' ? 'selected' : '' }}>Legal Services</option>
+            <option value="CONSULTING_ADVISORY" {{ old('company_type', $quotation->company_type) == 'CONSULTING_ADVISORY' ? 'selected' : '' }}>Consulting & Advisory</option>
+            <option value="HUMAN_RESOURCES" {{ old('company_type', $quotation->company_type) == 'HUMAN_RESOURCES' ? 'selected' : '' }}>Human Resources Services</option>
+            <option value="BPO_KPO" {{ old('company_type', $quotation->company_type) == 'BPO_KPO' ? 'selected' : '' }}>BPO / KPO</option>
+            <option value="SECURITY_SERVICES" {{ old('company_type', $quotation->company_type) == 'SECURITY_SERVICES' ? 'selected' : '' }}>Security Services</option>
+            <option value="FASHION_APPAREL" {{ old('company_type', $quotation->company_type) == 'FASHION_APPAREL' ? 'selected' : '' }}>Fashion & Apparel</option>
+            <option value="TEXTILES" {{ old('company_type', $quotation->company_type) == 'TEXTILES' ? 'selected' : '' }}>Textiles</option>
+            <option value="SPORTS_FITNESS" {{ old('company_type', $quotation->company_type) == 'SPORTS_FITNESS' ? 'selected' : '' }}>Sports & Fitness</option>
+            <option value="NON_PROFIT_NGO" {{ old('company_type', $quotation->company_type) == 'NON_PROFIT_NGO' ? 'selected' : '' }}>Non-Profit / NGO</option>
+            <option value="GOVERNMENT_PUBLIC" {{ old('company_type', $quotation->company_type) == 'GOVERNMENT_PUBLIC' ? 'selected' : '' }}>Government & Public Sector</option>
+            <option value="OTHER" {{ old('company_type', $quotation->company_type) == 'OTHER' ? 'selected' : '' }}>Other</option>
           </select>
         </div>
       </div>
@@ -116,12 +157,73 @@
           @error('nature_of_work')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
+          <label class="hrp-label">State:</label>
+          <select class="Rectangle-29-select @error('state') is-invalid @enderror" name="state">
+            <option value="" disabled {{ old('state', $quotation->state) ? '' : 'selected' }}>SELECT STATE</option>
+            <option value="andhra_pradesh" {{ old('state', $quotation->state) == 'andhra_pradesh' ? 'selected' : '' }}>Andhra Pradesh</option>
+            <option value="arunachal_pradesh" {{ old('state', $quotation->state) == 'arunachal_pradesh' ? 'selected' : '' }}>Arunachal Pradesh</option>
+            <option value="assam" {{ old('state', $quotation->state) == 'assam' ? 'selected' : '' }}>Assam</option>
+            <option value="bihar" {{ old('state', $quotation->state) == 'bihar' ? 'selected' : '' }}>Bihar</option>
+            <option value="chhattisgarh" {{ old('state', $quotation->state) == 'chhattisgarh' ? 'selected' : '' }}>Chhattisgarh</option>
+            <option value="goa" {{ old('state', $quotation->state) == 'goa' ? 'selected' : '' }}>Goa</option>
+            <option value="gujarat" {{ old('state', $quotation->state) == 'gujarat' ? 'selected' : '' }}>Gujarat</option>
+            <option value="haryana" {{ old('state', $quotation->state) == 'haryana' ? 'selected' : '' }}>Haryana</option>
+            <option value="himachal_pradesh" {{ old('state', $quotation->state) == 'himachal_pradesh' ? 'selected' : '' }}>Himachal Pradesh</option>
+            <option value="jharkhand" {{ old('state', $quotation->state) == 'jharkhand' ? 'selected' : '' }}>Jharkhand</option>
+            <option value="karnataka" {{ old('state', $quotation->state) == 'karnataka' ? 'selected' : '' }}>Karnataka</option>
+            <option value="kerala" {{ old('state', $quotation->state) == 'kerala' ? 'selected' : '' }}>Kerala</option>
+            <option value="maharashtra" {{ old('state', $quotation->state) == 'maharashtra' ? 'selected' : '' }}>Maharashtra</option>
+            <option value="madhya_pradesh" {{ old('state', $quotation->state) == 'madhya_pradesh' ? 'selected' : '' }}>Madhya Pradesh</option>
+            <option value="odisha" {{ old('state', $quotation->state) == 'odisha' ? 'selected' : '' }}>Odisha</option>
+            <option value="punjab" {{ old('state', $quotation->state) == 'punjab' ? 'selected' : '' }}>Punjab</option>
+            <option value="rajasthan" {{ old('state', $quotation->state) == 'rajasthan' ? 'selected' : '' }}>Rajasthan</option>
+            <option value="tamil_nadu" {{ old('state', $quotation->state) == 'tamil_nadu' ? 'selected' : '' }}>Tamil Nadu</option>
+            <option value="telangana" {{ old('state', $quotation->state) == 'telangana' ? 'selected' : '' }}>Telangana</option>
+            <option value="uttar_pradesh" {{ old('state', $quotation->state) == 'uttar_pradesh' ? 'selected' : '' }}>Uttar Pradesh</option>
+            <option value="uttarakhand" {{ old('state', $quotation->state) == 'uttarakhand' ? 'selected' : '' }}>Uttarakhand</option>
+            <option value="west_bengal" {{ old('state', $quotation->state) == 'west_bengal' ? 'selected' : '' }}>West Bengal</option>
+            <option value="other" {{ old('state', $quotation->state) == 'other' ? 'selected' : '' }}>Other</option>
+          </select>
+          @error('state')<small class="hrp-error">{{ $message }}</small>@enderror
+        </div>
+        <div>
           <label class="hrp-label">City:</label>
           <select class="Rectangle-29-select @error('city') is-invalid @enderror" name="city">
-            <option value="">Select City</option>
-            <option value="Ahmedabad" {{ old('city', $quotation->city) == 'Ahmedabad' ? 'selected' : '' }}>Ahmedabad</option>
-            <option value="Surat" {{ old('city', $quotation->city) == 'Surat' ? 'selected' : '' }}>Surat</option>
-            <option value="Mumbai" {{ old('city', $quotation->city) == 'Mumbai' ? 'selected' : '' }}>Mumbai</option>
+            <option value="" disabled {{ old('city', $quotation->city) ? '' : 'selected' }}>SELECT CITY</option>
+            <option value="mumbai" {{ old('city', $quotation->city) == 'mumbai' ? 'selected' : '' }}>Mumbai</option>
+            <option value="delhi" {{ old('city', $quotation->city) == 'delhi' ? 'selected' : '' }}>Delhi</option>
+            <option value="bengaluru" {{ old('city', $quotation->city) == 'bengaluru' ? 'selected' : '' }}>Bengaluru</option>
+            <option value="hyderabad" {{ old('city', $quotation->city) == 'hyderabad' ? 'selected' : '' }}>Hyderabad</option>
+            <option value="ahmedabad" {{ old('city', $quotation->city) == 'ahmedabad' ? 'selected' : '' }}>Ahmedabad</option>
+            <option value="chennai" {{ old('city', $quotation->city) == 'chennai' ? 'selected' : '' }}>Chennai</option>
+            <option value="kolkata" {{ old('city', $quotation->city) == 'kolkata' ? 'selected' : '' }}>Kolkata</option>
+            <option value="surat" {{ old('city', $quotation->city) == 'surat' ? 'selected' : '' }}>Surat</option>
+            <option value="pune" {{ old('city', $quotation->city) == 'pune' ? 'selected' : '' }}>Pune</option>
+            <option value="jaipur" {{ old('city', $quotation->city) == 'jaipur' ? 'selected' : '' }}>Jaipur</option>
+            <option value="lucknow" {{ old('city', $quotation->city) == 'lucknow' ? 'selected' : '' }}>Lucknow</option>
+            <option value="kanpur" {{ old('city', $quotation->city) == 'kanpur' ? 'selected' : '' }}>Kanpur</option>
+            <option value="nagpur" {{ old('city', $quotation->city) == 'nagpur' ? 'selected' : '' }}>Nagpur</option>
+            <option value="indore" {{ old('city', $quotation->city) == 'indore' ? 'selected' : '' }}>Indore</option>
+            <option value="thane" {{ old('city', $quotation->city) == 'thane' ? 'selected' : '' }}>Thane</option>
+            <option value="bhopal" {{ old('city', $quotation->city) == 'bhopal' ? 'selected' : '' }}>Bhopal</option>
+            <option value="visakhapatnam" {{ old('city', $quotation->city) == 'visakhapatnam' ? 'selected' : '' }}>Visakhapatnam</option>
+            <option value="patna" {{ old('city', $quotation->city) == 'patna' ? 'selected' : '' }}>Patna</option>
+            <option value="vadodara" {{ old('city', $quotation->city) == 'vadodara' ? 'selected' : '' }}>Vadodara</option>
+            <option value="ghaziabad" {{ old('city', $quotation->city) == 'ghaziabad' ? 'selected' : '' }}>Ghaziabad</option>
+            <option value="ludhiana" {{ old('city', $quotation->city) == 'ludhiana' ? 'selected' : '' }}>Ludhiana</option>
+            <option value="agra" {{ old('city', $quotation->city) == 'agra' ? 'selected' : '' }}>Agra</option>
+            <option value="nashik" {{ old('city', $quotation->city) == 'nashik' ? 'selected' : '' }}>Nashik</option>
+            <option value="faridabad" {{ old('city', $quotation->city) == 'faridabad' ? 'selected' : '' }}>Faridabad</option>
+            <option value="meerut" {{ old('city', $quotation->city) == 'meerut' ? 'selected' : '' }}>Meerut</option>
+            <option value="rajkot" {{ old('city', $quotation->city) == 'rajkot' ? 'selected' : '' }}>Rajkot</option>
+            <option value="varanasi" {{ old('city', $quotation->city) == 'varanasi' ? 'selected' : '' }}>Varanasi</option>
+            <option value="srinagar" {{ old('city', $quotation->city) == 'srinagar' ? 'selected' : '' }}>Srinagar</option>
+            <option value="aurangabad" {{ old('city', $quotation->city) == 'aurangabad' ? 'selected' : '' }}>Aurangabad</option>
+            <option value="dhanbad" {{ old('city', $quotation->city) == 'dhanbad' ? 'selected' : '' }}>Dhanbad</option>
+            <option value="amritsar" {{ old('city', $quotation->city) == 'amritsar' ? 'selected' : '' }}>Amritsar</option>
+            <option value="navi_mumbai" {{ old('city', $quotation->city) == 'navi_mumbai' ? 'selected' : '' }}>Navi Mumbai</option>
+            <option value="ranchi" {{ old('city', $quotation->city) == 'ranchi' ? 'selected' : '' }}>Ranchi</option>
+            <option value="other" {{ old('city', $quotation->city) == 'other' ? 'selected' : '' }}>Other</option>
           </select>
           @error('city')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
@@ -197,15 +299,41 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Company Email: <span class="text-red-500">*</span></label>
-          <input class="Rectangle-29 @error('company_email') is-invalid @enderror" type="email" name="company_email" value="{{ old('company_email', $quotation->company_email) }}" placeholder="Add Mail-Id" required>
+          <div style="position: relative;">
+            <input class="Rectangle-29 @error('company_email') is-invalid @enderror" type="email" name="company_email" id="company_email" value="{{ old('company_email', $quotation->company_email) }}" placeholder="Add Mail-Id" required style="padding-right: 100px;">
+            <button type="button" onclick="generateEmail()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+          </div>
           @error('company_email')
               <small class="hrp-error">{{ $message }}</small>
           @enderror
         </div>
         <div>
-          <label class="hrp-label">Company Password:</label>
-          <input class="Rectangle-29 @error('company_password') is-invalid @enderror" type="password" name="company_password" placeholder="Enter Company Password" value="{{ old('company_password', $quotation->company_password) }}">
+          <label class="hrp-label">Company Password: <span class="text-red-500">*</span></label>
+          <div style="position: relative;">
+            <input class="Rectangle-29 @error('company_password') is-invalid @enderror" type="text" name="company_password" id="company_password" placeholder="Enter Company Password" value="{{ old('company_password', $quotation->company_password) }}" required style="padding-right: 100px;">
+            <button type="button" onclick="generatePassword()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+          </div>
           @error('company_password')<small class="hrp-error">{{ $message }}</small>@enderror
+        </div>
+      </div>
+
+      <!-- Employee Credentials Section -->
+      <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+        <div>
+          <label class="hrp-label">Company Employee Email: <span style="color: #6b7280; font-size: 12px;">(Optional)</span></label>
+          <div style="position: relative;">
+            <input class="Rectangle-29 @error('company_employee_email') is-invalid @enderror" type="email" name="company_employee_email" id="company_employee_email" placeholder="Auto-generated email (optional)" value="{{ old('company_employee_email', $quotation->company_employee_email) }}" style="padding-right: 100px;">
+            <button type="button" onclick="generateEmployeeEmailEdit()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+          </div>
+          @error('company_employee_email')<small class="hrp-error">{{ $message }}</small>@enderror
+        </div>
+        <div>
+          <label class="hrp-label">Company Employee Password: <span style="color: #6b7280; font-size: 12px;">(Optional)</span></label>
+          <div style="position: relative;">
+            <input class="Rectangle-29 @error('company_employee_password') is-invalid @enderror" type="text" name="company_employee_password" id="company_employee_password" placeholder="Auto-generated password (optional)" value="{{ old('company_employee_password', $quotation->company_employee_password) }}" style="padding-right: 100px;">
+            <button type="button" onclick="generateEmployeePasswordEdit()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+          </div>
+          @error('company_employee_password')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
 
@@ -540,22 +668,16 @@
 <div class="Rectangle-30 hrp-compact">
   <div class="hrp-form grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-5" style="margin: 30px 0;">
     <div>
-      <x-date-input 
-        name="amc_start_date" 
-        label="AMC Start From" 
-        :value="old('amc_start_date', $quotation->amc_start_date)" 
-      />
+      <label class="hrp-label">AMC Start From:</label>
+      <input type="text" class="Rectangle-29 date-picker" name="amc_start_date" placeholder="dd/mm/yyyy" value="{{ old('amc_start_date', $quotation->amc_start_date ? $quotation->amc_start_date->format('d/m/Y') : '') }}" autocomplete="off">
     </div>
     <div>
       <label class="hrp-label">AMC Amount:</label>
       <input class="Rectangle-29" name="amc_amount" placeholder="Enter Amount" value="{{ old('amc_amount', $quotation->amc_amount) }}">
     </div>
     <div>
-      <x-date-input 
-        name="project_start_date" 
-        label="Project Start Date" 
-        :value="old('project_start_date', $quotation->project_start_date)" 
-      />
+      <label class="hrp-label">Project Start Date:</label>
+      <input type="text" class="Rectangle-29 date-picker" name="project_start_date" placeholder="dd/mm/yyyy" value="{{ old('project_start_date', $quotation->project_start_date ? $quotation->project_start_date->format('d/m/Y') : '') }}" autocomplete="off">
     </div>
     <div>
       <label class="hrp-label">Completion Time:</label>
@@ -575,11 +697,8 @@
       <input class="Rectangle-29" id="retention_percent" name="retention_percent" type="number" min="0" max="100" step="0.1" placeholder="Enter %" oninput="calculateRetentionAmount()" value="{{ old('retention_percent', $quotation->retention_percent) }}">
     </div>
     <div>
-      <x-date-input 
-        name="tentative_complete_date" 
-        label="Tentative Complete Date" 
-        :value="old('tentative_complete_date', $quotation->tentative_complete_date)" 
-      />
+      <label class="hrp-label">Tentative Complete Date:</label>
+      <input type="text" class="Rectangle-29 date-picker" name="tentative_complete_date" placeholder="dd/mm/yyyy" value="{{ old('tentative_complete_date', $quotation->tentative_complete_date ? $quotation->tentative_complete_date->format('d/m/Y') : '') }}" autocomplete="off">
     </div>
     <div></div>
     <div></div>
@@ -611,11 +730,6 @@
     <div>
       <label class="hrp-label">Company Name:</label>
       <input class="Rectangle-29" name="footer_company_name" value="{{ old('footer_company_name', $quotation->own_company_name ?? 'CHITRI INFOTECH PVT LTD') }}">
-    </div>
-    <div>
-      <label class="hrp-label">Remark:</label>
-      <textarea class="Rectangle-29 Rectangle-29-textarea" name="remark" placeholder="Enter remark or notes" rows="2" style="resize: vertical;">{{ old('remark', $quotation->remark) }}</textarea>
-      @error('remark')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
   </div>
 </div>
@@ -1197,9 +1311,162 @@ document.addEventListener('DOMContentLoaded', function() {
     calculateBasicCostTotal();
     calculateAdditionalCostTotal();
     calculateMaintenanceCostTotal();
-    
-    // Date pickers are now handled by the x-date-input component
 });
+
+// Initialize date pickers with dd/mm/yyyy format
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({
+                    marginTop: '2px',
+                    marginLeft: '0px'
+                });
+            }, 0);
+        }
+    });
+});
+
+// Auto-generate email based on company name
+function generateEmail() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const emailInput = document.getElementById('company_email');
+    
+    if (!companyNameInput || !companyNameInput.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Company Name Required',
+            text: 'Please enter company name first to generate email',
+            confirmButtonColor: '#10b981'
+        });
+        return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    const emailPrefix = companyName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    const randomNum = Math.floor(100 + Math.random() * 900);
+    const email = emailPrefix + randomNum + '@example.com';
+    
+    emailInput.value = email;
+    
+    Swal.fire({
+        icon: 'success',
+        title: 'Email Generated!',
+        html: `<p>Email: <strong style="color: #10b981; font-size: 18px;">${email}</strong></p><p style="color: #6b7280; font-size: 13px; margin-top: 10px;">You can edit this email if needed.</p>`,
+        confirmButtonColor: '#10b981',
+        width: '400px'
+    });
+}
+
+// Auto-generate password based on company name
+function generatePassword() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const passwordInput = document.getElementById('company_password');
+    
+    if (!companyNameInput || !companyNameInput.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Company Name Required',
+            text: 'Please enter company name first to generate password',
+            confirmButtonColor: '#3b82f6'
+        });
+        return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    const prefix = companyName.replace(/[^a-zA-Z]/g, '').substring(0, 3).toLowerCase();
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const specialChars = ['@', '#', '$', '!'];
+    const specialChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+    const password = prefix + randomNum + specialChar;
+    
+    passwordInput.value = password;
+    
+    Swal.fire({
+        icon: 'success',
+        title: 'Password Generated!',
+        html: `<p>Password: <strong style="color: #3b82f6; font-size: 18px;">${password}</strong></p><p style="color: #6b7280; font-size: 13px; margin-top: 10px;">Please save this password securely.</p>`,
+        confirmButtonColor: '#3b82f6',
+        width: '400px'
+    });
+}
+
+// Auto-generate employee email
+function generateEmployeeEmailEdit() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const emailInput = document.getElementById('company_employee_email');
+    
+    if (!companyNameInput || !companyNameInput.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Company Name Required',
+            text: 'Please enter company name first to generate employee email',
+            confirmButtonColor: '#10b981'
+        });
+        return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    
+    // Generate email: company name (alphanumeric only) + "emp" + random 3 digits + @example.com
+    const emailPrefix = companyName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    const randomNum = Math.floor(100 + Math.random() * 900);
+    const email = emailPrefix + 'emp' + randomNum + '@example.com';
+    
+    emailInput.value = email;
+    
+    // Show success message
+    Swal.fire({
+        icon: 'success',
+        title: 'Employee Email Generated!',
+        html: `<p>Email: <strong style="color: #10b981; font-size: 16px;">${email}</strong></p>`,
+        confirmButtonColor: '#10b981',
+        width: '400px'
+    });
+}
+
+// Auto-generate employee password
+function generateEmployeePasswordEdit() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const passwordInput = document.getElementById('company_employee_password');
+    
+    if (!companyNameInput || !companyNameInput.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Company Name Required',
+            text: 'Please enter company name first to generate employee password',
+            confirmButtonColor: '#10b981'
+        });
+        return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    
+    // Generate password: "Emp" + First 3 letters of company name + random 4 digits + special char
+    const prefix = 'Emp' + companyName.replace(/[^a-zA-Z]/g, '').substring(0, 3);
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const specialChars = ['@', '#', '$', '!'];
+    const specialChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+    
+    const password = prefix + randomNum + specialChar;
+    
+    passwordInput.value = password;
+    
+    // Show success message
+    Swal.fire({
+        icon: 'success',
+        title: 'Employee Password Generated!',
+        html: `<p>Password: <strong style="color: #10b981; font-size: 18px;">${password}</strong></p><p style="color: #6b7280; font-size: 13px; margin-top: 10px;">Please save this password securely.</p>`,
+        confirmButtonColor: '#10b981',
+        width: '400px'
+    });
+}
+
 </script>
 @endpush
 @endsection

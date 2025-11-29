@@ -3,26 +3,26 @@
     'label' => 'Date',
     'value' => '',
     'required' => false,
-    'placeholder' => 'dd/mm/yy',
+    'placeholder' => 'dd/mm/yyyy',
     'class' => 'Rectangle-29'
 ])
 
 @php
-    // Format the value to dd/mm/yy if it's a date object or Y-m-d format
+    // Format the value to dd/mm/yyyy if it's a date object or Y-m-d format
     $formattedValue = $value;
     
     if (!empty($value)) {
         try {
             // If it's a Carbon instance or date object
             if (is_object($value) && method_exists($value, 'format')) {
-                $formattedValue = $value->format('d/m/y');
+                $formattedValue = $value->format('d/m/Y');
             }
             // If it's a Y-m-d string, convert it
             elseif (is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
                 $date = \Carbon\Carbon::createFromFormat('Y-m-d', $value);
-                $formattedValue = $date->format('d/m/y');
+                $formattedValue = $date->format('d/m/Y');
             }
-            // If it's already in dd/mm/yy format, keep it
+            // If it's already in dd/mm/yyyy format, keep it
             elseif (is_string($value) && preg_match('/^\d{1,2}\/\d{1,2}\/\d{2,4}$/', $value)) {
                 $formattedValue = $value;
             }
@@ -70,12 +70,12 @@ document.addEventListener('DOMContentLoaded', function() {
         input.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
             
-            // Format as dd/mm/yy
+            // Format as dd/mm/yyyy
             if (value.length >= 2) {
                 value = value.substring(0, 2) + '/' + value.substring(2);
             }
             if (value.length >= 5) {
-                value = value.substring(0, 5) + '/' + value.substring(5, 7);
+                value = value.substring(0, 5) + '/' + value.substring(5, 9);
             }
             
             e.target.value = value;
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (value && !isValidDate(value)) {
                 e.target.classList.add('invalid-date');
                 // Show validation message
-                showDateError(e.target, 'Please enter a valid date in dd/mm/yy format');
+                showDateError(e.target, 'Please enter a valid date in dd/mm/yyyy format');
             } else {
                 e.target.classList.remove('invalid-date');
                 hideDateError(e.target);
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const date = new Date(this.value);
                         const day = String(date.getDate()).padStart(2, '0');
                         const month = String(date.getMonth() + 1).padStart(2, '0');
-                        const year = String(date.getFullYear()).substring(2);
+                        const year = String(date.getFullYear());
                         input.value = day + '/' + month + '/' + year;
                         input.dispatchEvent(new Event('change'));
                     }

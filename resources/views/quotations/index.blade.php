@@ -1,6 +1,12 @@
 @extends('layouts.macos')
 @section('page_title', 'Quotation List')
 
+@push('head')
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+@endpush
+
 @push('styles')
 <style>
 .status-badge {
@@ -74,7 +80,7 @@
         </button>
       </div>
       <input type="text" id="globalSearch" placeholder="Search here.." class="filter-pill" name="search" value="{{ request('search') }}">
-      <a href="{{ route('quotations.export', request()->only(['quotation_no','from_date','to_date','search'])) }}" class="pill-btn pill-success">Excel</a>
+      <a href="{{ route('quotations.export.csv', request()->only(['quotation_no','from_date','to_date','search'])) }}" class="pill-btn pill-success">Excel</a>
       <a href="{{ route('quotations.create') }}" class="pill-btn pill-success">+ Add</a>
     </div>
   </form>
@@ -90,9 +96,29 @@
         <p class="quotation-grid-sub">Code: {{ $quotation->unique_code ?? 'N/A' }} • Updated: {{ $quotation->updated_at ? $quotation->updated_at->format('d M, Y') : 'N/A' }}</p>
         <div class="quotation-grid-meta">
           <div class="quotation-grid-left">
-            <div class="meta-row"><span class="meta-label">Mobile</span><span class="meta-value">{{ $quotation->contact_number_1 ?? 'N/A' }}</span></div>
+            <div class="meta-row"><span class="meta-label">Mobile</span><span class="meta-value">
+              @if($quotation->contact_number_1)
+                @php
+                  $mobile = $quotation->contact_number_1;
+                  // Remove +91 prefix if present
+                  $mobile = preg_replace('/^\+91/', '', $mobile);
+                  echo $mobile;
+                @endphp
+              @else
+                N/A
+              @endif
+            </span></div>
             <div class="meta-row"><span class="meta-label">Next</span><span class="meta-value">{{ $quotation->tentative_complete_date ? $quotation->tentative_complete_date->format('d M, Y') : '-' }}</span></div>
-            <div class="meta-row"><span class="meta-label">Confirm</span><span class="meta-value">{{ (isset($confirmedQuotationIds) && in_array($quotation->id, $confirmedQuotationIds)) ? 'Yes' : 'No' }}</span></div>
+            <div class="meta-row">
+              <span class="meta-label">Confirm</span>
+              <span class="meta-value">
+                @if(in_array($quotation->id, $confirmedQuotationIds ?? []))
+                  <span style="color: #10b981; font-weight: 600;">✓ Yes</span>
+                @else
+                  <span style="color: #ef4444; font-weight: 600;">✗ No</span>
+                @endif
+              </span>
+            </div>
           </div>
           <div class="quotation-grid-actions" onclick="event.stopPropagation()">
             <a class="quotation-grid-action-btn btn-view" href="{{ route('quotations.show', $quotation->id) }}" title="View" aria-label="View">
@@ -104,6 +130,11 @@
             <a class="quotation-grid-action-btn btn-print" href="{{ route('quotations.download', $quotation->id) }}" target="_blank" title="Print" aria-label="Print">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
             </a>
+            @if($quotation->customer_type === 'new' && !$quotation->customer_id && $quotation->company_email && !in_array(strtolower(trim($quotation->company_email)), $existingCompanyEmails))
+            <button type="button" class="quotation-grid-action-btn btn-convert" onclick="confirmConvertToCompany({{ $quotation->id }}, '{{ addslashes($quotation->company_name) }}', '{{ addslashes($quotation->company_email) }}', '{{ addslashes($quotation->company_password ?? '') }}')" title="Convert to Company" aria-label="Convert to Company">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            </button>
+            @endif
           </div>
         </div>
       </div>
@@ -113,35 +144,26 @@
   </div>
 
   <!-- List View -->
-  <div class="quotations-list-view active">
+  <div>
     <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
-      <table style="table-layout: auto; width: 100%; min-width: 1200px;">
-        <colgroup>
-          <col style="width: 140px; min-width: 140px;">
-          <col style="width: 70px; min-width: 70px;">
-          <col style="width: 140px; min-width: 140px;">
-          <col style="width: auto; min-width: 200px;">
-          <col style="width: 110px; min-width: 110px;">
-          <col style="width: 100px; min-width: 100px;">
-          <col style="width: 110px; min-width: 110px;">
-          <col style="width: 90px; min-width: 90px;">
-          <col style="width: 80px; min-width: 80px;">
-        </colgroup>
+      <table style="table-layout: auto; width: 100%;">
         <thead>
           <tr>
-            <th style="text-align: center;">Action</th>
-            <th>Sr.No.</th>
-            <th>Code</th>
-            <th>Company Name</th>
-            <th>Mobile</th>
-            <th>Update</th>
-            <th>Next Update</th>
-            <th>Remark</th>
-            <th>Confirm</th>
+            <th style="text-align: center; width: 180px;">Action</th>
+            <th style="width: 70px;">Sr.No.</th>
+            <th style="width: 140px;">Code</th>
+            <th style="min-width: 200px;">Company Name</th>
+            <th style="width: 120px;">Mobile</th>
+            <th style="width: 110px;">Update</th>
+            <th style="width: 110px;">Next Update</th>
+            <th style="width: 80px; text-align: center;">Confirm</th>
           </tr>
         </thead>
         <tbody>
           @forelse($quotations as $index => $quotation)
+          @php
+            $isConfirmed = in_array($quotation->id, $confirmedQuotationIds ?? []);
+          @endphp
           <tr>
             <td style="text-align: center; vertical-align: middle;">
               <div class="action-icons">
@@ -157,7 +179,7 @@
                   <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
                 </a>
 
-                @if(in_array($quotation->id, $confirmedQuotationIds ?? []))
+                @if($isConfirmed)
                   <a href="{{ route('quotations.template-list', $quotation->id) }}" title="View Template List" aria-label="View Template List">
                     <img class="action-icon" src="{{ asset('action_icon/view_temp_list.svg') }}" alt="Template List">
                   </a>
@@ -166,39 +188,50 @@
                     <img class="action-icon" src="{{ asset('action_icon/follow-up.svg') }}" alt="Follow Up">
                   </a>
                 @endif
-                   @if($quotation->customer_type === 'new' && !$quotation->customer_id && $quotation->company_email && !in_array(strtolower(trim($quotation->company_email)), $existingCompanyEmails))
-                <button type="button" onclick="confirmConvertToCompany({{ $quotation->id }}, '{{ addslashes($quotation->company_name) }}')" title="Convert to Company" aria-label="Convert to Company" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
+                
+                <button type="button" onclick="confirmDelete({{ $quotation->id }})" title="Delete Quotation" aria-label="Delete Quotation" >
+                  <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+                </button>
+
+                 @if($quotation->customer_type === 'new' && !$quotation->customer_id && $quotation->company_email && !in_array(strtolower(trim($quotation->company_email)), $existingCompanyEmails))
+                <button type="button" onclick="confirmConvertToCompany({{ $quotation->id }}, '{{ addslashes($quotation->company_name) }}', '{{ addslashes($quotation->company_email) }}', '{{ addslashes($quotation->company_password ?? '') }}')" title="Convert to Company" aria-label="Convert to Company">
                   <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert to Company" class="action-icon">
                 </button>
               @endif
-
-                <button type="button" onclick="confirmDelete({{ $quotation->id }})" title="Delete Quotation" aria-label="Delete Quotation" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
-                  <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
-                </button>
               </div>
             </td>
             <td>{{ $quotations->firstItem() + $index }}</td>
             <td>{{ $quotation->unique_code ?? 'N/A' }}</td> 
             <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $quotation->company_name ?? 'N/A' }}">{{ $quotation->company_name ?? 'N/A' }}</td>
-            <td>{{ $quotation->contact_number_1 ?? 'N/A' }}</td>
+            <td>
+              @if($quotation->contact_number_1)
+                @php
+                  $mobile = $quotation->contact_number_1;
+                  // Remove +91 prefix if present
+                  $mobile = preg_replace('/^\+91/', '', $mobile);
+                  echo $mobile;
+                @endphp
+              @else
+                N/A
+              @endif
+            </td>
             <td>{{ $quotation->updated_at ? $quotation->updated_at->format('d/m/Y') : 'N/A' }}</td>
             <td>{{ $quotation->tentative_complete_date ? $quotation->tentative_complete_date->format('d/m/Y') : 'N/A' }}</td>
-            <td>{{ ucfirst($quotation->status ?? 'Draft') }}</td>
-            <td>
-              @if(in_array($quotation->id, $confirmedQuotationIds ?? []))
-                <div style="width: 20px; height: 20px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                  <span style="color: white; font-size: 12px;">✓</span>
+            <td style="text-align: center;">
+              @if($isConfirmed)
+                <div style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;" title="Confirmed - ID: {{ $quotation->id }}">
+                  <span style="color: white; font-size: 14px; font-weight: bold;">✓</span>
                 </div>
               @else
-                <div style="width: 20px; height: 20px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                  <span style="color: white; font-size: 12px;">✗</span>
+                <div style="width: 24px; height: 24px; background: #ef4444; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;" title="Not Confirmed - ID: {{ $quotation->id }}">
+                  <span style="color: white; font-size: 14px; font-weight: bold;">✗</span>
                 </div>
               @endif
             </td>
           </tr>
           @empty
           <tr>
-            <td colspan="9" style="text-align: center; padding: 20px;">No quotations found</td>
+            <td colspan="8" style="text-align: center; padding: 20px;">No quotations found</td>
           </tr>
           @endforelse
         </tbody>
@@ -234,39 +267,215 @@
 
 @push('scripts')
 <script>
+// Check for success message with credentials
+document.addEventListener('DOMContentLoaded', function() {
+  @if(session('success'))
+    const successMessage = "{{ session('success') }}";
+    
+    // Check if message contains company credentials
+    if (successMessage.includes('|||COMPANY_CREATED|||')) {
+      const parts = successMessage.split('|||');
+      const message = parts[0];
+      const companyEmail = parts[2];
+      const companyPassword = parts[3];
+      
+      let employeeEmail = '';
+      let employeePassword = '';
+      let hasEmployeeCredentials = false;
+      
+      if (parts.length > 4 && parts[4] === 'EMPLOYEE_CREATED') {
+        employeeEmail = parts[5];
+        employeePassword = parts[6];
+        hasEmployeeCredentials = true;
+      }
+      
+      let credentialsHtml = `
+        <div style="text-align: left; padding: 10px;">
+          <p style="margin-bottom: 15px; color: #1f2937;">${message}</p>
+          
+          <!-- Company Credentials -->
+          <div style="background: #eff6ff; border: 2px solid #3b82f6; padding: 15px; border-radius: 8px; margin-top: 15px;">
+            <p style="margin: 0 0 10px 0; font-weight: 700; color: #1e40af; font-size: 15px;">🏢 Company Login Credentials</p>
+            <div style="background: white; padding: 12px; border-radius: 6px; margin-top: 10px;">
+              <p style="margin: 8px 0; color: #374151; font-size: 14px;">
+                <strong>Email:</strong> <span style="color: #3b82f6; font-family: monospace;">${companyEmail}</span>
+              </p>
+              <p style="margin: 8px 0; color: #374151; font-size: 14px;">
+                <strong>Password:</strong> <span style="color: #3b82f6; font-family: monospace;">${companyPassword}</span>
+              </p>
+            </div>
+          </div>`;
+      
+      if (hasEmployeeCredentials) {
+        credentialsHtml += `
+          <!-- Employee Credentials -->
+          <div style="background: #f0fdf4; border: 2px solid #10b981; padding: 15px; border-radius: 8px; margin-top: 15px;">
+            <p style="margin: 0 0 10px 0; font-weight: 700; color: #065f46; font-size: 15px;">👤 Employee Login Credentials</p>
+            <div style="background: white; padding: 12px; border-radius: 6px; margin-top: 10px;">
+              <p style="margin: 8px 0; color: #374151; font-size: 14px;">
+                <strong>Email:</strong> <span style="color: #10b981; font-family: monospace;">${employeeEmail}</span>
+              </p>
+              <p style="margin: 8px 0; color: #374151; font-size: 14px;">
+                <strong>Password:</strong> <span style="color: #10b981; font-family: monospace;">${employeePassword}</span>
+              </p>
+            </div>
+          </div>`;
+      }
+      
+      credentialsHtml += `
+          <p style="margin: 15px 0 0 0; color: #6b7280; font-size: 12px; text-align: center;">
+            ⚠️ Please save these credentials securely. They can be used to login to the portal.
+          </p>
+        </div>`;
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Company Created Successfully!',
+        html: credentialsHtml,
+        confirmButtonColor: '#10b981',
+        confirmButtonText: 'Got it!',
+        width: '600px',
+        customClass: {
+          popup: 'perfect-swal-popup'
+        }
+      }).then(() => {
+        // Reload page to update the convert button visibility
+        window.location.reload();
+      });
+    } else {
+      // Regular success message
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: successMessage,
+        confirmButtonColor: '#10b981',
+        width: '400px',
+        customClass: {
+          popup: 'perfect-swal-popup'
+        }
+      }).then(() => {
+        // Reload page to update the list
+        window.location.reload();
+      });
+    }
+  @endif
+  
+  @if(session('status'))
+    // Show status message (from follow-up confirmation, etc.)
+    Swal.fire({
+      icon: 'success',
+      title: 'Success!',
+      text: "{{ session('status') }}",
+      confirmButtonColor: '#10b981',
+      width: '400px',
+      timer: 2000,
+      showConfirmButton: true
+    });
+  @endif
+});
+
 function confirmDelete(id) {
-  if(confirm('Are you sure you want to delete this quotation?')) {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = `/GitVraj/HrPortal/quotations/${id}`;
-    form.innerHTML = `
-      <input type="hidden" name="_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="_method" value="DELETE">
-    `;
-    document.body.appendChild(form);
-    form.submit();
-  }
+  Swal.fire({
+    title: 'Delete this quotation?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel',
+    width: '400px',
+    customClass: {
+      popup: 'perfect-swal-popup'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: 'Deleting...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/GitVraj/HrPortal/quotations/${id}`;
+      form.innerHTML = `
+        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="_method" value="DELETE">
+      `;
+      document.body.appendChild(form);
+      form.submit();
+    }
+  });
 }
 
-function confirmConvertToCompany(id, companyName) {
-  const message = `Convert "${companyName}" to Company?\n\nThis will:\n• Create a new company record\n• Create a user account (if email/password provided)\n• Link the quotation to the new company\n• Change customer type from "New" to "Existing"\n\nProceed?`;
+function confirmConvertToCompany(id, companyName, companyEmail, companyPassword) {
+  // Build the HTML content for the confirmation
+  let htmlContent = `
+    <div style="text-align: left; padding: 10px;">
+      <p style="margin-bottom: 15px; font-weight: 600; color: #1f2937;">This will:</p>
+      <ul style="list-style: none; padding-left: 0; margin-bottom: 15px;">
+        <li style="padding: 5px 0; color: #4b5563;">✓ Create a new company record</li>
+        <li style="padding: 5px 0; color: #4b5563;">✓ ${companyPassword ? 'Create a user account' : 'No user account (password not provided)'}</li>
+        <li style="padding: 5px 0; color: #4b5563;">✓ Link the quotation to the new company</li>
+        <li style="padding: 5px 0; color: #4b5563;">✓ Change customer type from "New" to "Existing"</li>
+      </ul>
+      <div style="background: #f3f4f6; padding: 12px; border-radius: 8px; margin-top: 15px;">
+        <p style="margin: 0 0 8px 0; font-weight: 600; color: #374151; font-size: 14px;">Company Details:</p>
+        <p style="margin: 5px 0; color: #6b7280; font-size: 13px;"><strong>Email:</strong> ${companyEmail}</p>
+        ${companyPassword ? `<p style="margin: 5px 0; color: #6b7280; font-size: 13px;"><strong>Password:</strong> ${companyPassword}</p>` : '<p style="margin: 5px 0; color: #ef4444; font-size: 13px;"><strong>Password:</strong> Not provided</p>'}
+      </div>
+    </div>
+  `;
   
-  if(confirm(message)) {
-    // Show loading state
-    const button = event.target.closest('button');
-    const originalContent = button.innerHTML;
-    button.innerHTML = '<span style="color: #ffa500;">Converting...</span>';
-    button.disabled = true;
-    
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = `/GitVraj/HrPortal/quotations/${id}/convert-to-company`;
-    form.innerHTML = `
-      <input type="hidden" name="_token" value="{{ csrf_token() }}">
-    `;
-    document.body.appendChild(form);
-    form.submit();
-  }
+  Swal.fire({
+    title: `Convert "${companyName}" to Company?`,
+    html: htmlContent,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3b82f6',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, Convert',
+    cancelButtonText: 'Cancel',
+    width: '500px',
+    customClass: {
+      popup: 'perfect-swal-popup'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Show loading state
+      const button = event.target.closest('button');
+      if (button) {
+        const originalContent = button.innerHTML;
+        button.innerHTML = '<span style="color: #ffa500;">Converting...</span>';
+        button.disabled = true;
+      }
+      
+      // Show loading alert
+      Swal.fire({
+        title: 'Converting...',
+        text: 'Please wait while we create the company',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/GitVraj/HrPortal/quotations/${id}/convert-to-company`;
+      form.innerHTML = `
+        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+      `;
+      document.body.appendChild(form);
+      form.submit();
+    }
+  });
 }
 
 // Auto-submit on search input
@@ -364,5 +573,9 @@ document.addEventListener('DOMContentLoaded', function() {
   .quotation-grid-action-btn.btn-print svg { color:#6366f1; }
   .quotation-grid-action-btn.btn-print:hover { background:#6366f1; }
   .quotation-grid-action-btn.btn-print:hover svg { color:#fff; }
+  .quotation-grid-action-btn.btn-convert { border-color:#10b981; background:#d1fae5; }
+  .quotation-grid-action-btn.btn-convert svg { color:#10b981; }
+  .quotation-grid-action-btn.btn-convert:hover { background:#10b981; }
+  .quotation-grid-action-btn.btn-convert:hover svg { color:#fff; }
 </style>
 @endpush

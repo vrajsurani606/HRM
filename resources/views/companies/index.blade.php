@@ -189,6 +189,104 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+// Check for success message with credentials
+document.addEventListener('DOMContentLoaded', function() {
+  @if(session('success'))
+    const successMessage = "{{ session('success') }}";
+    
+    // Check if message contains user credentials
+    if (successMessage.includes('|||COMPANY_USER_CREATED|||') || successMessage.includes('|||EMPLOYEE_USER_CREATED|||')) {
+      const parts = successMessage.split('|||');
+      const message = parts[0];
+      
+      let companyEmail = '';
+      let companyPassword = '';
+      let employeeEmail = '';
+      let employeePassword = '';
+      let hasCompanyUser = false;
+      let hasEmployeeUser = false;
+      
+      // Parse company user credentials
+      for (let i = 0; i < parts.length; i++) {
+        if (parts[i] === 'COMPANY_USER_CREATED') {
+          companyEmail = parts[i + 1];
+          companyPassword = parts[i + 2];
+          hasCompanyUser = true;
+        }
+        if (parts[i] === 'EMPLOYEE_USER_CREATED') {
+          employeeEmail = parts[i + 1];
+          employeePassword = parts[i + 2];
+          hasEmployeeUser = true;
+        }
+      }
+      
+      let credentialsHtml = `
+        <div style="text-align: left; padding: 10px;">
+          <p style="margin-bottom: 15px; color: #1f2937;">${message}</p>`;
+      
+      if (hasCompanyUser) {
+        credentialsHtml += `
+          <div style="background: #eff6ff; border: 2px solid #3b82f6; padding: 15px; border-radius: 8px; margin-top: 15px;">
+            <p style="margin: 0 0 10px 0; font-weight: 700; color: #1e40af; font-size: 15px;">🏢 Company Login Credentials</p>
+            <div style="background: white; padding: 12px; border-radius: 6px; margin-top: 10px;">
+              <p style="margin: 8px 0; color: #374151; font-size: 14px;">
+                <strong>Email:</strong> <span style="color: #3b82f6; font-family: monospace;">${companyEmail}</span>
+              </p>
+              <p style="margin: 8px 0; color: #374151; font-size: 14px;">
+                <strong>Password:</strong> <span style="color: #3b82f6; font-family: monospace;">${companyPassword}</span>
+              </p>
+            </div>
+          </div>`;
+      }
+      
+      if (hasEmployeeUser) {
+        credentialsHtml += `
+          <div style="background: #f0fdf4; border: 2px solid #10b981; padding: 15px; border-radius: 8px; margin-top: 15px;">
+            <p style="margin: 0 0 10px 0; font-weight: 700; color: #065f46; font-size: 15px;">👤 Employee Login Credentials</p>
+            <div style="background: white; padding: 12px; border-radius: 6px; margin-top: 10px;">
+              <p style="margin: 8px 0; color: #374151; font-size: 14px;">
+                <strong>Email:</strong> <span style="color: #10b981; font-family: monospace;">${employeeEmail}</span>
+              </p>
+              <p style="margin: 8px 0; color: #374151; font-size: 14px;">
+                <strong>Password:</strong> <span style="color: #10b981; font-family: monospace;">${employeePassword}</span>
+              </p>
+            </div>
+          </div>`;
+      }
+      
+      credentialsHtml += `
+          <p style="margin: 15px 0 0 0; color: #6b7280; font-size: 12px; text-align: center;">
+            ⚠️ Please save these credentials securely. They can be used to login to the portal.
+          </p>
+        </div>`;
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Company Created Successfully!',
+        html: credentialsHtml,
+        confirmButtonColor: '#10b981',
+        confirmButtonText: 'Got it!',
+        width: '600px',
+        customClass: {
+          popup: 'perfect-swal-popup'
+        }
+      });
+    } else {
+      // Regular success message
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: successMessage,
+        confirmButtonColor: '#10b981',
+        width: '400px',
+        customClass: {
+          popup: 'perfect-swal-popup'
+        }
+      });
+    }
+  @endif
+});
+
 function confirmDelete(form) {
   Swal.fire({
     title: 'Are you sure?',

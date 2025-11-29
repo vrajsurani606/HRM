@@ -66,6 +66,140 @@ class PerformaController extends Controller
         
         return view('performas.index', compact('performas'));
     }
+    
+    public function export(Request $request)
+    {
+        try {
+            $query = Proforma::query()->orderBy('created_at', 'desc');
+            
+            // Apply filters if provided
+            if ($request->filled('company_name')) {
+                $query->where('company_name', 'like', '%' . $request->company_name . '%');
+            }
+            
+            if ($request->filled('unique_code')) {
+                $query->where('unique_code', 'like', '%' . $request->unique_code . '%');
+            }
+            
+            if ($request->filled('mobile_no')) {
+                $query->where('mobile_no', 'like', '%' . $request->mobile_no . '%');
+            }
+            
+            if ($request->filled('from_date')) {
+                $query->whereDate('proforma_date', '>=', $request->from_date);
+            }
+            
+            if ($request->filled('to_date')) {
+                $query->whereDate('proforma_date', '<=', $request->to_date);
+            }
+            
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('unique_code', 'like', '%' . $search . '%')
+                      ->orWhere('company_name', 'like', '%' . $search . '%')
+                      ->orWhere('mobile_no', 'like', '%' . $search . '%');
+                });
+            }
+            
+            $performas = $query->get();
+            
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\PerformasExport($performas), 
+                'performas_' . date('Y-m-d_His') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            \Log::error('Error exporting performas: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error exporting performas: ' . $e->getMessage());
+        }
+    }
+    
+    public function exportCsv(Request $request)
+    {
+        $query = Proforma::query()->latest();
+
+        if ($request->filled('from_date')) {
+            $query->whereDate('proforma_date', '>=', $request->input('from_date'));
+        }
+
+        if ($request->filled('to_date')) {
+            $query->whereDate('proforma_date', '<=', $request->input('to_date'));
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('company_name', 'like', "%{$search}%")
+                  ->orWhere('unique_code', 'like', "%{$search}%")
+                  ->orWhere('mobile_no', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('company_name')) {
+            $query->where('company_name', 'like', '%' . $request->company_name . '%');
+        }
+
+        if ($request->filled('unique_code')) {
+            $query->where('unique_code', 'like', '%' . $request->unique_code . '%');
+        }
+
+        if ($request->filled('mobile_no')) {
+            $query->where('mobile_no', 'like', '%' . $request->mobile_no . '%');
+        }
+
+        $performas = $query->get();
+
+        $fileName = 'performas_' . now()->format('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        $callback = function () use ($performas) {
+            $handle = fopen('php://output', 'w');
+
+            fputcsv($handle, [
+                'ID',
+                'Proforma No',
+                'Proforma Date',
+                'Bill To',
+                'Mobile No',
+                'Address',
+                'GST No',
+                'Grand Total',
+                'Discount',
+                'Total Tax',
+                'Total Amount',
+                'Type of Billing',
+                'Created At',
+                'Updated At',
+            ]);
+
+            foreach ($performas as $proforma) {
+                fputcsv($handle, [
+                    $proforma->id,
+                    $proforma->unique_code,
+                    optional($proforma->proforma_date)->format('d/m/Y'),
+                    $proforma->company_name,
+                    $proforma->mobile_no,
+                    $proforma->address,
+                    $proforma->gst_no,
+                    number_format($proforma->sub_total ?? 0, 2),
+                    number_format($proforma->discount_amount ?? 0, 2),
+                    number_format($proforma->total_tax_amount ?? 0, 2),
+                    number_format($proforma->final_amount ?? 0, 2),
+                    $proforma->type_of_billing,
+                    optional($proforma->created_at)->format('d/m/Y H:i:s'),
+                    optional($proforma->updated_at)->format('d/m/Y H:i:s'),
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 
     public function create(Request $request): View
     {
@@ -104,12 +238,12 @@ class PerformaController extends Controller
             $validated = $request->validate([
                 'quotation_id' => ['nullable', 'integer', 'exists:quotations,id'],
                 'template_index' => ['nullable', 'integer'],
-                'proforma_date' => ['required', 'date'],
+                'proforma_date' => ['required', 'date_format:d/m/Y'],
                 'company_name' => ['required', 'string', 'max:255'],
                 'bill_no' => ['nullable', 'string', 'max:255'],
                 'address' => ['nullable', 'string', 'max:500'],
                 'gst_no' => ['nullable', 'string', 'max:50'],
-                'mobile_no' => ['nullable', 'regex:/^\d{10}$/'],
+                'mobile_no' => ['nullable', 'string', 'max:20'],
                 'type_of_billing' => ['nullable', 'string', 'max:255'],
                 'sub_total' => ['required', 'numeric', 'min:0.01'],
                 'discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
@@ -189,6 +323,15 @@ class PerformaController extends Controller
                                             ($validated['sgst_amount'] ?? 0) + 
                                             ($validated['igst_amount'] ?? 0);
             
+            // Convert proforma_date from dd/mm/yyyy to Y-m-d
+            if (!empty($validated['proforma_date'])) {
+                try {
+                    $validated['proforma_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['proforma_date'])->format('Y-m-d');
+                } catch (\Exception $e) {
+                    // If parsing fails, leave as is
+                }
+            }
+            
             $proforma = Proforma::create($validated);
             
             return redirect()->route('performas.index')
@@ -220,12 +363,12 @@ class PerformaController extends Controller
             
             $validated = $request->validate([
                 'quotation_id' => ['nullable', 'integer', 'exists:quotations,id'],
-                'proforma_date' => ['required', 'date'],
+                'proforma_date' => ['required', 'date_format:d/m/Y'],
                 'company_name' => ['required', 'string', 'max:255'],
                 'bill_no' => ['nullable', 'string', 'max:255'],
                 'address' => ['nullable', 'string', 'max:500'],
                 'gst_no' => ['nullable', 'string', 'max:50'],
-                'mobile_no' => ['nullable', 'regex:/^\d{10}$/'],
+                'mobile_no' => ['nullable', 'string', 'max:20'],
                 'type_of_billing' => ['nullable', 'string', 'max:255'],
                 'sub_total' => ['required', 'numeric', 'min:0.01'],
                 'discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
@@ -294,6 +437,15 @@ class PerformaController extends Controller
             $validated['total_tax_amount'] = ($validated['cgst_amount'] ?? 0) + 
                                             ($validated['sgst_amount'] ?? 0) + 
                                             ($validated['igst_amount'] ?? 0);
+            
+            // Convert proforma_date from dd/mm/yyyy to Y-m-d
+            if (!empty($validated['proforma_date'])) {
+                try {
+                    $validated['proforma_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['proforma_date'])->format('Y-m-d');
+                } catch (\Exception $e) {
+                    // If parsing fails, leave as is
+                }
+            }
             
             $proforma->update($validated);
             

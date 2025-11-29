@@ -53,7 +53,7 @@
         
         <div>
           <label class="hrp-label">Invoice Date: <span class="text-red-500">*</span></label>
-          <input type="date" class="Rectangle-29 @error('invoice_date') is-invalid @enderror" name="invoice_date" value="{{ old('invoice_date', $invoice->invoice_date ? $invoice->invoice_date->format('Y-m-d') : '') }}" required>
+          <input type="text" class="Rectangle-29 date-picker @error('invoice_date') is-invalid @enderror" name="invoice_date" placeholder="dd/mm/yyyy" value="{{ old('invoice_date', $invoice->invoice_date ? $invoice->invoice_date->format('d/m/Y') : '') }}" autocomplete="off" required>
           @error('invoice_date')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
@@ -101,3 +101,31 @@
 </form>
 
 @endsection
+
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<script>
+  // Initialize date picker
+  $(document).ready(function() {
+    $('.date-picker').datepicker({
+      dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
+      changeMonth: true,
+      changeYear: true,
+      yearRange: '-10:+10',
+      showButtonPanel: true,
+      beforeShow: function(input, inst) {
+        setTimeout(function() {
+          inst.dpDiv.css({
+            marginTop: '2px',
+            marginLeft: '0px'
+          });
+        }, 0);
+      }
+    });
+  });
+</script>
+@endpush

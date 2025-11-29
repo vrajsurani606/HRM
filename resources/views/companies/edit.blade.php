@@ -357,30 +357,39 @@
           
           <div style="margin-bottom: 8px;">
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Password</label>
-            <input name="company_password" type="password" placeholder="Leave blank to keep current password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;" autocomplete="new-password">
+            <div style="position: relative;">
+              <input name="company_password" id="company_password" type="text" placeholder="Leave blank to keep current password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;" autocomplete="new-password">
+              <button type="button" onclick="generateCompanyPassword()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+            </div>
             @error('company_password')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
           
           <div style="margin-bottom: 8px;">
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Confirm Password</label>
-            <input name="company_password_confirmation" type="password" placeholder="Confirm Company Password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;" autocomplete="new-password">
+            <input name="company_password_confirmation" id="company_password_confirmation" type="text" placeholder="Confirm Company Password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;" autocomplete="new-password">
           </div>
           
           <div style="margin-bottom: 8px;">
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Employee Email</label>
-            <input name="company_employee_email" type="email" placeholder="Enter Company Employee Email" value="{{ old('company_employee_email', $company->company_employee_email) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
+            <div style="position: relative;">
+              <input name="company_employee_email" id="company_employee_email" type="email" placeholder="Enter Company Employee Email" value="{{ old('company_employee_email', $company->company_employee_email) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;">
+              <button type="button" onclick="generateEmployeeEmailEdit()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+            </div>
             @error('company_employee_email')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
           
           <div style="margin-bottom: 8px;">
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Employee Password</label>
-            <input name="company_employee_password" type="password" placeholder="Leave blank to keep current password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;" autocomplete="new-password">
+            <div style="position: relative;">
+              <input name="company_employee_password" id="company_employee_password" type="text" placeholder="Leave blank to keep current password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;" autocomplete="new-password">
+              <button type="button" onclick="generateEmployeePasswordEdit()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
+            </div>
             @error('company_employee_password')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
           
           <div style="margin-bottom: 8px;">
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Confirm Employee Password</label>
-            <input name="company_employee_password_confirmation" type="password" placeholder="Confirm Employee Password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;" autocomplete="new-password">
+            <input name="company_employee_password_confirmation" id="company_employee_password_confirmation" type="text" placeholder="Confirm Employee Password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;" autocomplete="new-password">
           </div> 
           
           <div class="md:col-span-2">
@@ -450,6 +459,118 @@
       return false;
     }
   });
+
+  // Auto-generate company password
+  function generateCompanyPassword() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const passwordInput = document.getElementById('company_password');
+    const confirmPasswordInput = document.getElementById('company_password_confirmation');
+    
+    if (!companyNameInput || !companyNameInput.value) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Company Name Required',
+        text: 'Please enter company name first to generate password',
+        confirmButtonColor: '#3b82f6'
+      });
+      return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    
+    // Generate password: First 3 letters of company name + random 4 digits + special char
+    const prefix = companyName.replace(/[^a-zA-Z]/g, '').substring(0, 3).toLowerCase();
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const specialChars = ['@', '#', '$', '!'];
+    const specialChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+    
+    const password = prefix + randomNum + specialChar;
+    
+    passwordInput.value = password;
+    confirmPasswordInput.value = password;
+    
+    // Show success message
+    Swal.fire({
+      icon: 'success',
+      title: 'Password Generated!',
+      html: `<p>Password: <strong style="color: #3b82f6; font-size: 18px;">${password}</strong></p><p style="color: #6b7280; font-size: 13px; margin-top: 10px;">Please save this password securely.</p>`,
+      confirmButtonColor: '#3b82f6',
+      width: '400px'
+    });
+  }
+
+  // Auto-generate employee email
+  function generateEmployeeEmailEdit() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const emailInput = document.getElementById('company_employee_email');
+    
+    if (!companyNameInput || !companyNameInput.value) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Company Name Required',
+        text: 'Please enter company name first to generate employee email',
+        confirmButtonColor: '#10b981'
+      });
+      return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    
+    // Generate email: company name (alphanumeric only) + "emp" + random 3 digits + @example.com
+    const emailPrefix = companyName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    const randomNum = Math.floor(100 + Math.random() * 900);
+    const email = emailPrefix + 'emp' + randomNum + '@example.com';
+    
+    emailInput.value = email;
+    
+    // Show success message
+    Swal.fire({
+      icon: 'success',
+      title: 'Employee Email Generated!',
+      html: `<p>Email: <strong style="color: #10b981; font-size: 16px;">${email}</strong></p>`,
+      confirmButtonColor: '#10b981',
+      width: '400px'
+    });
+  }
+
+  // Auto-generate employee password
+  function generateEmployeePasswordEdit() {
+    const companyNameInput = document.querySelector('input[name="company_name"]');
+    const passwordInput = document.getElementById('company_employee_password');
+    const confirmPasswordInput = document.getElementById('company_employee_password_confirmation');
+    
+    if (!companyNameInput || !companyNameInput.value) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Company Name Required',
+        text: 'Please enter company name first to generate employee password',
+        confirmButtonColor: '#10b981'
+      });
+      return;
+    }
+    
+    const companyName = companyNameInput.value.trim();
+    
+    // Generate password: "Emp" + First 3 letters of company name + random 4 digits + special char
+    const prefix = 'Emp' + companyName.replace(/[^a-zA-Z]/g, '').substring(0, 3);
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const specialChars = ['@', '#', '$', '!'];
+    const specialChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+    
+    const password = prefix + randomNum + specialChar;
+    
+    passwordInput.value = password;
+    confirmPasswordInput.value = password;
+    
+    // Show success message
+    Swal.fire({
+      icon: 'success',
+      title: 'Employee Password Generated!',
+      html: `<p>Password: <strong style="color: #10b981; font-size: 18px;">${password}</strong></p><p style="color: #6b7280; font-size: 13px; margin-top: 10px;">Please save this password securely.</p>`,
+      confirmButtonColor: '#10b981',
+      width: '400px'
+    });
+  }
 
   // Existing code
   (function(){

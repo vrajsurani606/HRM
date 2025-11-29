@@ -46,7 +46,7 @@ class QuotationController extends Controller
             $query = Quotation::with(['followUps' => function ($q) {
                 $q->where('is_confirm', true)->latest();
             }])
-                ->select('id', 'unique_code', 'company_name', 'contact_number_1', 'quotation_date', 'service_contract_amount', 'created_at', 'updated_at', 'tentative_complete_date', 'remark', 'status', 'customer_type', 'company_email', 'customer_id');
+                ->select('id', 'unique_code', 'company_name', 'contact_number_1', 'quotation_date', 'service_contract_amount', 'created_at', 'updated_at', 'tentative_complete_date', 'customer_type', 'company_email', 'customer_id');
             
             // Handle sorting
             $sortBy = $request->get('sort', 'created_at');
@@ -136,6 +136,7 @@ class QuotationController extends Controller
             $confirmedQuotationIds = QuotationFollowUp::where('is_confirm', true)
                 ->pluck('quotation_id')
                 ->unique()
+                ->values()
                 ->toArray();
             
             // Get emails of existing companies to check for duplicates
@@ -202,6 +203,99 @@ class QuotationController extends Controller
             return redirect()->back()->with('error', 'Error exporting quotations: ' . $e->getMessage());
         }
     }
+    
+    /**
+     * Export quotations to CSV
+     */
+    public function exportCsv(Request $request)
+    {
+        $query = Quotation::query()->latest();
+
+        if ($request->filled('from_date')) {
+            $query->whereDate('quotation_date', '>=', $request->input('from_date'));
+        }
+
+        if ($request->filled('to_date')) {
+            $query->whereDate('quotation_date', '<=', $request->input('to_date'));
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('company_name', 'like', "%{$search}%")
+                  ->orWhere('unique_code', 'like', "%{$search}%")
+                  ->orWhere('contact_number_1', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('quotation_no')) {
+            $query->where('unique_code', 'like', '%' . $request->quotation_no . '%');
+        }
+
+        $quotations = $query->get();
+
+        $fileName = 'quotations_' . now()->format('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        $callback = function () use ($quotations) {
+            $handle = fopen('php://output', 'w');
+
+            // Header row
+            fputcsv($handle, [
+                'ID',
+                'Unique Code',
+                'Quotation Date',
+                'Company Name',
+                'Contact Person',
+                'Contact Number',
+                'Email',
+                'Address',
+                'City',
+                'State',
+                'GST No',
+                'PAN No',
+                'Contract Amount',
+                'Tentative Complete Date',
+                'Customer Type',
+                'Created At',
+                'Updated At',
+            ]);
+
+            foreach ($quotations as $quotation) {
+                // Remove +91 prefix from mobile
+                $mobile = $quotation->contact_number_1 ?? '';
+                $mobile = preg_replace('/^\+91/', '', $mobile);
+                
+                fputcsv($handle, [
+                    $quotation->id,
+                    $quotation->unique_code,
+                    optional($quotation->quotation_date)->format('d/m/Y'),
+                    $quotation->company_name,
+                    $quotation->contact_person_1,
+                    $mobile,
+                    $quotation->company_email,
+                    $quotation->address,
+                    $quotation->city,
+                    $quotation->state,
+                    $quotation->gst_no,
+                    $quotation->pan_no,
+                    number_format($quotation->service_contract_amount ?? 0, 2),
+                    optional($quotation->tentative_complete_date)->format('d/m/Y'),
+                    ucfirst($quotation->customer_type ?? 'new'),
+                    optional($quotation->created_at)->format('d/m/Y H:i:s'),
+                    optional($quotation->updated_at)->format('d/m/Y H:i:s'),
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 
     public function getCompanyDetails($id): JsonResponse
     {
@@ -223,8 +317,10 @@ class QuotationController extends Controller
                     'gst_no' => $company->gst_no ?? '',
                     'pan_no' => $company->pan_no ?? '',
                     'city' => $company->city ?? '',
+                    'state' => $company->state ?? '',
                     'address' => $company->company_address ?? ($company->address ?? ''),
                     'company_email' => $company->company_email ?? '',
+                    'company_employee_email' => $company->company_employee_email ?? '',
                     'nature_of_work' => $company->nature_of_work ?? ($company->other_details ?? ''),
                     'contact_person_1' => $company->contact_person_1 ?? ($company->contact_person_name ?? ''),
                     'contact_number_1' => $company->contact_number_1 ?? ($company->contact_person_mobile ?? ''),
@@ -338,7 +434,9 @@ class QuotationController extends Controller
                 'company_name' => ['required', 'string', 'max:255'],
                 'company_type' => ['nullable', 'string', 'max:255'],
                 'company_email' => ['required', 'email', 'max:255'],
-                'company_password' => ['nullable', 'string', 'max:255'],
+                'company_password' => [$request->customer_type === 'new' ? 'required' : 'nullable', 'string', 'min:6', 'max:255'],
+                'company_employee_email' => ['nullable', 'email', 'max:255'],
+                'company_employee_password' => ['nullable', 'string', 'min:6', 'max:255'],
                 'gst_no' => ['nullable', 'string', 'max:50'],
                 'pan_no' => ['nullable', 'string', 'max:50'],
                 'nature_of_work' => ['nullable', 'string', 'max:500'],
@@ -349,13 +447,13 @@ class QuotationController extends Controller
                 
                 // Contact Information
                 'contact_person_1' => ['required', 'string', 'max:255'],
-                'contact_number_1' => ['required', 'regex:/^\d{10}$/'],
+                'contact_number_1' => ['required', 'string', 'max:20'],
                 'position_1' => ['nullable', 'string', 'max:255'],
                 'contact_person_2' => ['nullable', 'string', 'max:255'],
-                'contact_number_2' => ['nullable', 'regex:/^\d{10}$/'],
+                'contact_number_2' => ['nullable', 'string', 'max:20'],
                 'position_2' => ['nullable', 'string', 'max:255'],
                 'contact_person_3' => ['nullable', 'string', 'max:255'],
-                'contact_number_3' => ['nullable', 'regex:/^\d{10}$/'],
+                'contact_number_3' => ['nullable', 'string', 'max:20'],
                 'position_3' => ['nullable', 'string', 'max:255'],
                 
                 // Contract Details
@@ -375,7 +473,7 @@ class QuotationController extends Controller
                 
                 // Footer Information
                 'prepared_by' => ['nullable', 'string', 'max:255'],
-                'mobile_no' => ['nullable', 'regex:/^\d{10}$/'],
+                'mobile_no' => ['nullable', 'string', 'max:20'],
                 'footer_company_name' => ['nullable', 'string', 'max:255'],
                 
                 // Service Amounts
@@ -397,19 +495,7 @@ class QuotationController extends Controller
                     ->with('error', 'Please add at least one service to the quotation.');
             }
 
-            // Process contact numbers - handle country code format
-            if (!empty($validated['contact_number_1'])) {
-                // If it doesn't start with +, add default +91
-                if (!str_starts_with($validated['contact_number_1'], '+')) {
-                    $validated['contact_number_1'] = '+91' . $validated['contact_number_1'];
-                }
-            }
-            if (!empty($validated['mobile_no'])) {
-                // If it doesn't start with +, add default +91
-                if (!str_starts_with($validated['mobile_no'], '+')) {
-                    $validated['mobile_no'] = '+91' . $validated['mobile_no'];
-                }
-            }
+            // Contact numbers are already processed by the phone-input component with country code
             
             // Convert date formats from dd/mm/yy to Y-m-d
             $dateFields = ['quotation_date', 'amc_start_date', 'project_start_date', 'tentative_complete_date', 'tentative_complete_date_2'];
@@ -607,6 +693,8 @@ class QuotationController extends Controller
                 'company_type' => ['nullable', 'string', 'max:255'],
                 'company_email' => ['required', 'email', 'max:255'],
                 'company_password' => ['nullable', 'string', 'max:255'],
+                'company_employee_email' => ['nullable', 'email', 'max:255'],
+                'company_employee_password' => ['nullable', 'string', 'max:255'],
                 'gst_no' => ['nullable', 'string', 'max:50'],
                 'pan_no' => ['nullable', 'string', 'max:50'],
                 'nature_of_work' => ['nullable', 'string', 'max:500'],
@@ -617,13 +705,13 @@ class QuotationController extends Controller
                 
                 // Contact Information
                 'contact_person_1' => ['required', 'string', 'max:255'],
-                'contact_number_1' => ['required', 'regex:/^\d{10}$/'],
+                'contact_number_1' => ['required', 'string', 'max:20'],
                 'position_1' => ['nullable', 'string', 'max:255'],
                 'contact_person_2' => ['nullable', 'string', 'max:255'],
-                'contact_number_2' => ['nullable', 'regex:/^\d{10}$/'],
+                'contact_number_2' => ['nullable', 'string', 'max:20'],
                 'position_2' => ['nullable', 'string', 'max:255'],
                 'contact_person_3' => ['nullable', 'string', 'max:255'],
-                'contact_number_3' => ['nullable', 'regex:/^\d{10}$/'],
+                'contact_number_3' => ['nullable', 'string', 'max:20'],
                 'position_3' => ['nullable', 'string', 'max:255'],
                 
                 // Contract Details
@@ -643,7 +731,7 @@ class QuotationController extends Controller
                 
                 // Footer Information
                 'prepared_by' => ['nullable', 'string', 'max:255'],
-                'mobile_no' => ['nullable', 'regex:/^\d{10}$/'],
+                'mobile_no' => ['nullable', 'string', 'max:20'],
                 'footer_company_name' => ['nullable', 'string', 'max:255'],
                 
                 // Service Amounts
@@ -659,19 +747,7 @@ class QuotationController extends Controller
                 'remark' => ['nullable', 'string', 'max:1000'],
             ]);
 
-            // Process contact numbers - handle country code format
-            if (!empty($validated['contact_number_1'])) {
-                // If it doesn't start with +, add default +91
-                if (!str_starts_with($validated['contact_number_1'], '+')) {
-                    $validated['contact_number_1'] = '+91' . $validated['contact_number_1'];
-                }
-            }
-            if (!empty($validated['mobile_no'])) {
-                // If it doesn't start with +, add default +91
-                if (!str_starts_with($validated['mobile_no'], '+')) {
-                    $validated['mobile_no'] = '+91' . $validated['mobile_no'];
-                }
-            }
+            // Contact numbers are already processed by the phone-input component with country code
             
             // Convert date formats from dd/mm/yy to Y-m-d
             $dateFields = ['quotation_date', 'amc_start_date', 'project_start_date', 'tentative_complete_date', 'tentative_complete_date_2'];
@@ -717,6 +793,8 @@ class QuotationController extends Controller
                 'contract_details' => $validated['contract_details'] ?? null,
                 'company_email' => $validated['company_email'],
                 'company_password' => $validated['company_password'] ?? null,
+                'company_employee_email' => $validated['company_employee_email'] ?? null,
+                'company_employee_password' => $validated['company_employee_password'] ?? null,
                 'amc_start_date' => $validated['amc_start_date'] ?? null,
                 'amc_amount' => $validated['amc_amount'] ?? 0,
                 'project_start_date' => $validated['project_start_date'] ?? null,
@@ -731,6 +809,10 @@ class QuotationController extends Controller
                 'own_company_name' => $validated['footer_company_name'] ?? 'CHITRI INFOTECH PVT LTD',
                 'remark' => $validated['remark'] ?? null,
             ];
+            
+            // Store old email values for user account lookup
+            $oldCompanyEmail = $quotation->company_email;
+            $oldEmployeeEmail = $quotation->company_employee_email;
 
             // Handle services_1 (main services)
             $services1 = $request->input('services_1', []);
@@ -816,9 +898,95 @@ class QuotationController extends Controller
 
             // Update quotation
             $quotation->update($data);
+            
+            // Update or create user account for company email
+            if (!empty($validated['company_email'])) {
+                $companyUser = User::where('email', $oldCompanyEmail)
+                    ->orWhere('email', $validated['company_email'])
+                    ->first();
+                
+                if ($companyUser) {
+                    // Update existing user
+                    $updateData = [
+                        'email' => $validated['company_email'],
+                        'name' => $validated['contact_person_1'] . ' (Company)',
+                        'mobile_no' => $validated['contact_number_1'] ?? '',
+                        'address' => $validated['address'] ?? '',
+                    ];
+                    
+                    // Update password if provided
+                    if (!empty($validated['company_password'])) {
+                        $updateData['password'] = Hash::make($validated['company_password']);
+                    }
+                    
+                    $companyUser->update($updateData);
+                } else if (!empty($validated['company_password'])) {
+                    // Create new user if password is provided
+                    $newUser = User::create([
+                        'name' => $validated['contact_person_1'] . ' (Company)',
+                        'email' => $validated['company_email'],
+                        'password' => Hash::make($validated['company_password']),
+                        'mobile_no' => $validated['contact_number_1'] ?? '',
+                        'address' => $validated['address'] ?? '',
+                    ]);
+                    
+                    // Assign customer role
+                    if (class_exists(\Spatie\Permission\Models\Role::class)) {
+                        $customerRole = \Spatie\Permission\Models\Role::where('name', 'customer')
+                            ->orWhere('id', 6)
+                            ->first();
+                        if ($customerRole) {
+                            $newUser->assignRole($customerRole);
+                        }
+                    }
+                }
+            }
+            
+            // Update or create user account for employee email
+            if (!empty($validated['company_employee_email'])) {
+                $employeeUser = User::where('email', $oldEmployeeEmail)
+                    ->orWhere('email', $validated['company_employee_email'])
+                    ->first();
+                
+                if ($employeeUser) {
+                    // Update existing user
+                    $updateData = [
+                        'email' => $validated['company_employee_email'],
+                        'name' => $validated['contact_person_1'] . ' (Employee)',
+                        'mobile_no' => $validated['contact_number_1'] ?? '',
+                        'address' => $validated['address'] ?? '',
+                    ];
+                    
+                    // Update password if provided
+                    if (!empty($validated['company_employee_password'])) {
+                        $updateData['password'] = Hash::make($validated['company_employee_password']);
+                    }
+                    
+                    $employeeUser->update($updateData);
+                } else if (!empty($validated['company_employee_password'])) {
+                    // Create new user if password is provided
+                    $newEmployeeUser = User::create([
+                        'name' => $validated['contact_person_1'] . ' (Employee)',
+                        'email' => $validated['company_employee_email'],
+                        'password' => Hash::make($validated['company_employee_password']),
+                        'mobile_no' => $validated['contact_number_1'] ?? '',
+                        'address' => $validated['address'] ?? '',
+                    ]);
+                    
+                    // Assign customer role
+                    if (class_exists(\Spatie\Permission\Models\Role::class)) {
+                        $customerRole = \Spatie\Permission\Models\Role::where('name', 'customer')
+                            ->orWhere('id', 6)
+                            ->first();
+                        if ($customerRole) {
+                            $newEmployeeUser->assignRole($customerRole);
+                        }
+                    }
+                }
+            }
 
             return redirect()->route('quotations.index')
-                ->with('status', 'Quotation updated successfully');
+                ->with('status', 'Quotation updated successfully. Login credentials have been synchronized.');
 
         } catch (\Exception $e) {
             \Log::error('Error updating quotation: ' . $e->getMessage());
@@ -1012,7 +1180,7 @@ class QuotationController extends Controller
         
         $validated = $request->validate([
             'followup_date' => 'required|string',
-            'next_followup_date' => 'nullable|date',
+            'next_followup_date' => 'nullable|date_format:d/m/Y',
             'demo_status' => 'nullable|string',
             'scheduled_demo_date' => 'nullable|date|required_if:demo_status,schedule',
             'scheduled_demo_time' => 'nullable|required_if:demo_status,schedule',
@@ -1031,11 +1199,21 @@ class QuotationController extends Controller
                 $followupDate = null;
             }
         }
+        
+        // Parse next_followup_date from dd/mm/yyyy to Y-m-d
+        $nextFollowupDate = null;
+        if (!empty($validated['next_followup_date'])) {
+            try {
+                $nextFollowupDate = Carbon::createFromFormat('d/m/Y', $validated['next_followup_date'])->format('Y-m-d');
+            } catch (\Exception $e) {
+                $nextFollowupDate = null;
+            }
+        }
 
         QuotationFollowUp::create([
             'quotation_id' => $quotation->id,
             'followup_date' => $followupDate,
-            'next_followup_date' => $validated['next_followup_date'] ?? null,
+            'next_followup_date' => $nextFollowupDate,
             'demo_status' => $validated['demo_status'] ?? null,
             'scheduled_demo_date' => $validated['scheduled_demo_date'] ?? null,
             'scheduled_demo_time' => $validated['scheduled_demo_time'] ?? null,
@@ -1140,7 +1318,7 @@ class QuotationController extends Controller
                 'bill_no' => 'nullable|string|max:255',
                 'address' => 'nullable|string',
                 'gst_no' => 'nullable|string|max:255',
-                'mobile_no' => 'nullable|string|max:20',
+                'mobile_no' => 'nullable|string|max:50',
                 'type_of_billing' => 'nullable|string',
             ]);
 
@@ -1241,6 +1419,8 @@ class QuotationController extends Controller
                 'company_address' => $quotation->address ?? 'Address not provided',
                 'company_email' => $quotation->company_email,
                 'company_password' => $quotation->company_password ?? '',
+                'company_employee_email' => $quotation->company_employee_email ?? '',
+                'company_employee_password' => $quotation->company_employee_password ?? '',
                 'contact_person_name' => $quotation->contact_person_1,
                 'contact_person_mobile' => $quotation->contact_number_1,
                 'contact_person_position' => $quotation->position_1 ?? '',
@@ -1264,31 +1444,71 @@ class QuotationController extends Controller
                 'quotation_id' => $quotation->id
             ]);
             
-            // Create user account for the company if password is provided
-            if (!empty($quotation->company_password)) {
-                // Check if user with this email already exists
+            // Create user accounts for login
+            $companyUserCreated = false;
+            $employeeUserCreated = false;
+            
+            // Create user account for company email
+            if (!empty($quotation->company_email) && !empty($quotation->company_password)) {
                 $existingUser = User::where('email', $quotation->company_email)->first();
                 
                 if (!$existingUser) {
                     $user = User::create([
-                        'name' => $quotation->contact_person_1,
+                        'name' => $quotation->contact_person_1 . ' (Company)',
                         'email' => $quotation->company_email,
                         'password' => Hash::make($quotation->company_password),
                         'mobile_no' => $quotation->contact_number_1 ?? '',
                         'address' => $quotation->address ?? '',
-                        'company_id' => $newCompany->id
                     ]);
                 
                     // Assign customer role
                     if (class_exists(\Spatie\Permission\Models\Role::class)) {
-                        $customerRole = \Spatie\Permission\Models\Role::where('name', 'customer')->first();
+                        $customerRole = \Spatie\Permission\Models\Role::where('name', 'customer')
+                            ->orWhere('id', 6)
+                            ->first();
                         if ($customerRole) {
                             $user->assignRole($customerRole);
                         }
                     }
-                } else {
-                    \Log::warning('User account already exists for email during company conversion', [
-                        'email' => $quotation->company_email,
+                    
+                    $companyUserCreated = true;
+                    
+                    \Log::info('Company user account created from quotation conversion', [
+                        'user_id' => $user->id,
+                        'email' => $user->email,
+                        'company_id' => $newCompany->id
+                    ]);
+                }
+            }
+            
+            // Create user account for employee email if provided
+            if (!empty($quotation->company_employee_email) && !empty($quotation->company_employee_password)) {
+                $existingEmployeeUser = User::where('email', $quotation->company_employee_email)->first();
+                
+                if (!$existingEmployeeUser) {
+                    $employeeUser = User::create([
+                        'name' => $quotation->contact_person_1 . ' (Employee)',
+                        'email' => $quotation->company_employee_email,
+                        'password' => Hash::make($quotation->company_employee_password),
+                        'mobile_no' => $quotation->contact_number_1 ?? '',
+                        'address' => $quotation->address ?? '',
+                    ]);
+                
+                    // Assign customer role
+                    if (class_exists(\Spatie\Permission\Models\Role::class)) {
+                        $customerRole = \Spatie\Permission\Models\Role::where('name', 'customer')
+                            ->orWhere('id', 6)
+                            ->first();
+                        if ($customerRole) {
+                            $employeeUser->assignRole($customerRole);
+                        }
+                    }
+                    
+                    $employeeUserCreated = true;
+                    
+                    \Log::info('Employee user account created from quotation conversion', [
+                        'user_id' => $employeeUser->id,
+                        'email' => $employeeUser->email,
                         'company_id' => $newCompany->id
                     ]);
                 }
@@ -1300,8 +1520,20 @@ class QuotationController extends Controller
                 'customer_id' => $newCompany->id
             ]);
             
+            // Prepare success message with credentials
+            $successMessage = 'Company "' . $quotation->company_name . '" has been created successfully and linked to the quotation.';
+            
+            // Show company and employee credentials
+            if ($companyUserCreated && !empty($quotation->company_email) && !empty($quotation->company_password)) {
+                $successMessage .= '|||COMPANY_CREATED|||' . $quotation->company_email . '|||' . $quotation->company_password;
+            }
+            
+            if ($employeeUserCreated && !empty($quotation->company_employee_email) && !empty($quotation->company_employee_password)) {
+                $successMessage .= '|||EMPLOYEE_CREATED|||' . $quotation->company_employee_email . '|||' . $quotation->company_employee_password;
+            }
+            
             return redirect()->back()
-                ->with('success', 'Company "' . $quotation->company_name . '" has been created successfully and linked to the quotation.');
+                ->with('success', $successMessage);
                 
         } catch (\Exception $e) {
             \Log::error('Error converting quotation to company: ' . $e->getMessage());
@@ -1353,3 +1585,4 @@ class QuotationController extends Controller
         }
     }
 }
+

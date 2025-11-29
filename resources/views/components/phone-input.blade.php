@@ -13,10 +13,17 @@
     $phoneNumber = $value;
     
     if (!empty($value)) {
+        // Remove any spaces first
+        $cleanValue = str_replace(' ', '', $value);
+        
         // Check if value already has a country code
-        if (preg_match('/^(\+\d{1,4})(.*)$/', $value, $matches)) {
+        // Use non-greedy match and ensure we get exactly 10 digits for phone number
+        if (preg_match('/^(\+\d{1,4}?)(\d{10})$/', $cleanValue, $matches)) {
             $countryCode = $matches[1];
-            $phoneNumber = ltrim($matches[2], ' ');
+            $phoneNumber = $matches[2];
+        } elseif (preg_match('/^\d+$/', $cleanValue)) {
+            // If it's just digits without country code
+            $phoneNumber = $cleanValue;
         }
     }
 @endphp
@@ -88,9 +95,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const phoneInputs = document.querySelectorAll('.phone-number-input');
     
     phoneInputs.forEach(function(input) {
-        const container = input.closest('div[style*="display: flex"]');
+        const container = input.closest('.phone-input-container');
+        if (!container) return;
+        
         const countrySelect = container.querySelector('.country-code-select');
         const hiddenInput = container.querySelector('.phone-full-value');
+        
+        if (!countrySelect || !hiddenInput) return;
         
         function updateFullValue() {
             const countryCode = countrySelect.value;

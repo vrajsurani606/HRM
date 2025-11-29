@@ -57,6 +57,116 @@ class ReceiptController extends Controller
         
         return view('receipts.index', compact('receipts'));
     }
+    
+    public function export(Request $request)
+    {
+        try {
+            $query = Receipt::query()->orderBy('created_at', 'desc');
+            
+            // Apply filters if provided
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('unique_code', 'like', '%' . $search . '%')
+                      ->orWhere('company_name', 'like', '%' . $search . '%');
+                });
+            }
+            
+            if ($request->filled('invoice_type')) {
+                $query->where('invoice_type', $request->invoice_type);
+            }
+            
+            if ($request->filled('from_date')) {
+                $query->whereDate('receipt_date', '>=', $request->from_date);
+            }
+            
+            if ($request->filled('to_date')) {
+                $query->whereDate('receipt_date', '<=', $request->to_date);
+            }
+            
+            $receipts = $query->get();
+            
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\ReceiptsExport($receipts), 
+                'receipts_' . date('Y-m-d_His') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            \Log::error('Error exporting receipts: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error exporting receipts: ' . $e->getMessage());
+        }
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $query = Receipt::query()->latest();
+
+        if ($request->filled('from_date')) {
+            $query->whereDate('receipt_date', '>=', $request->input('from_date'));
+        }
+
+        if ($request->filled('to_date')) {
+            $query->whereDate('receipt_date', '<=', $request->input('to_date'));
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('company_name', 'like', "%{$search}%")
+                  ->orWhere('unique_code', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('invoice_type')) {
+            $query->where('invoice_type', $request->invoice_type);
+        }
+
+        $receipts = $query->get();
+
+        $fileName = 'receipts_' . now()->format('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        $callback = function () use ($receipts) {
+            $handle = fopen('php://output', 'w');
+
+            fputcsv($handle, [
+                'ID',
+                'Receipt No',
+                'Receipt Date',
+                'Invoice Type',
+                'Company Name',
+                'Received Amount',
+                'Payment Type',
+                'Trans Code',
+                'Narration',
+                'Created At',
+                'Updated At',
+            ]);
+
+            foreach ($receipts as $receipt) {
+                fputcsv($handle, [
+                    $receipt->id,
+                    $receipt->unique_code,
+                    optional($receipt->receipt_date)->format('d/m/Y'),
+                    $receipt->invoice_type == 'gst' ? 'GST' : 'Without GST',
+                    $receipt->company_name,
+                    number_format($receipt->received_amount ?? 0, 2),
+                    $receipt->payment_type,
+                    $receipt->trans_code,
+                    $receipt->narration,
+                    optional($receipt->created_at)->format('d/m/Y H:i:s'),
+                    optional($receipt->updated_at)->format('d/m/Y H:i:s'),
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 
     public function create(): View
     {
@@ -121,7 +231,7 @@ class ReceiptController extends Controller
     {
         try {
             $validated = $request->validate([
-                'receipt_date' => ['required', 'date'],
+                'receipt_date' => ['required', 'date_format:d/m/Y'],
                 'company_name' => ['required', 'string', 'max:255'],
                 'invoice_type' => ['required', 'string', 'in:gst,without_gst'],
                 'invoice_ids' => ['nullable', 'array'],
@@ -133,6 +243,15 @@ class ReceiptController extends Controller
                 'narration' => ['nullable', 'string', 'max:1000'],
                 'trans_code' => ['nullable', 'string', 'max:255'],
             ]);
+            
+            // Convert receipt_date from dd/mm/yyyy to Y-m-d
+            if (!empty($validated['receipt_date'])) {
+                try {
+                    $validated['receipt_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['receipt_date'])->format('Y-m-d');
+                } catch (\Exception $e) {
+                    // If parsing fails, leave as is
+                }
+            }
             
             // Generate unique code based on invoice type
             $validated['unique_code'] = $this->generateReceiptCode($validated['invoice_type']);
@@ -216,7 +335,7 @@ class ReceiptController extends Controller
             $receipt = Receipt::findOrFail($id);
             
             $validated = $request->validate([
-                'receipt_date' => ['required', 'date'],
+                'receipt_date' => ['required', 'date_format:d/m/Y'],
                 'company_name' => ['required', 'string', 'max:255'],
                 'invoice_type' => ['required', 'string', 'in:gst,without_gst'],
                 'invoice_ids' => ['nullable', 'array'],
@@ -226,6 +345,15 @@ class ReceiptController extends Controller
                 'narration' => ['nullable', 'string', 'max:1000'],
                 'trans_code' => ['nullable', 'string', 'max:255'],
             ]);
+            
+            // Convert receipt_date from dd/mm/yyyy to Y-m-d
+            if (!empty($validated['receipt_date'])) {
+                try {
+                    $validated['receipt_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['receipt_date'])->format('Y-m-d');
+                } catch (\Exception $e) {
+                    // If parsing fails, leave as is
+                }
+            }
             
             // Get old invoice IDs before update
             $oldInvoiceIds = $receipt->invoice_ids ?? [];

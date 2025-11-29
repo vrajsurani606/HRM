@@ -59,6 +59,127 @@ class InvoiceController extends Controller
         
         return view('invoices.index', compact('invoices'));
     }
+    
+    public function export(Request $request)
+    {
+        try {
+            $query = Invoice::with('proforma')->orderBy('created_at', 'desc');
+            
+            // Apply filters if provided
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('unique_code', 'like', '%' . $search . '%')
+                      ->orWhere('company_name', 'like', '%' . $search . '%');
+                });
+            }
+            
+            if ($request->filled('invoice_type')) {
+                $query->where('invoice_type', $request->invoice_type);
+            }
+            
+            if ($request->filled('from_date')) {
+                $query->whereDate('invoice_date', '>=', $request->from_date);
+            }
+            
+            if ($request->filled('to_date')) {
+                $query->whereDate('invoice_date', '<=', $request->to_date);
+            }
+            
+            $invoices = $query->get();
+            
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\InvoicesExport($invoices), 
+                'invoices_' . date('Y-m-d_His') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            \Log::error('Error exporting invoices: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error exporting invoices: ' . $e->getMessage());
+        }
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $query = Invoice::with('proforma')->latest();
+
+        if ($request->filled('from_date')) {
+            $query->whereDate('invoice_date', '>=', $request->input('from_date'));
+        }
+
+        if ($request->filled('to_date')) {
+            $query->whereDate('invoice_date', '<=', $request->input('to_date'));
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('company_name', 'like', "%{$search}%")
+                  ->orWhere('unique_code', 'like', "%{$search}%")
+                  ->orWhere('mobile_no', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('invoice_type')) {
+            $query->where('invoice_type', $request->invoice_type);
+        }
+
+        $invoices = $query->get();
+
+        $fileName = 'invoices_' . now()->format('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        $callback = function () use ($invoices) {
+            $handle = fopen('php://output', 'w');
+
+            fputcsv($handle, [
+                'ID',
+                'Invoice No',
+                'Invoice Date',
+                'Invoice Type',
+                'Proforma No',
+                'Bill To',
+                'Mobile No',
+                'Address',
+                'GST No',
+                'Grand Total',
+                'Discount',
+                'Total Tax',
+                'Total Amount',
+                'Type of Billing',
+                'Created At',
+                'Updated At',
+            ]);
+
+            foreach ($invoices as $invoice) {
+                fputcsv($handle, [
+                    $invoice->id,
+                    $invoice->unique_code,
+                    optional($invoice->invoice_date)->format('d/m/Y'),
+                    $invoice->invoice_type == 'gst' ? 'GST' : 'Without GST',
+                    optional($invoice->proforma)->unique_code,
+                    $invoice->company_name,
+                    $invoice->mobile_no,
+                    $invoice->address,
+                    $invoice->gst_no,
+                    number_format($invoice->sub_total ?? 0, 2),
+                    number_format($invoice->discount_amount ?? 0, 2),
+                    number_format($invoice->total_tax_amount ?? 0, 2),
+                    number_format($invoice->final_amount ?? 0, 2),
+                    $invoice->type_of_billing,
+                    optional($invoice->created_at)->format('d/m/Y H:i:s'),
+                    optional($invoice->updated_at)->format('d/m/Y H:i:s'),
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 
     public function convertForm(int $proformaId): View
     {
@@ -277,8 +398,17 @@ class InvoiceController extends Controller
             
             $validated = $request->validate([
                 'unique_code' => ['required', 'string', 'max:255', 'unique:invoices,unique_code,' . $id],
-                'invoice_date' => ['required', 'date'],
+                'invoice_date' => ['required', 'date_format:d/m/Y'],
             ]);
+            
+            // Convert invoice_date from dd/mm/yyyy to Y-m-d
+            if (!empty($validated['invoice_date'])) {
+                try {
+                    $validated['invoice_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['invoice_date'])->format('Y-m-d');
+                } catch (\Exception $e) {
+                    // If parsing fails, leave as is
+                }
+            }
             
             $invoice->update($validated);
             

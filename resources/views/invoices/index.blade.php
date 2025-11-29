@@ -18,7 +18,7 @@
     </svg>
   </button>
   <div class="filter-right">
-    <a href="#" class="pill-btn pill-success">Excel</a>
+    <a href="{{ route('invoices.export.csv', request()->only(['search','invoice_type','from_date','to_date'])) }}" class="pill-btn pill-success">Excel</a>
   </div>
 </form>
 
@@ -27,7 +27,7 @@
   <table>
     <thead>
       <tr>
-        <th>Action</th>
+        <th style="text-align: center;">Action</th>
         <th>Serial No.</th>
         <th><x-sortable-header column="unique_code" title="Invoice No" /></th>
         <th><x-sortable-header column="invoice_date" title="Invoice Date" /></th>
@@ -43,24 +43,20 @@
     <tbody>
       @forelse($invoices as $index => $invoice)
       <tr>
-        <td>
+        <td style="text-align: center; vertical-align: middle;">
           <div class="action-icons">
-            <a href="{{ route('invoices.edit', $invoice->id) }}">
-              <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
-            </a>
-            <a href="{{ route('invoices.show', $invoice->id) }}">
+            <a href="{{ route('invoices.show', $invoice->id) }}" title="View Invoice" aria-label="View Invoice">
               <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
             </a>
-            <a href="{{ route('invoices.print', $invoice->id) }}" target="_blank">
+            <a href="{{ route('invoices.edit', $invoice->id) }}" title="Edit Invoice" aria-label="Edit Invoice">
+              <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+            </a>
+            <a href="{{ route('invoices.print', $invoice->id) }}" target="_blank" title="Print Invoice" aria-label="Print Invoice">
               <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
             </a>
-            <form action="{{ route('invoices.destroy', $invoice->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this invoice?');">
-              @csrf
-              @method('DELETE')
-              <button type="submit" style="border:none;background:none;padding:0;cursor:pointer;">
-                <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
-              </button>
-            </form>
+            <button type="button" onclick="confirmDelete({{ $invoice->id }})" title="Delete Invoice" aria-label="Delete Invoice">
+              <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+            </button>
           </div>
         </td>
         <td>{{ $invoices->firstItem() + $index }}</td>
@@ -107,3 +103,44 @@
   </form>
   {{ $invoices->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
   @endif
+
+@endsection
+
+@section('breadcrumb')
+  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+  <span class="hrp-bc-sep">›</span>
+  <a href="{{ route('invoices.index') }}">Invoices</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">Invoice List</span>
+@endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function confirmDelete(id) {
+  Swal.fire({
+    title: 'Delete this invoice?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel',
+    width: '400px'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/GitVraj/HrPortal/invoices/${id}`;
+      form.innerHTML = `
+        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="_method" value="DELETE">
+      `;
+      document.body.appendChild(form);
+      form.submit();
+    }
+  });
+}
+</script>
+@endpush

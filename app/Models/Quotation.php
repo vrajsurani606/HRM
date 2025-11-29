@@ -39,6 +39,8 @@ class Quotation extends Model
         'contract_details',
         'company_email',
         'company_password',
+        'company_employee_email',
+        'company_employee_password',
         'service_description',
         'service_quantity',
         'service_rate',

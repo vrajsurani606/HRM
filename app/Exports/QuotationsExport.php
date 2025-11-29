@@ -51,22 +51,28 @@ class QuotationsExport implements FromCollection, WithHeadings, WithMapping, Sho
         static $counter = 0;
         $counter++;
         
+        // Remove +91 prefix from mobile if present
+        $mobile = $quotation->contact_number_1 ?? 'N/A';
+        if ($mobile !== 'N/A') {
+            $mobile = preg_replace('/^\+91/', '', $mobile);
+        }
+        
         return [
             $counter,
             $quotation->unique_code ?? 'N/A',
             $quotation->company_name ?? 'N/A',
-            $quotation->contact_number_1 ?? 'N/A',
+            $mobile,
             $quotation->updated_at ? $quotation->updated_at->format('d/m/Y') : 'N/A',
             $quotation->tentative_complete_date ? $quotation->tentative_complete_date->format('d/m/Y') : 'N/A',
-            ucfirst($quotation->status ?? 'Draft'),
-            $quotation->is_confirmed ? 'Yes' : 'No',
-            $quotation->contact_person ?? 'N/A',
-            $quotation->email ?? 'N/A',
+            'N/A', // Remark/Status placeholder
+            'No', // Is Confirm placeholder
+            $quotation->contact_person_1 ?? 'N/A',
+            $quotation->company_email ?? 'N/A',
             $quotation->address ?? 'N/A',
             $quotation->gst_no ?? 'N/A',
-            $quotation->quotation_date ? \Carbon\Carbon::parse($quotation->quotation_date)->format('d/m/Y') : 'N/A',
+            $quotation->quotation_date ? $quotation->quotation_date->format('d/m/Y') : 'N/A',
             $quotation->tentative_complete_date ? $quotation->tentative_complete_date->format('d/m/Y') : 'N/A',
-            $quotation->total_amount ?? 0,
+            number_format($quotation->service_contract_amount ?? 0, 2),
             $quotation->created_at->format('d/m/Y H:i:s'),
         ];
     }

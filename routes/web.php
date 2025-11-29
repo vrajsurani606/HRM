@@ -126,6 +126,7 @@ Route::middleware('auth')->group(function () {
     Route::post('inquiry-followups/{followUp}/confirm', [InquiryController::class, 'confirmFollowUp'])->name('inquiry.follow-up.confirm');
     // Quotations
     Route::get('quotations/export', [QuotationController::class, 'export'])->name('quotations.export');
+    Route::get('quotations-export-csv', [QuotationController::class, 'exportCsv'])->name('quotations.export.csv');
     Route::resource('quotations', QuotationController::class);
     Route::get('inquiry/{id}/quotation', [QuotationController::class, 'createFromInquiry'])->name('quotation.create-from-inquiry');
     Route::get('quotations/company/{id}', [QuotationController::class, 'getCompanyDetails'])->name('quotations.company.details');
@@ -174,15 +175,21 @@ Route::middleware('auth')->group(function () {
     Route::delete('projects/{project}/members/{user}', [ProjectController::class, 'removeMember'])->name('projects.members.remove');
 
     // Performa & Invoices
+    Route::get('performas/export', [PerformaController::class, 'export'])->name('performas.export');
+    Route::get('performas-export-csv', [PerformaController::class, 'exportCsv'])->name('performas.export.csv');
     Route::get('performas/{id}/print', [PerformaController::class, 'print'])->name('performas.print');
     Route::resource('performas', PerformaController::class); // performas.index, performas.create
     
     Route::get('performas/{id}/convert', [\App\Http\Controllers\Invoice\InvoiceController::class, 'convertForm'])->name('performas.convert');
     Route::post('performas/{id}/convert', [\App\Http\Controllers\Invoice\InvoiceController::class, 'convert'])->name('performas.convert.store');
+    Route::get('invoices/export', [\App\Http\Controllers\Invoice\InvoiceController::class, 'export'])->name('invoices.export');
+    Route::get('invoices-export-csv', [\App\Http\Controllers\Invoice\InvoiceController::class, 'exportCsv'])->name('invoices.export.csv');
     Route::get('invoices/{id}/print', [\App\Http\Controllers\Invoice\InvoiceController::class, 'print'])->name('invoices.print');
     Route::resource('invoices', \App\Http\Controllers\Invoice\InvoiceController::class)->except(['create', 'store']); // invoices.index, show, edit, update, destroy
 
     // Receipts & (Vouchers disabled)
+    Route::get('receipts/export', [\App\Http\Controllers\Receipt\ReceiptController::class, 'export'])->name('receipts.export');
+    Route::get('receipts-export-csv', [\App\Http\Controllers\Receipt\ReceiptController::class, 'exportCsv'])->name('receipts.export.csv');
     Route::get('receipts/{id}/print', [\App\Http\Controllers\Receipt\ReceiptController::class, 'print'])->name('receipts.print');
     Route::resource('receipts', \App\Http\Controllers\Receipt\ReceiptController::class);
     // Route::resource('vouchers', VoucherController::class);

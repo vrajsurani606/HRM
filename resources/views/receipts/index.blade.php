@@ -18,7 +18,7 @@
     </svg>
   </button>
   <div class="filter-right">
-    <a href="#" class="pill-btn pill-success">Excel</a>
+    <a href="{{ route('receipts.export.csv', request()->only(['search','invoice_type','from_date','to_date'])) }}" class="pill-btn pill-success">Excel</a>
     <a href="{{ route('receipts.create') }}" class="pill-btn pill-success">+ Add</a>
   </div>
 </form>
@@ -106,17 +106,5 @@
   </form>
   {{ $receipts->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
   @endif
-
-@if(session('status'))
-<div class="alert alert-success mt-4">
-  {{ session('status') }}
-</div>
-@endif
-
-@if(session('error'))
-<div class="alert alert-danger mt-4">
-  {{ session('error') }}
-</div>
-@endif
 
 @endsection

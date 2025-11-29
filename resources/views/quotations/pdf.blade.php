@@ -318,14 +318,10 @@
                         </div>
                         
                         <div style="font-size: 20px; margin-top: 40px; margin-bottom: 16px; color: #1a1a1a; font-weight: 600;">Sincerely,</div>
-                        <div style="font-size: 17px; margin-bottom: 8px; font-weight: 600; color: #2d3748;">'MR. CHINTAN KACHHADIYA'</div>
-                        <div style="font-size: 17px; margin-bottom: 8px; font-weight: 600; color: #2d3748;">CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)'</div>
+                        <div style="font-size: 17px; margin-bottom: 8px; font-weight: 600; color: #2d3748;">MR. CHINTAN KACHHADIYA</div>
+                        <div style="font-size: 17px; margin-bottom: 8px; font-weight: 600; color: #2d3748;">CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)</div>
                         <div style="font-size: 17px; font-weight: 600; color: #2d3748;">
-                            @if($quotation->mobile_no)
-                                {{ str_starts_with($quotation->mobile_no, '+91') ? $quotation->mobile_no : '+91 ' . $quotation->mobile_no }}
-                            @else
-                                +91 72763 23999
-                            @endif
+                            (+91) 72763 23999
                         </div>
                     </td>
                 </tr>

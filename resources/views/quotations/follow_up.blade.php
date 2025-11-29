@@ -136,11 +136,16 @@
       @error('followup_date')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
-      <x-date-input 
+      <label class="hrp-label">Next Follow Up Date:</label>
+      <input 
+        type="text" 
+        class="hrp-input Rectangle-29 date-picker" 
         name="next_followup_date" 
-        label="Next Follow Up Date" 
-        :value="old('next_followup_date')" 
-      />
+        placeholder="dd/mm/yyyy" 
+        value="{{ old('next_followup_date') }}" 
+        autocomplete="off"
+      >
+      @error('next_followup_date')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
 
     <div class="md:col-span-2">
@@ -178,9 +183,30 @@
 @endpush
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
+$(document).ready(function() {
+    // Initialize date picker with dd/mm/yyyy format (same as quotation create)
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({
+                    marginTop: '2px',
+                    marginLeft: '0px'
+                });
+            }, 0);
+        }
+    });
+    
+
     // MAKE CONFIRM actions
     var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     document.querySelectorAll('.make-confirm-btn').forEach(function (btn) {
@@ -211,21 +237,17 @@
           .then(function (res) { return res.json(); })
           .then(function (data) {
             if (data && data.success) {
-              // Update Action and Is Confirm cells
-              var cells = row.querySelectorAll('td');
-              if (cells[1]) {
-                cells[1].innerHTML = '<span style="color:#16a34a;font-weight:600;">Confirmed</span>';
-              }
-              if (cells[2]) {
-                cells[2].innerHTML = '<span style="color:#16a34a;font-weight:600;">Confirmed</span>';
-              }
-
+              // Show success message and redirect to quotation list
               Swal.fire({
-                title: 'Follow Up Confirm Successfully',
+                title: 'Follow Up Confirmed Successfully!',
+                text: 'Redirecting to quotation list...',
                 icon: 'success',
                 timer: 1500,
                 showConfirmButton: false,
-                width: '380px',
+                width: '400px',
+              }).then(function() {
+                // Redirect to quotation index page
+                window.location.href = "{{ route('quotations.index') }}";
               });
             }
           })
@@ -235,6 +257,6 @@
         });
       });
     });
-  });
+});
 </script>
 @endpush

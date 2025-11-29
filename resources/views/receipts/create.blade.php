@@ -64,7 +64,7 @@
  
         <div>
           <label class="hrp-label">Rec Date: <span class="text-red-500">*</span></label>
-          <input type="date" class="Rectangle-29 @error('receipt_date') is-invalid @enderror" name="receipt_date" value="{{ old('receipt_date', date('Y-m-d')) }}" required>
+          <input type="text" class="Rectangle-29 date-picker @error('receipt_date') is-invalid @enderror" name="receipt_date" placeholder="dd/mm/yyyy" value="{{ old('receipt_date', date('d/m/Y')) }}" autocomplete="off" required>
           @error('receipt_date')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
@@ -209,6 +209,37 @@
 </div>
 
 </form>
+
+@endsection
+
+@push('styles')
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+@endpush
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<script>
+// Initialize date picker
+$(document).ready(function() {
+  $('.date-picker').datepicker({
+    dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
+    changeMonth: true,
+    changeYear: true,
+    yearRange: '-10:+10',
+    showButtonPanel: true,
+    beforeShow: function(input, inst) {
+      setTimeout(function() {
+        inst.dpDiv.css({
+          marginTop: '2px',
+          marginLeft: '0px'
+        });
+      }, 0);
+    }
+  });
+});
+</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -399,9 +430,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
-
-@endsection
-
+@endpush
 
 
 
