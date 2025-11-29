@@ -50,4 +50,16 @@ class Project extends Model
     {
         return $this->belongsToMany(User::class, 'project_members')->withPivot('role')->withTimestamps();
     }
+
+    public function projectMaterials()
+    {
+        return $this->hasMany(ProjectMaterial::class);
+    }
+
+    public function materials()
+    {
+        return $this->belongsToMany(Material::class, 'project_materials')
+            ->withPivot('material_report_id', 'is_completed')
+            ->withTimestamps();
+    }
 }

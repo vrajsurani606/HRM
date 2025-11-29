@@ -159,6 +159,114 @@
   font-weight: 600 !important;
   margin-top: 12px !important;
 }
+
+/* Material Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.btn-cancel {
+    padding: 10px 20px;
+    background: white;
+    color: #4b5563;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+    background: #f9fafb;
+}
+
+.btn-create {
+    padding: 10px 20px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-create:hover {
+    background: #2563eb;
+}
 </style>
 @endpush
 
@@ -185,14 +293,15 @@
             </svg>
             <span id="projectStartDate">Start: -</span>
           </div>
-          <div class="meta-badge-item">
+          <div class="meta-badge-item" id="dueDateBadge" onclick="openDueDatePicker()" style="cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#dbeafe'; this.style.borderColor='#3b82f6';" onmouseout="this.style.background='#e5e7eb'; this.style.borderColor='transparent';">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
-            <span id="projectDueDate">Due: -</span>
+            <span id="projectDueDate">Due: Click to set</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.5;">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
           </div>
         </div>
       </div>
@@ -271,6 +380,13 @@
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
           Add Task
+        </button>
+        <button class="action-btn primary" onclick="openMaterialsModal(projectId)" style="background: #10b981;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 11l3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+          </svg>
+          Assign Materials
         </button>
         <button class="action-btn secondary" onclick="window.location.href='{{ route('projects.index') }}'">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1396,6 +1512,104 @@ function escapeHtml(text) {
     return text.replace(/[&<>"']/g, m => map[m]);
 }
 
+// Function to open due date picker
+async function openDueDatePicker() {
+    const currentDueDate = projectData?.due_date || '';
+    
+    const { value: dueDate } = await Swal.fire({
+        title: 'Set Project Deadline',
+        html: `
+            <div style="text-align: left; margin-top: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Due Date:</label>
+                <input type="date" id="swalDueDate" class="swal2-input" value="${currentDueDate}" 
+                       style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; margin: 0;">
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#6b7280',
+        customClass: {
+            popup: 'swal2-popup-custom',
+            confirmButton: 'swal2-confirm-custom',
+            cancelButton: 'swal2-cancel-custom'
+        },
+        didOpen: () => {
+            document.getElementById('swalDueDate').focus();
+        },
+        preConfirm: () => {
+            const dueDate = document.getElementById('swalDueDate').value;
+            if (!dueDate) {
+                Swal.showValidationMessage('Please select a due date');
+                return false;
+            }
+            return dueDate;
+        }
+    });
+
+    if (dueDate) {
+        try {
+            const response = await fetch(`{{ url('/projects') }}/${projectId}`, {
+                method: 'PUT',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ due_date: dueDate })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // Update local project data
+                if (projectData) {
+                    projectData.due_date = dueDate;
+                }
+                
+                // Update the display
+                const dueDateElement = document.getElementById('projectDueDate');
+                if (dueDateElement) {
+                    const formattedDate = new Date(dueDate).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                    dueDateElement.textContent = 'Due: ' + formattedDate;
+                }
+                
+                if (typeof toastr !== 'undefined') {
+                    toastr.success('Project deadline updated successfully');
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Project deadline updated successfully',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            } else {
+                throw new Error(data.message || 'Failed to update deadline');
+            }
+        } catch (error) {
+            console.error('Error updating deadline:', error);
+            if (typeof toastr !== 'undefined') {
+                toastr.error('Failed to update project deadline');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update project deadline',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== PROJECT OVERVIEW INITIALIZED ===');
     console.log('Project ID:', projectId);
@@ -1418,5 +1632,13 @@ document.addEventListener('DOMContentLoaded', function() {
     loadProjectData();
 });
 </script>
+
+<!-- Material Assignment System -->
+<script>
+    // Set base URL for API calls
+    window.appBaseUrl = '{{ url('/') }}';
+</script>
+<script src="{{ asset('js/project-materials.js') }}"></script>
+
 @endpush
 @endsection

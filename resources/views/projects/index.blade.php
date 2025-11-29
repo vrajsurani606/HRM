@@ -20,6 +20,78 @@
   box-shadow: 0 4px 12px rgba(38, 123, 245, 0.15) !important;
 }
 
+/* Modal and Date Input Fixes */
+.modal-overlay {
+  z-index: 9999 !important;
+}
+
+.modal-content {
+  position: relative;
+  z-index: 10000 !important;
+}
+
+input[type="date"] {
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 2 !important;
+  padding: 5px;
+}
+
+/* Due Date Styles */
+.card-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.card-date svg {
+  flex-shrink: 0;
+}
+
+.card-date.overdue {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.card-date.urgent {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+.card-date.completed {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.overdue-badge, .urgent-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  margin-left: 4px;
+}
+
+.overdue-badge {
+  background: #dc2626;
+  color: white;
+}
+
+.urgent-badge {
+  background: #f59e0b;
+  color: white;
+}
+
 /* View Toggle Buttons */
 .view-toggle-group {
   display: flex;
@@ -462,26 +534,19 @@
           </svg>
         </button>
       </div>
-      <button class="download-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <polyline points="7,10 12,15 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <button class="create-stage-btn" onclick="window.location.href='{{ route('project-stages.index') }}'" title="Manage Project Stages" style="background: #6b7280;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M12 1v6m0 6v6"></path>
         </svg>
+        Stages
       </button>
-      <div class="notification-badge">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span class="badge">3</span>
-      </div>
-      <button class="create-stage-btn" onclick="openStageModal()">
+      <button class="create-stage-btn" onclick="openProjectModal()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
-        Create
+        Create Project
       </button>
     </div>
   </div>
@@ -507,7 +572,28 @@
           <div class="card-header">
             <h3>{{ $project->name }}</h3>
             @if($project->due_date)
-            <span class="card-date">{{ $project->due_date->format('d/m/y') }}</span>
+              @php
+                $now = now();
+                $dueDate = \Carbon\Carbon::parse($project->due_date);
+                $daysLeft = (int) $now->diffInDays($dueDate, false);
+                $isOverdue = $daysLeft < 0;
+                $isUrgent = $daysLeft >= 0 && $daysLeft <= 3;
+                $isCompleted = $project->status === 'completed';
+                $absDays = abs($daysLeft);
+                $dayText = $absDays === 1 ? 'day' : 'days';
+              @endphp
+              <span class="card-date {{ $isCompleted ? 'completed' : ($isOverdue ? 'overdue' : ($isUrgent ? 'urgent' : '')) }}">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                {{ $project->due_date->format('d M') }}
+                @if($isOverdue && !$isCompleted)
+                  <span class="overdue-badge">{{ $absDays }} {{ $dayText }} overdue</span>
+                @elseif($isUrgent && !$isCompleted)
+                  <span class="urgent-badge">{{ $daysLeft }} {{ $dayText }} left</span>
+                @endif
+              </span>
             @endif
           </div>
           <div class="card-meta">
@@ -738,6 +824,16 @@
         </div>
 
         <div class="form-group">
+          <label for="projectStage">Project Stage <span style="color: red;">*</span></label>
+          <select id="projectStage" name="stage_id" class="form-input" required>
+            <option value="">-- Select Stage --</option>
+            @foreach($stages as $stage)
+              <option value="{{ $stage->id }}">{{ $stage->name }}</option>
+            @endforeach
+          </select>
+        </div>
+
+        <div class="form-group">
           <label for="projectCompany">Select Company</label>
           <select id="projectCompany" name="company_id" class="form-input">
             <option value="">-- Select Company --</option>
@@ -754,13 +850,13 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
           <div class="form-group">
-            <label for="projectStartDate">Start Date</label>
-            <input type="date" id="projectStartDate" name="start_date" class="form-input">
+            <label for="projectStartDate" style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Start Date</label>
+            <input type="date" id="projectStartDate" name="start_date" class="form-input" style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; cursor: pointer; position: relative; z-index: 1;">
           </div>
 
           <div class="form-group">
-            <label for="projectDueDate">Due Date</label>
-            <input type="date" id="projectDueDate" name="due_date" class="form-input">
+            <label for="projectDueDate" style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Due Date (Deadline)</label>
+            <input type="date" id="projectDueDate" name="due_date" class="form-input" style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; cursor: pointer; position: relative; z-index: 1;">
           </div>
         </div>
 
@@ -832,13 +928,13 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
           <div class="form-group">
-            <label for="editProjectStartDate">Start Date</label>
-            <input type="date" id="editProjectStartDate" name="start_date" class="form-input">
+            <label for="editProjectStartDate" style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Start Date</label>
+            <input type="date" id="editProjectStartDate" name="start_date" class="form-input" style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; cursor: pointer; position: relative; z-index: 1;">
           </div>
 
           <div class="form-group">
-            <label for="editProjectDueDate">Due Date</label>
-            <input type="date" id="editProjectDueDate" name="due_date" class="form-input">
+            <label for="editProjectDueDate" style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Due Date (Deadline)</label>
+            <input type="date" id="editProjectDueDate" name="due_date" class="form-input" style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; cursor: pointer; position: relative; z-index: 1;">
           </div>
         </div>
 
@@ -909,19 +1005,19 @@
             </svg>
             Add
           </button>
-          <button style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;">
+          <button id="dueDateButton" onclick="openProjectDueDatePicker()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
-            Dates
+            <span id="dueDateText">Due Date</span>
           </button>
           <button style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 11l3 3L22 4"></path>
               <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
             </svg>
-            Checklist
+            Auto Assign
           </button>
           
           <!-- Members Section (inline, no border) -->
@@ -930,12 +1026,6 @@
             <div id="projectMembersAvatars" style="display: flex; align-items: center; gap: 4px;">
               <!-- Member avatars will be added here -->
             </div>
-            <button onclick="openAddMemberModal()" style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: white; border: 1px solid #e5e7eb; border-radius: 50%; cursor: pointer; transition: all 0.2s;" title="Add Member">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
           </div>
           
          
@@ -994,7 +1084,6 @@
                 </svg>
                 <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #000;">Group Chat</h3>
               </div>
-              <span id="onlineCount" style="font-size: 12px; color: #6b7280;">3 members online</span>
             </div>
           </div>
           
@@ -1482,9 +1571,29 @@ function viewProject(projectId, event) {
         const project = data.project;
         console.log('Project data:', project);
         
+        // Store due date globally for the date picker
+        window.currentProjectDueDate = project.due_date || '';
+        
         // Update modal content
         document.getElementById('viewProjectTitle').textContent = project.name;
         document.getElementById('viewProjectStage').textContent = project.stage ? project.stage.name : 'No Stage';
+        
+        // Update due date button
+        if (project.due_date) {
+            const formattedDate = new Date(project.due_date).toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: 'short'
+            });
+            document.getElementById('dueDateText').textContent = formattedDate;
+            document.getElementById('dueDateButton').style.background = '#dcfce7';
+            document.getElementById('dueDateButton').style.borderColor = '#bbf7d0';
+            document.getElementById('dueDateButton').style.color = '#166534';
+        } else {
+            document.getElementById('dueDateText').textContent = 'Due Date';
+            document.getElementById('dueDateButton').style.background = 'white';
+            document.getElementById('dueDateButton').style.borderColor = '#e5e7eb';
+            document.getElementById('dueDateButton').style.color = '#000';
+        }
             
         // Update company selector with all companies
         const companySelect = document.getElementById('viewProjectCompany');
@@ -1757,17 +1866,102 @@ function saveNewTask() {
     });
 }
 
-function toggleTaskComplete(taskId) {
+async function toggleTaskComplete(taskId) {
     const taskElement = document.getElementById(taskId);
     const checkbox = taskElement.querySelector('input[type="checkbox"]');
     const titleElement = taskElement.querySelector('.task-title');
+    const isCompleted = checkbox.checked;
     
-    if (checkbox.checked) {
+    // Update UI immediately
+    if (isCompleted) {
         titleElement.style.textDecoration = 'line-through';
         titleElement.style.color = '#9ca3af';
+        taskElement.style.background = '#f0fdf4';
     } else {
         titleElement.style.textDecoration = 'none';
         titleElement.style.color = '#000';
+        taskElement.style.background = 'white';
+    }
+    
+    // If checking the main task, automatically check all subtasks
+    if (isCompleted) {
+        const subtasksContainer = document.getElementById(taskId + '-subtasks');
+        const subtaskCheckboxes = subtasksContainer.querySelectorAll('input[type="checkbox"]');
+        
+        // Check all subtasks
+        for (const subtaskCheckbox of subtaskCheckboxes) {
+            if (!subtaskCheckbox.checked) {
+                subtaskCheckbox.checked = true;
+                const subtaskElement = subtaskCheckbox.closest('[id^="' + taskId + '-sub-"]');
+                if (subtaskElement) {
+                    const subtaskId = subtaskElement.id;
+                    // Update subtask UI
+                    const textElement = subtaskElement.querySelector('.subtask-text');
+                    if (textElement) {
+                        textElement.style.textDecoration = 'line-through';
+                        textElement.style.color = '#9ca3af';
+                    }
+                    subtaskElement.style.borderLeftColor = '#10b981';
+                    
+                    // Save subtask to database
+                    const subtaskDbId = subtaskId.split('-sub-')[1];
+                    await fetch(`{{ url('/projects') }}/${currentProjectId}/tasks/${subtaskDbId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ is_completed: true })
+                    }).catch(err => console.error('Error updating subtask:', err));
+                }
+            }
+        }
+    }
+    
+    // Extract task database ID from taskId (format: task-123)
+    const taskDbId = taskId.split('-')[1];
+    
+    // Save main task to database
+    try {
+        const response = await fetch(`{{ url('/projects') }}/${currentProjectId}/tasks/${taskDbId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                is_completed: isCompleted
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Update task progress bar
+            updateTaskProgress(taskId);
+            // Update the kanban card task count
+            updateKanbanCardTaskCount();
+            if (typeof toastr !== 'undefined') {
+                toastr.success(isCompleted ? 'Task and all subtasks completed!' : 'Task reopened');
+            }
+        } else {
+            // Revert checkbox on error
+            checkbox.checked = !isCompleted;
+            if (typeof toastr !== 'undefined') {
+                toastr.error('Failed to update task');
+            }
+        }
+    } catch (error) {
+        console.error('Error updating task:', error);
+        // Revert checkbox on error
+        checkbox.checked = !isCompleted;
+        if (typeof toastr !== 'undefined') {
+            toastr.error('Failed to update task');
+        }
     }
 }
 
@@ -1908,13 +2102,14 @@ function saveSubtask(taskId) {
     });
 }
 
-function toggleSubtaskComplete(subtaskId, taskId) {
+async function toggleSubtaskComplete(subtaskId, taskId) {
     const subtaskElement = document.getElementById(subtaskId);
     const checkbox = subtaskElement.querySelector('input[type="checkbox"]');
     const textElement = subtaskElement.querySelector('.subtask-text');
     
     const isCompleted = checkbox.checked;
     
+    // Update UI immediately
     if (isCompleted) {
         textElement.style.textDecoration = 'line-through';
         textElement.style.color = '#9ca3af';
@@ -1929,25 +2124,105 @@ function toggleSubtaskComplete(subtaskId, taskId) {
     const parts = subtaskId.split('-sub-');
     const subtaskDbId = parts[1];
     
-    fetch(`{{ url('/projects') }}/${currentProjectId}/tasks/${subtaskDbId}`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-            is_completed: isCompleted
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
+    try {
+        const response = await fetch(`{{ url('/projects') }}/${currentProjectId}/tasks/${subtaskDbId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                is_completed: isCompleted
+            })
+        });
+        
+        const data = await response.json();
+        
         if (data.success) {
             // Update progress
             updateTaskProgress(taskId);
+            
+            // Check if all subtasks are now completed
+            const subtasksContainer = document.getElementById(taskId + '-subtasks');
+            const allSubtaskCheckboxes = subtasksContainer.querySelectorAll('input[type="checkbox"]');
+            const allCompleted = Array.from(allSubtaskCheckboxes).every(cb => cb.checked);
+            
+            // If all subtasks are completed, automatically check the main task
+            if (allCompleted && allSubtaskCheckboxes.length > 0) {
+                const taskElement = document.getElementById(taskId);
+                const mainTaskCheckbox = taskElement.querySelector('input[type="checkbox"]');
+                
+                if (mainTaskCheckbox && !mainTaskCheckbox.checked) {
+                    mainTaskCheckbox.checked = true;
+                    
+                    // Update main task UI
+                    const titleElement = taskElement.querySelector('.task-title');
+                    titleElement.style.textDecoration = 'line-through';
+                    titleElement.style.color = '#9ca3af';
+                    taskElement.style.background = '#f0fdf4';
+                    
+                    // Save main task to database
+                    const taskDbId = taskId.split('-')[1];
+                    await fetch(`{{ url('/projects') }}/${currentProjectId}/tasks/${taskDbId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ is_completed: true })
+                    }).catch(err => console.error('Error updating main task:', err));
+                    
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success('All subtasks completed! Task marked as complete.');
+                    }
+                }
+            }
+            
+            // If unchecking a subtask, uncheck the main task too
+            if (!isCompleted) {
+                const taskElement = document.getElementById(taskId);
+                const mainTaskCheckbox = taskElement.querySelector('input[type="checkbox"]');
+                
+                if (mainTaskCheckbox && mainTaskCheckbox.checked) {
+                    mainTaskCheckbox.checked = false;
+                    
+                    // Update main task UI
+                    const titleElement = taskElement.querySelector('.task-title');
+                    titleElement.style.textDecoration = 'none';
+                    titleElement.style.color = '#000';
+                    taskElement.style.background = 'white';
+                    
+                    // Save main task to database
+                    const taskDbId = taskId.split('-')[1];
+                    await fetch(`{{ url('/projects') }}/${currentProjectId}/tasks/${taskDbId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ is_completed: false })
+                    }).catch(err => console.error('Error updating main task:', err));
+                }
+            }
+            
+            // Update kanban card
+            updateKanbanCardTaskCount();
+        } else {
+            // Revert on error
+            checkbox.checked = !isCompleted;
+            toggleSubtaskComplete(subtaskId, taskId);
         }
-    })
-    .catch(error => console.error('Error saving completion:', error));
+    } catch (error) {
+        console.error('Error saving completion:', error);
+        // Revert on error
+        checkbox.checked = !isCompleted;
+    }
 }
 
 function toggleSubtasksSection(taskId) {
@@ -1970,13 +2245,45 @@ function updateTaskProgress(taskId) {
     const total = checkboxes.length;
     const completed = Array.from(checkboxes).filter(cb => cb.checked).length;
     
-    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+    let percentage = 0;
+    
+    // If there are subtasks, calculate based on subtask completion
+    if (total > 0) {
+        percentage = Math.round((completed / total) * 100);
+    } else {
+        // If no subtasks, check if the main task itself is completed
+        const taskElement = document.getElementById(taskId);
+        const mainTaskCheckbox = taskElement.querySelector('input[type="checkbox"]');
+        percentage = mainTaskCheckbox && mainTaskCheckbox.checked ? 100 : 0;
+    }
     
     document.getElementById(taskId + '-progress-text').textContent = percentage + '%';
     document.getElementById(taskId + '-progress-bar').style.width = percentage + '%';
     
     // Update subtask count
     document.getElementById(taskId + '-subtask-count').textContent = total + ' subtask' + (total !== 1 ? 's' : '');
+}
+
+// Update kanban card task count after task completion changes
+function updateKanbanCardTaskCount() {
+    if (!currentProjectId) return;
+    
+    // Count all tasks and completed tasks in the modal
+    const tasksContainer = document.getElementById('tasksContainer');
+    if (!tasksContainer) return;
+    
+    const allTaskCheckboxes = tasksContainer.querySelectorAll('input[type="checkbox"]');
+    const totalTasks = allTaskCheckboxes.length;
+    const completedTasks = Array.from(allTaskCheckboxes).filter(cb => cb.checked).length;
+    
+    // Update the kanban card
+    const kanbanCard = document.querySelector(`.kanban-card[data-project-id="${currentProjectId}"]`);
+    if (kanbanCard) {
+        const taskCountElement = kanbanCard.querySelector('.task-count');
+        if (taskCountElement) {
+            taskCountElement.textContent = `${completedTasks}/${totalTasks}`;
+        }
+    }
 }
 
 // Delete task function
@@ -2093,6 +2400,17 @@ function renderTaskFromDB(task) {
     
     const taskHTML = createTaskHTML(taskId, task.title);
     document.getElementById('tasksContainer').insertAdjacentHTML('beforeend', taskHTML);
+    
+    // Set task completion state
+    if (task.is_completed) {
+        const taskElement = document.getElementById(taskId);
+        const checkbox = taskElement.querySelector('input[type="checkbox"]');
+        const titleElement = taskElement.querySelector('.task-title');
+        checkbox.checked = true;
+        titleElement.style.textDecoration = 'line-through';
+        titleElement.style.color = '#9ca3af';
+        taskElement.style.background = '#f0fdf4';
+    }
     
     // Render subtasks
     if (task.subtasks && task.subtasks.length > 0) {
@@ -2487,6 +2805,142 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Open Project Modal
+function openProjectModal(stageId = null) {
+    document.getElementById('projectForm').reset();
+    if (stageId) {
+        document.getElementById('projectStage').value = stageId;
+    }
+    document.getElementById('projectModal').style.display = 'flex';
+}
+
+// Close Project Modal
+function closeProjectModal() {
+    document.getElementById('projectModal').style.display = 'none';
+    document.getElementById('projectForm').reset();
+}
+
+// Close View Project Modal
+function closeViewProjectModal() {
+    document.getElementById('viewProjectModal').style.display = 'none';
+}
+
+// Open Due Date Picker for View Project Modal
+function openProjectDueDatePicker() {
+    if (!currentProjectId) {
+        toastr.error('No project selected');
+        return;
+    }
+    
+    // Get current due date from the button or fetch from server
+    const dueDateText = document.getElementById('dueDateText').textContent;
+    let currentDueDate = '';
+    
+    // Try to get from window.currentProjectDueDate if it exists
+    if (window.currentProjectDueDate) {
+        currentDueDate = window.currentProjectDueDate;
+    }
+    
+    Swal.fire({
+        title: 'Set Project Deadline',
+        html: `
+            <div style="text-align: left; margin-top: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Due Date:</label>
+                <input type="date" id="swalProjectDueDate" class="swal2-input" value="${currentDueDate}" 
+                       style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; margin: 0;">
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#6b7280',
+        customClass: {
+            popup: 'perfect-swal-popup'
+        },
+        didOpen: () => {
+            document.getElementById('swalProjectDueDate').focus();
+        },
+        preConfirm: () => {
+            const dueDate = document.getElementById('swalProjectDueDate').value;
+            if (!dueDate) {
+                Swal.showValidationMessage('Please select a due date');
+                return false;
+            }
+            return { due_date: dueDate };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            updateCurrentProjectDueDate(result.value.due_date);
+        }
+    });
+}
+
+// Update Current Project Due Date
+async function updateCurrentProjectDueDate(dueDate) {
+    if (!currentProjectId) {
+        toastr.error('No project selected');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`{{ url('/projects') }}/${currentProjectId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ due_date: dueDate })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Update the button text
+            const formattedDate = new Date(dueDate).toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: 'short'
+            });
+            document.getElementById('dueDateText').textContent = formattedDate;
+            
+            // Update the global due date variable
+            window.currentProjectDueDate = dueDate;
+            
+            // Update button styling to show it's set
+            const dueDateButton = document.getElementById('dueDateButton');
+            if (dueDateButton) {
+                dueDateButton.style.background = '#dcfce7';
+                dueDateButton.style.borderColor = '#bbf7d0';
+                dueDateButton.style.color = '#166534';
+            }
+            
+            // Show success message
+            toastr.success('Project deadline updated successfully');
+            
+            // Update the kanban card if visible
+            const card = document.querySelector(`.kanban-card[data-project-id="${currentProjectId}"]`);
+            if (card) {
+                // Reload the page to reflect changes in kanban view
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        } else {
+            throw new Error(data.message || 'Failed to update due date');
+        }
+    } catch (error) {
+        console.error('Error updating due date:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to update project deadline',
+            confirmButtonColor: '#ef4444'
+        });
+    }
+}
+
 // Delete Project Function
 function deleteProject(projectId) {
     Swal.fire({
@@ -2582,15 +3036,26 @@ function renderMemberCards(users) {
         card.dataset.name = user.name.toLowerCase();
         card.style.cssText = 'position: relative; display: flex; flex-direction: column; align-items: center; padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; background: white;';
         
+        // Get employee photo or use initials
+        const photoPath = user.employee && user.employee.photo_path 
+            ? `{{ asset('storage') }}/${user.employee.photo_path}`
+            : null;
+        const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        const avatarColors = ['#4F46E5', '#059669', '#DC2626', '#F59E0B', '#8B5CF6', '#EC4899'];
+        const avatarColor = avatarColors[user.id % avatarColors.length];
+        
         card.innerHTML = `
             <div style="position: absolute; top: 8px; right: 8px;">
                 <input type="checkbox" style="width: 20px; height: 20px; cursor: pointer; accent-color: #267bf5;">
             </div>
-            <div style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; margin-bottom: 12px; border: 3px solid #e2e8f0; transition: border-color 0.2s ease;">
-                <img src="{{ asset('new_theme/dist/img/avatar.png') }}" alt="${user.name}" style="width: 100%; height: 100%; object-fit: cover;">
+            <div style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; margin-bottom: 12px; border: 3px solid #e2e8f0; transition: border-color 0.2s ease; background: ${photoPath ? 'white' : avatarColor}; display: flex; align-items: center; justify-content: center;">
+                ${photoPath 
+                    ? `<img src="${photoPath}" alt="${user.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\\'color: white; font-size: 28px; font-weight: 700;\\'>${initials}</span>';">`
+                    : `<span style="color: white; font-size: 28px; font-weight: 700;">${initials}</span>`
+                }
             </div>
             <div style="font-size: 13px; font-weight: 600; color: #1e293b; text-align: center;">${user.name}</div>
-            <div style="font-size: 11px; color: #64748b; text-align: center; margin-top: 4px;">${user.email}</div>
+            <div style="font-size: 11px; color: #64748b; text-align: center; margin-top: 4px;">${user.position || user.email}</div>
         `;
         
         const checkbox = card.querySelector('input[type="checkbox"]');
@@ -2692,11 +3157,32 @@ function addSelectedMembers() {
     
     Promise.all(promises).then(() => {
         closeAddMemberModal();
-        if (addedCount > 0) {
-            alert(`Successfully added ${addedCount} member(s)!`);
-        }
-        if (failedCount > 0) {
-            alert(`Failed to add ${failedCount} member(s)`);
+        if (addedCount > 0 && failedCount === 0) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: `Successfully added ${addedCount} member${addedCount > 1 ? 's' : ''}!`,
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                loadProjectMembers();
+            });
+        } else if (addedCount > 0 && failedCount > 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Partially Successful',
+                html: `Added ${addedCount} member${addedCount > 1 ? 's' : ''}<br>Failed to add ${failedCount} member${failedCount > 1 ? 's' : ''}`,
+                confirmButtonColor: '#3b82f6'
+            }).then(() => {
+                loadProjectMembers();
+            });
+        } else if (failedCount > 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: `Failed to add ${failedCount} member${failedCount > 1 ? 's' : ''}`,
+                confirmButtonColor: '#ef4444'
+            });
         }
     });
 }

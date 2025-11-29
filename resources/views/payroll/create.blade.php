@@ -406,16 +406,7 @@
 
 @push('scripts')
 <script>
-(function(){
-  // If all 3 are set, load employee data on page load (for edit prefill)
-  try {
-    var eid = document.getElementById('employee_id')?.value;
-    var m = document.getElementById('month')?.value;
-    var y = document.getElementById('year')?.value;
-    if (eid && m && y) {
-      loadEmployeeSalaryData();
-    }
-
+// Global functions that need to be accessible from inline handlers
 function updateLeaveTotals(){
   const casual = parseFloat(document.getElementById('casual_leave')?.value || 0) || 0;
   const medical = parseFloat(document.getElementById('medical_leave')?.value || 0) || 0;
@@ -437,44 +428,16 @@ function updateLeaveTotals(){
   calculateNetSalary();
 }
 
-function calculateNetSalary() {
-  // Earnings
-  const basic = parseFloat(document.getElementById('basic_salary')?.value || 0) || 0;
-  const city = parseFloat(document.getElementById('city_allowance')?.value || 0) || 0;
-  const hra = parseFloat(document.getElementById('hra')?.value || 0) || 0;
-  const medAllow = parseFloat(document.getElementById('medical_allowance')?.value || 0) || 0;
-  const totalIncome = basic + city + hra + medAllow;
-  const incomeEl = document.getElementById('total_income');
-  if (incomeEl) incomeEl.value = totalIncome.toFixed(2);
-
-  // Leave deduction (personal unpaid only)
-  const totalDays = parseFloat(document.getElementById('total_working_days')?.value || 0) || 30;
-  const personalUnpaid = parseFloat(document.getElementById('personal_leave_unpaid')?.value || 0) || 0;
-  const perDay = totalDays ? (basic / totalDays) : 0;
-  const leaveDeduction = perDay * personalUnpaid;
-  const leaveEl = document.getElementById('leave_deduction');
-  if (leaveEl) leaveEl.value = leaveDeduction.toFixed(2);
-
-  // Other deductions
-  const pf = parseFloat(document.getElementById('pf')?.value || 0) || 0;
-  const tds = parseFloat(document.getElementById('tds')?.value || 0) || 0;
-  const proTax = parseFloat(document.getElementById('professional_tax')?.value || 0) || 0;
-  const esic = parseFloat(document.getElementById('esic')?.value || 0) || 0;
-  const security = parseFloat(document.getElementById('security_deposit')?.value || 0) || 0;
-  const totalDeductions = pf + tds + proTax + esic + security + leaveDeduction;
-  const dedEl = document.getElementById('deduction_total');
-  if (dedEl) dedEl.value = totalDeductions.toFixed(2);
-
-  // Net
-  const net = totalIncome - totalDeductions;
-  const netEl = document.getElementById('net_salary');
-  if (netEl) netEl.value = net.toFixed(2);
-
-  // Update summary badges
-  const dti = document.getElementById('display_total_income'); if (dti) dti.textContent = totalIncome.toFixed(2);
-  const dtd = document.getElementById('display_deduction_total'); if (dtd) dtd.textContent = totalDeductions.toFixed(2);
-  const dns = document.getElementById('display_net_salary'); if (dns) dns.textContent = net.toFixed(2);
-}
+// Initialize on page load
+(function(){
+  // If all 3 are set, load employee data on page load (for edit prefill)
+  try {
+    var eid = document.getElementById('employee_id')?.value;
+    var m = document.getElementById('month')?.value;
+    var y = document.getElementById('year')?.value;
+    if (eid && m && y) {
+      loadEmployeeSalaryData();
+    }
   } catch(e) { /* no-op */ }
 
   // Initialize payment fields visibility based on current status
@@ -672,16 +635,85 @@ document.getElementById('payrollForm').addEventListener('submit', function(e) {
     const basicSalary = document.getElementById('basic_salary').value;
     
     if (!employeeId || !month || !year || !basicSalary) {
-        if (typeof toastr !== 'undefined') {
-            toastr.error('Please fill all required fields');
-        } else {
-            toastr.error('Please fill all required fields');
-        }
+        Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            text: 'Please fill all required fields',
+            confirmButtonColor: '#ef4444',
+            width: '400px',
+            padding: '1.5rem',
+            customClass: { popup: 'perfect-swal-popup' }
+        });
         return;
     }
     
-    // Submit the form
-    this.submit();
+    // Get form data
+    const formData = new FormData(this);
+    const url = this.action;
+    const method = this.querySelector('input[name="_method"]') ? 'PUT' : 'POST';
+    
+    // Show loading
+    Swal.fire({
+        title: 'Processing...',
+        text: 'Please wait while we save the payroll',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        width: '400px',
+        padding: '1.5rem',
+        customClass: { popup: 'perfect-swal-popup' },
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    // Submit via AJAX
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: result.message || 'Payroll saved successfully!',
+                confirmButtonColor: '#10b981',
+                width: '400px',
+                padding: '1.5rem',
+                customClass: { popup: 'perfect-swal-popup' }
+            }).then(() => {
+                window.location.href = '{{ route("payroll.index") }}';
+            });
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Already Exists',
+                text: result.message || 'This payroll entry already exists',
+                confirmButtonColor: '#f59e0b',
+                width: '400px',
+                padding: '1.5rem',
+                customClass: { popup: 'perfect-swal-popup' }
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An unexpected error occurred. Please try again.',
+            confirmButtonColor: '#ef4444',
+            width: '400px',
+            padding: '1.5rem',
+            customClass: { popup: 'perfect-swal-popup' }
+        });
+    });
 });
 </script>
 @endpush

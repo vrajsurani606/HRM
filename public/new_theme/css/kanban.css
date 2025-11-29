@@ -380,6 +380,8 @@
   font-weight: 700;
   color: #000;
   font-family: 'Visby', sans-serif;
+  text-align: left;
+  flex: 1;
 }
 
 .close-btn {

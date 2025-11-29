@@ -197,6 +197,9 @@ class ProjectController extends Controller
             'due_date' => $validated['due_date'] ?? null,
             'order' => $project->allTasks()->where('parent_id', $validated['parent_id'] ?? null)->max('order') + 1,
         ]);
+        
+        // Recalculate project task counts
+        $this->updateProjectTaskCounts($project);
 
         return response()->json([
             'success' => true,
@@ -215,10 +218,27 @@ class ProjectController extends Controller
         ]);
 
         $task->update($validated);
+        
+        // Recalculate project task counts
+        $this->updateProjectTaskCounts($project);
 
         return response()->json([
             'success' => true,
             'task' => $task
+        ]);
+    }
+    
+    /**
+     * Update project's total_tasks and completed_tasks counts
+     */
+    private function updateProjectTaskCounts(Project $project)
+    {
+        $totalTasks = $project->allTasks()->count();
+        $completedTasks = $project->allTasks()->where('is_completed', true)->count();
+        
+        $project->update([
+            'total_tasks' => $totalTasks,
+            'completed_tasks' => $completedTasks
         ]);
     }
 
@@ -226,6 +246,9 @@ class ProjectController extends Controller
     {
         $task = $project->allTasks()->findOrFail($taskId);
         $task->delete();
+        
+        // Recalculate project task counts
+        $this->updateProjectTaskCounts($project);
 
         return response()->json(['success' => true]);
     }
