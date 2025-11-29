@@ -6,14 +6,14 @@
     <title>Salary Slip - {{ $payroll->employee->name }}</title>
     <style>
         @page { 
-            size: A4; 
-            margin: 15mm 20mm;
+            size: A4 portrait; 
+            margin: 10mm 12mm;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: Arial, Helvetica, sans-serif; 
-            font-size: 10pt; 
-            line-height: 1.4; 
+            font-size: 9pt; 
+            line-height: 1.3; 
             color: #1a1a1a; 
             background: #f5f5f5; 
         }
@@ -24,60 +24,254 @@
             background: #fff; 
             box-shadow: 0 0 10px rgba(0,0,0,0.1); 
         }
-        .header { border: 1px solid #d1d5db; padding: 15px; margin-bottom: 15px; background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%); display: flex; align-items: center; gap: 15px; }
-        .logo-box { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .header { 
+            border: 1px solid #d1d5db; 
+            padding: 12px; 
+            margin-bottom: 10px; 
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%); 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        .logo-box { 
+            width: 60px; 
+            height: 60px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            flex-shrink: 0; 
+        }
         .logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
         .company-info { flex: 1; }
-        .company-name { font-size: 16pt; font-weight: bold; color: #1e40af; margin-bottom: 6px; letter-spacing: 0.5px; }
-        .company-address { font-size: 8.5pt; line-height: 1.5; color: #4b5563; }
-        .slip-title { text-align: center; font-size: 13pt; font-weight: bold; padding: 12px; border: 1px solid #d1d5db; margin-bottom: 20px; background: #eff6ff; color: #1e40af; letter-spacing: 2px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .company-name { 
+            font-size: 14pt; 
+            font-weight: bold; 
+            color: #1e40af; 
+            margin-bottom: 4px; 
+            letter-spacing: 0.3px; 
+        }
+        .company-address { 
+            font-size: 8pt; 
+            line-height: 1.4; 
+            color: #4b5563; 
+        }
+        .slip-title { 
+            text-align: center; 
+            font-size: 11pt; 
+            font-weight: bold; 
+            padding: 8px; 
+            border: 1px solid #d1d5db; 
+            margin-bottom: 10px; 
+            background: #eff6ff; 
+            color: #1e40af; 
+            letter-spacing: 1.5px; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 8px; 
+        }
         .info-table { border: 1px solid #d1d5db; }
-        .info-table td { border: 1px solid #e5e7eb; padding: 8px 10px; font-size: 9.5pt; }
-        .info-table td:nth-child(odd) { font-weight: 600; width: 25%; background: #f9fafb; color: #374151; }
+        .info-table td { 
+            border: 1px solid #e5e7eb; 
+            padding: 6px 8px; 
+            font-size: 8.5pt; 
+        }
+        .info-table td:nth-child(odd) { 
+            font-weight: 600; 
+            width: 25%; 
+            background: #f9fafb; 
+            color: #374151; 
+        }
         .info-table td:nth-child(even) { color: #1f2937; }
-        .section-header { background: #dbeafe; color: #1e40af; font-weight: bold; padding: 8px 12px; font-size: 10pt; text-transform: uppercase; letter-spacing: 0.5px; border-left: 3px solid #1e40af; }
+        .section-header { 
+            background: #dbeafe; 
+            color: #1e40af; 
+            font-weight: bold; 
+            padding: 6px 10px; 
+            font-size: 9pt; 
+            text-transform: uppercase; 
+            letter-spacing: 0.3px; 
+            border-left: 3px solid #1e40af; 
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
         .salary-table { border: 1px solid #d1d5db; }
-        .salary-table th { background: #eff6ff; color: #1e40af; padding: 8px 10px; font-size: 10pt; font-weight: bold; border: 1px solid #d1d5db; text-align: left; }
-        .salary-table td { border: 1px solid #e5e7eb; padding: 8px 10px; font-size: 9.5pt; }
-        .salary-table td.amount { text-align: right; font-weight: 600; color: #1f2937; }
-        .total-row { background: #f3f4f6; font-weight: bold; }
-        .net-salary-row { background: #dbeafe; color: #1e40af; font-size: 11pt; border-top: 2px solid #1e40af; }
+        .salary-table th { 
+            background: #eff6ff; 
+            color: #1e40af; 
+            padding: 6px 8px; 
+            font-size: 9pt; 
+            font-weight: bold; 
+            border: 1px solid #d1d5db; 
+            text-align: left; 
+        }
+        .salary-table td { 
+            border: 1px solid #e5e7eb; 
+            padding: 5px 8px; 
+            font-size: 8.5pt; 
+        }
+        .salary-table td.amount { 
+            text-align: right; 
+            font-weight: 600; 
+            color: #1f2937; 
+        }
+        .total-row { 
+            background: #f3f4f6; 
+            font-weight: bold; 
+        }
+        .net-salary-row { 
+            background: #dbeafe; 
+            color: #1e40af; 
+            font-size: 10pt; 
+            border-top: 2px solid #1e40af; 
+        }
         .net-salary-row td { color: #1e40af; }
-        .net-salary-row td:last-child { font-weight: bold; font-size: 14pt; }
+        .net-salary-row td:last-child { 
+            font-weight: bold; 
+            font-size: 12pt; 
+        }
 
-        .signatures { display: flex; justify-content: space-between; margin-top: 40px; gap: 20px; }
+        .signatures { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 20px; 
+            gap: 15px; 
+        }
         .signature-box { text-align: center; flex: 1; }
-        .signature-line { border-top: 1.5px solid #6b7280; margin-top: 50px; margin-bottom: 8px; }
-        .signature-label { font-size: 9pt; font-weight: 600; color: #374151; }
-        .footer { text-align: center; font-size: 8pt; margin-top: 30px; padding-top: 15px; border-top: 1px solid #e5e7eb; color: #6b7280; line-height: 1.6; }
-        .print-button { position: fixed; top: 20px; right: 20px; background: #1e40af; color: #fff; border: none; padding: 12px 24px; font-weight: 600; cursor: pointer; border-radius: 6px; box-shadow: 0 2px 8px rgba(30,64,175,0.3); font-size: 11pt; }
+        .signature-line { 
+            border-top: 1.5px solid #6b7280; 
+            margin-top: 30px; 
+            margin-bottom: 6px; 
+        }
+        .signature-label { 
+            font-size: 8.5pt; 
+            font-weight: 600; 
+            color: #374151; 
+        }
+        .print-button { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            background: #1e40af; 
+            color: #fff; 
+            border: none; 
+            padding: 12px 24px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            border-radius: 6px; 
+            box-shadow: 0 2px 8px rgba(30,64,175,0.3); 
+            font-size: 11pt; 
+            z-index: 1000;
+        }
         .print-button:hover { background: #1e3a8a; }
         @media print { 
-            .print-button { display: none; } 
+            @page {
+                size: A4 portrait;
+                margin: 12mm 15mm;
+            }
+            .print-button { display: none !important; } 
             body { 
                 background: #fff; 
                 margin: 0;
                 padding: 0;
+                font-size: 9pt;
+                line-height: 1.3;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             } 
             .container { 
                 box-shadow: none; 
                 margin: 0; 
-                padding: 15mm 20mm;
+                padding: 0;
                 max-width: 100%;
-                width: 210mm;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
             }
             .header { 
                 page-break-inside: avoid;
+                padding: 10px;
+                margin-bottom: 8px;
+                gap: 10px;
+            }
+            .logo-box {
+                width: 55px;
+                height: 55px;
+            }
+            .company-name {
+                font-size: 13pt;
+                margin-bottom: 3px;
+                letter-spacing: 0.3px;
+            }
+            .company-address {
+                font-size: 7.5pt;
+                line-height: 1.3;
+            }
+            .slip-title {
+                font-size: 10pt;
+                padding: 7px;
+                margin-bottom: 8px;
+                letter-spacing: 1.2px;
             }
             .section-header {
                 page-break-after: avoid;
+                padding: 5px 9px;
+                font-size: 8.5pt;
+                margin-bottom: 4px;
+                margin-top: 6px;
             }
             table {
+                page-break-inside: auto;
+                margin-bottom: 6px;
+            }
+            tr {
                 page-break-inside: avoid;
+                page-break-after: auto;
+            }
+            .info-table td {
+                padding: 5px 7px;
+                font-size: 8pt;
+                line-height: 1.3;
+            }
+            .salary-table th {
+                padding: 5px 7px;
+                font-size: 8.5pt;
+            }
+            .salary-table td {
+                padding: 5px 7px;
+                font-size: 8pt;
+                line-height: 1.3;
+            }
+            .total-row td {
+                padding: 6px 7px;
+                font-size: 8.5pt;
+            }
+            .net-salary-row {
+                font-size: 9pt;
+            }
+            .net-salary-row td {
+                padding: 7px 7px;
+            }
+            .net-salary-row td:last-child {
+                font-size: 11pt;
             }
             .signatures {
                 page-break-inside: avoid;
+                margin-top: auto;
+                padding-top: 25px;
+                gap: 15px;
+            }
+            .signature-line {
+                margin-top: 35px;
+                margin-bottom: 5px;
+            }
+            .signature-label {
+                font-size: 8pt;
+            }
+            .signature-box > div:last-child {
+                font-size: 7.5pt;
             }
         }
     </style>

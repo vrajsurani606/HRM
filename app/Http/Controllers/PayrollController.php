@@ -110,17 +110,37 @@ class PayrollController extends Controller
         $paymentDate = $data['payment_date'] ?? null;
         $paymentMethod = $data['payment_method'] ?? null;
 
+        // Get employees based on selection
         $employeesQuery = Employee::query();
         if (!($data['all_employees'] ?? false)) {
             $ids = $data['employee_ids'] ?? [];
+            if (empty($ids)) {
+                return redirect()->back()->with('error', 'Please select at least one employee or check "All Employees"');
+            }
             $employeesQuery->whereIn('id', $ids);
         }
         $employees = $employeesQuery->get();
 
-        $created = 0; $updated = 0; $errors = [];
+        if ($employees->isEmpty()) {
+            return redirect()->back()->with('error', 'No employees found to generate salaries');
+        }
+
+        $created = 0; 
+        $updated = 0; 
+        $skipped = 0;
+        $errors = [];
+        
         foreach ($employees as $emp) {
             try {
                 $basicSalary = $emp->current_offer_amount ?? 0;
+                
+                // Skip if no salary defined
+                if ($basicSalary <= 0) {
+                    $skipped++;
+                    $errors[] = "{$emp->name} ({$emp->code}): No basic salary defined";
+                    continue;
+                }
+                
                 // Days in month
                 $monthNumber = date('n', strtotime($month . ' 1'));
                 $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $monthNumber, $year);
@@ -144,7 +164,9 @@ class PayrollController extends Controller
                     ->sum('total_days') ?? 0;
 
                 // Earnings (only basic by default for bulk)
-                $allowances = 0; $bonuses = 0; $tax = 0; // PT as tax can be added later
+                $allowances = 0; 
+                $bonuses = 0; 
+                $tax = 0;
 
                 // Deductions: unpaid personal leave only
                 $perDay = $daysInMonth > 0 ? ($basicSalary / $daysInMonth) : 0;
@@ -166,13 +188,15 @@ class PayrollController extends Controller
                     'basic_salary' => $basicSalary,
                     'allowances' => $allowances,
                     'bonuses' => $bonuses,
+                    'leave_deduction' => $leaveDeduction,
+                    'leave_deduction_days' => $personalLeave,
                     'deductions' => $deductions,
                     'tax' => $tax,
                     'net_salary' => $net,
                     'payment_date' => $paymentDate,
                     'payment_method' => $paymentMethod,
                     'status' => $status,
-                    'notes' => null,
+                    'notes' => 'Generated via bulk salary generator',
                 ];
 
                 if ($existing) {
@@ -183,18 +207,54 @@ class PayrollController extends Controller
                     $created++;
                 }
             } catch (\Exception $e) {
-                $errors[] = 'EmpID '.$emp->id.': '.$e->getMessage();
+                \Log::error('Bulk payroll generation error for employee ' . $emp->id, [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                $errors[] = "{$emp->name} ({$emp->code}): {$e->getMessage()}";
             }
         }
 
-        $msg = "Bulk generation completed. Created: {$created}, Updated: {$updated}.";
+        // Build success message
+        $msg = "✅ Bulk salary generation completed for {$month} {$year}!";
+        $details = [];
+        
+        if ($created > 0) {
+            $details[] = "Created: {$created}";
+        }
+        if ($updated > 0) {
+            $details[] = "Updated: {$updated}";
+        }
+        if ($skipped > 0) {
+            $details[] = "Skipped: {$skipped}";
+        }
+        
+        if (!empty($details)) {
+            $msg .= " (" . implode(', ', $details) . ")";
+        }
+
+        // Add error summary if any
         if (!empty($errors)) {
-            $msg .= ' Some errors: '.implode(' | ', array_slice($errors,0,3));
+            $errorCount = count($errors);
+            $msg .= " ⚠️ {$errorCount} error(s) occurred.";
+            
+            // Log all errors
+            \Log::warning('Bulk payroll generation errors', ['errors' => $errors]);
         }
 
         if ($request->ajax() || $request->wantsJson()) {
-            return response()->json(['success' => true, 'message' => $msg]);
+            return response()->json([
+                'success' => true, 
+                'message' => $msg,
+                'stats' => [
+                    'created' => $created,
+                    'updated' => $updated,
+                    'skipped' => $skipped,
+                    'errors' => count($errors)
+                ]
+            ]);
         }
+        
         return redirect()->route('payroll.index')->with('success', $msg);
     }
 
@@ -234,66 +294,115 @@ class PayrollController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        // Calculate net salary with detailed breakdown
-        $basicSalary = $request->basic_salary ?? 0;
-        $hra = $request->hra ?? 0;
-        $medicalAllowance = $request->medical_allowance ?? 0;
-        $cityAllowance = $request->city_allowance ?? 0;
-        $tiffinAllowance = $request->tiffin_allowance ?? 0;
-        $assistantAllowance = $request->assistant_allowance ?? 0;
-        $dearnessAllowance = $request->dearness_allowance ?? 0;
-        $totalAllowances = $hra + $medicalAllowance + $cityAllowance + $tiffinAllowance + $assistantAllowance + $dearnessAllowance;
-        $bonuses = $request->bonuses ?? 0;
-        
-        $pf = $request->pf ?? 0;
-        $professionalTax = $request->professional_tax ?? 0;
-        $tds = $request->tds ?? 0;
-        $esic = $request->esic ?? 0;
-        $securityDeposit = $request->security_deposit ?? 0;
-        $leaveDeduction = $request->leave_deduction ?? 0;
-        $leaveDeductionDays = $request->leave_deduction_days ?? 0;
-        
-        $totalDeductions = $pf + $professionalTax + $tds + $esic + $securityDeposit + $leaveDeduction;
-        $netSalary = ($basicSalary + $totalAllowances + $bonuses) - $totalDeductions;
+        try {
+            // Check if payroll already exists for this employee, month, and year
+            $existingPayroll = Payroll::where('employee_id', $request->employee_id)
+                ->where('month', $request->month)
+                ->where('year', $request->year)
+                ->first();
 
-        $payroll = Payroll::create([
-            'employee_id' => $request->employee_id,
-            'month' => $request->month,
-            'year' => $request->year,
-            'basic_salary' => $basicSalary,
-            'hra' => $hra,
-            'dearness_allowance' => $dearnessAllowance,
-            'city_allowance' => $cityAllowance,
-            'medical_allowance' => $medicalAllowance,
-            'tiffin_allowance' => $tiffinAllowance,
-            'assistant_allowance' => $assistantAllowance,
-            'allowances' => $totalAllowances,
-            'bonuses' => $bonuses,
-            'pf' => $pf,
-            'professional_tax' => $professionalTax,
-            'tds' => $tds,
-            'esic' => $esic,
-            'security_deposit' => $securityDeposit,
-            'leave_deduction' => $leaveDeduction,
-            'leave_deduction_days' => $leaveDeductionDays,
-            'deductions' => $totalDeductions,
-            'tax' => $professionalTax + $tds,
-            'net_salary' => $netSalary,
-            'payment_date' => $request->payment_date,
-            'payment_method' => $request->payment_method,
-            'status' => $request->status,
-            'notes' => $request->notes,
-        ]);
+            if ($existingPayroll) {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Salary for this employee has already been generated for ' . $request->month . ' ' . $request->year . '. Please edit the existing record instead.'
+                    ], 422);
+                }
 
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Payroll created successfully!',
-                'payroll' => $payroll
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Salary for this employee has already been generated for ' . $request->month . ' ' . $request->year . '. Please edit the existing record instead.');
+            }
+
+            // Calculate net salary with detailed breakdown
+            $basicSalary = $request->basic_salary ?? 0;
+            $hra = $request->hra ?? 0;
+            $medicalAllowance = $request->medical_allowance ?? 0;
+            $cityAllowance = $request->city_allowance ?? 0;
+            $tiffinAllowance = $request->tiffin_allowance ?? 0;
+            $assistantAllowance = $request->assistant_allowance ?? 0;
+            $dearnessAllowance = $request->dearness_allowance ?? 0;
+            $totalAllowances = $hra + $medicalAllowance + $cityAllowance + $tiffinAllowance + $assistantAllowance + $dearnessAllowance;
+            $bonuses = $request->bonuses ?? 0;
+            
+            $pf = $request->pf ?? 0;
+            $professionalTax = $request->professional_tax ?? 0;
+            $tds = $request->tds ?? 0;
+            $esic = $request->esic ?? 0;
+            $securityDeposit = $request->security_deposit ?? 0;
+            $leaveDeduction = $request->leave_deduction ?? 0;
+            $leaveDeductionDays = $request->leave_deduction_days ?? 0;
+            
+            $totalDeductions = $pf + $professionalTax + $tds + $esic + $securityDeposit + $leaveDeduction;
+            $netSalary = ($basicSalary + $totalAllowances + $bonuses) - $totalDeductions;
+
+            $payroll = Payroll::create([
+                'employee_id' => $request->employee_id,
+                'month' => $request->month,
+                'year' => $request->year,
+                'basic_salary' => $basicSalary,
+                'hra' => $hra,
+                'dearness_allowance' => $dearnessAllowance,
+                'city_allowance' => $cityAllowance,
+                'medical_allowance' => $medicalAllowance,
+                'tiffin_allowance' => $tiffinAllowance,
+                'assistant_allowance' => $assistantAllowance,
+                'allowances' => $totalAllowances,
+                'bonuses' => $bonuses,
+                'pf' => $pf,
+                'professional_tax' => $professionalTax,
+                'tds' => $tds,
+                'esic' => $esic,
+                'security_deposit' => $securityDeposit,
+                'leave_deduction' => $leaveDeduction,
+                'leave_deduction_days' => $leaveDeductionDays,
+                'deductions' => $totalDeductions,
+                'tax' => $professionalTax + $tds,
+                'net_salary' => $netSalary,
+                'payment_date' => $request->payment_date,
+                'payment_method' => $request->payment_method,
+                'status' => $request->status,
+                'notes' => $request->notes,
             ]);
-        }
 
-        return redirect()->route('payroll.index')->with('success', 'Payroll created successfully!');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Payroll created successfully!',
+                    'payroll' => $payroll
+                ]);
+            }
+
+            return redirect()->route('payroll.index')->with('success', 'Payroll created successfully!');
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Handle duplicate entry error
+            if ($e->getCode() == 23000) {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Salary for this employee has already been generated for ' . $request->month . ' ' . $request->year . '. Please edit the existing record instead.'
+                    ], 422);
+                }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Salary for this employee has already been generated for ' . $request->month . ' ' . $request->year . '. Please edit the existing record instead.');
+            }
+
+            // Handle other database errors
+            \Log::error('Payroll creation error: ' . $e->getMessage());
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while creating the payroll. Please try again.'
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'An error occurred while creating the payroll. Please try again.');
+        }
     }
 
     public function edit($id)
