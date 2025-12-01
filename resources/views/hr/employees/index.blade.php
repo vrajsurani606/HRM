@@ -204,6 +204,12 @@
                       </button>
                     </form>
                   @endcan
+                  @can('Employees Management.letters')
+                    <a href="{{ route('employees.letters.index', $emp) }}" title="Letter"><img src="{{ asset('action_icon/print.svg') }}" class="action-icon" alt="Letter"></a>
+                  @endcan
+                  @can('Employees Management.digital card')
+                    <a href="{{ route('employees.digital-card.create', $emp) }}" title="Add Digital Card"><img src="{{ asset('action_icon/pluse.svg') }}" class="action-icon" alt="Add Digital Card"></a>
+                  @endcan
                 </div>
               </td>
               <td>{{ $emp->code ?: '-' }}</td>

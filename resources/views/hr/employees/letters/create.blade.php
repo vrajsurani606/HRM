@@ -3,6 +3,8 @@
 @section('page_title', 'Create New Letter - ' . $employee->name)
 
 @push('styles')
+<!-- jQuery UI CSS for Datepicker -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <!-- Summernote CSS -->
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
 <style>
@@ -140,8 +142,8 @@
             
             <div>
                 <label class="hrp-label">Issue Date: <span class="text-red-500">*</span></label>
-                <input type="date" name="issue_date" id="issue_date" class="hrp-input Rectangle-29" 
-                       value="{{ old('issue_date', isset($letter) ? optional($letter->issue_date)->format('Y-m-d') : now()->format('Y-m-d')) }}" required>
+                <input type="text" name="issue_date" id="issue_date" class="hrp-input Rectangle-29 date-picker" 
+                       placeholder="dd/mm/yyyy" value="{{ old('issue_date', isset($letter) ? optional($letter->issue_date)->format('d/m/Y') : now()->format('d/m/Y')) }}" required autocomplete="off">
                 @error('issue_date')
                     <small class="hrp-error">{{ $message }}</small>
                 @enderror
@@ -152,16 +154,16 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="hrp-label">Start Date: <span class="text-red-500">*</span></label>
-                        <input type="date" name="start_date" id="start_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('start_date', isset($letter)?optional($letter->start_date)->format('Y-m-d'):optional($employee->joining_date)->format('Y-m-d')) }}">
+                        <input type="text" name="start_date" id="start_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('start_date', isset($letter)?optional($letter->start_date)->format('d/m/Y'):optional($employee->joining_date)->format('d/m/Y')) }}" autocomplete="off">
                         @error('start_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
                     </div>
                     <div>
                         <label class="hrp-label">End Date: <span class="text-red-500">*</span></label>
-                        <input type="date" name="end_date" id="end_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('end_date', isset($letter)?optional($letter->end_date)->format('Y-m-d'):now()->format('Y-m-d')) }}">
+                        <input type="text" name="end_date" id="end_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('end_date', isset($letter)?optional($letter->end_date)->format('d/m/Y'):now()->format('d/m/Y')) }}" autocomplete="off">
                         @error('end_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -174,8 +176,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="hrp-label">Termination Date (Last Working Day): <span class="text-red-500">*</span></label>
-                        <input type="date" name="end_date" id="termination_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('end_date', isset($letter)?optional($letter->end_date)->format('Y-m-d'):null) }}">
+                        <input type="text" name="end_date" id="termination_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('end_date', isset($letter)?optional($letter->end_date)->format('d/m/Y'):null) }}" autocomplete="off">
                         <small class="text-xs text-gray-500">Employee's last working day</small>
                         @error('end_date')
                             <small class="hrp-error">{{ $message }}</small>
@@ -222,8 +224,8 @@
                     </div>
                     <div>
                         <label class="hrp-label">Effective Date: <span class="text-red-500">*</span></label>
-                        <input type="date" name="increment_effective_date" id="increment_effective_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('increment_effective_date', isset($letter)?optional($letter->increment_effective_date)->format('Y-m-d'):null) }}">
+                        <input type="text" name="increment_effective_date" id="increment_effective_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('increment_effective_date', isset($letter)?optional($letter->increment_effective_date)->format('d/m/Y'):null) }}" autocomplete="off">
                         @error('increment_effective_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -244,16 +246,16 @@
                     </div>
                     <div>
                         <label class="hrp-label">Start Date:</label>
-                        <input type="date" name="internship_start_date" id="internship_start_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('internship_start_date', isset($letter)?optional($letter->internship_start_date)->format('Y-m-d'):null) }}">
+                        <input type="text" name="internship_start_date" id="internship_start_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('internship_start_date', isset($letter)?optional($letter->internship_start_date)->format('d/m/Y'):null) }}" autocomplete="off">
                         @error('internship_start_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
                     </div>
                     <div>
                         <label class="hrp-label">End Date:</label>
-                        <input type="date" name="internship_end_date" id="internship_end_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('internship_end_date', isset($letter)?optional($letter->internship_end_date)->format('Y-m-d'):null) }}">
+                        <input type="text" name="internship_end_date" id="internship_end_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('internship_end_date', isset($letter)?optional($letter->internship_end_date)->format('d/m/Y'):null) }}" autocomplete="off">
                         @error('internship_end_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -282,16 +284,16 @@
                     </div>
                     <div>
                         <label class="hrp-label">Start Date: <span class="text-red-500">*</span></label>
-                        <input type="date" name="internship_start_date" id="internship_letter_start_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('internship_start_date') }}">
+                        <input type="text" name="internship_start_date" id="internship_letter_start_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('internship_start_date') }}" autocomplete="off">
                         @error('internship_start_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
                     </div>
                     <div>
                         <label class="hrp-label">End Date:</label>
-                        <input type="date" name="internship_end_date" id="internship_letter_end_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('internship_end_date') }}">
+                        <input type="text" name="internship_end_date" id="internship_letter_end_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('internship_end_date') }}" autocomplete="off">
                         @error('internship_end_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -390,7 +392,7 @@
                         </div>
                         <div>
                             <label class="hrp-label">Date of Joining:</label>
-                            <input type="date" name="date_of_joining" class="hrp-input Rectangle-29 w-full" id="joiningDate">
+                            <input type="text" name="date_of_joining" class="hrp-input Rectangle-29 w-full date-picker" id="joiningDate" placeholder="dd/mm/yyyy" autocomplete="off">
                         </div>
                     </div>
                     
@@ -424,9 +426,73 @@
 </div>
 
 @push('scripts')
+<!-- jQuery UI JS for Datepicker -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <!-- Summernote JS -->
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
 <script>
+// Initialize jQuery datepicker
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-100:+10',
+        showButtonPanel: true
+    });
+    
+    // Set today's date as default for issue date
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yy = String(today.getFullYear()).slice(-2);
+    const todayFormatted = dd + '/' + mm + '/' + yy;
+    
+    const issueDateEl = document.getElementById('issue_date');
+    if (issueDateEl && !issueDateEl.value) {
+        issueDateEl.value = todayFormatted;
+    }
+    
+    // Set default joining date to 7 days from now
+    const joiningEl = document.getElementById('joiningDate');
+    if (joiningEl && !joiningEl.value) {
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        const dd2 = String(nextWeek.getDate()).padStart(2, '0');
+        const mm2 = String(nextWeek.getMonth() + 1).padStart(2, '0');
+        const yy2 = String(nextWeek.getFullYear()).slice(-2);
+        joiningEl.value = dd2 + '/' + mm2 + '/' + yy2;
+    }
+});
+
+// Convert dates from dd/mm/yy to yyyy-mm-dd before form submission
+$('#letterForm').on('submit', function(e) {
+    $('.date-picker').each(function() {
+        const dateValue = $(this).val();
+        if (dateValue && dateValue.match(/^\d{1,2}\/\d{1,2}\/\d{2,4}$/)) {
+            const parts = dateValue.split('/');
+            const day = parts[0].padStart(2, '0');
+            const month = parts[1].padStart(2, '0');
+            let year = parts[2];
+            
+            // Convert 2-digit year to 4-digit
+            if (year.length === 2) {
+                year = '20' + year;
+            }
+            
+            // Create hidden input with converted date
+            const hiddenInput = $('<input>')
+                .attr('type', 'hidden')
+                .attr('name', $(this).attr('name'))
+                .val(year + '-' + month + '-' + day);
+            
+            // Remove name from original input and add hidden input
+            $(this).removeAttr('name');
+            $(this).after(hiddenInput);
+        }
+    });
+});
+
 // Function to add probation field
 function addProbationField() {
     const container = document.getElementById('probationFields');
@@ -461,21 +527,6 @@ function addSalaryField() {
 function removeField(button, type) {
     button.closest('.flex').remove();
 }
-
-// Set today's date as default for issue date
-document.addEventListener('DOMContentLoaded', function() {
-    const today = new Date().toISOString().split('T')[0];
-    const issueDateEl = document.getElementById('issue_date');
-    if (issueDateEl) issueDateEl.value = today;
-    
-    // Set default joining date to 7 days from now (only if field exists)
-    const joiningEl = document.getElementById('joiningDate');
-    if (joiningEl) {
-        const nextWeek = new Date();
-        nextWeek.setDate(nextWeek.getDate() + 7);
-        joiningEl.value = nextWeek.toISOString().split('T')[0];
-    }
-});
 
 // Toggle fields based on letter type selection
 $(document).on('change', 'select[name="type"]', function() {

@@ -92,6 +92,11 @@
   <!-- Grid View -->
   <div class="quotations-grid-view">
     @forelse($quotations as $quotation)
+      @
+      
+      php
+        $isConfirmed = in_array($quotation->id, $confirmedQuotationIds ?? []);
+      @endphp
       <div class="quotation-grid-card" onclick="window.location.href='{{ route('quotations.show', $quotation->id) }}'" title="View quotation">
         <div class="quotation-grid-header">
           <h3 class="quotation-grid-title">{{ $quotation->company_name ?? 'N/A' }}</h3>
@@ -101,16 +106,15 @@
         <div class="quotation-grid-meta">
           <div class="quotation-grid-left">
             <div class="meta-row"><span class="meta-label">Mobile</span><span class="meta-value">
-              @if($quotation->contact_number_1)
-                @php
+              @php
+                if($quotation->contact_number_1) {
                   $mobile = $quotation->contact_number_1;
-                  // Remove +91 prefix if present
                   $mobile = preg_replace('/^\+91/', '', $mobile);
                   echo $mobile;
-                @endphp
-              @else
-                N/A
-              @endif
+                } else {
+                  echo 'N/A';
+                }
+              @endphp
             </span></div>
             <div class="meta-row"><span class="meta-label">Next</span><span class="meta-value">{{ $quotation->tentative_complete_date ? $quotation->tentative_complete_date->format('d M, Y') : '-' }}</span></div>
             <div class="meta-row">
@@ -125,19 +129,45 @@
             </div>
           </div>
           <div class="quotation-grid-actions" onclick="event.stopPropagation()">
-            <a class="quotation-grid-action-btn btn-view" href="{{ route('quotations.show', $quotation->id) }}" title="View" aria-label="View">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            </a>
-            <a class="quotation-grid-action-btn btn-edit" href="{{ route('quotations.edit', $quotation->id) }}" title="Edit" aria-label="Edit">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-            </a>
-            <a class="quotation-grid-action-btn btn-print" href="{{ route('quotations.download', $quotation->id) }}" target="_blank" title="Print" aria-label="Print">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-            </a>
+            @can('Quotations Management.view quotation')
+              <a class="quotation-grid-action-btn btn-view" href="{{ route('quotations.show', $quotation->id) }}" title="View" aria-label="View">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </a>
+            @endcan
+            @can('Quotations Management.edit quotation')
+              <a class="quotation-grid-action-btn btn-edit" href="{{ route('quotations.edit', $quotation->id) }}" title="Edit" aria-label="Edit">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </a>
+            @endcan
+            @can('Quotations Management.download quotation')
+              <a class="quotation-grid-action-btn btn-print" href="{{ route('quotations.download', $quotation->id) }}" target="_blank" title="Print" aria-label="Print">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+              </a>
+            @endcan
+            @if($isConfirmed)
+              @can('Quotations Management.template list')
+                <a class="quotation-grid-action-btn btn-template" href="{{ route('quotations.template-list', $quotation->id) }}" title="View Template List" aria-label="View Template List">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </a>
+              @endcan
+            @elseif(!$isConfirmed)
+              @can('Quotations Management.follow up')
+                <a class="quotation-grid-action-btn btn-followup" href="{{ route('quotation.follow-up', $quotation->id) }}" title="Follow Up" aria-label="Follow Up">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </a>
+              @endcan
+            @endif
+            @can('Quotations Management.delete quotation')
+              <button type="button" onclick="confirmDelete({{ $quotation->id }}); event.stopPropagation();" class="quotation-grid-action-btn btn-delete" title="Delete" aria-label="Delete">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            @endcan
             @if($quotation->customer_type === 'new' && !$quotation->customer_id && $quotation->company_email && !in_array(strtolower(trim($quotation->company_email)), $existingCompanyEmails))
-            <button type="button" class="quotation-grid-action-btn btn-convert" onclick="confirmConvertToCompany({{ $quotation->id }}, '{{ addslashes($quotation->company_name) }}', '{{ addslashes($quotation->company_email) }}', '{{ addslashes($quotation->company_password ?? '') }}')" title="Convert to Company" aria-label="Convert to Company">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-            </button>
+              @can('Quotations Management.convert to company')
+                <button type="button" class="quotation-grid-action-btn btn-convert" onclick="confirmConvertToCompany({{ $quotation->id }}, '{{ addslashes($quotation->company_name) }}', '{{ addslashes($quotation->company_email) }}', '{{ addslashes($quotation->company_password ?? '') }}'); event.stopPropagation();" title="Convert to Company" aria-label="Convert to Company">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                </button>
+              @endcan
             @endif
           </div>
         </div>
@@ -148,7 +178,7 @@
   </div>
 
   <!-- List View -->
-  <div>
+  <div class="quotations-list-view active">
     <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
       <table style="table-layout: auto; width: 100%;">
         <thead>
@@ -566,7 +596,7 @@ document.addEventListener('DOMContentLoaded', function() {
   .quotations-list-view { display:none; padding: 0 12px 12px; }
   .quotations-list-view.active { display:block; }
 
-  .quotation-grid-card { background:#fff; border-radius:12px; padding:16px 18px; box-shadow:0 1px 6px rgba(0,0,0,0.06); transition:transform .25s, box-shadow .25s; cursor:pointer; margin-top:4px; }
+  .quotation-grid-card { background:#fff; border-radius:12px; padding:16px 18px; box-shadow:0 1px 6px rgba(0,0,0,0.06); transition:transform .25s, box-shadow .25s; cursor:pointer; margin-top:4px; min-height:fit-content; }
   .quotation-grid-card:hover { transform: translateY(-4px); box-shadow:0 4px 16px rgba(0,0,0,0.12); }
   .quotation-grid-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:10px; }
   .quotation-grid-title { font-size:16px; font-weight:700; color:#0f172a; margin:0; line-height:1.2; max-width:72%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -577,7 +607,7 @@ document.addEventListener('DOMContentLoaded', function() {
   .meta-row { display:flex; gap:8px; align-items:center; }
   .meta-label { font-size:12px; color:#6b7280; min-width:56px; }
   .meta-value { font-size:13px; color:#111827; }
-  .quotation-grid-actions { display:flex; gap:8px; }
+  .quotation-grid-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:flex-start; }
   .quotation-grid-action-btn { padding:8px; border:1px solid #e5e7eb; background:#fff; border-radius:6px; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; width:32px; height:32px; }
   .quotation-grid-action-btn.btn-view { border-color:#3b82f6; background:#eff6ff; }
   .quotation-grid-action-btn.btn-view svg { color:#3b82f6; }
@@ -595,6 +625,36 @@ document.addEventListener('DOMContentLoaded', function() {
   .quotation-grid-action-btn.btn-convert svg { color:#10b981; }
   .quotation-grid-action-btn.btn-convert:hover { background:#10b981; }
   .quotation-grid-action-btn.btn-convert:hover svg { color:#fff; }
+  
+  /* Delete button - Red */
+  .quotation-grid-action-btn.btn-delete { 
+    border: 1px solid #ef4444 !important; 
+    background: #fef2f2 !important; 
+    padding: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 6px !important;
+  }
+  .quotation-grid-action-btn.btn-delete svg { color:#ef4444; }
+  .quotation-grid-action-btn.btn-delete:hover { background:#ef4444 !important; }
+  .quotation-grid-action-btn.btn-delete:hover svg { color:#fff; }
+  
+  /* Follow Up button - Purple */
+  .quotation-grid-action-btn.btn-followup { border-color:#8b5cf6; background:#f5f3ff; }
+  .quotation-grid-action-btn.btn-followup svg { color:#8b5cf6; }
+  .quotation-grid-action-btn.btn-followup:hover { background:#8b5cf6; }
+  .quotation-grid-action-btn.btn-followup:hover svg { color:#fff; }
+  
+  /* Template List button - Teal */
+  .quotation-grid-action-btn.btn-template { border-color:#14b8a6; background:#f0fdfa; }
+  .quotation-grid-action-btn.btn-template svg { color:#14b8a6; }
+  .quotation-grid-action-btn.btn-template:hover { background:#14b8a6; }
+  .quotation-grid-action-btn.btn-template:hover svg { color:#fff; }
 </style>
 @endpush
 @push('scripts')

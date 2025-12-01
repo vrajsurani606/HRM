@@ -92,6 +92,26 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
               </a>
             @endcan
+            @can('Inquiries Management.delete inquiry')
+              <form method="POST" action="{{ route('inquiries.destroy', $inq->id) }}" class="delete-form" style="display:inline">
+                @csrf @method('DELETE')
+                <button type="button" onclick="confirmDeleteInquiry(this); event.stopPropagation();" class="inq-grid-action-btn btn-delete" title="Delete" aria-label="Delete">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+              </form>
+            @endcan
+            @can('Inquiries Management.follow up')
+              <a class="inq-grid-action-btn btn-followup" href="{{ route('inquiry.follow-up', $inq->id) }}" title="Follow Up" aria-label="Follow Up">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              </a>
+            @endcan
+            @if(!empty($inq->quotation_sent) && strtolower($inq->quotation_sent) !== 'no')
+              @can('Quotations Management.create quotation')
+                <a class="inq-grid-action-btn btn-quotation" href="{{ route('quotation.create-from-inquiry', $inq->id) }}" title="Make Quotation" aria-label="Make Quotation">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </a>
+              @endcan
+            @endif
           </div>
         </div>
       </div>
@@ -369,5 +389,35 @@ $(document).ready(function() {
   .inq-grid-action-btn.btn-edit svg { color:#f59e0b; }
   .inq-grid-action-btn.btn-edit:hover { background:#f59e0b; }
   .inq-grid-action-btn.btn-edit:hover svg { color:#fff; }
+  
+  /* Delete button - Red */
+  .inq-grid-action-btn.btn-delete { 
+    border: 1px solid #ef4444 !important; 
+    background: #fef2f2 !important; 
+    padding: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 6px !important;
+  }
+  .inq-grid-action-btn.btn-delete svg { color:#ef4444; }
+  .inq-grid-action-btn.btn-delete:hover { background:#ef4444 !important; }
+  .inq-grid-action-btn.btn-delete:hover svg { color:#fff; }
+  
+  /* Follow Up button - Purple */
+  .inq-grid-action-btn.btn-followup { border-color:#8b5cf6; background:#f5f3ff; }
+  .inq-grid-action-btn.btn-followup svg { color:#8b5cf6; }
+  .inq-grid-action-btn.btn-followup:hover { background:#8b5cf6; }
+  .inq-grid-action-btn.btn-followup:hover svg { color:#fff; }
+  
+  /* Make Quotation button - Green */
+  .inq-grid-action-btn.btn-quotation { border-color:#10b981; background:#ecfdf5; }
+  .inq-grid-action-btn.btn-quotation svg { color:#10b981; }
+  .inq-grid-action-btn.btn-quotation:hover { background:#10b981; }
+  .inq-grid-action-btn.btn-quotation:hover svg { color:#fff; }
 </style>
 @endpush
