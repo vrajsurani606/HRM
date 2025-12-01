@@ -15,6 +15,10 @@ class HiringController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.view lead'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = HiringLead::query();
 
         // Apply date filters if they exist
@@ -80,6 +84,13 @@ class HiringController extends Controller
 
  public function convert(Request $request, $id)
 {
+    if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.convert lead'))) {
+        if ($request->ajax()) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        return redirect()->back()->with('error', 'Permission denied.');
+    }
+    
     $lead = HiringLead::findOrFail($id);
 
     // GET REQUEST (Show Form)
@@ -188,6 +199,10 @@ class HiringController extends Controller
 
     public function create()
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.create lead'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $nextCode = HiringLead::nextCode();
         $positions = [
             'Full Stack Developer',
@@ -227,6 +242,10 @@ class HiringController extends Controller
 
     public function store(Request $r)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.create lead'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $data = $r->validate([
             // unique_code will be generated server-side to avoid collisions
             'person_name' => ['required','string','max:190'],
@@ -256,6 +275,10 @@ class HiringController extends Controller
 
     public function edit(HiringLead $hiring)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.edit lead'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $positions = [
             'Full Stack Developer',
             'Frontend Developer', 
@@ -293,6 +316,10 @@ class HiringController extends Controller
 
     public function update(Request $r, HiringLead $hiring)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.edit lead'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $data = $r->validate([
             'person_name' => ['required','string','max:190'],
             'mobile_no' => ['required','regex:/^\d{10}$/'],
@@ -322,6 +349,10 @@ class HiringController extends Controller
 
     public function destroy(HiringLead $hiring)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.delete lead'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         if ($hiring->resume_path) {
             Storage::disk('public')->delete($hiring->resume_path);
         }
@@ -331,6 +362,10 @@ class HiringController extends Controller
 
     public function print(Request $r, $id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.print lead'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $lead = HiringLead::findOrFail($id);
         $type = $r->query('type', 'offerletter');
 
@@ -360,6 +395,10 @@ class HiringController extends Controller
 
     public function offerCreate($id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.offer letter'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $lead = HiringLead::findOrFail($id);
         $offer = $lead->offerLetter;
         if ($offer) {
@@ -374,6 +413,10 @@ class HiringController extends Controller
 
     public function offerStore(Request $r, $id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.offer letter'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $lead = HiringLead::findOrFail($id);
         if ($lead->offerLetter) {
             return redirect()->route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']);
@@ -400,6 +443,10 @@ class HiringController extends Controller
 
     public function offerEdit($id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.offer letter'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $lead = HiringLead::findOrFail($id);
         $offer = $lead->offerLetter;
         if (!$offer) {
@@ -414,6 +461,10 @@ class HiringController extends Controller
 
     public function offerUpdate(Request $r, $id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.offer letter'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $lead = HiringLead::findOrFail($id);
         $offer = $lead->offerLetter;
         if (!$offer) {
@@ -443,6 +494,10 @@ class HiringController extends Controller
 
     public function resume($id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.view resume'))) {
+            abort(403);
+        }
+        
         $lead = HiringLead::findOrFail($id);
         if (!$lead->resume_path) {
             abort(404);

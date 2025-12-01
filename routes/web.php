@@ -269,6 +269,8 @@ Route::middleware('auth')->group(function () {
     // Payroll Management (define specific routes BEFORE resource to avoid {payroll} catch-all)
     Route::get('payroll/bulk', [PayrollController::class, 'bulkForm'])->name('payroll.bulk');
     Route::post('payroll/bulk-generate', [PayrollController::class, 'bulkGenerate'])->name('payroll.bulk-generate');
+    Route::get('payroll/export-csv', [PayrollController::class, 'exportCsv'])->name('payroll.export-csv');
+    Route::get('payroll/export-excel', [PayrollController::class, 'exportExcel'])->name('payroll.export-excel');
     Route::resource('payroll', PayrollController::class);
     Route::post('/payroll/get-employee-salary', [PayrollController::class, 'getEmployeeSalary'])->name('payroll.get-employee-salary');
     Route::get('/rules', [RuleController::class, 'index'])->name('rules.index');

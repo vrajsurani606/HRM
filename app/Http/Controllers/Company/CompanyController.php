@@ -20,6 +20,10 @@ class CompanyController extends Controller
 {
     public function index(Request $request): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.view company'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = CompanyModel::query();
         
         // Handle sorting
@@ -74,6 +78,10 @@ class CompanyController extends Controller
 
     public function create(): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.create company'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $latestCompany = CompanyModel::latest('id')->first();
         $nextId = $latestCompany ? $latestCompany->id + 1 : 1;
         $nextCode = 'CMS/COM/' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
@@ -83,6 +91,10 @@ class CompanyController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.create company'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $validated = $request->validate([
             'company_name' => ['required', 'string', 'max:190'],
             'gst_no' => ['nullable', 'string', 'max:50', 'regex:/^[0-9A-Z]{15}$/'],
@@ -264,6 +276,10 @@ class CompanyController extends Controller
 
     public function show(CompanyModel $company): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.view company'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         // Load quotations with the company
         $company->load('quotations');
         
@@ -272,11 +288,19 @@ class CompanyController extends Controller
 
     public function edit(CompanyModel $company): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.edit company'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         return view('companies.edit', compact('company'));
     }
 
     public function update(Request $request, CompanyModel $company): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.edit company'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $validated = $request->validate([
             'unique_code' => ['required', 'string', 'max:50', 'unique:companies,unique_code,' . $company->id],
             'company_name' => ['required', 'string', 'max:190'],
@@ -511,6 +535,10 @@ class CompanyController extends Controller
      */
     public function viewFile($type, $filename)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.view documents'))) {
+            abort(403);
+        }
+        
         try {
             // Clean and validate the filename
             $filename = basename($filename);
@@ -591,6 +619,10 @@ class CompanyController extends Controller
 
     public function destroy(CompanyModel $company): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.delete company'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         // Delete company logo if exists
         if ($company->company_logo) {
             Storage::disk('public')->delete($company->company_logo);
@@ -611,6 +643,10 @@ class CompanyController extends Controller
      */
     public function export(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.export company'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = CompanyModel::query();
 
         // Apply filters

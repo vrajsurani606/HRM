@@ -18,7 +18,10 @@
     </svg>
   </button>
   <div class="filter-right">
-    <a href="{{ route('invoices.export.csv', request()->only(['search','invoice_type','from_date','to_date'])) }}" class="pill-btn pill-success">Excel</a>
+    @can('Invoices Management.export invoice')
+      <a href="{{ route('invoices.export', request()->only(['search','invoice_type','from_date','to_date'])) }}" class="pill-btn pill-success">Excel</a>
+      <a href="{{ route('invoices.export.csv', request()->only(['search','invoice_type','from_date','to_date'])) }}" class="pill-btn pill-success">CSV</a>
+    @endcan
   </div>
 </form>
 
@@ -45,18 +48,26 @@
       <tr>
         <td style="text-align: center; vertical-align: middle;">
           <div class="action-icons">
-            <a href="{{ route('invoices.show', $invoice->id) }}" title="View Invoice" aria-label="View Invoice">
-              <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
-            </a>
-            <a href="{{ route('invoices.edit', $invoice->id) }}" title="Edit Invoice" aria-label="Edit Invoice">
-              <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
-            </a>
-            <a href="{{ route('invoices.print', $invoice->id) }}" target="_blank" title="Print Invoice" aria-label="Print Invoice">
-              <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
-            </a>
-            <button type="button" onclick="confirmDelete({{ $invoice->id }})" title="Delete Invoice" aria-label="Delete Invoice">
-              <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
-            </button>
+            @can('Invoices Management.view invoice')
+              <a href="{{ route('invoices.show', $invoice->id) }}" title="View Invoice" aria-label="View Invoice">
+                <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
+              </a>
+            @endcan
+            @can('Invoices Management.edit invoice')
+              <a href="{{ route('invoices.edit', $invoice->id) }}" title="Edit Invoice" aria-label="Edit Invoice">
+                <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+              </a>
+            @endcan
+            @can('Invoices Management.print invoice')
+              <a href="{{ route('invoices.print', $invoice->id) }}" target="_blank" title="Print Invoice" aria-label="Print Invoice">
+                <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
+              </a>
+            @endcan
+            @can('Invoices Management.delete invoice')
+              <button type="button" onclick="confirmDelete({{ $invoice->id }})" title="Delete Invoice" aria-label="Delete Invoice">
+                <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+              </button>
+            @endcan
           </div>
         </td>
         <td>{{ $invoices->firstItem() + $index }}</td>

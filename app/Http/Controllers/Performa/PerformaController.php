@@ -12,6 +12,10 @@ class PerformaController extends Controller
 {
     public function index(Request $request): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.view proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = Proforma::with('quotation');
         
         // Handle sorting
@@ -69,6 +73,10 @@ class PerformaController extends Controller
     
     public function export(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.export proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $query = Proforma::query()->orderBy('created_at', 'desc');
             
@@ -116,6 +124,10 @@ class PerformaController extends Controller
     
     public function exportCsv(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.export proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = Proforma::query()->latest();
 
         if ($request->filled('from_date')) {
@@ -203,6 +215,10 @@ class PerformaController extends Controller
 
     public function create(Request $request): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.create proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         // Generate next proforma code
         $lastProforma = Proforma::orderByDesc('id')->first();
         $nextNumber = 1;
@@ -234,6 +250,10 @@ class PerformaController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.create proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $validated = $request->validate([
                 'quotation_id' => ['nullable', 'integer', 'exists:quotations,id'],
@@ -346,18 +366,30 @@ class PerformaController extends Controller
 
     public function show(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.view proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $proforma = Proforma::with('quotation')->findOrFail($id);
         return view('performas.show', compact('proforma'));
     }
 
     public function edit(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.edit proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $proforma = Proforma::with('quotation')->findOrFail($id);
         return view('performas.edit', compact('proforma'));
     }
 
     public function update(Request $request, int $id): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.edit proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $proforma = Proforma::findOrFail($id);
             
@@ -461,6 +493,10 @@ class PerformaController extends Controller
 
     public function destroy(int $id): RedirectResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.delete proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $proforma = Proforma::findOrFail($id);
             $proforma->delete();
@@ -476,6 +512,10 @@ class PerformaController extends Controller
 
     public function print(int $id): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.print proforma'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $proforma = Proforma::with('quotation')->findOrFail($id);
         return view('performas.print', compact('proforma'));
     }

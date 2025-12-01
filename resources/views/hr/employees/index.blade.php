@@ -35,7 +35,9 @@
         </div>
         <input type="text" name="search" class="filter-pill" placeholder="Search here..." value="{{ request('search') }}">
         <a href="{{ route('employees.index') }}" class="pill-btn pill-secondary">Reset</a>
-        <a href="{{ route('employees.create') }}" class="pill-btn pill-success">+ Add</a>
+        @can('Employees Management.create employee')
+          <a href="{{ route('employees.create') }}" class="pill-btn pill-success">+ Add</a>
+        @endcan
       </div>
     </form>
 
@@ -85,30 +87,34 @@
                 <button class="dropdown-toggle" onclick="toggleDropdown({{ $loop->index }})" title="More options">⋮</button>
                 <div id="dropdown-{{ $loop->index }}" class="dropdown-menu">
                   @if($isModel)
-                    <a href="{{ route('employees.edit', $emp) }}">
-                      <img src="{{ asset('action_icon/edit.svg') }}" width="16" height="16"> Edit
-                    </a>
-                    <form method="POST" action="{{ route('employees.destroy', $emp) }}" class="delete-form">
-                      @csrf @method('DELETE')
-                      <button type="button" class="delete-btn" onclick="confirmDelete(this)">
-                        <img src="{{ asset('action_icon/delete.svg') }}" width="16" height="16"> Delete
-                      </button>
-                    </form>
-                    <a href="{{ route('employees.show', $emp) }}">
-                      <img src="{{ asset('action_icon/view.svg') }}" width="16" height="16"> View
-                    </a>
-                    <a href="{{ route('employees.letters.index', $emp) }}">
-                      <img src="{{ asset('action_icon/print.svg') }}" width="16" height="16"> Letter
-                    </a>
-                    <a href="{{ route('employees.digital-card.create', $emp) }}">
-                      <img src="{{ asset('action_icon/pluse.svg') }}" width="16" height="16"> Add Dig. Card
-                    </a>
-                  @else
-                    <span><img src="{{ asset('action_icon/edit.svg') }}" width="16" height="16"> Edit</span>
-                    <span><img src="{{ asset('action_icon/delete.svg') }}" width="16" height="16"> Delete</span>
-                    <span><img src="{{ asset('action_icon/view.svg') }}" width="16" height="16"> View</span>
-                    <span><img src="{{ asset('action_icon/print.svg') }}" width="16" height="16"> Letter</span>
-                    <span><img src="{{ asset('action_icon/pluse.svg') }}" width="16" height="16"> Add Dig. Card</span>
+                    @can('Employees Management.view employee')
+                      <a href="{{ route('employees.show', $emp) }}">
+                        <img src="{{ asset('action_icon/view.svg') }}" width="16" height="16"> View
+                      </a>
+                    @endcan
+                    @can('Employees Management.edit employee')
+                      <a href="{{ route('employees.edit', $emp) }}">
+                        <img src="{{ asset('action_icon/edit.svg') }}" width="16" height="16"> Edit
+                      </a>
+                    @endcan
+                    @can('Employees Management.delete employee')
+                      <form method="POST" action="{{ route('employees.destroy', $emp) }}" class="delete-form">
+                        @csrf @method('DELETE')
+                        <button type="button" class="delete-btn" onclick="confirmDelete(this)">
+                          <img src="{{ asset('action_icon/delete.svg') }}" width="16" height="16"> Delete
+                        </button>
+                      </form>
+                    @endcan
+                    @can('Employees Management.letters')
+                      <a href="{{ route('employees.letters.index', $emp) }}">
+                        <img src="{{ asset('action_icon/print.svg') }}" width="16" height="16"> Letter
+                      </a>
+                    @endcan
+                    @can('Employees Management.digital card')
+                      <a href="{{ route('employees.digital-card.create', $emp) }}">
+                        <img src="{{ asset('action_icon/pluse.svg') }}" width="16" height="16"> Add Dig. Card
+                      </a>
+                    @endcan
                   @endif
                 </div>
               </div>
@@ -184,14 +190,20 @@
             <tr>
               <td>
                 <div class="action-icons">
-                  <a href="{{ route('employees.show', $emp) }}" title="View"><img src="{{ asset('action_icon/view.svg') }}" class="action-icon" alt="View"></a>
-                  <a href="{{ route('employees.edit', $emp) }}" title="Edit"><img src="{{ asset('action_icon/edit.svg') }}" class="action-icon" alt="Edit"></a>
-                  <form method="POST" action="{{ route('employees.destroy', $emp) }}" class="delete-form" style="display:inline">
-                    @csrf @method('DELETE')
-                    <button type="button" onclick="confirmDelete(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:1;cursor:pointer">
-                      <img src="{{ asset('action_icon/delete.svg') }}" class="action-icon" alt="Delete">
-                    </button>
-                  </form>
+                  @can('Employees Management.view employee')
+                    <a href="{{ route('employees.show', $emp) }}" title="View"><img src="{{ asset('action_icon/view.svg') }}" class="action-icon" alt="View"></a>
+                  @endcan
+                  @can('Employees Management.edit employee')
+                    <a href="{{ route('employees.edit', $emp) }}" title="Edit"><img src="{{ asset('action_icon/edit.svg') }}" class="action-icon" alt="Edit"></a>
+                  @endcan
+                  @can('Employees Management.delete employee')
+                    <form method="POST" action="{{ route('employees.destroy', $emp) }}" class="delete-form" style="display:inline">
+                      @csrf @method('DELETE')
+                      <button type="button" onclick="confirmDelete(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:1;cursor:pointer">
+                        <img src="{{ asset('action_icon/delete.svg') }}" class="action-icon" alt="Delete">
+                      </button>
+                    </form>
+                  @endcan
                 </div>
               </td>
               <td>{{ $emp->code ?: '-' }}</td>

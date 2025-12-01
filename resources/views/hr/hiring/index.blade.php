@@ -49,7 +49,9 @@
         </div>
         <input type="text" name="search" class="filter-pill" placeholder="Search by name, mobile, code..." value="{{ request('search') }}">
         <a href="{{ route('hiring.index') }}" class="pill-btn pill-secondary">Reset</a>
-        <a href="{{ route('hiring.create') }}" class="pill-btn pill-success">+ Add</a>
+        @can('Leads Management.create lead')
+          <a href="{{ route('hiring.create') }}" class="pill-btn pill-success">+ Add</a>
+        @endcan
       </div>
     </form>
   </div>
@@ -78,21 +80,29 @@
             <div class="meta-row"><span class="meta-label">Prev.</span><span class="meta-value">{{ $lead->experience_previous_company ?? '-' }} {{ $lead->previous_salary ? '• ₹'.$lead->previous_salary : '' }}</span></div>
           </div>
           <div class="hiring-grid-actions" onclick="event.stopPropagation()">
-            <a href="{{ route('hiring.edit', $lead) }}" class="hiring-grid-action-btn btn-edit" title="Edit" aria-label="Edit">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-            </a>
-            <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']) }}" target="_blank" class="hiring-grid-action-btn btn-print" title="Print Offer Letter" aria-label="Print Offer Letter">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-            </a>
-            <form method="POST" action="{{ route('hiring.destroy', $lead) }}" class="delete-form" style="display:inline">
-              @csrf @method('DELETE')
-              <button type="button" class="hiring-grid-action-btn btn-delete" onclick="confirmDeleteLead(this); event.stopPropagation();" title="Delete" aria-label="Delete">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-              </button>
-            </form>
-            <a href="{{ route('hiring.convert', $lead->id) }}" class="hiring-grid-action-btn btn-convert" title="Convert to Employee" aria-label="Convert to Employee">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,11 12,14 15,11"></polyline><line x1="12" y1="2" x2="12" y2="14"></line></svg>
-            </a>
+            @can('Leads Management.edit lead')
+              <a href="{{ route('hiring.edit', $lead) }}" class="hiring-grid-action-btn btn-edit" title="Edit" aria-label="Edit">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </a>
+            @endcan
+            @can('Leads Management.print lead')
+              <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']) }}" target="_blank" class="hiring-grid-action-btn btn-print" title="Print Offer Letter" aria-label="Print Offer Letter">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+              </a>
+            @endcan
+            @can('Leads Management.delete lead')
+              <form method="POST" action="{{ route('hiring.destroy', $lead) }}" class="delete-form" style="display:inline">
+                @csrf @method('DELETE')
+                <button type="button" class="hiring-grid-action-btn btn-delete" onclick="confirmDeleteLead(this); event.stopPropagation();" title="Delete" aria-label="Delete">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+              </form>
+            @endcan
+            @can('Leads Management.convert lead')
+              <a href="{{ route('hiring.convert', $lead->id) }}" class="hiring-grid-action-btn btn-convert" title="Convert to Employee" aria-label="Convert to Employee">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,11 12,14 15,11"></polyline><line x1="12" y1="2" x2="12" y2="14"></line></svg>
+              </a>
+            @endcan
           </div>
         </div>
       </div>
@@ -127,26 +137,34 @@
           <tr>
             <td>
               <div class="action-icons">
-                <a href="{{ route('hiring.edit', $lead) }}" title="Edit" aria-label="Edit">
-                  <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon">
-                </a>
-                <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']) }}" title="Print Offer Letter" target="_blank" aria-label="Print Offer Letter">
-                  <img src="{{ asset('action_icon/print.svg') }}" alt="Print Offer Letter" class="action-icon">
-                </a>
-                <form method="POST" action="{{ route('hiring.destroy', $lead) }}" class="delete-form" style="display:inline">
-                  @csrf @method('DELETE')
-                  <button type="button" onclick="confirmDeleteLead(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
-                    <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon">
-                  </button>
-                </form>
-                <a href="{{ route('hiring.convert', $lead->id) }}"
-                      class="convert-btn"
-                      data-id="{{ $lead->id }}"
-                      data-url="{{ route('hiring.convert', $lead->id) }}"
-                      data-name="{{ $lead->person_name }}"
-                      title="Convert to Employee">
-                        <img src="{{ asset('action_icon/convert.svg') }}" class="action-icon">
+                @can('Leads Management.edit lead')
+                  <a href="{{ route('hiring.edit', $lead) }}" title="Edit" aria-label="Edit">
+                    <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon">
                   </a>
+                @endcan
+                @can('Leads Management.print lead')
+                  <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']) }}" title="Print Offer Letter" target="_blank" aria-label="Print Offer Letter">
+                    <img src="{{ asset('action_icon/print.svg') }}" alt="Print Offer Letter" class="action-icon">
+                  </a>
+                @endcan
+                @can('Leads Management.delete lead')
+                  <form method="POST" action="{{ route('hiring.destroy', $lead) }}" class="delete-form" style="display:inline">
+                    @csrf @method('DELETE')
+                    <button type="button" onclick="confirmDeleteLead(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
+                      <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon">
+                    </button>
+                  </form>
+                @endcan
+                @can('Leads Management.convert lead')
+                  <a href="{{ route('hiring.convert', $lead->id) }}"
+                        class="convert-btn"
+                        data-id="{{ $lead->id }}"
+                        data-url="{{ route('hiring.convert', $lead->id) }}"
+                        data-name="{{ $lead->person_name }}"
+                        title="Convert to Employee">
+                          <img src="{{ asset('action_icon/convert.svg') }}" class="action-icon">
+                    </a>
+                @endcan
               </div>
             </td>
             <td>
@@ -175,9 +193,13 @@
             <td class="capitalize">{{ $lead->gender }}</td>
             <td>
               @if($lead->resume_path)
-              <a class="hrp-link" href="{{ route('hiring.resume', $lead->id) }}" target="_blank">View</a>
+                @can('Leads Management.view resume')
+                  <a class="hrp-link" href="{{ route('hiring.resume', $lead->id) }}" target="_blank">View</a>
+                @else
+                  <span style="color:#9ca3af;">—</span>
+                @endcan
               @else
-              —
+                —
               @endif
             </td>
           </tr>

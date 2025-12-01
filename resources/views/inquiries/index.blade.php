@@ -50,8 +50,12 @@
         </button>
       </div>
       <input type="text" class="filter-pill" placeholder="Search here..." id="custom_search" name="search" value="{{ request('search') }}">
-      <a href="{{ route('inquiries.export', request()->only(['from_date','to_date','search'])) }}" class="pill-btn pill-success" id="excel_btn">Excel</a>
-      <a href="{{ route('inquiries.create') }}" class="pill-btn pill-success">+ Add</a>
+      @can('Inquiries Management.export inquiry')
+        <a href="{{ route('inquiries.export', request()->only(['from_date','to_date','search'])) }}" class="pill-btn pill-success" id="excel_btn">Excel</a>
+      @endcan
+      @can('Inquiries Management.create inquiry')
+        <a href="{{ route('inquiries.create') }}" class="pill-btn pill-success">+ Add</a>
+      @endcan
     </div>
   </form>
 
@@ -78,12 +82,16 @@
             <div class="meta-row"><span class="meta-label">Next FU</span><span class="meta-value">{{ isset($inq->next_follow_up) ? \Carbon\Carbon::parse($inq->next_follow_up)->format('d M, Y') : '-' }}</span></div>
           </div>
           <div class="inq-grid-actions" onclick="event.stopPropagation()">
-            <a class="inq-grid-action-btn btn-view" href="{{ route('inquiries.show', $inq->id) }}" title="View" aria-label="View">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            </a>
-            <a class="inq-grid-action-btn btn-edit" href="{{ route('inquiries.edit', $inq->id) }}" title="Edit" aria-label="Edit">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-            </a>
+            @can('Inquiries Management.view inquiry')
+              <a class="inq-grid-action-btn btn-view" href="{{ route('inquiries.show', $inq->id) }}" title="View" aria-label="View">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </a>
+            @endcan
+            @can('Inquiries Management.edit inquiry')
+              <a class="inq-grid-action-btn btn-edit" href="{{ route('inquiries.edit', $inq->id) }}" title="Edit" aria-label="Edit">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </a>
+            @endcan
           </div>
         </div>
       </div>
