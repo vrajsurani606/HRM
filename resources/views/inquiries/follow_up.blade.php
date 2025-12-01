@@ -193,7 +193,7 @@
     </div>
     <div>
       <label class="hrp-label">Next Follow Up Date:</label>
-      <input type="date" class="hrp-input Rectangle-29" name="next_followup_date" value="{{ old('next_followup_date') }}" />
+      <input type="text" class="hrp-input Rectangle-29 date-picker" name="next_followup_date" value="{{ old('next_followup_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" />
       @error('next_followup_date')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
@@ -211,7 +211,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Scheduled Demo Date:</label>
-          <input type="date" class="hrp-input Rectangle-29" name="scheduled_demo_date" value="{{ old('scheduled_demo_date') }}" />
+          <input type="text" class="hrp-input Rectangle-29 date-picker" name="scheduled_demo_date" value="{{ old('scheduled_demo_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" />
           @error('scheduled_demo_date')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
@@ -226,7 +226,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Demo Date:</label>
-          <input type="date" class="hrp-input Rectangle-29" name="demo_date" value="{{ old('demo_date') }}" />
+          <input type="text" class="hrp-input Rectangle-29 date-picker" name="demo_date" value="{{ old('demo_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" />
           @error('demo_date')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
@@ -282,8 +282,31 @@
 @endpush
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
+// Initialize jQuery datepicker with dd/mm/yyyy format (same as quotation)
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({
+                    marginTop: '2px',
+                    marginLeft: '0px'
+                });
+            }, 0);
+        }
+    });
+});
+
   document.addEventListener('DOMContentLoaded', function () {
     var statusSelect = document.getElementById('demo_status');
     var scheduleFields = document.getElementById('demo-schedule-fields');
@@ -307,6 +330,26 @@
 
     statusSelect.addEventListener('change', updateDemoFields);
     updateDemoFields();
+    
+    // Convert dates before form submission
+    var followUpForm = document.querySelector('form[action*="follow-up.store"]');
+    if(followUpForm){
+      followUpForm.addEventListener('submit', function(e){
+        // Convert all date-picker inputs from dd/mm/yyyy to yyyy-mm-dd
+        var dateInputs = followUpForm.querySelectorAll('.date-picker');
+        dateInputs.forEach(function(dateInput){
+          if(dateInput.value){
+            var parts = dateInput.value.split('/');
+            if(parts.length === 3){
+              var day = parts[0];
+              var month = parts[1];
+              var year = parts[2];
+              dateInput.value = year + '-' + month + '-' + day;
+            }
+          }
+        });
+      });
+    }
 
     // MAKE CONFIRM actions
     var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');

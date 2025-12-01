@@ -49,8 +49,8 @@
   <!-- JV Filter -->
   <form method="GET" action="{{ route('quotations.index') }}" class="jv-filter" id="filterForm">
     <input type="text" placeholder="Quotation No" class="filter-pill" name="quotation_no" value="{{ request('quotation_no') }}">
-    <input type="text" placeholder="From : dd/mm/yyyy" class="filter-pill" name="from_date" value="{{ request('from_date') }}" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'">
-    <input type="text" placeholder="To : dd/mm/yyyy" class="filter-pill" name="to_date" value="{{ request('to_date') }}" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'">
+    <input type="text" placeholder="From : dd/mm/yyyy" class="filter-pill date-picker" name="from_date" value="{{ request('from_date') }}" autocomplete="off">
+    <input type="text" placeholder="To : dd/mm/yyyy" class="filter-pill date-picker" name="to_date" value="{{ request('to_date') }}" autocomplete="off">
     <button type="submit" class="filter-search" aria-label="Search">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
         <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
@@ -578,4 +578,43 @@ document.addEventListener('DOMContentLoaded', function() {
   .quotation-grid-action-btn.btn-convert:hover { background:#10b981; }
   .quotation-grid-action-btn.btn-convert:hover svg { color:#fff; }
 </style>
+@endpush
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<script>
+// Initialize jQuery datepicker
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({ marginTop: '2px', marginLeft: '0px' });
+            }, 0);
+        }
+    });
+});
+
+// Convert dates before form submission
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.querySelector('.jv-filter, #filterForm');
+    if(form){
+        form.addEventListener('submit', function(e){
+            var dateInputs = form.querySelectorAll('.date-picker');
+            dateInputs.forEach(function(input){
+                if(input.value){
+                    var parts = input.value.split('/');
+                    if(parts.length === 3) input.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+                }
+            });
+        });
+    }
+});
+</script>
 @endpush

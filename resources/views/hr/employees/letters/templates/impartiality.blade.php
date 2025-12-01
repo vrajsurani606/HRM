@@ -11,18 +11,28 @@
     @endif
 </div>
 
+@if($letter->subject)
+<div class="subject">Subject: {{ $letter->subject }}</div>
+@else
 <div class="subject">Subject: Impartiality Declaration</div>
+@endif
 
 <div class="body">
     <p>Dear <b>{{ $employee->name }}</b>,</p>
     
-    <p>This declaration is to confirm your commitment to impartiality in all your professional 
-    duties as <b>{{ $employee->designation }}</b> at <b>{{ $company_name }}</b>. 
-    You are expected to perform your responsibilities without any bias or conflict of interest, 
-    and to uphold the highest standards of integrity.</p>
+    @if($letter->content)
+        {!! $letter->content !!}
+    @else
+        <p>This declaration is to confirm your commitment to impartiality in all your professional 
+        duties as <b>{{ $employee->designation }}</b> at <b>{{ $company_name }}</b>. 
+        You are expected to perform your responsibilities without any bias or conflict of interest, 
+        and to uphold the highest standards of integrity.</p>
+        
+        <p>Please sign and return a copy of this letter to acknowledge your acceptance of these terms.</p>
+    @endif
     
   @php
-    $cleanNotes = trim(strip_tags($letter->notes));
+    $cleanNotes = trim(strip_tags($letter->notes ?? ''));
 @endphp
 
 @if(!empty($cleanNotes))
@@ -31,8 +41,6 @@
     </div>
 @endif
 
-    
-    <p>Please sign and return a copy of this letter to acknowledge your acceptance of these terms.</p>
 </div>
 
 <div class="signature">

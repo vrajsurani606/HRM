@@ -11,18 +11,29 @@
     @endif
 </div>
 
+@if($letter->subject)
+<div class="subject">Subject: {{ $letter->subject }}</div>
+@else
 <div class="subject">Subject: Confidentiality Agreement</div>
+@endif
 
 <div class="body">
     <p>Dear <b>{{ $employee->name }}</b>,</p>
     
-    <p>This agreement is to confirm that as a <b>{{ $employee->designation }}</b> at 
-    <b>{{ $company_name }}</b>, you are required to maintain strict confidentiality 
-    regarding all company information, data, and intellectual property you may access 
-    during your employment. Disclosure of any such information to unauthorized persons 
-    is strictly prohibited.</p>
+    @if($letter->content)
+        {!! $letter->content !!}
+    @else
+        <p>This agreement is to confirm that as a <b>{{ $employee->designation }}</b> at 
+        <b>{{ $company_name }}</b>, you are required to maintain strict confidentiality 
+        regarding all company information, data, and intellectual property you may access 
+        during your employment. Disclosure of any such information to unauthorized persons 
+        is strictly prohibited.</p>
+        
+        <p>Kindly sign and return a copy of this letter as your acceptance of the confidentiality terms.</p>
+    @endif
+    
  @php
-    $cleanNotes = trim(strip_tags($letter->notes));
+    $cleanNotes = trim(strip_tags($letter->notes ?? ''));
 @endphp
 
 @if(!empty($cleanNotes))
@@ -31,8 +42,6 @@
     </div>
 @endif
 
-    
-    <p>Kindly sign and return a copy of this letter as your acceptance of the confidentiality terms.</p>
 </div>
 
 <div class="signature">

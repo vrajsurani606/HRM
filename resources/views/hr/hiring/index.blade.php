@@ -5,8 +5,8 @@
 <div class="hrp-card">
   <div class="hrp-card-body">
     <form id="filterForm" method="GET" action="{{ route('hiring.index') }}" class="jv-filter">
-      <input type="date" name="from_date" class="filter-pill" placeholder="From : dd/mm/yyyy" value="{{ request('from_date') }}">
-      <input type="date" name="to_date" class="filter-pill" placeholder="To : dd/mm/yyyy" value="{{ request('to_date') }}">
+      <input type="text" name="from_date" class="filter-pill date-picker" placeholder="From : dd/mm/yyyy" value="{{ request('from_date') }}" autocomplete="off">
+      <input type="text" name="to_date" class="filter-pill date-picker" placeholder="To : dd/mm/yyyy" value="{{ request('to_date') }}" autocomplete="off">
       <select name="gender" class="filter-pill">
         <option value="" {{ !request('gender') ? 'selected' : '' }}>All Genders</option>
         <option value="male" {{ request('gender') == 'male' ? 'selected' : '' }}>Male</option>
@@ -487,4 +487,42 @@ document.addEventListener('DOMContentLoaded', function() {
 </form>
 {{ $leads->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
 @endif
-@endsection
+@endsection@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<script>
+// Initialize jQuery datepicker
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({ marginTop: '2px', marginLeft: '0px' });
+            }, 0);
+        }
+    });
+});
+
+// Convert dates before form submission
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.querySelector('.jv-filter, #filterForm');
+    if(form){
+        form.addEventListener('submit', function(e){
+            var dateInputs = form.querySelectorAll('.date-picker');
+            dateInputs.forEach(function(input){
+                if(input.value){
+                    var parts = input.value.split('/');
+                    if(parts.length === 3) input.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+                }
+            });
+        });
+    }
+});
+</script>
+@endpush

@@ -11,19 +11,27 @@
     @endif
 </div>
 
+@if($letter->subject)
+<div class="subject">Subject: {{ $letter->subject }}</div>
+@else
 <div class="subject">Subject: Appointment / Joining Letter</div>
+@endif
 
 <div class="body">
     <p>Dear <b>{{ $employee->name }}</b>,</p>
     
-    <p>We are pleased to confirm your appointment as <b>{{ $employee->designation }}</b> at 
-    <b>{{ $company_name }}</b>. Your joining date and other details will be communicated to you 
-    by the HR department. We look forward to your valuable contribution to our organization.</p>
-    
-    <p>Please report to the HR department on your joining date for further formalities.</p>
+    @if($letter->content)
+        {!! $letter->content !!}
+    @else
+        <p>We are pleased to confirm your appointment as <b>{{ $employee->designation }}</b> at 
+        <b>{{ $company_name }}</b>. Your joining date and other details will be communicated to you 
+        by the HR department. We look forward to your valuable contribution to our organization.</p>
+        
+        <p>Please report to the HR department on your joining date for further formalities.</p>
+    @endif
     
 @php
-    $cleanNotes = trim(strip_tags($letter->notes));
+    $cleanNotes = trim(strip_tags($letter->notes ?? ''));
 @endphp
 
 @if(!empty($cleanNotes))

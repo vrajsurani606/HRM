@@ -19,7 +19,9 @@
         <!-- Profile Info -->
         <div style="display:flex;align-items:center;gap:8px">
           <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;background:#fbbf24;flex-shrink:0">
-            @php($photo = $employee?->photo_path ? asset('storage/' . $employee->photo_path) : null)
+            @php
+              $photo = $employee && $employee->photo_path ? storage_asset($employee->photo_path) : null;
+            @endphp
             <img src="{{ $photo ?? 'https://ui-avatars.com/api/?name=' . urlencode($employee->name ?? $user->name) . '&background=f59e0b&color=fff&size=60' }}" style="width:100%;height:100%;object-fit:cover" alt="{{ $employee->name ?? $user->name }}">
           </div>
           <div>
@@ -32,8 +34,10 @@
         <div style="width:1px;height:36px;background:#e5e7eb"></div>
         
         <!-- Status Badge -->
-        @php($status = strtolower($employee->status ?? 'active'))
-        @php($badgeBg = $status === 'active' ? '#158f00' : '#6b7280')
+        @php
+          $status = strtolower($employee->status ?? 'active');
+          $badgeBg = $status === 'active' ? '#158f00' : '#6b7280';
+        @endphp
         <div style="display:flex;align-items:center;gap:16px;background:{{ $badgeBg }};color:#ffffff;font-weight:700;font-size:14px;padding:6px 14px;border-radius:9999px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;flex-shrink:0">
           <div style="width:8px;height:8px;background:#ffffff;border-radius:50%"></div>
           {{ ucfirst($status) }}
@@ -110,7 +114,9 @@
         <!-- Left Column - Profile Image -->
         <div style="flex:0 0 200px">
           <div style="width:200px;height:200px;border-radius:50%;overflow:hidden;background:#fbbf24;margin-bottom:20px">
-            @php($photo = $employee?->photo_path ? asset('storage/' . $employee->photo_path) : null)
+            @php
+              $photo = $employee && $employee->photo_path ? storage_asset($employee->photo_path) : null;
+            @endphp
             <img src="{{ $photo ?? 'https://ui-avatars.com/api/?name=' . urlencode($employee->name ?? $user->name) . '&background=f59e0b&color=fff&size=200' }}"
               style="width:100%;height:100%;object-fit:cover" alt="{{ $employee->name ?? $user->name }}">
           </div>
@@ -119,7 +125,14 @@
         <!-- Right Column - Form -->
         <div style="flex:1">
           <div class="hrp-compact">
-            <form method="POST" action="{{ route('profile.update') }}" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px 24px;align-items:start">
+            <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px 24px;align-items:start">
+              <!-- Profile Photo Upload -->
+              <div style="grid-column:1/-1">
+                <label class="hrp-label">Profile Photo</label>
+                <input type="file" name="photo" accept="image/*" class="hrp-input Rectangle-29" onchange="previewPhoto(this)">
+                <small style="color:#6b7280;font-size:12px">Upload a new profile photo (JPG, PNG, max 2MB)</small>
+              </div>
+              
               <!-- Full Name -->
               <div>
                 <label class="hrp-label">Full Name</label>
@@ -251,39 +264,49 @@
         <table>
           <thead>
             <tr>
-              <th>#</th>
+              <th>Action</th>
+              <th>Serial No</th>
               <th>Payslip ID</th>
               <th>Salary Month</th>
               <th>Payment Date</th>
               <th>Gross Amount</th>
               <th>Net Amount</th>
-              <th>Action</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            @if(isset($payslips) && count($payslips))
-              @foreach($payslips as $i => $p)
-                <tr>
-                  <td>{{ $loop->iteration }}</td>
-                  <td>{{ $p->code ?? ('PSL-'.$p->id) }}</td>
-                  <td>{{ isset($p->salary_month) ? \Carbon\Carbon::parse($p->salary_month)->format('M - Y') : '-' }}</td>
-                  <td>{{ isset($p->payment_date) ? \Carbon\Carbon::parse($p->payment_date)->format('d-m-Y') : '-' }}</td>
-                  <td>{{ isset($p->gross_amount) ? '₹'.number_format($p->gross_amount,2) : '-' }}</td>
-                  <td>{{ isset($p->net_amount) ? '₹'.number_format($p->net_amount,2) : '-' }}</td>
-                  <td>
-                    @if(!empty($p->file_path))
-                      <a href="{{ asset('storage/'.$p->file_path) }}" target="_blank" style="color:#0ea5e9;font-weight:700;text-decoration:none">View</a>
-                    @else
-                      —
-                    @endif
-                  </td>
-                </tr>
-              @endforeach
-            @else
+            @forelse($payslips ?? [] as $index => $payslip)
+              @php
+                $grossAmount = ($payslip->basic_salary ?? 0) + ($payslip->allowances ?? 0) + ($payslip->bonuses ?? 0);
+                $empCode = $employee->code ?? 'EMP';
+                $empId = $employee->id ?? 0;
+                $payslipId = 'PAY/' . strtoupper(substr($empCode, 0, 3)) . '/' . str_pad($empId, 4, '0', STR_PAD_LEFT) . '/' . str_pad($payslip->id, 3, '0', STR_PAD_LEFT);
+                $statusColors = ['pending' => '#f59e0b', 'paid' => '#10b981', 'cancelled' => '#ef4444'];
+                $statusColor = $statusColors[$payslip->status] ?? '#6b7280';
+              @endphp
               <tr>
-                <td colspan="7" style="text-align:center;padding:40px;color:#6b7280">No payslips found</td>
+                <td>
+                  <a href="{{ route('payroll.show', $payslip->id) }}" target="_blank" title="View Payslip">
+                    <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon" />
+                  </a>
+                </td>
+                <td>{{ $index + 1 }}</td>
+                <td>{{ $payslipId }}</td>
+                <td>{{ $payslip->month }} - {{ $payslip->year }}</td>
+                <td>{{ $payslip->payment_date ? $payslip->payment_date->format('d-m-Y') : 'N/A' }}</td>
+                <td>₹{{ number_format($grossAmount, 0) }}</td>
+                <td>₹{{ number_format($payslip->net_salary ?? 0, 0) }}</td>
+                <td>
+                  <span style="color: {{ $statusColor }}; font-weight: 600; font-size: 12px; padding: 4px 8px; border-radius: 12px; background: {{ $statusColor }}20;">
+                    {{ ucfirst($payslip->status) }}
+                  </span>
+                </td>
               </tr>
-            @endif
+            @empty
+              <tr>
+                <td colspan="8" style="text-align:center;padding:40px;color:#6b7280">No payslips found</td>
+              </tr>
+            @endforelse
           </tbody>
         </table>
       </div>
@@ -357,9 +380,11 @@
                 @if($row->total_working_hours)
                   {{ $row->total_working_hours }}
                 @elseif($row->check_in && $row->check_out)
-                  @php($mins=\Carbon\Carbon::parse($row->check_in)->diffInMinutes(\Carbon\Carbon::parse($row->check_out)))
-                  @php($h=floor($mins/60))
-                  @php($m=$mins%60)
+                  @php
+                    $mins = \Carbon\Carbon::parse($row->check_in)->diffInMinutes(\Carbon\Carbon::parse($row->check_out));
+                    $h = floor($mins/60);
+                    $m = $mins%60;
+                  @endphp
                   {{ sprintf('%02d:%02d:00',$h,$m) }}
                 @else
                   -
@@ -379,7 +404,9 @@
 
     <div id="documents" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;padding:24px 32px">
-        @php($hasAny=false)
+        @php
+          $hasAny = false;
+        @endphp
         @foreach([
           ['key' => 'photo_path', 'label' => 'Profile Photo'],
           ['key' => 'aadhaar_photo_front', 'label' => 'Aadhaar Front'],
@@ -388,15 +415,19 @@
           ['key' => 'cheque_photo', 'label' => 'Cheque'],
           ['key' => 'marksheet_photo', 'label' => 'Marksheet'],
         ] as $doc)
-          @php($path = $employee?->{$doc['key']} ?? null)
-          @php($exists = $path && Storage::disk('public')->exists($path))
+          @php
+            $path = $employee && isset($employee->{$doc['key']}) ? $employee->{$doc['key']} : null;
+            $exists = $path && Storage::disk('public')->exists($path);
+          @endphp
           @if($exists)
-            @php($hasAny=true)
-            @php($url = asset('storage/'.$path))
-            @php($ext = strtolower(pathinfo($path, PATHINFO_EXTENSION)))
-            @php($isImage = in_array($ext, ['jpg','jpeg','png','gif','webp','bmp']))
-            @php($size = Storage::disk('public')->size($path))
-            @php($human = $size >= 1048576 ? round($size/1048576,2).' MB' : ($size >= 1024 ? round($size/1024,2).' KB' : $size.' B'))
+            @php
+              $hasAny = true;
+              $url = storage_asset($path);
+              $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+              $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp','bmp']);
+              $size = Storage::disk('public')->size($path);
+              $human = $size >= 1048576 ? round($size/1048576,2).' MB' : ($size >= 1024 ? round($size/1024,2).' KB' : $size.' B');
+            @endphp
             <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
               <div style="height:180px;background:#f8fafc;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center">
                 @if($isImage)
@@ -424,7 +455,7 @@
       </div>
     </div>
 
-    <div id="bank" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
+    <div id="bank" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:10px;margin:0">
       <div style="margin:0 32px 24px">
         @include('profile.partials.bank-details')
       </div>
@@ -436,7 +467,9 @@
       <form method="GET" class="hrp-entries-form" style="display:inline-flex;align-items:center;gap:6px;margin-right:10px">
         <span>Entries</span>
         <select name="per_page" onchange="this.form.submit()" style="border:1px solid #E5E5E5;border-radius:6px;padding:2px 8px;height:26px">
-          @php($currentPerPage = (int) request()->get('per_page', 10))
+          @php
+            $currentPerPage = (int) request()->get('per_page', 10);
+          @endphp
           @foreach([10,25,50,100] as $size)
             <option value="{{ $size }}" {{ $currentPerPage === $size ? 'selected' : '' }}>{{ $size }}</option>
           @endforeach
@@ -665,6 +698,17 @@
         margin-bottom: 8px;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       }
+      
+      .action-icon {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      
+      .action-icon:hover {
+        transform: scale(1.2);
+      }
     </style>
 
     <script>
@@ -703,6 +747,20 @@
         navigator.clipboard.writeText(bankDetails).then(() => {
           toastr.success('Bank details copied to clipboard!');
         });
+      }
+      
+      function previewPhoto(input) {
+        if (input.files && input.files[0]) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            // Update all profile images on the page
+            document.querySelectorAll('img[alt*="{{ $employee->name ?? $user->name }}"]').forEach(img => {
+              img.src = e.target.result;
+            });
+            toastr.success('Photo selected! Click SAVE CHANGES to upload.');
+          };
+          reader.readAsDataURL(input.files[0]);
+        }
       }
     </script>
 @endsection

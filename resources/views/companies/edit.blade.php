@@ -337,7 +337,7 @@
             <input name="company_logo" type="file" class="hrp-input Rectangle-29" style="padding: 8px 12px; font-size: 14px; line-height: 1.5;">
             @if($company->company_logo)
               <div class="mt-2">
-                <img src="{{ asset('storage/' . $company->company_logo) }}" alt="Company Logo" style="max-width: 100px; max-height: 100px;">
+                <img src="{{ storage_asset('' . $company->company_logo) }}" alt="Company Logo" style="max-width: 100px; max-height: 100px;">
               </div>
             @endif
             @error('company_logo')<small class="hrp-error">{{ $message }}</small>@enderror

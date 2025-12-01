@@ -20,9 +20,9 @@
 @section('content')
 <div class="inquiry-index-container">
   <!-- JV Filter -->
-  <form method="GET" action="{{ route('inquiries.index') }}" class="jv-filter">
-    <input type="date" id="start_date" name="from_date" class="filter-pill" placeholder="From: dd/mm/yyyy" value="{{ request('from_date') }}">
-    <input type="date" id="end_date" name="to_date" class="filter-pill" placeholder="To: dd/mm/yyyy" value="{{ request('to_date') }}">
+  <form method="GET" action="{{ route('inquiries.index') }}" class="jv-filter" id="filterForm">
+    <input type="text" id="start_date" name="from_date" class="filter-pill date-picker" placeholder="From: dd/mm/yyyy" value="{{ request('from_date') }}" autocomplete="off">
+    <input type="text" id="end_date" name="to_date" class="filter-pill date-picker" placeholder="To: dd/mm/yyyy" value="{{ request('to_date') }}" autocomplete="off">
     <button type="submit" class="filter-search" id="filter_btn" aria-label="Search">
       <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
@@ -131,7 +131,32 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// Initialize jQuery datepicker with dd/mm/yyyy format (same as quotation)
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({
+                    marginTop: '2px',
+                    marginLeft: '0px'
+                });
+            }, 0);
+        }
+    });
+});
+</script>
+
 <script>
   // SweetAlert delete confirmation for inquiries
   function confirmDeleteInquiry(button) {
@@ -163,8 +188,35 @@
     if (!form || !tbody) return;
 
     function fetchInquiries() {
+      // Convert date format before fetching
+      var fromDateInput = document.getElementById('start_date');
+      var toDateInput = document.getElementById('end_date');
+      
+      // Store original values
+      var originalFromDate = fromDateInput ? fromDateInput.value : '';
+      var originalToDate = toDateInput ? toDateInput.value : '';
+      
+      // Convert dates from dd/mm/yyyy to yyyy-mm-dd for query
+      if(fromDateInput && fromDateInput.value){
+        var parts = fromDateInput.value.split('/');
+        if(parts.length === 3){
+          fromDateInput.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+        }
+      }
+      
+      if(toDateInput && toDateInput.value){
+        var parts = toDateInput.value.split('/');
+        if(parts.length === 3){
+          toDateInput.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+        }
+      }
+      
       var params = new URLSearchParams(new FormData(form));
       var url = form.getAttribute('action') + '?' + params.toString();
+      
+      // Restore original values
+      if(fromDateInput) fromDateInput.value = originalFromDate;
+      if(toDateInput) toDateInput.value = originalToDate;
 
       fetch(url, {
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -180,6 +232,25 @@
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
+      
+      // Convert dates from dd/mm/yyyy to yyyy-mm-dd before submission
+      var fromDateInput = document.getElementById('start_date');
+      var toDateInput = document.getElementById('end_date');
+      
+      if(fromDateInput && fromDateInput.value){
+        var parts = fromDateInput.value.split('/');
+        if(parts.length === 3){
+          fromDateInput.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+        }
+      }
+      
+      if(toDateInput && toDateInput.value){
+        var parts = toDateInput.value.split('/');
+        if(parts.length === 3){
+          toDateInput.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+        }
+      }
+      
       fetchInquiries();
     });
 
@@ -187,6 +258,45 @@
     if (searchInput) {
       searchInput.addEventListener('input', function() {
         fetchInquiries();
+      });
+    }
+    
+    // Handle Excel export button with date conversion
+    var excelBtn = document.getElementById('excel_btn');
+    if(excelBtn){
+      excelBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        
+        var fromDateInput = document.getElementById('start_date');
+        var toDateInput = document.getElementById('end_date');
+        var searchInput = document.getElementById('custom_search');
+        
+        var params = new URLSearchParams();
+        
+        // Convert and add from_date
+        if(fromDateInput && fromDateInput.value){
+          var parts = fromDateInput.value.split('/');
+          if(parts.length === 3){
+            params.append('from_date', parts[2] + '-' + parts[1] + '-' + parts[0]);
+          }
+        }
+        
+        // Convert and add to_date
+        if(toDateInput && toDateInput.value){
+          var parts = toDateInput.value.split('/');
+          if(parts.length === 3){
+            params.append('to_date', parts[2] + '-' + parts[1] + '-' + parts[0]);
+          }
+        }
+        
+        // Add search parameter
+        if(searchInput && searchInput.value){
+          params.append('search', searchInput.value);
+        }
+        
+        // Navigate to export URL with converted dates
+        var exportUrl = this.href.split('?')[0] + '?' + params.toString();
+        window.location.href = exportUrl;
       });
     }
   });

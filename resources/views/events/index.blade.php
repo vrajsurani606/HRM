@@ -48,7 +48,7 @@
     @forelse($events as $event)
       @php
         $coverPath = $event->coverImage?->image_path ?? optional($event->images->first())->image_path;
-        $cover = $coverPath ? asset('storage/'. $coverPath) : null;
+        $cover = $coverPath ? storage_asset(''. $coverPath) : null;
         $imgCount = $event->images->count();
         $vidCount = $event->videos->count();
         $initial = strtoupper(mb_substr($event->name ?? '', 0, 1));

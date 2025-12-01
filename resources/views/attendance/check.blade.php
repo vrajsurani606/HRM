@@ -6,7 +6,7 @@
   <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); overflow: hidden;">
 
     @php
-      $empPhoto = ($employee && !empty($employee->photo_path)) ? asset('storage/'.$employee->photo_path) : null;
+      $empPhoto = ($employee && !empty($employee->photo_path)) ? storage_asset(''.$employee->photo_path) : null;
       $userPhoto = auth()->user()->profile_photo_url ?? null;
       $photo = $empPhoto ?: $userPhoto;
       $initial = strtoupper(mb_substr((string)($employee->name ?? auth()->user()->name ?? 'U'), 0, 1));

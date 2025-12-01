@@ -24,10 +24,12 @@
     <div>
       <label class="hrp-label">Inquiry Date (dd/mm/yy) :</label>
       <input
-        type="date"
-        class="hrp-input Rectangle-29"
+        type="text"
+        class="hrp-input Rectangle-29 date-picker"
         name="inquiry_date"
-        value="{{ old('inquiry_date', optional($inquiry->inquiry_date)->format('Y-m-d')) }}"
+        value="{{ old('inquiry_date', optional($inquiry->inquiry_date)->format('d/m/Y')) }}"
+        placeholder="dd/mm/yyyy"
+        autocomplete="off"
         readonly
       />
       @error('inquiry_date')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -208,7 +210,30 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
 <script>
+// Initialize jQuery datepicker with dd/mm/yyyy format (same as quotation)
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({
+                    marginTop: '2px',
+                    marginLeft: '0px'
+                });
+            }, 0);
+        }
+    });
+});
+
 document.addEventListener('DOMContentLoaded', function() {
   const fileInput = document.getElementById('quotation_file');
   const filenameSpan = document.querySelector('.filename');
@@ -249,6 +274,18 @@ document.addEventListener('DOMContentLoaded', function() {
   // HTML5 validation-style check: just prevent submit if invalid and show browser messages
   if (form) {
     form.addEventListener('submit', function(e) {
+      // Convert date from dd/mm/yyyy to yyyy-mm-dd before submission
+      var dateInput = document.querySelector('input[name="inquiry_date"]');
+      if(dateInput && dateInput.value){
+        var parts = dateInput.value.split('/');
+        if(parts.length === 3){
+          var day = parts[0];
+          var month = parts[1];
+          var year = parts[2];
+          dateInput.value = year + '-' + month + '-' + day;
+        }
+      }
+      
       if (!form.checkValidity()) {
         e.preventDefault();
         form.reportValidity();

@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('new_theme/bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('new_theme/bower_components/font-awesome/css/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('new_theme/bower_components/Ionicons/css/ionicons.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('new_theme/bower_components/jquery-ui/themes/base/jquery-ui.min.css') }}">
     <link rel="stylesheet" href="{{ asset('new_theme/dist/css/AdminLTE.min.css') }}">
     <link rel="stylesheet" href="{{ asset('new_theme/dist/css/skins/_all-skins.min.css') }}">
     <link rel="stylesheet" href="{{ asset('new_theme/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') }}">
@@ -515,6 +516,88 @@
     })();
   })();
 </script>
+
+<!-- Global Datepicker Initialization (jQuery UI) -->
+<script>
+  $(document).ready(function() {
+    // Initialize all datepickers with DD/MM/YYYY format (jQuery UI)
+    if ($.fn.datepicker && $.datepicker) {
+      // Initialize datepickers on common selectors
+      $('.datepicker, .date-picker, input[type="date"], .date-input, [data-provide="datepicker"]').each(function() {
+        var $input = $(this);
+        
+        // Skip if already initialized
+        if ($input.hasClass('hasDatepicker')) return;
+        
+        // Change type from date to text for better control
+        if ($input.attr('type') === 'date') {
+          $input.attr('type', 'text');
+        }
+        
+        // Initialize jQuery UI datepicker
+        $input.datepicker({
+          dateFormat: 'dd/mm/yy', // jQuery UI format (yy = 4-digit year)
+          changeMonth: true,
+          changeYear: true,
+          yearRange: '-10:+10',
+          showButtonPanel: true,
+          beforeShow: function(input, inst) {
+            setTimeout(function() {
+              inst.dpDiv.css({
+                marginTop: '2px',
+                marginLeft: '0px'
+              });
+            }, 0);
+          }
+        });
+        
+        // Ensure text color is black
+        $input.css({
+          'color': '#000',
+          '-webkit-text-fill-color': '#000'
+        });
+      });
+    }
+    
+    // Fix for dynamically added datepickers
+    $(document).on('focus', 'input.datepicker:not(.hasDatepicker), input.date-picker:not(.hasDatepicker), input[data-provide="datepicker"]:not(.hasDatepicker)', function() {
+      var $input = $(this);
+      if (!$input.hasClass('hasDatepicker')) {
+        if ($input.attr('type') === 'date') {
+          $input.attr('type', 'text');
+        }
+        $input.datepicker({
+          dateFormat: 'dd/mm/yy',
+          changeMonth: true,
+          changeYear: true,
+          yearRange: '-10:+10',
+          showButtonPanel: true,
+          beforeShow: function(input, inst) {
+            setTimeout(function() {
+              inst.dpDiv.css({
+                marginTop: '2px',
+                marginLeft: '0px'
+              });
+            }, 0);
+          }
+        });
+        $input.css({
+          'color': '#000',
+          '-webkit-text-fill-color': '#000'
+        });
+      }
+    });
+    
+    // Ensure all date inputs have proper text color
+    $('input[type="date"], input.datepicker, input.date-picker, .date-input').on('change input', function() {
+      $(this).css({
+        'color': '#000',
+        '-webkit-text-fill-color': '#000'
+      });
+    });
+  });
+</script>
+
 @stack('scripts')
 <!-- Toastr initialization is handled in partials/flash.blade.php -->
 </body>

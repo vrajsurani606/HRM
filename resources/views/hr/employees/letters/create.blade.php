@@ -193,8 +193,8 @@
                 <div>
                     <label class="hrp-label">Reason for Termination:</label>
                     <small class="text-xs text-gray-500">Maximum 10,000 characters. Content over 2,000 characters will use smaller font in print.</small>
-                    <textarea name="content" id="termination_reason" class="form-control summernote-notes w-full" 
-                             placeholder="Enter detailed reason for termination (e.g., consistently low performance despite prior discussions and performance improvement plans)" style="min-height: 200px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
+                    <textarea data-field="content" id="termination_reason" class="form-control summernote-notes w-full" 
+                             placeholder="Enter detailed reason for termination (e.g., consistently low performance despite prior discussions and performance improvement plans)" style="min-height: 200px;">{{ old('content', isset($letter) && $letter->type == 'termination' ? $letter->content : '') }}</textarea>
                     @error('content')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -304,8 +304,8 @@
                 <div>
                     <label class="hrp-label">Warning Content: <span class="text-red-500">*</span></label>
                     <small class="text-xs text-gray-500">Maximum 10,000 characters. Content over 2,000 characters will use smaller font in print.</small>
-                    <textarea name="content" id="warning_content" class="form-control summernote-notes w-full" 
-                             placeholder="Enter detailed warning content (e.g., specific issues, expected improvements, consequences)" style="min-height: 200px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
+                    <textarea data-field="content" id="warning_content" class="form-control summernote-notes w-full" 
+                             placeholder="Enter detailed warning content (e.g., specific issues, expected improvements, consequences)" style="min-height: 200px;">{{ old('content', isset($letter) && $letter->type == 'warning' ? $letter->content : '') }}</textarea>
                     @error('content')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -316,8 +316,8 @@
             <div id="otherFields" class="hidden col-span-2 space-y-4">
                 <div>
                     <label class="hrp-label">Subject: <span class="text-red-500">*</span></label>
-                    <input type="text" id="other_subject" class="hrp-input Rectangle-29" 
-                           placeholder="Enter letter subject" value="{{ old('subject', isset($letter)?$letter->subject:'') }}">
+                    <input type="text" data-field="subject" id="other_subject" class="hrp-input Rectangle-29" 
+                           placeholder="Enter letter subject" value="{{ old('subject', isset($letter) && $letter->type == 'other' ? $letter->subject : '') }}">
                     @error('subject')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -325,8 +325,29 @@
                 <div>
                     <label class="hrp-label">Content: <span class="text-red-500">*</span></label>
                     <small class="text-xs text-gray-500">Maximum 10,000 characters. Content over 2,000 characters will use smaller font in print.</small>
-                    <textarea name="content" id="other_content" class="form-control summernote w-full" 
-                             placeholder="Enter letter content" style="min-height: 300px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
+                    <textarea data-field="content" id="other_content" class="form-control summernote w-full" 
+                             placeholder="Enter letter content" style="min-height: 300px;">{{ old('content', isset($letter) && $letter->type == 'other' ? $letter->content : '') }}</textarea>
+                    @error('content')
+                        <small class="hrp-error">{{ $message }}</small>
+                    @enderror
+                </div>
+            </div>
+            
+            <!-- Universal Content & Subject Fields (for all letter types) -->
+            <div id="universalFields" class="hidden col-span-2 space-y-4">
+                <div>
+                    <label class="hrp-label">Subject:</label>
+                    <input type="text" name="subject" id="universal_subject" class="hrp-input Rectangle-29" 
+                           placeholder="Enter letter subject (optional)" value="{{ old('subject', isset($letter) ? $letter->subject : '') }}">
+                    @error('subject')
+                        <small class="hrp-error">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div>
+                    <label class="hrp-label">Additional Content:</label>
+                    <small class="text-xs text-gray-500">Add any additional content or notes for this letter. Maximum 10,000 characters.</small>
+                    <textarea name="content" id="universal_content" class="form-control summernote w-full" 
+                             placeholder="Enter additional letter content (optional)" style="min-height: 250px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
                     @error('content')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -467,6 +488,7 @@ $(document).on('change', 'select[name="type"]', function() {
     const internshipLetterFields = document.getElementById('internshipLetterFields');
     const warningFields = document.getElementById('warningFields');
     const otherFields = document.getElementById('otherFields');
+    const universalFields = document.getElementById('universalFields');
     const standardFields = document.getElementById('standardLetterFields');
     const submitBtn = document.getElementById('submitBtn');
     
@@ -479,13 +501,16 @@ $(document).on('change', 'select[name="type"]', function() {
     internshipLetterFields.classList.add('hidden');
     warningFields.classList.add('hidden');
     otherFields.classList.add('hidden');
+    universalFields.classList.add('hidden');
     standardFields.classList.add('hidden');
     
     if (this.value === 'offer') {
         offerLetterFields.classList.remove('hidden');
+        // Don't show universal fields for offer letters - they have their own specific fields
         submitBtn.innerHTML = '<i class="fas fa-file-pdf mr-1"></i> Generate & Save Letter';
     } else if (this.value === 'experience') {
         experienceFields.classList.remove('hidden');
+        universalFields.classList.remove('hidden');
         standardFields.classList.remove('hidden');
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value === 'termination') {
@@ -497,54 +522,96 @@ $(document).on('change', 'select[name="type"]', function() {
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value === 'increment') {
         incrementFields.classList.remove('hidden');
+        universalFields.classList.remove('hidden');
         standardFields.classList.remove('hidden');
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value === 'internship_offer') {
         internshipOfferFields.classList.remove('hidden');
+        universalFields.classList.remove('hidden');
         standardFields.classList.remove('hidden');
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value === 'internship_letter') {
         internshipLetterFields.classList.remove('hidden');
+        universalFields.classList.remove('hidden');
         standardFields.classList.remove('hidden');
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value === 'other') {
         otherFields.classList.remove('hidden');
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value) {
+        // For all other letter types (joining, confidentiality, impartiality, agreement, etc.)
+        universalFields.classList.remove('hidden');
         standardFields.classList.remove('hidden');
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else {
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     }
 
-    // Ensure only the visible content textarea is submitted as 'content'
-    const mapping = {
+    // Manage dynamic field names for content and subject
+    const contentFieldMapping = {
       warning: 'warning_content',
       termination: 'termination_reason',
       other: 'other_content'
     };
-    const ids = ['warning_content','termination_reason','other_content'];
-    ids.forEach(id => {
+    
+    // Remove name attribute from all specific content fields
+    const allContentFields = ['warning_content','termination_reason','other_content','universal_content'];
+    allContentFields.forEach(id => {
       const el = document.getElementById(id);
-      if (!el) return;
-      // Temporarily remove name so it doesn't get posted
-      el.setAttribute('data-orig-name', el.getAttribute('name') || '');
-      el.removeAttribute('name');
+      if (el) {
+        el.removeAttribute('name');
+        el.removeAttribute('required');
+      }
     });
-    const selectedId = mapping[this.value];
-    if (selectedId) {
-      const active = document.getElementById(selectedId);
-      if (active) active.setAttribute('name','content');
+    
+    // Add name attribute to the active content field
+    const activeContentId = contentFieldMapping[this.value];
+    if (activeContentId) {
+      // For warning, termination, other - use their specific fields
+      const activeContent = document.getElementById(activeContentId);
+      if (activeContent) {
+        activeContent.setAttribute('name', 'content');
+        if (this.value === 'warning' || this.value === 'termination' || this.value === 'other') {
+          activeContent.setAttribute('required', 'required');
+        }
+      }
+    } else if (this.value && this.value !== '') {
+      // For all other types - use universal content field
+      const universalContent = document.getElementById('universal_content');
+      if (universalContent) {
+        universalContent.setAttribute('name', 'content');
+        // Content is optional for most letter types
+      }
     }
 
-    // Toggle subject name only for 'other' type so it isn't posted for other types
-    const subj = document.getElementById('other_subject');
-    if (subj) {
-      if (this.value === 'other') {
-        subj.setAttribute('name','subject');
-      } else {
-        subj.removeAttribute('name');
-      }
+    // Handle subject fields
+    const otherSubjField = document.getElementById('other_subject');
+    const universalSubjField = document.getElementById('universal_subject');
+    
+    // Remove name from both subject fields first
+    if (otherSubjField) {
+      otherSubjField.removeAttribute('name');
+      otherSubjField.removeAttribute('required');
+    }
+    if (universalSubjField) {
+      universalSubjField.removeAttribute('name');
+      universalSubjField.removeAttribute('required');
+    }
+    
+    // Add name to the appropriate subject field
+    if (this.value === 'other' && otherSubjField) {
+        otherSubjField.setAttribute('name', 'subject');
+        otherSubjField.setAttribute('required', 'required');
+    } else if (this.value && this.value !== '' && this.value !== 'warning' && this.value !== 'termination' && universalSubjField) {
+        universalSubjField.setAttribute('name', 'subject');
+        // Subject is optional for most letter types
+    }
+    
+    // Re-initialize Summernote for the active content field to ensure it works properly
+    if (typeof window.initializeSummernote === 'function') {
+        setTimeout(function() {
+            window.initializeSummernote();
+        }, 100);
     }
 
     // Toggle required attributes for common cases
@@ -565,47 +632,70 @@ $(document).on('change', 'select[name="type"]', function() {
 $('select[name="type"]').trigger('change');
 
 $(document).ready(function() {
-    // Initialize Summernote for Letter Content
-    $('.summernote').summernote({
-        height: 200,
-        focus: true,
-        toolbar: [
-            ['style', ['style']],
-            ['font', ['bold', 'italic', 'underline', 'clear', 'strikethrough']],
-            ['fontname', ['fontname']],
-            ['fontsize', ['fontsize']],
-            ['color', ['color']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['height', ['height']],
-            ['table', ['table']],
-            ['insert', ['link', 'picture', 'hr']],
-            ['view', ['fullscreen', 'codeview', 'help']],
-            ['misc', ['undo', 'redo']]
-        ],
-        fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '24', '36', '48'],
-        callbacks: {
-            onInit: function() {
-                $('.note-editable').focus();
+    // Initialize Summernote for Letter Content - Don't initialize on page load
+    // Will be initialized when letter type is selected
+    
+    // Initialize a simpler Summernote for Notes - Don't initialize on page load
+    // Will be initialized when letter type is selected
+    
+    // Function to initialize Summernote editors
+    window.initializeSummernote = function() {
+        // Destroy all existing Summernote instances first
+        $('.summernote, .summernote-notes').each(function() {
+            if ($(this).next('.note-editor').length) {
+                $(this).summernote('destroy');
             }
-        },
-        styleTags: [
-            'p',
-            { title: 'Blockquote', tag: 'blockquote', className: 'blockquote', value: 'blockquote' },
-            'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
-        ]
-    });
-
-    // Initialize a simpler Summernote for Notes
-    $('.summernote-notes').summernote({
-        height: 225,
-        toolbar: [
-            ['style', ['bold', 'italic', 'underline', 'clear']],
-            ['para', ['ul', 'ol']],
-            ['insert', ['link']]
-        ],
-        fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18'],
-        styleTags: ['p', 'h4', 'h5', 'h6']
-    });
+        });
+        
+        // Initialize only visible editors
+        $('.summernote').each(function() {
+            const $this = $(this);
+            const parentDiv = $this.closest('div[id$="Fields"]');
+            if (parentDiv.length && !parentDiv.hasClass('hidden')) {
+                $this.summernote({
+                    height: 200,
+                    focus: false,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear', 'strikethrough']],
+                        ['fontname', ['fontname']],
+                        ['fontsize', ['fontsize']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['height', ['height']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture', 'hr']],
+                        ['view', ['fullscreen', 'codeview', 'help']],
+                        ['misc', ['undo', 'redo']]
+                    ],
+                    fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '24', '36', '48'],
+                    styleTags: [
+                        'p',
+                        { title: 'Blockquote', tag: 'blockquote', className: 'blockquote', value: 'blockquote' },
+                        'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
+                    ]
+                });
+            }
+        });
+        
+        $('.summernote-notes').each(function() {
+            const $this = $(this);
+            const parentDiv = $this.closest('div[id$="Fields"]');
+            if (parentDiv.length && !parentDiv.hasClass('hidden')) {
+                $this.summernote({
+                    height: 225,
+                    focus: false,
+                    toolbar: [
+                        ['style', ['bold', 'italic', 'underline', 'clear']],
+                        ['para', ['ul', 'ol']],
+                        ['insert', ['link']]
+                    ],
+                    fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18'],
+                    styleTags: ['p', 'h4', 'h5', 'h6']
+                });
+            }
+        });
+    };
 
     // Generate new reference number
     $('#generateRefBtn').click(function() {
@@ -645,14 +735,24 @@ $(document).ready(function() {
     $('form').on('submit', function(e) {
         e.preventDefault();
         
+        // Get content from all Summernote editors before submission
         $('.summernote, .summernote-notes').each(function() {
-            var content = $(this).summernote('code');
-            // Decode HTML entities to prevent double encoding
-            var tempDiv = $('<div>').html(content);
-            $(this).val(tempDiv.html());
+            if ($(this).next('.note-editor').length) {
+                var content = $(this).summernote('code');
+                // Set the value in the textarea
+                $(this).val(content);
+            }
         });
         
+        // Create FormData from the form
         var formData = new FormData(this);
+        
+        // Debug: Log what's being submitted
+        console.log('Form submission data:');
+        for (var pair of formData.entries()) {
+            console.log(pair[0] + ': ' + (pair[1].length > 100 ? pair[1].substring(0, 100) + '...' : pair[1]));
+        }
+        
         var url = $(this).attr('action');
         
         var submitBtn = $(this).find('button[type="submit"]');
@@ -756,6 +856,13 @@ $(document).ready(function() {
     
     // Initialize content length checking after summernote is ready
     setTimeout(checkContentLength, 1000);
+    
+    // Initialize Summernote editors on page load (especially for edit mode)
+    setTimeout(function() {
+        if (typeof window.initializeSummernote === 'function') {
+            window.initializeSummernote();
+        }
+    }, 200);
 });
 </script>
 @endpush

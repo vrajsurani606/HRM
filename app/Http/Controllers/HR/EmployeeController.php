@@ -477,6 +477,14 @@ class EmployeeController extends Controller
      */
    public function storeLetter(Request $request, Employee $employee)
 {
+    // Log incoming request data for debugging
+    \Log::info('Store Letter Request Data:', [
+        'type' => $request->input('type'),
+        'subject' => $request->input('subject'),
+        'content_length' => strlen($request->input('content', '')),
+        'content_preview' => substr($request->input('content', ''), 0, 100),
+    ]);
+    
     // Normalize fields that sometimes come as arrays from the UI
     if (is_array($request->input('subject'))) {
         $request->merge(['subject' => implode(' ', array_filter($request->input('subject')))]);
@@ -488,8 +496,8 @@ class EmployeeController extends Controller
     $validated = $request->validate([
         'title' => 'required|string|max:255',
         'type' => 'required|string|in:appointment,offer,joining,confidentiality,impartiality,experience,agreement,relieving,confirmation,warning,termination,increment,internship_offer,internship_letter,other',
-        'subject' => 'required_if:type,other|nullable|string|max:255',
-        'content' => 'required_if:type,other,warning,termination|nullable|string|max:10000',
+        'subject' => 'nullable|string|max:255',
+        'content' => 'nullable|string|max:10000',
         'issue_date' => 'required|date',
         'reference_number' => 'required|string|unique:employee_letters,reference_number',
         'notes' => 'nullable|string',
@@ -599,6 +607,15 @@ class EmployeeController extends Controller
      */
     public function updateLetter(Request $request, Employee $employee, EmployeeLetter $letter)
     {
+        // Log incoming request data for debugging
+        \Log::info('Update Letter Request Data:', [
+            'letter_id' => $letter->id,
+            'type' => $request->input('type'),
+            'subject' => $request->input('subject'),
+            'content_length' => strlen($request->input('content', '')),
+            'content_preview' => substr($request->input('content', ''), 0, 100),
+        ]);
+        
         // Normalize potential array inputs
         if (is_array($request->input('subject'))) {
             $request->merge(['subject' => implode(' ', array_filter($request->input('subject')))]);
@@ -610,8 +627,8 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'type' => 'required|string|in:appointment,offer,joining,confidentiality,impartiality,experience,agreement,relieving,confirmation,warning,termination,increment,internship_offer,internship_letter,other',
-            'subject' => 'required_if:type,other|nullable|string|max:255',
-            'content' => 'required_if:type,other,warning,termination|nullable|string|max:10000',
+            'subject' => 'nullable|string|max:255',
+            'content' => 'nullable|string|max:10000',
             'issue_date' => 'required|date',
             'reference_number' => 'required|string|unique:employee_letters,reference_number,' . $letter->id,
             'notes' => 'nullable|string',

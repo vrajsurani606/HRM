@@ -122,7 +122,7 @@
               <div class="profile-image">
                 @php($initial = strtoupper(mb_substr((string)($emp->name ?? 'U'), 0, 1)))
                 @if(isset($emp->photo_path) && $emp->photo_path)
-                  <img src="{{ asset('storage/'.$emp->photo_path) }}" alt="{{ $emp->name }}">
+                  <img src="{{ storage_asset(''.$emp->photo_path) }}" alt="{{ $emp->name }}">
                 @else
                   <span style="
                     width:100%;height:100%;display:flex;align-items:center;justify-content:center;

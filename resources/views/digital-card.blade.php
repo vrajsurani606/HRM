@@ -954,7 +954,7 @@
                 @foreach($gallery as $image)
                     @if(file_exists(public_path('storage/' . $image)))
                         <div class="gallery-item" data-aos="zoom-in" data-aos-delay="{{ $loop->index * 100 }}">
-                            <img src="{{ asset('storage/' . $image) }}" alt="Gallery Image" class="gallery-image">
+                            <img src="{{ storage_asset('' . $image) }}" alt="Gallery Image" class="gallery-image">
                         </div>
                     @endif
                 @endforeach

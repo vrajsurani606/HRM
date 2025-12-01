@@ -102,6 +102,14 @@ class Employee extends Model
     }
 
     /**
+     * Get all payroll records for the employee.
+     */
+    public function payrolls(): HasMany
+    {
+        return $this->hasMany(Payroll::class);
+    }
+
+    /**
      * Get the digital card for the employee.
      */
     public function digitalCard()

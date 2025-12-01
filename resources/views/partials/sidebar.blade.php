@@ -87,9 +87,9 @@
       @php($p=public_path('side_icon/'.$ico))
       <li class="hrp-menu-item {{ request()->routeIs('rules.index') ? 'active' : '' }}"><a href="{{ route('rules.index') }}" target="_blank" rel="noopener"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="Rules">@else <span class="fa fa-book"></span>@endif</i> <span>Rules & Regulations</span></a></li>
 
-      @php($ico='settings.svg')
-      @php($p=public_path('side_icon/'.$ico))
-      <li class="hrp-menu-item {{ request()->routeIs('settings.index') ? 'active' : '' }}"><a href="{{ route('settings.index') }}"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="Settings">@else <span class="fa fa-cog"></span>@endif</i> <span>Setting</span></a></li>
+        <!-- @php($ico='settings.svg')
+        @php($p=public_path('side_icon/'.$ico))
+        <li class="hrp-menu-item {{ request()->routeIs('settings.index') ? 'active' : '' }}"><a href="{{ route('settings.index') }}"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="Settings">@else <span class="fa fa-cog"></span>@endif</i> <span>Setting</span></a></li> -->
     </ul>
     <script>
       (function(){
