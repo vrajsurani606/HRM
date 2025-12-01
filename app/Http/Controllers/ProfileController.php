@@ -28,6 +28,8 @@ class ProfileController extends Controller
 
         $attendances = collect();
         $attSummary = ['present'=>0,'absent'=>0,'late'=>0,'hours'=>'00:00'];
+        $payslips = collect();
+        
         if ($employee) {
             $attendances = Attendance::where('employee_id', $employee->id)
                 ->whereYear('date', $year)
@@ -58,6 +60,9 @@ class ProfileController extends Controller
                 'late'    => $lateEntries,
                 'hours'   => sprintf('%02d:%02d',$hours,$mins),
             ];
+            
+            // Get payslips for the employee
+            $payslips = $employee->payrolls()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
         }
         
         return view('profile.edit', [
@@ -65,6 +70,7 @@ class ProfileController extends Controller
             'employee' => $employee,
             'attendances' => $attendances,
             'attSummary'  => $attSummary,
+            'payslips' => $payslips,
             'month' => $month,
             'year'  => $year,
             'active_tab' => session('active_tab'),
@@ -88,7 +94,7 @@ class ProfileController extends Controller
         // Update employee record if exists
         $employee = \App\Models\Employee::where('email', $user->email)->first();
         if ($employee) {
-            $employee->update([
+            $updateData = [
                 'name' => $request->name,
                 'email' => $request->email,
                 'mobile_no' => $request->mobile_no ?? $employee->mobile_no,
@@ -104,7 +110,18 @@ class ProfileController extends Controller
                 'previous_designation' => $request->previous_designation ?? $employee->previous_designation,
                 'duration' => $request->duration ?? $employee->duration,
                 'reason_for_leaving' => $request->reason_for_leaving ?? $employee->reason_for_leaving,
-            ]);
+            ];
+            
+            // Handle photo upload
+            if ($request->hasFile('photo')) {
+                $photoPath = $request->file('photo')->store('employees', 'public');
+                $updateData['photo_path'] = $photoPath;
+                
+                // Also update user photo
+                $user->update(['photo_path' => $photoPath]);
+            }
+            
+            $employee->update($updateData);
         }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated')->with('active_tab', 'personal');

@@ -524,8 +524,8 @@ class EmployeeController extends Controller
     $validated = $request->validate([
         'title' => 'required|string|max:255',
         'type' => 'required|string|in:appointment,offer,joining,confidentiality,impartiality,experience,agreement,relieving,confirmation,warning,termination,increment,internship_offer,internship_letter,other',
-        'subject' => 'required_if:type,other|nullable|string|max:255',
-        'content' => 'required_if:type,other,warning,termination|nullable|string|max:10000',
+        'subject' => 'nullable|string|max:255',
+        'content' => 'nullable|string|max:10000',
         'issue_date' => 'required|date',
         'reference_number' => 'required|string|unique:employee_letters,reference_number',
         'notes' => 'nullable|string',
@@ -658,8 +658,8 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'type' => 'required|string|in:appointment,offer,joining,confidentiality,impartiality,experience,agreement,relieving,confirmation,warning,termination,increment,internship_offer,internship_letter,other',
-            'subject' => 'required_if:type,other|nullable|string|max:255',
-            'content' => 'required_if:type,other,warning,termination|nullable|string|max:10000',
+            'subject' => 'nullable|string|max:255',
+            'content' => 'nullable|string|max:10000',
             'issue_date' => 'required|date',
             'reference_number' => 'required|string|unique:employee_letters,reference_number,' . $letter->id,
             'notes' => 'nullable|string',

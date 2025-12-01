@@ -7,7 +7,11 @@
     <div><b>To Whom It May Concern,</b></div>
 </div>
 
+@if($letter->subject)
+<div class="subject">Subject: {{ $letter->subject }}</div>
+@else
 <div class="subject">Subject: Experience Certificate</div>
+@endif
 
 <div class="body">
     @php
@@ -18,13 +22,19 @@
         $endDateFormatted = $endDate->format('d/m/Y');
     @endphp
     
-    <p>This is to certify that <b>{{ $employee->name }}</b> was employed with <b>{{ $company_name }}</b> 
-    as <b>{{ $employee->position ?? 'Employee' }}</b> from <b>{{ $startDateFormatted }}</b> to <b>{{ $endDateFormatted }}</b> 
-    ({{ $letter->duration }}). During their tenure, they demonstrated professionalism, 
-    dedication, and a positive attitude towards their work. We wish them all the best in their future endeavors.</p>
+    @if($letter->content)
+        {!! $letter->content !!}
+    @else
+        <p>This is to certify that <b>{{ $employee->name }}</b> was employed with <b>{{ $company_name }}</b> 
+        as <b>{{ $employee->position ?? 'Employee' }}</b> from <b>{{ $startDateFormatted }}</b> to <b>{{ $endDateFormatted }}</b> 
+        ({{ $letter->duration }}). During their tenure, they demonstrated professionalism, 
+        dedication, and a positive attitude towards their work. We wish them all the best in their future endeavors.</p>
+        
+        <p>For any further information, please feel free to contact us.</p>
+    @endif
     
 @php
-    $cleanNotes = trim(strip_tags($letter->notes));
+    $cleanNotes = trim(strip_tags($letter->notes ?? ''));
 @endphp
 
 @if(!empty($cleanNotes))
@@ -33,8 +43,6 @@
     </div>
 @endif
 
-    
-    <p>For any further information, please feel free to contact us.</p>
 </div>
 
 <div class="signature">

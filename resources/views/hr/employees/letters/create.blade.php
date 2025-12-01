@@ -3,6 +3,8 @@
 @section('page_title', 'Create New Letter - ' . $employee->name)
 
 @push('styles')
+<!-- jQuery UI CSS for Datepicker -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <!-- Summernote CSS -->
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
 <style>
@@ -140,8 +142,8 @@
             
             <div>
                 <label class="hrp-label">Issue Date: <span class="text-red-500">*</span></label>
-                <input type="date" name="issue_date" id="issue_date" class="hrp-input Rectangle-29" 
-                       value="{{ old('issue_date', isset($letter) ? optional($letter->issue_date)->format('Y-m-d') : now()->format('Y-m-d')) }}" required>
+                <input type="text" name="issue_date" id="issue_date" class="hrp-input Rectangle-29 date-picker" 
+                       placeholder="dd/mm/yyyy" value="{{ old('issue_date', isset($letter) ? optional($letter->issue_date)->format('d/m/Y') : now()->format('d/m/Y')) }}" required autocomplete="off">
                 @error('issue_date')
                     <small class="hrp-error">{{ $message }}</small>
                 @enderror
@@ -152,16 +154,16 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="hrp-label">Start Date: <span class="text-red-500">*</span></label>
-                        <input type="date" name="start_date" id="start_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('start_date', isset($letter)?optional($letter->start_date)->format('Y-m-d'):optional($employee->joining_date)->format('Y-m-d')) }}">
+                        <input type="text" name="start_date" id="start_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('start_date', isset($letter)?optional($letter->start_date)->format('d/m/Y'):optional($employee->joining_date)->format('d/m/Y')) }}" autocomplete="off">
                         @error('start_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
                     </div>
                     <div>
                         <label class="hrp-label">End Date: <span class="text-red-500">*</span></label>
-                        <input type="date" name="end_date" id="end_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('end_date', isset($letter)?optional($letter->end_date)->format('Y-m-d'):now()->format('Y-m-d')) }}">
+                        <input type="text" name="end_date" id="end_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('end_date', isset($letter)?optional($letter->end_date)->format('d/m/Y'):now()->format('d/m/Y')) }}" autocomplete="off">
                         @error('end_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -174,8 +176,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="hrp-label">Termination Date (Last Working Day): <span class="text-red-500">*</span></label>
-                        <input type="date" name="end_date" id="termination_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('end_date', isset($letter)?optional($letter->end_date)->format('Y-m-d'):null) }}">
+                        <input type="text" name="end_date" id="termination_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('end_date', isset($letter)?optional($letter->end_date)->format('d/m/Y'):null) }}" autocomplete="off">
                         <small class="text-xs text-gray-500">Employee's last working day</small>
                         @error('end_date')
                             <small class="hrp-error">{{ $message }}</small>
@@ -193,8 +195,8 @@
                 <div>
                     <label class="hrp-label">Reason for Termination:</label>
                     <small class="text-xs text-gray-500">Maximum 10,000 characters. Content over 2,000 characters will use smaller font in print.</small>
-                    <textarea name="content" id="termination_reason" class="form-control summernote-notes w-full" 
-                             placeholder="Enter detailed reason for termination (e.g., consistently low performance despite prior discussions and performance improvement plans)" style="min-height: 200px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
+                    <textarea data-field="content" id="termination_reason" class="form-control summernote-notes w-full" 
+                             placeholder="Enter detailed reason for termination (e.g., consistently low performance despite prior discussions and performance improvement plans)" style="min-height: 200px;">{{ old('content', isset($letter) && $letter->type == 'termination' ? $letter->content : '') }}</textarea>
                     @error('content')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -222,8 +224,8 @@
                     </div>
                     <div>
                         <label class="hrp-label">Effective Date: <span class="text-red-500">*</span></label>
-                        <input type="date" name="increment_effective_date" id="increment_effective_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('increment_effective_date', isset($letter)?optional($letter->increment_effective_date)->format('Y-m-d'):null) }}">
+                        <input type="text" name="increment_effective_date" id="increment_effective_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('increment_effective_date', isset($letter)?optional($letter->increment_effective_date)->format('d/m/Y'):null) }}" autocomplete="off">
                         @error('increment_effective_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -244,16 +246,16 @@
                     </div>
                     <div>
                         <label class="hrp-label">Start Date:</label>
-                        <input type="date" name="internship_start_date" id="internship_start_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('internship_start_date', isset($letter)?optional($letter->internship_start_date)->format('Y-m-d'):null) }}">
+                        <input type="text" name="internship_start_date" id="internship_start_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('internship_start_date', isset($letter)?optional($letter->internship_start_date)->format('d/m/Y'):null) }}" autocomplete="off">
                         @error('internship_start_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
                     </div>
                     <div>
                         <label class="hrp-label">End Date:</label>
-                        <input type="date" name="internship_end_date" id="internship_end_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('internship_end_date', isset($letter)?optional($letter->internship_end_date)->format('Y-m-d'):null) }}">
+                        <input type="text" name="internship_end_date" id="internship_end_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('internship_end_date', isset($letter)?optional($letter->internship_end_date)->format('d/m/Y'):null) }}" autocomplete="off">
                         @error('internship_end_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -282,16 +284,16 @@
                     </div>
                     <div>
                         <label class="hrp-label">Start Date: <span class="text-red-500">*</span></label>
-                        <input type="date" name="internship_start_date" id="internship_letter_start_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('internship_start_date') }}">
+                        <input type="text" name="internship_start_date" id="internship_letter_start_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('internship_start_date') }}" autocomplete="off">
                         @error('internship_start_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
                     </div>
                     <div>
                         <label class="hrp-label">End Date:</label>
-                        <input type="date" name="internship_end_date" id="internship_letter_end_date" class="hrp-input Rectangle-29" 
-                               value="{{ old('internship_end_date') }}">
+                        <input type="text" name="internship_end_date" id="internship_letter_end_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('internship_end_date') }}" autocomplete="off">
                         @error('internship_end_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -304,8 +306,8 @@
                 <div>
                     <label class="hrp-label">Warning Content: <span class="text-red-500">*</span></label>
                     <small class="text-xs text-gray-500">Maximum 10,000 characters. Content over 2,000 characters will use smaller font in print.</small>
-                    <textarea name="content" id="warning_content" class="form-control summernote-notes w-full" 
-                             placeholder="Enter detailed warning content (e.g., specific issues, expected improvements, consequences)" style="min-height: 200px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
+                    <textarea data-field="content" id="warning_content" class="form-control summernote-notes w-full" 
+                             placeholder="Enter detailed warning content (e.g., specific issues, expected improvements, consequences)" style="min-height: 200px;">{{ old('content', isset($letter) && $letter->type == 'warning' ? $letter->content : '') }}</textarea>
                     @error('content')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -316,8 +318,8 @@
             <div id="otherFields" class="hidden col-span-2 space-y-4">
                 <div>
                     <label class="hrp-label">Subject: <span class="text-red-500">*</span></label>
-                    <input type="text" id="other_subject" class="hrp-input Rectangle-29" 
-                           placeholder="Enter letter subject" value="{{ old('subject', isset($letter)?$letter->subject:'') }}">
+                    <input type="text" data-field="subject" id="other_subject" class="hrp-input Rectangle-29" 
+                           placeholder="Enter letter subject" value="{{ old('subject', isset($letter) && $letter->type == 'other' ? $letter->subject : '') }}">
                     @error('subject')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -325,8 +327,29 @@
                 <div>
                     <label class="hrp-label">Content: <span class="text-red-500">*</span></label>
                     <small class="text-xs text-gray-500">Maximum 10,000 characters. Content over 2,000 characters will use smaller font in print.</small>
-                    <textarea name="content" id="other_content" class="form-control summernote w-full" 
-                             placeholder="Enter letter content" style="min-height: 300px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
+                    <textarea data-field="content" id="other_content" class="form-control summernote w-full" 
+                             placeholder="Enter letter content" style="min-height: 300px;">{{ old('content', isset($letter) && $letter->type == 'other' ? $letter->content : '') }}</textarea>
+                    @error('content')
+                        <small class="hrp-error">{{ $message }}</small>
+                    @enderror
+                </div>
+            </div>
+            
+            <!-- Universal Content & Subject Fields (for all letter types) -->
+            <div id="universalFields" class="hidden col-span-2 space-y-4">
+                <div>
+                    <label class="hrp-label">Subject:</label>
+                    <input type="text" name="subject" id="universal_subject" class="hrp-input Rectangle-29" 
+                           placeholder="Enter letter subject (optional)" value="{{ old('subject', isset($letter) ? $letter->subject : '') }}">
+                    @error('subject')
+                        <small class="hrp-error">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div>
+                    <label class="hrp-label">Additional Content:</label>
+                    <small class="text-xs text-gray-500">Add any additional content or notes for this letter. Maximum 10,000 characters.</small>
+                    <textarea name="content" id="universal_content" class="form-control summernote w-full" 
+                             placeholder="Enter additional letter content (optional)" style="min-height: 250px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
                     @error('content')
                         <small class="hrp-error">{{ $message }}</small>
                     @enderror
@@ -369,7 +392,7 @@
                         </div>
                         <div>
                             <label class="hrp-label">Date of Joining:</label>
-                            <input type="date" name="date_of_joining" class="hrp-input Rectangle-29 w-full" id="joiningDate">
+                            <input type="text" name="date_of_joining" class="hrp-input Rectangle-29 w-full date-picker" id="joiningDate" placeholder="dd/mm/yyyy" autocomplete="off">
                         </div>
                     </div>
                     
@@ -403,9 +426,73 @@
 </div>
 
 @push('scripts')
+<!-- jQuery UI JS for Datepicker -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <!-- Summernote JS -->
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
 <script>
+// Initialize jQuery datepicker
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-100:+10',
+        showButtonPanel: true
+    });
+    
+    // Set today's date as default for issue date
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yy = String(today.getFullYear()).slice(-2);
+    const todayFormatted = dd + '/' + mm + '/' + yy;
+    
+    const issueDateEl = document.getElementById('issue_date');
+    if (issueDateEl && !issueDateEl.value) {
+        issueDateEl.value = todayFormatted;
+    }
+    
+    // Set default joining date to 7 days from now
+    const joiningEl = document.getElementById('joiningDate');
+    if (joiningEl && !joiningEl.value) {
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        const dd2 = String(nextWeek.getDate()).padStart(2, '0');
+        const mm2 = String(nextWeek.getMonth() + 1).padStart(2, '0');
+        const yy2 = String(nextWeek.getFullYear()).slice(-2);
+        joiningEl.value = dd2 + '/' + mm2 + '/' + yy2;
+    }
+});
+
+// Convert dates from dd/mm/yy to yyyy-mm-dd before form submission
+$('#letterForm').on('submit', function(e) {
+    $('.date-picker').each(function() {
+        const dateValue = $(this).val();
+        if (dateValue && dateValue.match(/^\d{1,2}\/\d{1,2}\/\d{2,4}$/)) {
+            const parts = dateValue.split('/');
+            const day = parts[0].padStart(2, '0');
+            const month = parts[1].padStart(2, '0');
+            let year = parts[2];
+            
+            // Convert 2-digit year to 4-digit
+            if (year.length === 2) {
+                year = '20' + year;
+            }
+            
+            // Create hidden input with converted date
+            const hiddenInput = $('<input>')
+                .attr('type', 'hidden')
+                .attr('name', $(this).attr('name'))
+                .val(year + '-' + month + '-' + day);
+            
+            // Remove name from original input and add hidden input
+            $(this).removeAttr('name');
+            $(this).after(hiddenInput);
+        }
+    });
+});
+
 // Function to add probation field
 function addProbationField() {
     const container = document.getElementById('probationFields');
@@ -441,21 +528,6 @@ function removeField(button, type) {
     button.closest('.flex').remove();
 }
 
-// Set today's date as default for issue date
-document.addEventListener('DOMContentLoaded', function() {
-    const today = new Date().toISOString().split('T')[0];
-    const issueDateEl = document.getElementById('issue_date');
-    if (issueDateEl) issueDateEl.value = today;
-    
-    // Set default joining date to 7 days from now (only if field exists)
-    const joiningEl = document.getElementById('joiningDate');
-    if (joiningEl) {
-        const nextWeek = new Date();
-        nextWeek.setDate(nextWeek.getDate() + 7);
-        joiningEl.value = nextWeek.toISOString().split('T')[0];
-    }
-});
-
 // Toggle fields based on letter type selection
 $(document).on('change', 'select[name="type"]', function() {
 
@@ -467,6 +539,7 @@ $(document).on('change', 'select[name="type"]', function() {
     const internshipLetterFields = document.getElementById('internshipLetterFields');
     const warningFields = document.getElementById('warningFields');
     const otherFields = document.getElementById('otherFields');
+    const universalFields = document.getElementById('universalFields');
     const standardFields = document.getElementById('standardLetterFields');
     const submitBtn = document.getElementById('submitBtn');
     
@@ -479,13 +552,16 @@ $(document).on('change', 'select[name="type"]', function() {
     internshipLetterFields.classList.add('hidden');
     warningFields.classList.add('hidden');
     otherFields.classList.add('hidden');
+    universalFields.classList.add('hidden');
     standardFields.classList.add('hidden');
     
     if (this.value === 'offer') {
         offerLetterFields.classList.remove('hidden');
+        // Don't show universal fields for offer letters - they have their own specific fields
         submitBtn.innerHTML = '<i class="fas fa-file-pdf mr-1"></i> Generate & Save Letter';
     } else if (this.value === 'experience') {
         experienceFields.classList.remove('hidden');
+        universalFields.classList.remove('hidden');
         standardFields.classList.remove('hidden');
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value === 'termination') {
@@ -497,54 +573,96 @@ $(document).on('change', 'select[name="type"]', function() {
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value === 'increment') {
         incrementFields.classList.remove('hidden');
+        universalFields.classList.remove('hidden');
         standardFields.classList.remove('hidden');
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value === 'internship_offer') {
         internshipOfferFields.classList.remove('hidden');
+        universalFields.classList.remove('hidden');
         standardFields.classList.remove('hidden');
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value === 'internship_letter') {
         internshipLetterFields.classList.remove('hidden');
+        universalFields.classList.remove('hidden');
         standardFields.classList.remove('hidden');
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value === 'other') {
         otherFields.classList.remove('hidden');
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value) {
+        // For all other letter types (joining, confidentiality, impartiality, agreement, etc.)
+        universalFields.classList.remove('hidden');
         standardFields.classList.remove('hidden');
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else {
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     }
 
-    // Ensure only the visible content textarea is submitted as 'content'
-    const mapping = {
+    // Manage dynamic field names for content and subject
+    const contentFieldMapping = {
       warning: 'warning_content',
       termination: 'termination_reason',
       other: 'other_content'
     };
-    const ids = ['warning_content','termination_reason','other_content'];
-    ids.forEach(id => {
+    
+    // Remove name attribute from all specific content fields
+    const allContentFields = ['warning_content','termination_reason','other_content','universal_content'];
+    allContentFields.forEach(id => {
       const el = document.getElementById(id);
-      if (!el) return;
-      // Temporarily remove name so it doesn't get posted
-      el.setAttribute('data-orig-name', el.getAttribute('name') || '');
-      el.removeAttribute('name');
+      if (el) {
+        el.removeAttribute('name');
+        el.removeAttribute('required');
+      }
     });
-    const selectedId = mapping[this.value];
-    if (selectedId) {
-      const active = document.getElementById(selectedId);
-      if (active) active.setAttribute('name','content');
+    
+    // Add name attribute to the active content field
+    const activeContentId = contentFieldMapping[this.value];
+    if (activeContentId) {
+      // For warning, termination, other - use their specific fields
+      const activeContent = document.getElementById(activeContentId);
+      if (activeContent) {
+        activeContent.setAttribute('name', 'content');
+        if (this.value === 'warning' || this.value === 'termination' || this.value === 'other') {
+          activeContent.setAttribute('required', 'required');
+        }
+      }
+    } else if (this.value && this.value !== '') {
+      // For all other types - use universal content field
+      const universalContent = document.getElementById('universal_content');
+      if (universalContent) {
+        universalContent.setAttribute('name', 'content');
+        // Content is optional for most letter types
+      }
     }
 
-    // Toggle subject name only for 'other' type so it isn't posted for other types
-    const subj = document.getElementById('other_subject');
-    if (subj) {
-      if (this.value === 'other') {
-        subj.setAttribute('name','subject');
-      } else {
-        subj.removeAttribute('name');
-      }
+    // Handle subject fields
+    const otherSubjField = document.getElementById('other_subject');
+    const universalSubjField = document.getElementById('universal_subject');
+    
+    // Remove name from both subject fields first
+    if (otherSubjField) {
+      otherSubjField.removeAttribute('name');
+      otherSubjField.removeAttribute('required');
+    }
+    if (universalSubjField) {
+      universalSubjField.removeAttribute('name');
+      universalSubjField.removeAttribute('required');
+    }
+    
+    // Add name to the appropriate subject field
+    if (this.value === 'other' && otherSubjField) {
+        otherSubjField.setAttribute('name', 'subject');
+        otherSubjField.setAttribute('required', 'required');
+    } else if (this.value && this.value !== '' && this.value !== 'warning' && this.value !== 'termination' && universalSubjField) {
+        universalSubjField.setAttribute('name', 'subject');
+        // Subject is optional for most letter types
+    }
+    
+    // Re-initialize Summernote for the active content field to ensure it works properly
+    if (typeof window.initializeSummernote === 'function') {
+        setTimeout(function() {
+            window.initializeSummernote();
+        }, 100);
     }
 
     // Toggle required attributes for common cases
@@ -565,47 +683,70 @@ $(document).on('change', 'select[name="type"]', function() {
 $('select[name="type"]').trigger('change');
 
 $(document).ready(function() {
-    // Initialize Summernote for Letter Content
-    $('.summernote').summernote({
-        height: 200,
-        focus: true,
-        toolbar: [
-            ['style', ['style']],
-            ['font', ['bold', 'italic', 'underline', 'clear', 'strikethrough']],
-            ['fontname', ['fontname']],
-            ['fontsize', ['fontsize']],
-            ['color', ['color']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['height', ['height']],
-            ['table', ['table']],
-            ['insert', ['link', 'picture', 'hr']],
-            ['view', ['fullscreen', 'codeview', 'help']],
-            ['misc', ['undo', 'redo']]
-        ],
-        fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '24', '36', '48'],
-        callbacks: {
-            onInit: function() {
-                $('.note-editable').focus();
+    // Initialize Summernote for Letter Content - Don't initialize on page load
+    // Will be initialized when letter type is selected
+    
+    // Initialize a simpler Summernote for Notes - Don't initialize on page load
+    // Will be initialized when letter type is selected
+    
+    // Function to initialize Summernote editors
+    window.initializeSummernote = function() {
+        // Destroy all existing Summernote instances first
+        $('.summernote, .summernote-notes').each(function() {
+            if ($(this).next('.note-editor').length) {
+                $(this).summernote('destroy');
             }
-        },
-        styleTags: [
-            'p',
-            { title: 'Blockquote', tag: 'blockquote', className: 'blockquote', value: 'blockquote' },
-            'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
-        ]
-    });
-
-    // Initialize a simpler Summernote for Notes
-    $('.summernote-notes').summernote({
-        height: 225,
-        toolbar: [
-            ['style', ['bold', 'italic', 'underline', 'clear']],
-            ['para', ['ul', 'ol']],
-            ['insert', ['link']]
-        ],
-        fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18'],
-        styleTags: ['p', 'h4', 'h5', 'h6']
-    });
+        });
+        
+        // Initialize only visible editors
+        $('.summernote').each(function() {
+            const $this = $(this);
+            const parentDiv = $this.closest('div[id$="Fields"]');
+            if (parentDiv.length && !parentDiv.hasClass('hidden')) {
+                $this.summernote({
+                    height: 200,
+                    focus: false,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear', 'strikethrough']],
+                        ['fontname', ['fontname']],
+                        ['fontsize', ['fontsize']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['height', ['height']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture', 'hr']],
+                        ['view', ['fullscreen', 'codeview', 'help']],
+                        ['misc', ['undo', 'redo']]
+                    ],
+                    fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '24', '36', '48'],
+                    styleTags: [
+                        'p',
+                        { title: 'Blockquote', tag: 'blockquote', className: 'blockquote', value: 'blockquote' },
+                        'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
+                    ]
+                });
+            }
+        });
+        
+        $('.summernote-notes').each(function() {
+            const $this = $(this);
+            const parentDiv = $this.closest('div[id$="Fields"]');
+            if (parentDiv.length && !parentDiv.hasClass('hidden')) {
+                $this.summernote({
+                    height: 225,
+                    focus: false,
+                    toolbar: [
+                        ['style', ['bold', 'italic', 'underline', 'clear']],
+                        ['para', ['ul', 'ol']],
+                        ['insert', ['link']]
+                    ],
+                    fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18'],
+                    styleTags: ['p', 'h4', 'h5', 'h6']
+                });
+            }
+        });
+    };
 
     // Generate new reference number
     $('#generateRefBtn').click(function() {
@@ -645,14 +786,24 @@ $(document).ready(function() {
     $('form').on('submit', function(e) {
         e.preventDefault();
         
+        // Get content from all Summernote editors before submission
         $('.summernote, .summernote-notes').each(function() {
-            var content = $(this).summernote('code');
-            // Decode HTML entities to prevent double encoding
-            var tempDiv = $('<div>').html(content);
-            $(this).val(tempDiv.html());
+            if ($(this).next('.note-editor').length) {
+                var content = $(this).summernote('code');
+                // Set the value in the textarea
+                $(this).val(content);
+            }
         });
         
+        // Create FormData from the form
         var formData = new FormData(this);
+        
+        // Debug: Log what's being submitted
+        console.log('Form submission data:');
+        for (var pair of formData.entries()) {
+            console.log(pair[0] + ': ' + (pair[1].length > 100 ? pair[1].substring(0, 100) + '...' : pair[1]));
+        }
+        
         var url = $(this).attr('action');
         
         var submitBtn = $(this).find('button[type="submit"]');
@@ -756,6 +907,13 @@ $(document).ready(function() {
     
     // Initialize content length checking after summernote is ready
     setTimeout(checkContentLength, 1000);
+    
+    // Initialize Summernote editors on page load (especially for edit mode)
+    setTimeout(function() {
+        if (typeof window.initializeSummernote === 'function') {
+            window.initializeSummernote();
+        }
+    }, 200);
 });
 </script>
 @endpush

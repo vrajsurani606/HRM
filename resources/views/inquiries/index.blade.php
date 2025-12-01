@@ -20,9 +20,9 @@
 @section('content')
 <div class="inquiry-index-container">
   <!-- JV Filter -->
-  <form method="GET" action="{{ route('inquiries.index') }}" class="jv-filter">
-    <input type="date" id="start_date" name="from_date" class="filter-pill" placeholder="From: dd/mm/yyyy" value="{{ request('from_date') }}">
-    <input type="date" id="end_date" name="to_date" class="filter-pill" placeholder="To: dd/mm/yyyy" value="{{ request('to_date') }}">
+  <form method="GET" action="{{ route('inquiries.index') }}" class="jv-filter" id="filterForm">
+    <input type="text" id="start_date" name="from_date" class="filter-pill date-picker" placeholder="From: dd/mm/yyyy" value="{{ request('from_date') }}" autocomplete="off">
+    <input type="text" id="end_date" name="to_date" class="filter-pill date-picker" placeholder="To: dd/mm/yyyy" value="{{ request('to_date') }}" autocomplete="off">
     <button type="submit" class="filter-search" id="filter_btn" aria-label="Search">
       <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
@@ -92,6 +92,26 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
               </a>
             @endcan
+            @can('Inquiries Management.delete inquiry')
+              <form method="POST" action="{{ route('inquiries.destroy', $inq->id) }}" class="delete-form" style="display:inline">
+                @csrf @method('DELETE')
+                <button type="button" onclick="confirmDeleteInquiry(this); event.stopPropagation();" class="inq-grid-action-btn btn-delete" title="Delete" aria-label="Delete">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+              </form>
+            @endcan
+            @can('Inquiries Management.follow up')
+              <a class="inq-grid-action-btn btn-followup" href="{{ route('inquiry.follow-up', $inq->id) }}" title="Follow Up" aria-label="Follow Up">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              </a>
+            @endcan
+            @if(!empty($inq->quotation_sent) && strtolower($inq->quotation_sent) !== 'no')
+              @can('Quotations Management.create quotation')
+                <a class="inq-grid-action-btn btn-quotation" href="{{ route('quotation.create-from-inquiry', $inq->id) }}" title="Make Quotation" aria-label="Make Quotation">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </a>
+              @endcan
+            @endif
           </div>
         </div>
       </div>
@@ -139,7 +159,32 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// Initialize jQuery datepicker with dd/mm/yyyy format (same as quotation)
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({
+                    marginTop: '2px',
+                    marginLeft: '0px'
+                });
+            }, 0);
+        }
+    });
+});
+</script>
+
 <script>
   // SweetAlert delete confirmation for inquiries
   function confirmDeleteInquiry(button) {
@@ -171,8 +216,35 @@
     if (!form || !tbody) return;
 
     function fetchInquiries() {
+      // Convert date format before fetching
+      var fromDateInput = document.getElementById('start_date');
+      var toDateInput = document.getElementById('end_date');
+      
+      // Store original values
+      var originalFromDate = fromDateInput ? fromDateInput.value : '';
+      var originalToDate = toDateInput ? toDateInput.value : '';
+      
+      // Convert dates from dd/mm/yyyy to yyyy-mm-dd for query
+      if(fromDateInput && fromDateInput.value){
+        var parts = fromDateInput.value.split('/');
+        if(parts.length === 3){
+          fromDateInput.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+        }
+      }
+      
+      if(toDateInput && toDateInput.value){
+        var parts = toDateInput.value.split('/');
+        if(parts.length === 3){
+          toDateInput.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+        }
+      }
+      
       var params = new URLSearchParams(new FormData(form));
       var url = form.getAttribute('action') + '?' + params.toString();
+      
+      // Restore original values
+      if(fromDateInput) fromDateInput.value = originalFromDate;
+      if(toDateInput) toDateInput.value = originalToDate;
 
       fetch(url, {
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -188,6 +260,25 @@
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
+      
+      // Convert dates from dd/mm/yyyy to yyyy-mm-dd before submission
+      var fromDateInput = document.getElementById('start_date');
+      var toDateInput = document.getElementById('end_date');
+      
+      if(fromDateInput && fromDateInput.value){
+        var parts = fromDateInput.value.split('/');
+        if(parts.length === 3){
+          fromDateInput.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+        }
+      }
+      
+      if(toDateInput && toDateInput.value){
+        var parts = toDateInput.value.split('/');
+        if(parts.length === 3){
+          toDateInput.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+        }
+      }
+      
       fetchInquiries();
     });
 
@@ -195,6 +286,45 @@
     if (searchInput) {
       searchInput.addEventListener('input', function() {
         fetchInquiries();
+      });
+    }
+    
+    // Handle Excel export button with date conversion
+    var excelBtn = document.getElementById('excel_btn');
+    if(excelBtn){
+      excelBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        
+        var fromDateInput = document.getElementById('start_date');
+        var toDateInput = document.getElementById('end_date');
+        var searchInput = document.getElementById('custom_search');
+        
+        var params = new URLSearchParams();
+        
+        // Convert and add from_date
+        if(fromDateInput && fromDateInput.value){
+          var parts = fromDateInput.value.split('/');
+          if(parts.length === 3){
+            params.append('from_date', parts[2] + '-' + parts[1] + '-' + parts[0]);
+          }
+        }
+        
+        // Convert and add to_date
+        if(toDateInput && toDateInput.value){
+          var parts = toDateInput.value.split('/');
+          if(parts.length === 3){
+            params.append('to_date', parts[2] + '-' + parts[1] + '-' + parts[0]);
+          }
+        }
+        
+        // Add search parameter
+        if(searchInput && searchInput.value){
+          params.append('search', searchInput.value);
+        }
+        
+        // Navigate to export URL with converted dates
+        var exportUrl = this.href.split('?')[0] + '?' + params.toString();
+        window.location.href = exportUrl;
       });
     }
   });
@@ -259,5 +389,35 @@
   .inq-grid-action-btn.btn-edit svg { color:#f59e0b; }
   .inq-grid-action-btn.btn-edit:hover { background:#f59e0b; }
   .inq-grid-action-btn.btn-edit:hover svg { color:#fff; }
+  
+  /* Delete button - Red */
+  .inq-grid-action-btn.btn-delete { 
+    border: 1px solid #ef4444 !important; 
+    background: #fef2f2 !important; 
+    padding: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 6px !important;
+  }
+  .inq-grid-action-btn.btn-delete svg { color:#ef4444; }
+  .inq-grid-action-btn.btn-delete:hover { background:#ef4444 !important; }
+  .inq-grid-action-btn.btn-delete:hover svg { color:#fff; }
+  
+  /* Follow Up button - Purple */
+  .inq-grid-action-btn.btn-followup { border-color:#8b5cf6; background:#f5f3ff; }
+  .inq-grid-action-btn.btn-followup svg { color:#8b5cf6; }
+  .inq-grid-action-btn.btn-followup:hover { background:#8b5cf6; }
+  .inq-grid-action-btn.btn-followup:hover svg { color:#fff; }
+  
+  /* Make Quotation button - Green */
+  .inq-grid-action-btn.btn-quotation { border-color:#10b981; background:#ecfdf5; }
+  .inq-grid-action-btn.btn-quotation svg { color:#10b981; }
+  .inq-grid-action-btn.btn-quotation:hover { background:#10b981; }
+  .inq-grid-action-btn.btn-quotation:hover svg { color:#fff; }
 </style>
 @endpush

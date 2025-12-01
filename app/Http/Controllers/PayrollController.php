@@ -815,7 +815,7 @@ class PayrollController extends Controller
     }
 
     /**
-     * Export payrolls to Excel
+     * Export payrolls to Excel (CSV format)
      */
     public function exportExcel(Request $request)
     {
@@ -848,12 +848,91 @@ class PayrollController extends Controller
 
         $payrolls = $query->orderBy('created_at', 'desc')->get();
 
-        $filename = 'payrolls_' . date('Y-m-d_His') . '.xlsx';
-        
-        return \Maatwebsite\Excel\Facades\Excel::download(
-            new \App\Exports\PayrollExport($payrolls), 
-            $filename
-        );
+        $filename = 'payrolls_' . date('Y-m-d_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function () use ($payrolls) {
+            $handle = fopen('php://output', 'w');
+
+            // Header row
+            fputcsv($handle, [
+                'ID',
+                'EMP Code',
+                'Employee Name',
+                'Position',
+                'Month',
+                'Year',
+                'Basic Salary',
+                'HRA',
+                'Medical Allowance',
+                'City Allowance',
+                'Tiffin Allowance',
+                'Assistant Allowance',
+                'Dearness Allowance',
+                'Total Allowances',
+                'Bonuses',
+                'PF',
+                'Professional Tax',
+                'TDS',
+                'ESIC',
+                'Security Deposit',
+                'Leave Deduction',
+                'Total Deductions',
+                'Net Salary',
+                'Status',
+                'Payment Date',
+                'Payment Method',
+                'Created At',
+            ]);
+
+            foreach ($payrolls as $payroll) {
+                $totalAllowances = ($payroll->hra ?? 0) + ($payroll->medical_allowance ?? 0) + 
+                                  ($payroll->city_allowance ?? 0) + ($payroll->tiffin_allowance ?? 0) + 
+                                  ($payroll->assistant_allowance ?? 0) + ($payroll->dearness_allowance ?? 0);
+                $totalDeductions = ($payroll->pf ?? 0) + ($payroll->professional_tax ?? 0) + 
+                                  ($payroll->tds ?? 0) + ($payroll->esic ?? 0) + 
+                                  ($payroll->security_deposit ?? 0) + ($payroll->leave_deduction ?? 0);
+                $netSalary = ($payroll->basic_salary + $totalAllowances + ($payroll->bonuses ?? 0)) - $totalDeductions;
+
+                fputcsv($handle, [
+                    $payroll->id,
+                    $payroll->employee->code ?? 'N/A',
+                    $payroll->employee->name ?? 'N/A',
+                    $payroll->employee->position ?? 'N/A',
+                    $payroll->month,
+                    $payroll->year,
+                    number_format($payroll->basic_salary, 2, '.', ''),
+                    number_format($payroll->hra ?? 0, 2, '.', ''),
+                    number_format($payroll->medical_allowance ?? 0, 2, '.', ''),
+                    number_format($payroll->city_allowance ?? 0, 2, '.', ''),
+                    number_format($payroll->tiffin_allowance ?? 0, 2, '.', ''),
+                    number_format($payroll->assistant_allowance ?? 0, 2, '.', ''),
+                    number_format($payroll->dearness_allowance ?? 0, 2, '.', ''),
+                    number_format($totalAllowances, 2, '.', ''),
+                    number_format($payroll->bonuses ?? 0, 2, '.', ''),
+                    number_format($payroll->pf ?? 0, 2, '.', ''),
+                    number_format($payroll->professional_tax ?? 0, 2, '.', ''),
+                    number_format($payroll->tds ?? 0, 2, '.', ''),
+                    number_format($payroll->esic ?? 0, 2, '.', ''),
+                    number_format($payroll->security_deposit ?? 0, 2, '.', ''),
+                    number_format($payroll->leave_deduction ?? 0, 2, '.', ''),
+                    number_format($totalDeductions, 2, '.', ''),
+                    number_format($netSalary, 2, '.', ''),
+                    ucfirst($payroll->status),
+                    $payroll->payment_date ? $payroll->payment_date->format('d/m/Y') : '',
+                    $payroll->payment_method ?? '',
+                    $payroll->created_at->format('d/m/Y H:i:s'),
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }
 

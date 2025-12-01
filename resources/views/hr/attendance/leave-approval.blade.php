@@ -5,8 +5,8 @@
 <div class="hrp-content">
   <!-- Filters -->
   <form method="GET" action="{{ route('leave-approval.index') }}" class="jv-filter">
-    <input type="date" name="start_date" class="filter-pill" placeholder="From" value="{{ request('start_date') }}">
-    <input type="date" name="end_date" class="filter-pill" placeholder="To" value="{{ request('end_date') }}">
+    <input type="text" name="start_date" class="filter-pill date-picker" placeholder="From : dd/mm/yyyy" value="{{ request('start_date') }}" autocomplete="off">
+    <input type="text" name="end_date" class="filter-pill date-picker" placeholder="To : dd/mm/yyyy" value="{{ request('end_date') }}" autocomplete="off">
     
     <select name="employee_id" class="filter-pill">
       <option value="">All Employee</option>
@@ -440,3 +440,42 @@ function deleteLeave(id) {
 }
 </script>
 @endsection
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<script>
+// Initialize jQuery datepicker
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({ marginTop: '2px', marginLeft: '0px' });
+            }, 0);
+        }
+    });
+});
+
+// Convert dates before form submission
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.querySelector('.jv-filter, #filterForm');
+    if(form){
+        form.addEventListener('submit', function(e){
+            var dateInputs = form.querySelectorAll('.date-picker');
+            dateInputs.forEach(function(input){
+                if(input.value){
+                    var parts = input.value.split('/');
+                    if(parts.length === 3) input.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+                }
+            });
+        });
+    }
+});
+</script>
+@endpush

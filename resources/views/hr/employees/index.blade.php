@@ -128,7 +128,7 @@
               <div class="profile-image">
                 @php($initial = strtoupper(mb_substr((string)($emp->name ?? 'U'), 0, 1)))
                 @if(isset($emp->photo_path) && $emp->photo_path)
-                  <img src="{{ asset('storage/'.$emp->photo_path) }}" alt="{{ $emp->name }}">
+                  <img src="{{ storage_asset(''.$emp->photo_path) }}" alt="{{ $emp->name }}">
                 @else
                   <span style="
                     width:100%;height:100%;display:flex;align-items:center;justify-content:center;
@@ -203,6 +203,12 @@
                         <img src="{{ asset('action_icon/delete.svg') }}" class="action-icon" alt="Delete">
                       </button>
                     </form>
+                  @endcan
+                  @can('Employees Management.letters')
+                    <a href="{{ route('employees.letters.index', $emp) }}" title="Letter"><img src="{{ asset('action_icon/print.svg') }}" class="action-icon" alt="Letter"></a>
+                  @endcan
+                  @can('Employees Management.digital card')
+                    <a href="{{ route('employees.digital-card.create', $emp) }}" title="Add Digital Card"><img src="{{ asset('action_icon/pluse.svg') }}" class="action-icon" alt="Add Digital Card"></a>
                   @endcan
                 </div>
               </td>

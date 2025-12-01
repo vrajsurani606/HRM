@@ -7,8 +7,8 @@
   <input type="text" name="company_name" placeholder="Bill Name" class="filter-pill" value="{{ request('company_name') }}" />
   <input type="text" name="unique_code" placeholder="Proforma No." class="filter-pill" value="{{ request('unique_code') }}" />
   <input type="text" name="mobile_no" placeholder="Mobile No." class="filter-pill" value="{{ request('mobile_no') }}" />
-  <input type="date" name="from_date" placeholder="From : dd/mm/yyyy" class="filter-pill" value="{{ request('from_date') }}" />
-  <input type="date" name="to_date" placeholder="To : dd/mm/yyyy" class="filter-pill" value="{{ request('to_date') }}" />
+  <input type="text" name="from_date" placeholder="From : dd/mm/yyyy" class="filter-pill date-picker" value="{{ request('from_date') }}" autocomplete="off" />
+  <input type="text" name="to_date" placeholder="To : dd/mm/yyyy" class="filter-pill date-picker" value="{{ request('to_date') }}" autocomplete="off" />
   <button type="submit" class="filter-search" aria-label="Search">
     <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
       <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
@@ -123,7 +123,49 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// Initialize jQuery datepicker
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({ marginTop: '2px', marginLeft: '0px' });
+            }, 0);
+        }
+    });
+});
+
+// Convert dates before form submission
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.querySelector('.performa-filter');
+    if(form){
+        form.addEventListener('submit', function(e){
+            var fromDate = document.querySelector('input[name="from_date"]');
+            var toDate = document.querySelector('input[name="to_date"]');
+            
+            if(fromDate && fromDate.value){
+                var parts = fromDate.value.split('/');
+                if(parts.length === 3) fromDate.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+            }
+            if(toDate && toDate.value){
+                var parts = toDate.value.split('/');
+                if(parts.length === 3) toDate.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+            }
+        });
+    }
+});
+</script>
+
 <script>
 function confirmDelete(id) {
   Swal.fire({

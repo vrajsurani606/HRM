@@ -12,7 +12,7 @@
       <div style="display:flex;align-items:center;gap:8px">
         <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;background:#fbbf24;flex-shrink:0">
           @if($employee->photo_path)
-            <img src="{{ asset('storage/'.$employee->photo_path) }}" style="width:100%;height:100%;object-fit:cover" alt="{{ $employee->name }}">
+            <img src="{{ storage_asset(''.$employee->photo_path) }}" style="width:100%;height:100%;object-fit:cover" alt="{{ $employee->name }}">
           @else
             @php $initial = strtoupper(mb_substr((string)($employee->name ?? 'U'), 0, 1)); @endphp
             <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#fff;background:linear-gradient(135deg,#3b82f6,#9333ea);">
@@ -107,7 +107,7 @@
             <div class="document-item" style="width:350px;max-width:100%;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
               @php 
                 $path = $doc['path'];
-                $url = asset('storage/'.$path);
+                $url = storage_asset(''.$path);
                 $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
                 $type = strtoupper($ext ?: 'FILE');
                 try {
@@ -190,7 +190,11 @@
   </div>
 
   <div id="payslips" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
-    @if($employee->current_offer_amount)
+    @php
+      $payslips = $employee->payrolls()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
+    @endphp
+    
+    @if($payslips->count() > 0)
       <div class="JV-datatble JV-datatble--zoom striped-surface striped-surface--full table-wrap pad-none">
         <table>
           <thead>
@@ -202,18 +206,42 @@
               <th>Payment Date</th>
               <th>Gross Amount</th>
               <th>Net Amount</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td><img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon" /></td>
-              <td>1</td>
-              <td>PAY/CMS/EMP/0012/001</td>
-              <td>Nov - 2025</td>
-              <td>14-11-2025</td>
-              <td>₹40,000</td>
-              <td>₹36,000</td>
-            </tr>
+            @foreach($payslips as $index => $payslip)
+              @php
+                $grossAmount = ($payslip->basic_salary ?? 0) + ($payslip->allowances ?? 0) + ($payslip->bonuses ?? 0);
+                $payslipId = 'PAY/' . strtoupper(substr($employee->code ?? 'EMP', 0, 3)) . '/' . str_pad($employee->id, 4, '0', STR_PAD_LEFT) . '/' . str_pad($payslip->id, 3, '0', STR_PAD_LEFT);
+              @endphp
+              <tr>
+                <td>
+                  <a href="{{ route('payroll.show', $payslip->id) }}" target="_blank" title="View Payslip">
+                    <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon" />
+                  </a>
+                </td>
+                <td>{{ $index + 1 }}</td>
+                <td>{{ $payslipId }}</td>
+                <td>{{ $payslip->month }} - {{ $payslip->year }}</td>
+                <td>{{ $payslip->payment_date ? $payslip->payment_date->format('d-m-Y') : 'N/A' }}</td>
+                <td>₹{{ number_format($grossAmount, 0) }}</td>
+                <td>₹{{ number_format($payslip->net_salary ?? 0, 0) }}</td>
+                <td>
+                  @php
+                    $statusColors = [
+                      'pending' => '#f59e0b',
+                      'paid' => '#10b981',
+                      'cancelled' => '#ef4444',
+                    ];
+                    $statusColor = $statusColors[$payslip->status] ?? '#6b7280';
+                  @endphp
+                  <span style="color: {{ $statusColor }}; font-weight: 600; font-size: 12px; padding: 4px 8px; border-radius: 12px; background: {{ $statusColor }}20;">
+                    {{ ucfirst($payslip->status) }}
+                  </span>
+                </td>
+              </tr>
+            @endforeach
           </tbody>
         </table>
       </div>
@@ -225,9 +253,96 @@
   </div>
 
   <div id="leaves" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
-    <div style="display:flex;align-items:center;justify-content:center;min-height:400px;text-align:center">
-      <div style="color:#6b7280;font-size:16px;font-weight:500">No leave records found for this employee</div>
-    </div>
+    @php
+      $leaves = $employee->leaves()->orderBy('created_at', 'desc')->get();
+      $currentYearBalance = $employee->currentLeaveBalance;
+    @endphp
+    
+    @if($currentYearBalance)
+      <div style="padding:24px 32px;background:#f8fafc;border-bottom:1px solid #e5e7eb">
+        <h3 style="font-size:18px;font-weight:700;color:#1e293b;margin:0 0 16px 0">Leave Balance - {{ now()->year }}</h3>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+          <div style="background:white;padding:16px;border-radius:12px;border:1px solid #e5e7eb">
+            <div style="font-size:12px;color:#64748b;font-weight:600;margin-bottom:4px">Casual Leave</div>
+            <div style="font-size:24px;font-weight:700;color:#3b82f6">{{ $currentYearBalance->casual_leave_balance ?? 0 }}</div>
+          </div>
+          <div style="background:white;padding:16px;border-radius:12px;border:1px solid #e5e7eb">
+            <div style="font-size:12px;color:#64748b;font-weight:600;margin-bottom:4px">Medical Leave</div>
+            <div style="font-size:24px;font-weight:700;color:#10b981">{{ $currentYearBalance->medical_leave_balance ?? 0 }}</div>
+          </div>
+          <div style="background:white;padding:16px;border-radius:12px;border:1px solid #e5e7eb">
+            <div style="font-size:12px;color:#64748b;font-weight:600;margin-bottom:4px">Paid Leave</div>
+            <div style="font-size:24px;font-weight:700;color:#8b5cf6">{{ $currentYearBalance->paid_leave_balance ?? 0 }}</div>
+          </div>
+          <div style="background:white;padding:16px;border-radius:12px;border:1px solid #e5e7eb">
+            <div style="font-size:12px;color:#64748b;font-weight:600;margin-bottom:4px">Total Balance</div>
+            <div style="font-size:24px;font-weight:700;color:#f59e0b">{{ ($currentYearBalance->casual_leave_balance ?? 0) + ($currentYearBalance->medical_leave_balance ?? 0) + ($currentYearBalance->paid_leave_balance ?? 0) }}</div>
+          </div>
+        </div>
+      </div>
+    @endif
+    
+    @if($leaves->count() > 0)
+      <div class="JV-datatble JV-datatble--zoom striped-surface striped-surface--full table-wrap pad-none">
+        <table>
+          <thead>
+            <tr>
+              <th>Serial No</th>
+              <th>Leave Type</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Total Days</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Applied On</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($leaves as $index => $leave)
+              <tr>
+                <td style="padding:12px 8px;text-align:center">{{ $index + 1 }}</td>
+                <td style="padding:12px 8px">
+                  @php
+                    $leaveTypeColors = [
+                      'casual' => '#3b82f6',
+                      'medical' => '#10b981',
+                      'personal' => '#f59e0b',
+                      'holiday' => '#8b5cf6',
+                    ];
+                    $leaveColor = $leaveTypeColors[$leave->leave_type] ?? '#6b7280';
+                  @endphp
+                  <span style="color: {{ $leaveColor }}; font-weight: 600; font-size: 12px; padding: 4px 12px; border-radius: 12px; background: {{ $leaveColor }}20; text-transform: capitalize;">
+                    {{ ucfirst($leave->leave_type) }}
+                  </span>
+                </td>
+                <td style="padding:12px 8px">{{ \Carbon\Carbon::parse($leave->start_date)->format('d M Y') }}</td>
+                <td style="padding:12px 8px">{{ \Carbon\Carbon::parse($leave->end_date)->format('d M Y') }}</td>
+                <td style="padding:12px 8px;text-align:center;font-weight:600">{{ $leave->total_days ?? 0 }} days</td>
+                <td style="padding:12px 8px;max-width:200px">{{ Str::limit($leave->reason ?? 'N/A', 50) }}</td>
+                <td style="padding:12px 8px;text-align:center">
+                  @php
+                    $statusColors = [
+                      'pending' => '#f59e0b',
+                      'approved' => '#10b981',
+                      'rejected' => '#ef4444',
+                    ];
+                    $statusColor = $statusColors[$leave->status] ?? '#6b7280';
+                  @endphp
+                  <span style="color: {{ $statusColor }}; font-weight: 600; font-size: 12px; padding: 4px 12px; border-radius: 12px; background: {{ $statusColor }}20; text-transform: capitalize;">
+                    {{ ucfirst($leave->status) }}
+                  </span>
+                </td>
+                <td style="padding:12px 8px">{{ $leave->created_at->format('d M Y') }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+    @else
+      <div style="display:flex;align-items:center;justify-content:center;min-height:400px;text-align:center">
+        <div style="color:#6b7280;font-size:16px;font-weight:500">No leave records found for this employee</div>
+      </div>
+    @endif
   </div>
 
   <div id="attendance" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">

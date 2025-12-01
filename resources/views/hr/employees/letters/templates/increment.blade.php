@@ -10,18 +10,36 @@
         <div>Address :- {{ $employee->address }}</div>
         @endif
     </div>
+    @if($letter->subject)
+    <div class="subject">Subject: {{ $letter->subject }}</div>
+    @else
     <div class="subject">Subject: Salary Increment Letter for {{ $employee->name }} </div>
+    @endif
 
 <div class="body">
         <p><strong>Dear {{ $employee->name }},</strong></p>
 
-        <p>We are pleased to inform you that the management has approved a revision in your monthly salary.</p>
+        @if($letter->content)
+            {!! $letter->content !!}
+        @else
+            <p>We are pleased to inform you that the management has approved a revision in your monthly salary.</p>
 
-        <p>Effective from <strong>{{ $letter->increment_effective_date ? $letter->increment_effective_date->format('d F Y') : '___________' }}</strong>, your revised monthly salary will be <strong>₹{{ $letter->increment_amount ? number_format($letter->increment_amount) : '_____' }}</strong>.</p>
+            <p>Effective from <strong>{{ $letter->increment_effective_date ? $letter->increment_effective_date->format('d F Y') : '___________' }}</strong>, your revised monthly salary will be <strong>₹{{ $letter->increment_amount ? number_format($letter->increment_amount) : '_____' }}</strong>.</p>
 
-        <p>This increment has been granted in recognition of your performance, dedication, and contribution to the organization. We appreciate your consistent efforts and look forward to your continued commitment in your role as <strong>{{ $employee->position ?? '_______' }}</strong>.</p>
+            <p>This increment has been granted in recognition of your performance, dedication, and contribution to the organization. We appreciate your consistent efforts and look forward to your continued commitment in your role as <strong>{{ $employee->position ?? '_______' }}</strong>.</p>
 
-        <p>If you have any questions regarding this revision, please feel free to contact the management.</p>
+            <p>If you have any questions regarding this revision, please feel free to contact the management.</p>
+        @endif
+        
+        @php
+            $cleanNotes = trim(strip_tags($letter->notes ?? ''));
+        @endphp
+
+        @if(!empty($cleanNotes))
+            <div class="note-rectangle">
+                <b>Note: {!! strip_tags($letter->notes) !!}</b>
+            </div>
+        @endif
 
        <div class="signature">
             <div><b>Sincerely,</b></div>

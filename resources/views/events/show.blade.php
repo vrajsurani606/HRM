@@ -89,7 +89,7 @@
 
   <div class="media-grid" id="mediaGrid">
     @foreach($event->images as $image)
-      @php $url = asset('storage/' . $image->image_path); @endphp
+      @php $url = storage_asset('' . $image->image_path); @endphp
       <div class="media-item" data-type="image" data-image-id="{{ $image->id }}">
         <input type="checkbox" class="select-check" data-kind="image" value="{{ $image->id }}">
         <img class="media-thumb" src="{{ $url }}" alt="Image">
@@ -116,7 +116,7 @@
     @endforeach
 
     @foreach($event->videos as $video)
-      @php $url = asset('storage/' . $video->video_path); @endphp
+      @php $url = storage_asset('' . $video->video_path); @endphp
       <div class="media-item" data-type="video" data-video-id="{{ $video->id }}">
         <input type="checkbox" class="select-check" data-kind="video" value="{{ $video->id }}">
         <video class="media-thumb" controls preload="metadata" playsinline>
