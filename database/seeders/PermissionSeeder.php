@@ -39,9 +39,21 @@ class PermissionSeeder extends Seeder
             'export invoice', 'print invoice'],
             'Receipts Management' => ['view receipt', 'create receipt', 'edit receipt', 'delete receipt', 'manage receipt',
             'export receipt', 'print receipt'],
-            'Projects Management' => ['view project', 'create project', 'edit project', 'delete project', 'manage project'],
-            'Tickets Management' => ['view ticket', 'create ticket', 'edit ticket', 'delete ticket', 'manage ticket'],
+            'Projects Management' => ['view project', 'create project', 'edit project', 'delete project', 'manage project',
+            'export project', 'print project', 'project overview',
+            'manage stages', 'create stage', 'edit stage', 'delete stage',
+            'view tasks', 'create task', 'edit task', 'delete task', 'complete task',
+            'view members', 'add member', 'remove member', 'edit member role',
+            'view comments', 'create comment', 'edit comment', 'delete comment',
+            'view attachments', 'upload attachment', 'download attachment', 'delete attachment'],
+            'Tickets Management' => ['view ticket', 'create ticket', 'edit ticket', 'delete ticket', 'manage ticket',
+            'export ticket', 'print ticket', 'assign ticket', 'reassign ticket',
+            'change status', 'change priority', 'change work status',
+            'view comments', 'create comment', 'edit comment', 'delete comment',
+            'view attachments', 'upload attachment', 'download attachment', 'delete attachment',
+            'view history', 'close ticket', 'reopen ticket'],
             'Reports Management' => ['view report', 'create report', 'edit report', 'delete report', 'manage report'],
+            'Rules Management' => ['view rules', 'manage rules'],
         ];
 
         // Create permissions

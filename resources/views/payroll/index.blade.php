@@ -49,33 +49,33 @@
       <input name="q" class="filter-pill" placeholder="Search employee..." value="{{ request('q') }}">
       
       @can('Payroll Management.export payroll')
-      <a href="{{ route('payroll.export-csv', request()->query()) }}" class="pill-btn" style="background:#059669; color:#fff; text-decoration:none; display: flex; align-items: center; gap: 6px;">
-        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
-        </svg>
-        CSV
-      </a>
-      <a href="{{ route('payroll.export-excel', request()->query()) }}" class="pill-btn" style="background:#10b981; color:#fff; text-decoration:none; display: flex; align-items: center; gap: 6px;">
-        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
-        </svg>
-        Excel
-      </a>
+        <a href="{{ route('payroll.export-csv', request()->query()) }}" class="pill-btn" style="background:#059669; color:#fff; text-decoration:none; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+          </svg>
+          CSV
+        </a>
+        <a href="{{ route('payroll.export-excel', request()->query()) }}" class="pill-btn" style="background:#10b981; color:#fff; text-decoration:none; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+          </svg>
+          Excel
+        </a>
       @endcan
       
       @can('Payroll Management.create payroll')
-      <a href="{{ route('payroll.create') }}" class="pill-btn pill-success" style="display: flex; align-items: center; gap: 8px; text-decoration:none;">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-        </svg>
-        Add Payroll
-      </a>
+        <a href="{{ route('payroll.create') }}" class="pill-btn pill-success" style="display: flex; align-items: center; gap: 8px; text-decoration:none;">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+          Add Payroll
+        </a>
       @endcan
       
       @can('Payroll Management.bulk generate payroll')
-      <a href="{{ route('payroll.bulk') }}" class="pill-btn" style="margin-left:8px; background:#2563eb; color:#fff; text-decoration:none;">
-        Bulk Generate
-      </a>
+        <a href="{{ route('payroll.bulk') }}" class="pill-btn" style="margin-left:8px; background:#2563eb; color:#fff; text-decoration:none;">
+          Bulk Generate
+        </a>
       @endcan
     </div>
   </form>

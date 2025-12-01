@@ -11,12 +11,16 @@
       <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;"></p>
     </div>
     <div style="display: flex; gap: 10px;">
-      <a href="{{ route('quotations.edit', $quotation->id) }}" class="pill-btn" style="background:#3b82f6;color:#ffffff;padding:10px 20px;">
-        Edit
-      </a>
-      <a href="{{ route('quotations.download', $quotation->id) }}" class="pill-btn pill-success" style="padding:10px 20px;" target="_blank">
-        Print PDF
-      </a>
+      @can('Quotations Management.edit quotation')
+        <a href="{{ route('quotations.edit', $quotation->id) }}" class="pill-btn" style="background:#3b82f6;color:#ffffff;padding:10px 20px;">
+          Edit
+        </a>
+      @endcan
+      @can('Quotations Management.print quotation')
+        <a href="{{ route('quotations.download', $quotation->id) }}" class="pill-btn pill-success" style="padding:10px 20px;" target="_blank">
+          Print PDF
+        </a>
+      @endcan
     </div>
   </div>
 
@@ -141,9 +145,11 @@
     <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
       Contract Document
     </h3>
-    <a href="{{ route('quotations.view-contract-file', $quotation->id) }}" target="_blank" class="pill-btn pill-success" style="padding:10px 20px;">
-      View Contract Document
-    </a>
+    @can('Quotations Management.contract generate')
+      <a href="{{ route('quotations.view-contract-file', $quotation->id) }}" target="_blank" class="pill-btn pill-success" style="padding:10px 20px;">
+        View Contract Document
+      </a>
+    @endcan
   </div>
   @endif
 
@@ -170,12 +176,16 @@
     <a href="{{ route('quotations.index') }}" class="pill-btn" style="background:#6b7280;color:#ffffff;padding:10px 20px;">
       ← Back to List
     </a>
-    <a href="{{ route('quotation.follow-up', $quotation->id) }}" class="pill-btn" style="background:#f59e0b;color:#ffffff;padding:10px 20px;">
-      Follow Up
-    </a>
-    <a href="{{ route('quotations.template-list', $quotation->id) }}" class="pill-btn pill-success" style="padding:10px 20px;">
-      View Templates
-    </a>
+    @can('Quotations Management.follow up create')
+      <a href="{{ route('quotation.follow-up', $quotation->id) }}" class="pill-btn" style="background:#f59e0b;color:#ffffff;padding:10px 20px;">
+        Follow Up
+      </a>
+    @endcan
+    @can('Quotations Management.template list')
+      <a href="{{ route('quotations.template-list', $quotation->id) }}" class="pill-btn pill-success" style="padding:10px 20px;">
+        View Templates
+      </a>
+    @endcan
   </div>
 
 </div>

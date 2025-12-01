@@ -9,6 +9,10 @@ class TicketController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.view ticket'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $query = Ticket::with('assignedEmployee');
 
         // Filter by status
@@ -51,11 +55,22 @@ class TicketController extends Controller
 
     public function create()
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.create ticket'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         return view('tickets.create');
     }
 
     public function store(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.create ticket'))) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -95,12 +110,23 @@ class TicketController extends Controller
 
     public function show($id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.view ticket'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $ticket = Ticket::with('assignedEmployee')->findOrFail($id);
         return view('tickets.show', compact('ticket'));
     }
 
     public function edit($id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.edit ticket'))) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $ticket = Ticket::findOrFail($id);
 
         if (request()->ajax() || request()->wantsJson()) {
@@ -115,6 +141,13 @@ class TicketController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.edit ticket'))) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $ticket = Ticket::findOrFail($id);
 
         $request->validate([
@@ -152,6 +185,13 @@ class TicketController extends Controller
 
     public function destroy(Ticket $ticket, Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.delete ticket'))) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $ticket->delete();
         
         if ($request->ajax() || $request->wantsJson()) {

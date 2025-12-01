@@ -55,17 +55,39 @@
 
     <!-- Bottom Dock (fixed like macOS) -->
     <div class="mac-dock mac-dock-bottom">
-        <a class="dock-item" data-section="dashboard" href="{{ route('dashboard') }}" title="Dashboard"><img src="{{ asset('Doc_icon/Dashboard.png') }}" alt="Dashboard" /></a>
-        <a class="dock-item" data-section="hrm" href="{{ route('hiring.index') }}" title="HRM"><img src="{{ asset('Doc_icon/HRM.png') }}" alt="HRM" /></a>
-        <a class="dock-item" data-section="inquiry-mgmt" href="{{ route('inquiries.index') }}" title="Inquiry Mgmt."><img src="{{ asset('Doc_icon/Inquiry Management.png') }}" alt="Inquiry Mgmt." /></a>
-        <a class="dock-item" data-section="quotation-mgmt" href="{{ route('quotations.index') }}" title="Quotation Mgmt."><img src="{{ asset('Doc_icon/Quotation Management.png') }}" alt="Quotation Mgmt." /></a>
-        <a class="dock-item" data-section="company" href="{{ route('companies.index') }}" title="Company"><img src="{{ asset('Doc_icon/Company Information.png') }}" alt="Company" /></a>
-        <a class="dock-item" data-section="invoice-mgmt" href="{{ route('performas.index') }}" title="Invoice Mgmt."><img src="{{ asset('Doc_icon/Performa Management.png') }}" alt="Invoice Mgmt." /></a>
-        <a class="dock-item" data-section="payroll-mgmt" href="{{ route('payroll.index') }}" title="Payroll Mgmt."><img src="{{ asset('Doc_icon/Payroll Management.png') }}" alt="Payroll Mgmt." /></a>
-        <a class="dock-item" data-section="project-task-mgmt" href="{{ route('projects.index') }}" title="Project & Task Mgmt."><img src="{{ asset('Doc_icon/Project & Task Management.png') }}" alt="Project & Task Mgmt." /></a>
-        <a class="dock-item" data-section="ticket" href="{{ route('tickets.index') }}" title="Ticket"><img src="{{ asset('Doc_icon/Ticket Support System.png') }}" alt="Ticket" /></a>
-        <a class="dock-item" data-section="attendance-mgmt" href="{{ route('attendance.report') }}" title="Attendance Mgmt."><img src="{{ asset('Doc_icon/Attendance Management.png') }}" alt="Attendance Mgmt." /></a>
-        <a class="dock-item" data-section="events-mgmt" href="{{ route('events.index') }}" title="Events Mgmt."><img src="{{ asset('Doc_icon/Event Management..png') }}" alt="Events Mgmt." /></a>
+        @if(auth()->user()->can('Dashboard.view dashboard') || auth()->user()->can('Dashboard.manage dashboard'))
+          <a class="dock-item" data-section="dashboard" href="{{ route('dashboard') }}" title="Dashboard"><img src="{{ asset('Doc_icon/Dashboard.png') }}" alt="Dashboard" /></a>
+        @endif
+        @if(auth()->user()->can('Employees Management.view employee') || auth()->user()->can('Employees Management.manage employee') || auth()->user()->can('Leads Management.view lead') || auth()->user()->can('Leads Management.manage lead'))
+          <a class="dock-item" data-section="hrm" href="{{ route('hiring.index') }}" title="HRM"><img src="{{ asset('Doc_icon/HRM.png') }}" alt="HRM" /></a>
+        @endif
+        @if(auth()->user()->can('Inquiries Management.view inquiry') || auth()->user()->can('Inquiries Management.manage inquiry'))
+          <a class="dock-item" data-section="inquiry-mgmt" href="{{ route('inquiries.index') }}" title="Inquiry Mgmt."><img src="{{ asset('Doc_icon/Inquiry Management.png') }}" alt="Inquiry Mgmt." /></a>
+        @endif
+        @if(auth()->user()->can('Quotations Management.view quotation') || auth()->user()->can('Quotations Management.manage quotation'))
+          <a class="dock-item" data-section="quotation-mgmt" href="{{ route('quotations.index') }}" title="Quotation Mgmt."><img src="{{ asset('Doc_icon/Quotation Management.png') }}" alt="Quotation Mgmt." /></a>
+        @endif
+        @if(auth()->user()->can('Companies Management.view company') || auth()->user()->can('Companies Management.manage company'))
+          <a class="dock-item" data-section="company" href="{{ route('companies.index') }}" title="Company"><img src="{{ asset('Doc_icon/Company Information.png') }}" alt="Company" /></a>
+        @endif
+        @if(auth()->user()->can('Proformas Management.view proforma') || auth()->user()->can('Proformas Management.manage proforma') || auth()->user()->can('Invoices Management.view invoice') || auth()->user()->can('Invoices Management.manage invoice') || auth()->user()->can('Receipts Management.view receipt') || auth()->user()->can('Receipts Management.manage receipt'))
+          <a class="dock-item" data-section="invoice-mgmt" href="{{ route('performas.index') }}" title="Invoice Mgmt."><img src="{{ asset('Doc_icon/Performa Management.png') }}" alt="Invoice Mgmt." /></a>
+        @endif
+        @if(auth()->user()->can('Payroll Management.view payroll') || auth()->user()->can('Payroll Management.manage payroll'))
+          <a class="dock-item" data-section="payroll-mgmt" href="{{ route('payroll.index') }}" title="Payroll Mgmt."><img src="{{ asset('Doc_icon/Payroll Management.png') }}" alt="Payroll Mgmt." /></a>
+        @endif
+        @if(auth()->user()->can('Projects Management.view project') || auth()->user()->can('Projects Management.manage project'))
+          <a class="dock-item" data-section="project-task-mgmt" href="{{ route('projects.index') }}" title="Project & Task Mgmt."><img src="{{ asset('Doc_icon/Project & Task Management.png') }}" alt="Project & Task Mgmt." /></a>
+        @endif
+        @if(auth()->user()->can('Tickets Management.view ticket') || auth()->user()->can('Tickets Management.manage ticket'))
+          <a class="dock-item" data-section="ticket" href="{{ route('tickets.index') }}" title="Ticket"><img src="{{ asset('Doc_icon/Ticket Support System.png') }}" alt="Ticket" /></a>
+        @endif
+        @if(auth()->user()->can('Attendance Management.view attendance') || auth()->user()->can('Attendance Management.manage attendance'))
+          <a class="dock-item" data-section="attendance-mgmt" href="{{ route('attendance.report') }}" title="Attendance Mgmt."><img src="{{ asset('Doc_icon/Attendance Management.png') }}" alt="Attendance Mgmt." /></a>
+        @endif
+        @if(auth()->user()->can('Events Management.view event') || auth()->user()->can('Events Management.manage event'))
+          <a class="dock-item" data-section="events-mgmt" href="{{ route('events.index') }}" title="Events Mgmt."><img src="{{ asset('Doc_icon/Event Management..png') }}" alt="Events Mgmt." /></a>
+        @endif
         <a class="dock-item" data-section="rules-regulations" href="{{ route('rules.index') }}" title="Rules & Regulations" target="_blank" rel="noopener"><img src="{{ asset('Doc_icon/Rules & Regulations.png') }}" alt="Rules & Regulations" /></a>
     </div>
 

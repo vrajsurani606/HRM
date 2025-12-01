@@ -30,6 +30,11 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+// Employee Notes Routes
+Route::post('/employee/notes', [DashboardController::class, 'storeNote'])
+    ->middleware(['auth'])
+    ->name('employee.notes.store');
+
 // Attendance Routes
 Route::prefix('attendance')->middleware('auth')->group(function () {
     Route::get('/', [App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.index');

@@ -89,7 +89,9 @@
             @if($followUp->is_confirm)
               <span class="text-green-600" style="color:#16a34a;font-weight:600;">Confirmed</span>
             @else
-              <button type="button" class="make-confirm-btn" style="background:#2196f3;color:#ffffff;border:none;border-radius:999px;padding:4px 16px;font-size:12px;font-weight:600;cursor:pointer;">MAKE CONFIRM</button>
+              @can('Quotations Management.follow up confirm')
+                <button type="button" class="make-confirm-btn" style="background:#2196f3;color:#ffffff;border:none;border-radius:999px;padding:4px 16px;font-size:12px;font-weight:600;cursor:pointer;">MAKE CONFIRM</button>
+              @endcan
             @endif
           </td>
           <td>

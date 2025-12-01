@@ -134,4 +134,20 @@ class Company extends Model
     {
         return $this->hasMany(Quotation::class, 'customer_id');
     }
+
+    /**
+     * Get all users associated with this company
+     */
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    /**
+     * Get all projects for this company
+     */
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
+    }
 }

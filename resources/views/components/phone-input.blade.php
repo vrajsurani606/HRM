@@ -126,14 +126,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize
         updateFullValue();
         
-        // Before form submission, update the main input value
+        // Before form submission, keep only the phone number (without country code)
         const form = input.closest('form');
         if (form) {
             form.addEventListener('submit', function() {
-                const fullValue = hiddenInput.value;
-                if (fullValue) {
-                    input.value = fullValue;
-                }
+                // Keep the phone number as-is (digits only, no country code)
+                // The backend validation expects 10 digits without country code
+                input.value = input.value.replace(/\D/g, '');
             });
         }
     });

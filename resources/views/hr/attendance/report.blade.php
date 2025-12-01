@@ -38,7 +38,9 @@
     </a>
     
     <div class="filter-right">
-      <a href="{{ route('attendance.reports.export', request()->all()) }}" class="pill-btn pill-success">Export to Excel</a>
+      @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.export attendance report'))
+        <a href="{{ route('attendance.reports.export', request()->all()) }}" class="pill-btn pill-success">Export to Excel</a>
+      @endif
     </div>
   </form>
 
@@ -70,9 +72,15 @@
         <tr>
           <td style="vertical-align: middle; padding: 14px;">
             <div>
-              <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" style="cursor: pointer; width: 18px; height: 18px;" onclick="editAttendance({{ $attendance->id }})">
-              <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 18px; height: 18px;" onclick="deleteAttendance({{ $attendance->id }})">
-              <img src="{{ asset('action_icon/print.svg') }}" alt="Print" style="cursor: pointer; width: 18px; height: 18px;" onclick="printAttendance({{ $attendance->id }})">
+              @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.edit attendance'))
+                <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" style="cursor: pointer; width: 18px; height: 18px;" onclick="editAttendance({{ $attendance->id }})">
+              @endif
+              @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.delete attendance'))
+                <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 18px; height: 18px;" onclick="deleteAttendance({{ $attendance->id }})">
+              @endif
+              @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.print attendance report'))
+                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" style="cursor: pointer; width: 18px; height: 18px;" onclick="printAttendance({{ $attendance->id }})">
+              @endif
             </div>
           </td>
           <td style="vertical-align: middle;">{{ $attendance->employee->code ?? 'EMP/' . str_pad($attendance->employee->id ?? '000', 4, '0', STR_PAD_LEFT) }}</td>
