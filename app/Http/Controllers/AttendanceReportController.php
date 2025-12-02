@@ -16,7 +16,19 @@ class AttendanceReportController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
 
+        $user = auth()->user();
         $query = Attendance::with('employee.user');
+
+        // Filter by role: employees see only their own attendance
+        if ($user->hasRole('employee')) {
+            $employee = Employee::where('email', $user->email)->first();
+            if ($employee) {
+                $query->where('employee_id', $employee->id);
+            } else {
+                // If no employee record, show empty results
+                $query->where('employee_id', -1);
+            }
+        }
 
         // Filter by date range
         if ($request->has('start_date') && $request->start_date) {
@@ -27,8 +39,8 @@ class AttendanceReportController extends Controller
             $query->whereDate('date', '<=', $request->end_date);
         }
 
-        // Filter by employee
-        if ($request->has('employee_id') && $request->employee_id) {
+        // Filter by employee (only for non-employee roles)
+        if ($request->has('employee_id') && $request->employee_id && !$user->hasRole('employee')) {
             $query->where('employee_id', $request->employee_id);
         }
 
@@ -42,8 +54,13 @@ class AttendanceReportController extends Controller
             ->orderBy('check_in', 'desc')
             ->paginate(50);
 
-        // Get all employees for filter dropdown
-        $employees = Employee::with('user')->orderBy('name')->get();
+        // Get employees for filter dropdown (only for non-employee roles)
+        if ($user->hasRole('employee')) {
+            $employee = Employee::where('email', $user->email)->first();
+            $employees = $employee ? collect([$employee]) : collect([]);
+        } else {
+            $employees = Employee::with('user')->orderBy('name')->get();
+        }
 
         return view('hr.attendance.report', compact('attendances', 'employees'));
     }
@@ -91,7 +108,19 @@ class AttendanceReportController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
 
+        $user = auth()->user();
         $query = Attendance::with('employee.user');
+
+        // Filter by role: employees see only their own attendance
+        if ($user->hasRole('employee')) {
+            $employee = Employee::where('email', $user->email)->first();
+            if ($employee) {
+                $query->where('employee_id', $employee->id);
+            } else {
+                // If no employee record, return empty
+                $query->where('employee_id', -1);
+            }
+        }
 
         // Apply filters
         if ($request->has('start_date') && $request->start_date) {
@@ -102,7 +131,8 @@ class AttendanceReportController extends Controller
             $query->whereDate('date', '<=', $request->end_date);
         }
 
-        if ($request->has('employee_id') && $request->employee_id) {
+        // Filter by employee (only for non-employee roles)
+        if ($request->has('employee_id') && $request->employee_id && !$user->hasRole('employee')) {
             $query->where('employee_id', $request->employee_id);
         }
 

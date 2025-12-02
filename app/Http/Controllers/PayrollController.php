@@ -15,7 +15,19 @@ class PayrollController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $query = Payroll::with('employee');
+
+        // Filter by role: employees see only their own payroll
+        if ($user->hasRole('employee')) {
+            $employee = Employee::where('email', $user->email)->first();
+            if ($employee) {
+                $query->where('employee_id', $employee->id);
+            } else {
+                // If no employee record, show empty results
+                $query->where('employee_id', -1);
+            }
+        }
 
         // Filter by month
         if ($request->filled('month')) {
@@ -32,8 +44,8 @@ class PayrollController extends Controller
             $query->where('status', $request->status);
         }
 
-        // Filter by employee
-        if ($request->filled('employee_id')) {
+        // Filter by employee (only for non-employee roles)
+        if ($request->filled('employee_id') && !$user->hasRole('employee')) {
             $query->where('employee_id', $request->employee_id);
         }
 
@@ -72,7 +84,14 @@ class PayrollController extends Controller
                           ->paginate($perPage)
                           ->appends($request->query());
 
-        $employees = Employee::orderBy('name')->get();
+        // Get employees for filter dropdown (only for non-employee roles)
+        if ($user->hasRole('employee')) {
+            $employee = Employee::where('email', $user->email)->first();
+            $employees = $employee ? collect([$employee]) : collect([]);
+        } else {
+            $employees = Employee::orderBy('name')->get();
+        }
+        
         $months = ['January', 'February', 'March', 'April', 'May', 'June', 
                    'July', 'August', 'September', 'October', 'November', 'December'];
         $years = range(date('Y'), date('Y') - 5);

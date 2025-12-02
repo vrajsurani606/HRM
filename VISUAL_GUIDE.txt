@@ -1,0 +1,188 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    PROFILE PERMISSIONS - VISUAL GUIDE                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+CURRENT PROBLEM:
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  You visit: http://localhost/GitVraj/HrPortal/roles/4/edit                  │
+│                                                                              │
+│  You see:                                                                    │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │ Events Management        ✓                                         │    │
+│  │ Employees Management     ✓                                         │    │
+│  │ Dashboard                ✓                                         │    │
+│  │ Attendance Management    ✓                                         │    │
+│  │                                                                    │    │
+│  │ ❌ Profile Management    ← MISSING!                               │    │
+│  │                                                                    │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+THE FIX:
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  Step 1: Run this command                                                   │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                    │    │
+│  │  $ php setup_profile_permissions_complete.php                     │    │
+│  │                                                                    │    │
+│  │  OR double-click: RUN_THIS_SETUP_PROFILE.bat                      │    │
+│  │                                                                    │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  Step 2: Wait for success message                                           │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │  ✅ SUCCESS! Profile permissions are now set up correctly.        │    │
+│  │     All users can access their profile page.                      │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  Step 3: Refresh the roles page                                             │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │  Press Ctrl+F5 or click refresh                                   │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+AFTER THE FIX:
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  You visit: http://localhost/GitVraj/HrPortal/roles/4/edit                  │
+│                                                                              │
+│  You now see:                                                                │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │ Events Management        ✓                                         │    │
+│  │ Employees Management     ✓                                         │    │
+│  │ Dashboard                ✓                                         │    │
+│  │ Attendance Management    ✓                                         │    │
+│  │                                                                    │    │
+│  │ ✅ Profile Management    ← NOW VISIBLE!                           │    │
+│  │    ☐ View Profile                                                 │    │
+│  │    ☐ Edit Profile                                                 │    │
+│  │    ☐ Update Profile                                               │    │
+│  │    ☐ Update Bank Details                                          │    │
+│  │    ☐ Delete Profile                                               │    │
+│  │    ☑ View Own Profile      ← Auto-checked for all roles          │    │
+│  │    ☑ Edit Own Profile      ← Auto-checked for all roles          │    │
+│  │                                                                    │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+WHAT EACH ROLE GETS:
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  ┌─────────────────┬──────────────────────────────────────────────────┐    │
+│  │  SUPER ADMIN    │  ☑ View Profile                                  │    │
+│  │                 │  ☑ Edit Profile                                  │    │
+│  │                 │  ☑ Update Profile                                │    │
+│  │                 │  ☑ Update Bank Details                           │    │
+│  │                 │  ☑ Delete Profile                                │    │
+│  │                 │  ☑ View Own Profile                              │    │
+│  │                 │  ☑ Edit Own Profile                              │    │
+│  └─────────────────┴──────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────┬──────────────────────────────────────────────────┐    │
+│  │  ADMIN          │  ☑ View Profile                                  │    │
+│  │                 │  ☑ Edit Profile                                  │    │
+│  │                 │  ☑ Update Profile                                │    │
+│  │                 │  ☑ Update Bank Details                           │    │
+│  │                 │  ☐ Delete Profile                                │    │
+│  │                 │  ☑ View Own Profile                              │    │
+│  │                 │  ☑ Edit Own Profile                              │    │
+│  └─────────────────┴──────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────┬──────────────────────────────────────────────────┐    │
+│  │  HR             │  ☐ View Profile                                  │    │
+│  │                 │  ☐ Edit Profile                                  │    │
+│  │                 │  ☐ Update Profile                                │    │
+│  │                 │  ☑ Update Bank Details                           │    │
+│  │                 │  ☐ Delete Profile                                │    │
+│  │                 │  ☑ View Own Profile                              │    │
+│  │                 │  ☑ Edit Own Profile                              │    │
+│  └─────────────────┴──────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────┬──────────────────────────────────────────────────┐    │
+│  │  EMPLOYEE       │  ☐ View Profile                                  │    │
+│  │  RECEPTIONIST   │  ☐ Edit Profile                                  │    │
+│  │  CUSTOMER       │  ☐ Update Profile                                │    │
+│  │  (All Others)   │  ☐ Update Bank Details                           │    │
+│  │                 │  ☐ Delete Profile                                │    │
+│  │                 │  ☑ View Own Profile      ← AUTOMATIC             │    │
+│  │                 │  ☑ Edit Own Profile      ← AUTOMATIC             │    │
+│  └─────────────────┴──────────────────────────────────────────────────┘    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+TESTING:
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  1. Login as Employee                                                        │
+│     ↓                                                                        │
+│  2. Visit: http://localhost/GitVraj/HrPortal/profile                        │
+│     ↓                                                                        │
+│  3. Should see: ✅ Profile page loads                                       │
+│                 ✅ All fields editable                                       │
+│                 ✅ Save button visible                                       │
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │  ┌──────────────────────────────────────────────────────────┐     │    │
+│  │  │  Employee Profile                                        │     │    │
+│  │  │  ─────────────────────────────────────────────────────   │     │    │
+│  │  │  Name:     [John Doe                    ]               │     │    │
+│  │  │  Email:    [john@example.com            ]               │     │    │
+│  │  │  Mobile:   [1234567890                  ]               │     │    │
+│  │  │  Address:  [123 Main St                 ]               │     │    │
+│  │  │                                                          │     │    │
+│  │  │  [💾 SAVE CHANGES]                                      │     │    │
+│  │  └──────────────────────────────────────────────────────────┘     │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+TROUBLESHOOTING:
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  Problem: Still not showing?                                                │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │  1. Clear browser cache (Ctrl+Shift+Delete)                       │    │
+│  │  2. Hard refresh (Ctrl+F5)                                         │    │
+│  │  3. Check status: php check_profile_permissions_status.php        │    │
+│  │  4. Re-run setup: php setup_profile_permissions_complete.php      │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  Problem: Script errors?                                                    │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │  1. Check you're in project root directory                        │    │
+│  │  2. Verify PHP version (php -v) - should be 8.1+                  │    │
+│  │  3. Check database connection                                     │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+QUICK COMMANDS:
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  Setup (run this):                                                           │
+│  $ php setup_profile_permissions_complete.php                               │
+│                                                                              │
+│  Check status:                                                               │
+│  $ php check_profile_permissions_status.php                                 │
+│                                                                              │
+│  Windows shortcut:                                                           │
+│  Double-click: RUN_THIS_SETUP_PROFILE.bat                                   │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  SUMMARY: Run ONE command, refresh page, done! ✅                           ║
+╚══════════════════════════════════════════════════════════════════════════════╝

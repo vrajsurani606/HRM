@@ -26,6 +26,13 @@ class AttendanceController extends Controller
 
     public function checkPage()
     {
+        // Check permission
+        if (!auth()->user()->can('Attendance Management.check in') && 
+            !auth()->user()->can('Attendance Management.check out') &&
+            !auth()->user()->can('Attendance Management.view own attendance')) {
+            abort(403, 'Unauthorized to access attendance check-in/out.');
+        }
+        
         $today = now()->toDateString();
         $employee = Employee::where('user_id', Auth::id())->first();
         $attendance = $employee
@@ -62,6 +69,14 @@ class AttendanceController extends Controller
      */
     public function checkIn(Request $request)
     {
+        // Check permission
+        if (!auth()->user()->can('Attendance Management.check in') && 
+            !auth()->user()->can('Attendance Management.create attendance')) {
+            return $request->expectsJson()
+                ? response()->json(['success' => false, 'message' => 'Unauthorized to check in'], 403)
+                : back()->with('error', 'Unauthorized to check in');
+        }
+        
         $today = now()->format('Y-m-d');
         
         // Resolve current employee
@@ -113,6 +128,14 @@ class AttendanceController extends Controller
      */
     public function checkOut(Request $request)
     {
+        // Check permission
+        if (!auth()->user()->can('Attendance Management.check out') && 
+            !auth()->user()->can('Attendance Management.edit attendance')) {
+            return $request->expectsJson()
+                ? response()->json(['success' => false, 'message' => 'Unauthorized to check out'], 403)
+                : back()->with('error', 'Unauthorized to check out');
+        }
+        
         $today = now()->format('Y-m-d');
         $employee = Employee::where('user_id', auth()->id())->first();
         $attendance = $employee ? Attendance::where('employee_id', $employee->id)
@@ -235,5 +258,28 @@ class AttendanceController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    /**
+     * Print attendance record
+     */
+    public function print($id)
+    {
+        // Check permission
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.view attendance'))) {
+            abort(403, 'Unauthorized to print attendance.');
+        }
+
+        $attendance = Attendance::with('employee.user')->findOrFail($id);
+
+        // Check access: employees can only print their own attendance
+        if (auth()->user()->hasRole('employee')) {
+            $employee = Employee::where('user_id', auth()->id())->first();
+            if (!$employee || $attendance->employee_id != $employee->id) {
+                abort(403, 'Unauthorized to print this attendance record.');
+            }
+        }
+
+        return view('attendance.print', compact('attendance'));
     }
 }

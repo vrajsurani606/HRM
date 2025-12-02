@@ -176,7 +176,13 @@ class QuotationController extends Controller
         }
         
         try {
+            $user = auth()->user();
             $query = Quotation::query()->orderBy('created_at', 'desc');
+            
+            // Filter by role: customers see only their company's quotations
+            if ($user->hasRole('customer') && $user->company_id) {
+                $query->where('customer_id', $user->company_id);
+            }
             
             // Apply filters if provided
             if ($request->filled('quotation_no')) {
@@ -221,7 +227,13 @@ class QuotationController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $query = Quotation::query()->latest();
+
+        // Filter by role: customers see only their company's quotations
+        if ($user->hasRole('customer') && $user->company_id) {
+            $query->where('customer_id', $user->company_id);
+        }
 
         if ($request->filled('from_date')) {
             $query->whereDate('quotation_date', '>=', $request->input('from_date'));

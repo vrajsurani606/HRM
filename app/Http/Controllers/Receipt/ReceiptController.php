@@ -17,7 +17,13 @@ class ReceiptController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $query = Receipt::query();
+        
+        // Filter by role: customers see only their company's receipts
+        if ($user->hasRole('customer') && $user->company_id) {
+            $query->where('company_id', $user->company_id);
+        }
         
         // Handle sorting
         $sortBy = $request->get('sort', 'created_at');
@@ -69,7 +75,13 @@ class ReceiptController extends Controller
         }
         
         try {
+            $user = auth()->user();
             $query = Receipt::query()->orderBy('created_at', 'desc');
+            
+            // Filter by role: customers see only their company's receipts
+            if ($user->hasRole('customer') && $user->company_id) {
+                $query->where('company_id', $user->company_id);
+            }
             
             // Apply filters if provided
             if ($request->filled('search')) {
@@ -110,7 +122,13 @@ class ReceiptController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $query = Receipt::query()->latest();
+
+        // Filter by role: customers see only their company's receipts
+        if ($user->hasRole('customer') && $user->company_id) {
+            $query->where('company_id', $user->company_id);
+        }
 
         if ($request->filled('from_date')) {
             $query->whereDate('receipt_date', '>=', $request->input('from_date'));

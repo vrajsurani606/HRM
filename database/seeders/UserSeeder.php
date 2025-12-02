@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Employee;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,7 +18,8 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'mobile_no' => '1234567890',
                 'address' => 'Admin Address',
-                'role' => 'super-admin'
+                'role' => 'super-admin',
+                'position' => 'Super Administrator'
             ],
             [
                 'name' => 'Admin User',
@@ -25,7 +27,8 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'mobile_no' => '1234567891',
                 'address' => 'Admin Address',
-                'role' => 'admin'
+                'role' => 'admin',
+                'position' => 'Administrator'
             ],
             [
                 'name' => 'HR Manager',
@@ -33,7 +36,8 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'mobile_no' => '1234567892',
                 'address' => 'HR Address',
-                'role' => 'hr'
+                'role' => 'hr',
+                'position' => 'HR Manager'
             ],
             [
                 'name' => 'Employee User',
@@ -41,7 +45,8 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'mobile_no' => '1234567893',
                 'address' => 'Employee Address',
-                'role' => 'employee'
+                'role' => 'employee',
+                'position' => 'Employee'
             ],
             [
                 'name' => 'Receptionist',
@@ -49,7 +54,8 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'mobile_no' => '1234567894',
                 'address' => 'Reception Address',
-                'role' => 'receptionist'
+                'role' => 'receptionist',
+                'position' => 'Receptionist'
             ],
             [
                 'name' => 'Customer User',
@@ -57,13 +63,15 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'mobile_no' => '1234567895',
                 'address' => 'Customer Address',
-                'role' => 'customer'
+                'role' => 'customer',
+                'position' => 'Customer'
             ]
         ];
 
         foreach ($users as $userData) {
             $role = $userData['role'];
-            unset($userData['role']);
+            $position = $userData['position'];
+            unset($userData['role'], $userData['position']);
             
             $user = User::firstOrCreate(
                 ['email' => $userData['email']],
@@ -71,6 +79,25 @@ class UserSeeder extends Seeder
             );
             
             $user->assignRole($role);
+            
+            // Create employee record if it doesn't exist (except for customers)
+            if ($role !== 'customer') {
+                Employee::firstOrCreate(
+                    ['email' => $user->email],
+                    [
+                        'code' => Employee::nextCode(),
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'mobile_no' => $user->mobile_no,
+                        'address' => $user->address,
+                        'position' => $position,
+                        'gender' => 'male',
+                        'status' => 'active',
+                        'joining_date' => now(),
+                        'user_id' => $user->id,
+                    ]
+                );
+            }
         }
     }
 }

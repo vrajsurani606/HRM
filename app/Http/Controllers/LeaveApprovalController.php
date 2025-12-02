@@ -19,15 +19,27 @@ class LeaveApprovalController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
 
+        $user = auth()->user();
         $query = Leave::with('employee');
+
+        // Filter by role: employees see only their own leave requests
+        if ($user->hasRole('employee')) {
+            $employee = Employee::where('email', $user->email)->first();
+            if ($employee) {
+                $query->where('employee_id', $employee->id);
+            } else {
+                // If no employee record, show empty results
+                $query->where('employee_id', -1);
+            }
+        }
 
         // Filter by status
         if ($request->has('status') && $request->status !== '') {
             $query->where('status', $request->status);
         }
 
-        // Filter by employee
-        if ($request->has('employee_id') && $request->employee_id) {
+        // Filter by employee (only for non-employee roles)
+        if ($request->has('employee_id') && $request->employee_id && !$user->hasRole('employee')) {
             $query->where('employee_id', $request->employee_id);
         }
 
@@ -42,7 +54,15 @@ class LeaveApprovalController extends Controller
 
         $leaves = $query->orderBy('created_at', 'desc')->paginate(20);
 
-        return view('hr.attendance.leave-approval', compact('leaves'));
+        // Get employees for dropdowns (filtered by role)
+        if ($user->hasRole('employee')) {
+            $employee = Employee::where('email', $user->email)->first();
+            $employees = $employee ? collect([$employee]) : collect([]);
+        } else {
+            $employees = Employee::orderBy('name')->get();
+        }
+
+        return view('hr.attendance.leave-approval', compact('leaves', 'employees'));
     }
 
     /**

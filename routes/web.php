@@ -34,6 +34,9 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::post('/employee/notes', [DashboardController::class, 'storeNote'])
     ->middleware(['auth'])
     ->name('employee.notes.store');
+Route::delete('/employee/notes/{id}', [DashboardController::class, 'deleteNote'])
+    ->middleware(['auth'])
+    ->name('employee.notes.delete');
 
 // Attendance Routes
 Route::prefix('attendance')->middleware('auth')->group(function () {
@@ -43,6 +46,7 @@ Route::prefix('attendance')->middleware('auth')->group(function () {
     Route::post('/check-in', [App\Http\Controllers\AttendanceController::class, 'checkIn'])->name('attendance.check-in');
     Route::post('/check-out', [App\Http\Controllers\AttendanceController::class, 'checkOut'])->name('attendance.check-out');
     Route::get('/history', [App\Http\Controllers\AttendanceController::class, 'history'])->name('attendance.history');
+    Route::get('/{id}/print', [App\Http\Controllers\AttendanceController::class, 'print'])->name('attendance.print');
     
     // Attendance Reports
     Route::get('/reports', [App\Http\Controllers\AttendanceReportController::class, 'index'])->name('attendance.reports');

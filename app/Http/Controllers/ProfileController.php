@@ -18,6 +18,12 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        // Check permission - users can always view their own profile
+        if (!$request->user()->can('Profile Management.view own profile') && 
+            !$request->user()->can('Profile Management.view profile')) {
+            abort(403, 'Unauthorized access to profile.');
+        }
+        
         $user = $request->user();
         // Try to find associated employee by email
         $employee = Employee::where('email', $user->email)->first();
@@ -82,6 +88,12 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        // Check permission - users can always edit their own profile
+        if (!$request->user()->can('Profile Management.edit own profile') && 
+            !$request->user()->can('Profile Management.edit profile')) {
+            abort(403, 'Unauthorized to update profile.');
+        }
+        
         $user = $request->user();
         $user->fill($request->validated());
 
@@ -132,6 +144,12 @@ class ProfileController extends Controller
      */
     public function updateBank(Request $request): RedirectResponse
     {
+        // Check permission
+        if (!$request->user()->can('Profile Management.update bank details') && 
+            !$request->user()->can('Profile Management.edit own profile')) {
+            abort(403, 'Unauthorized to update bank details.');
+        }
+        
         $request->validate([
             'bank_name' => ['required', 'string', 'max:255'],
             'bank_account_no' => ['required', 'string', 'max:30'],
@@ -157,6 +175,11 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Check permission - only admins can delete profiles
+        if (!$request->user()->can('Profile Management.delete profile')) {
+            abort(403, 'Unauthorized to delete profile.');
+        }
+        
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);

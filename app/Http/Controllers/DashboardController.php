@@ -292,7 +292,10 @@ class DashboardController extends Controller
                 'employee' => null,
                 'stats' => [],
                 'birthdays' => [],
-                'notes' => []
+                'notes' => [],
+                'todayBirthdays' => [],
+                'upcomingBirthdays' => [],
+                'todayLeaves' => []
             ]);
         }
 
@@ -343,7 +346,54 @@ class DashboardController extends Controller
             'early_exits' => str_pad($earlyExits, 3, '0', STR_PAD_LEFT),
         ];
 
-        // Get employee birthdays for current month
+        // Get TODAY's birthdays
+        $todayBirthdays = Employee::whereMonth('date_of_birth', now()->month)
+            ->whereDay('date_of_birth', now()->day)
+            ->get()
+            ->map(function($emp) {
+                return [
+                    'name' => $emp->name,
+                    'date' => Carbon::parse($emp->date_of_birth)->day,
+                    'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png'),
+                    'age' => Carbon::parse($emp->date_of_birth)->age
+                ];
+            });
+
+        // Get UPCOMING birthdays (next 7 days in current month)
+        $upcomingBirthdays = Employee::whereMonth('date_of_birth', now()->month)
+            ->whereDay('date_of_birth', '>', now()->day)
+            ->whereDay('date_of_birth', '<=', now()->addDays(7)->day)
+            ->orderByRaw('DAY(date_of_birth)')
+            ->get()
+            ->map(function($emp) {
+                $birthday = Carbon::parse($emp->date_of_birth)->setYear(now()->year);
+                return [
+                    'name' => $emp->name,
+                    'date' => $birthday->day,
+                    'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png'),
+                    'daysUntil' => now()->diffInDays($birthday)
+                ];
+            });
+
+        // Get TODAY's leaves (employees on leave today)
+        $todayLeaves = Leave::with('employee')
+            ->where('status', 'approved')
+            ->whereDate('start_date', '<=', now())
+            ->whereDate('end_date', '>=', now())
+            ->get()
+            ->map(function($leave) {
+                return [
+                    'name' => $leave->employee->name ?? 'Unknown',
+                    'type' => ucfirst($leave->leave_type ?? 'Leave'),
+                    'photo' => $leave->employee && $leave->employee->photo_path 
+                        ? asset('storage/' . $leave->employee->photo_path) 
+                        : asset('new_theme/dist/img/avatar.png'),
+                    'start_date' => Carbon::parse($leave->start_date)->format('M d'),
+                    'end_date' => Carbon::parse($leave->end_date)->format('M d')
+                ];
+            });
+
+        // Get employee birthdays for current month (for calendar)
         $birthdays = Employee::whereMonth('date_of_birth', now()->month)
             ->orderByRaw('DAY(date_of_birth)')
             ->get()
@@ -355,18 +405,75 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Get employee notes (system notes for employees)
-        $notes = [];
+        // Get pagination parameters
+        $notesPage = request()->get('notes_page', 1);
+        $empNotesPage = request()->get('emp_notes_page', 1);
+        $perPage = 4;
+
+        // Get system notes with pagination
+        $systemNotes = [];
+        $systemNotesTotal = 0;
+        $systemNotesTotalPages = 1;
+        
         try {
             if (DB::getSchemaBuilder()->hasTable('notes')) {
-                $notesData = DB::table('notes')
-                    ->where('type', 'employee')
-                    ->orWhere('employee_id', $employee->id)
+                $systemNotesTotal = DB::table('notes')
+                    ->where('type', 'system')
+                    ->where(function($query) use ($employee) {
+                        $query->where('user_id', auth()->id())
+                              ->orWhere('employee_id', $employee->id)
+                              ->orWhereNull('user_id');
+                    })
+                    ->count();
+                
+                $systemNotesTotalPages = ceil($systemNotesTotal / $perPage);
+                
+                $systemNotesData = DB::table('notes')
+                    ->where('type', 'system')
+                    ->where(function($query) use ($employee) {
+                        $query->where('user_id', auth()->id())
+                              ->orWhere('employee_id', $employee->id)
+                              ->orWhereNull('user_id');
+                    })
                     ->orderBy('created_at', 'desc')
-                    ->limit(10)
+                    ->skip(($notesPage - 1) * $perPage)
+                    ->take($perPage)
                     ->get();
                 
-                foreach ($notesData as $note) {
+                foreach ($systemNotesData as $note) {
+                    $systemNotes[] = [
+                        'id' => $note->id,
+                        'text' => $note->content ?? '',
+                        'date' => isset($note->created_at) ? Carbon::parse($note->created_at)->format('M d, Y g:i A') : now()->format('M d, Y g:i A')
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            // Fallback
+        }
+
+        // Get employee notes with pagination (includes admin-created notes)
+        $empNotes = [];
+        $empNotesTotal = 0;
+        $empNotesTotalPages = 1;
+        
+        try {
+            if (DB::getSchemaBuilder()->hasTable('notes')) {
+                // Get all employee-type notes (including those created by admin for this employee)
+                $empNotesTotal = DB::table('notes')
+                    ->where('type', 'employee')
+                    ->count();
+                
+                $empNotesTotalPages = ceil($empNotesTotal / $perPage);
+                
+                $empNotesData = DB::table('notes')
+                    ->where('type', 'employee')
+                    ->orderBy('created_at', 'desc')
+                    ->skip(($empNotesPage - 1) * $perPage)
+                    ->take($perPage)
+                    ->get();
+                
+                foreach ($empNotesData as $note) {
                     $assignees = isset($note->assignees) ? json_decode($note->assignees, true) : [];
                     $assigneePhotos = [];
                     
@@ -379,8 +486,9 @@ class DashboardController extends Controller
                         }
                     }
                     
-                    $notes[] = [
-                        'text' => $note->content ?? $note->text ?? '',
+                    $empNotes[] = [
+                        'id' => $note->id,
+                        'text' => $note->content ?? '',
                         'date' => isset($note->created_at) ? Carbon::parse($note->created_at)->format('M d, Y') : now()->format('M d, Y'),
                         'assignees' => $assignees,
                         'assignee_photos' => $assigneePhotos
@@ -388,15 +496,7 @@ class DashboardController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            // Fallback notes
-            $notes = [
-                [
-                    'text' => 'Welcome to your employee dashboard! Check your attendance and upcoming events.',
-                    'date' => now()->format('M d, Y'),
-                    'assignees' => [$employee->name],
-                    'assignee_photos' => [$employee->photo_path ? asset('storage/' . $employee->photo_path) : asset('new_theme/dist/img/avatar.png')]
-                ]
-            ];
+            // Fallback
         }
 
         // Get attendance calendar data for current month
@@ -406,7 +506,71 @@ class DashboardController extends Controller
             $attendanceCalendar[$day] = $att->status; // present, late, early_leave, absent, leave
         }
 
-        return view('dashboard-employee', compact('employee', 'stats', 'birthdays', 'notes', 'attendanceCalendar'));
+        // Get leaves calendar data for current month
+        $leavesCalendar = [];
+        $monthLeaves = Leave::where('status', 'approved')
+            ->where(function($query) use ($currentYear, $currentMonth) {
+                $query->whereYear('start_date', $currentYear)
+                      ->whereMonth('start_date', $currentMonth)
+                      ->orWhere(function($q) use ($currentYear, $currentMonth) {
+                          $q->whereYear('end_date', $currentYear)
+                            ->whereMonth('end_date', $currentMonth);
+                      });
+            })
+            ->with('employee')
+            ->get();
+
+        foreach ($monthLeaves as $leave) {
+            $startDate = Carbon::parse($leave->start_date);
+            $endDate = Carbon::parse($leave->end_date);
+            
+            // Mark all days in the leave period
+            $currentDate = $startDate->copy();
+            while ($currentDate->lte($endDate)) {
+                if ($currentDate->month == $currentMonth && $currentDate->year == $currentYear) {
+                    $day = $currentDate->day;
+                    if (!isset($leavesCalendar[$day])) {
+                        $leavesCalendar[$day] = [];
+                    }
+                    $leavesCalendar[$day][] = [
+                        'name' => $leave->employee->name ?? 'Unknown',
+                        'type' => $leave->leave_type ?? 'Leave'
+                    ];
+                }
+                $currentDate->addDay();
+            }
+        }
+
+        // Get birthdays calendar data for current month
+        $birthdaysCalendar = [];
+        foreach ($birthdays as $birthday) {
+            $day = $birthday['date'];
+            if (!isset($birthdaysCalendar[$day])) {
+                $birthdaysCalendar[$day] = [];
+            }
+            $birthdaysCalendar[$day][] = [
+                'name' => $birthday['name'],
+                'photo' => $birthday['photo']
+            ];
+        }
+
+        return view('dashboard-employee', compact(
+            'employee', 
+            'stats', 
+            'birthdays', 
+            'attendanceCalendar',
+            'todayBirthdays',
+            'upcomingBirthdays',
+            'todayLeaves',
+            'leavesCalendar',
+            'birthdaysCalendar',
+            'systemNotes',
+            'empNotes',
+            'notesPage',
+            'empNotesPage',
+            'systemNotesTotalPages',
+            'empNotesTotalPages'
+        ));
     }
 
     /**
@@ -415,7 +579,8 @@ class DashboardController extends Controller
     public function storeNote(Request $request)
     {
         $request->validate([
-            'note_text' => 'required|string|max:1000'
+            'note_text' => 'required|string|max:1000',
+            'note_type' => 'required|in:notes,empNotes'
         ]);
 
         try {
@@ -438,11 +603,14 @@ class DashboardController extends Controller
             // Get employee record
             $employee = Employee::where('user_id', auth()->id())->first();
 
+            // Determine note type
+            $noteType = $request->note_type === 'notes' ? 'system' : 'employee';
+
             // Insert note
             DB::table('notes')->insert([
                 'user_id' => auth()->id(),
                 'employee_id' => $employee ? $employee->id : null,
-                'type' => 'employee',
+                'type' => $noteType,
                 'content' => $request->note_text,
                 'assignees' => json_encode([auth()->user()->name]),
                 'created_at' => now(),
@@ -452,6 +620,27 @@ class DashboardController extends Controller
             return redirect()->back()->with('success', 'Note added successfully!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to add note: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a note
+     */
+    public function deleteNote($id)
+    {
+        try {
+            $deleted = DB::table('notes')
+                ->where('id', $id)
+                ->where('user_id', auth()->id())
+                ->delete();
+
+            if ($deleted) {
+                return redirect()->back()->with('success', 'Note deleted successfully!');
+            } else {
+                return redirect()->back()->with('error', 'Note not found or unauthorized.');
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete note: ' . $e->getMessage());
         }
     }
 
@@ -849,9 +1038,15 @@ class DashboardController extends Controller
         } catch (\Exception $e) {}
 
         // Tickets
-        $openTickets = Ticket::where('customer', $company->name ?? auth()->user()->name)
-            ->whereIn('status', ['open', 'pending', 'in_progress'])
-            ->count();
+        if ($companyId) {
+            $openTickets = Ticket::where('company_id', $companyId)
+                ->whereIn('status', ['open', 'pending', 'in_progress'])
+                ->count();
+        } else {
+            $openTickets = Ticket::where('customer', $company->name ?? auth()->user()->name)
+                ->whereIn('status', ['open', 'pending', 'in_progress'])
+                ->count();
+        }
 
         $stats = [
             'total_quotations' => $totalQuotations,
@@ -966,8 +1161,14 @@ class DashboardController extends Controller
         }
 
         // Recent Tickets
-        $recentTickets = Ticket::where('customer', $company->name ?? auth()->user()->name)
-            ->orderBy('created_at', 'desc')
+        $ticketsQuery = Ticket::query();
+        if ($companyId) {
+            $ticketsQuery->where('company_id', $companyId);
+        } else {
+            $ticketsQuery->where('customer', $company->name ?? auth()->user()->name);
+        }
+        
+        $recentTickets = $ticketsQuery->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
             ->map(function($ticket) {

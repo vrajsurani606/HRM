@@ -13,7 +13,7 @@
         </p>
       </div>
     </div>
-    @if($employee)
+    @if($employee && (auth()->user()->can('Profile Management.update bank details') || auth()->user()->can('Profile Management.edit own profile')))
       <button type="button" id="editBankBtn" onclick="toggleBankEdit()" 
               style="display:flex;align-items:center;gap:8px;background:#3b82f6;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s;"
               onmouseover="this.style.background='#2563eb';this.style.transform='translateY(-2px)'"

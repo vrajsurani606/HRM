@@ -17,7 +17,26 @@ class ProjectController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
-        $stages = ProjectStage::with(['projects.company'])->orderBy('order')->get();
+        $user = auth()->user();
+        
+        // Filter projects based on role
+        if ($user->hasRole('employee')) {
+            // Employees only see projects they're members of
+            $stages = ProjectStage::with(['projects' => function($query) use ($user) {
+                $query->whereHas('members', function($q) use ($user) {
+                    $q->where('users.id', $user->id);
+                })->with('company');
+            }])->orderBy('order')->get();
+        } elseif ($user->hasRole('customer') && $user->company_id) {
+            // Customers only see their company's projects
+            $stages = ProjectStage::with(['projects' => function($query) use ($user) {
+                $query->where('company_id', $user->company_id)->with('company');
+            }])->orderBy('order')->get();
+        } else {
+            // Admin/HR see all projects
+            $stages = ProjectStage::with(['projects.company'])->orderBy('order')->get();
+        }
+        
         $companies = \App\Models\Company::orderBy('company_name')->get();
         return view('projects.index', compact('stages', 'companies'));
     }
@@ -103,7 +122,19 @@ class ProjectController extends Controller
         try {
             \Log::info('Project show method called', ['id' => $id, 'is_ajax' => request()->ajax()]);
             
-            $project = Project::with(['company', 'stage'])->findOrFail($id);
+            $user = auth()->user();
+            $query = Project::with(['company', 'stage']);
+            
+            // Filter by role
+            if ($user->hasRole('employee')) {
+                $query->whereHas('members', function($q) use ($user) {
+                    $q->where('users.id', $user->id);
+                });
+            } elseif ($user->hasRole('customer') && $user->company_id) {
+                $query->where('company_id', $user->company_id);
+            }
+            
+            $project = $query->findOrFail($id);
             
             \Log::info('Project found', ['project' => $project->toArray()]);
             
@@ -135,7 +166,19 @@ class ProjectController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
-        $project = Project::with(['company', 'stage', 'tasks', 'members'])->findOrFail($id);
+        $user = auth()->user();
+        $query = Project::with(['company', 'stage', 'tasks', 'members']);
+        
+        // Filter by role
+        if ($user->hasRole('employee')) {
+            $query->whereHas('members', function($q) use ($user) {
+                $q->where('users.id', $user->id);
+            });
+        } elseif ($user->hasRole('customer') && $user->company_id) {
+            $query->where('company_id', $user->company_id);
+        }
+        
+        $project = $query->findOrFail($id);
         return view('projects.overview', ['id' => $id]);
     }
 

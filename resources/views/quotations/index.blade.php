@@ -92,9 +92,7 @@
   <!-- Grid View -->
   <div class="quotations-grid-view">
     @forelse($quotations as $quotation)
-      @
-      
-      php
+      @php
         $isConfirmed = in_array($quotation->id, $confirmedQuotationIds ?? []);
       @endphp
       <div class="quotation-grid-card" onclick="window.location.href='{{ route('quotations.show', $quotation->id) }}'" title="View quotation">

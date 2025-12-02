@@ -16,7 +16,13 @@ class PerformaController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $query = Proforma::with('quotation');
+        
+        // Filter by role: customers see only their company's proformas
+        if ($user->hasRole('customer') && $user->company_id) {
+            $query->where('company_id', $user->company_id);
+        }
         
         // Handle sorting
         $sortBy = $request->get('sort', 'created_at');
@@ -78,7 +84,13 @@ class PerformaController extends Controller
         }
         
         try {
+            $user = auth()->user();
             $query = Proforma::query()->orderBy('created_at', 'desc');
+            
+            // Filter by role: customers see only their company's proformas
+            if ($user->hasRole('customer') && $user->company_id) {
+                $query->where('company_id', $user->company_id);
+            }
             
             // Apply filters if provided
             if ($request->filled('company_name')) {
@@ -128,7 +140,13 @@ class PerformaController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $query = Proforma::query()->latest();
+
+        // Filter by role: customers see only their company's proformas
+        if ($user->hasRole('customer') && $user->company_id) {
+            $query->where('company_id', $user->company_id);
+        }
 
         if ($request->filled('from_date')) {
             $query->whereDate('proforma_date', '>=', $request->input('from_date'));
