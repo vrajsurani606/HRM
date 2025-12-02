@@ -137,6 +137,7 @@
             <th>Person Position</th>
             <th>Industry Type</th>
             <th>Next Follow Up</th>
+            <th>Confirm Status</th>
             <th>Scope</th>
             <th>Quotation</th>
           </tr>
@@ -348,6 +349,63 @@ $(document).ready(function() {
       localStorage.setItem('inquiries_view', v);
       applyView(v);
     }));
+  });
+
+  // Confirm Follow Up functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    
+    // Use event delegation for dynamically loaded content
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('.confirm-followup-btn')) {
+        var btn = e.target.closest('.confirm-followup-btn');
+        var followUpId = btn.getAttribute('data-followup-id');
+        if (!followUpId) return;
+
+        Swal.fire({
+          title: 'Confirm this follow-up?',
+          text: "This will mark the latest follow-up as confirmed.",
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#16a34a',
+          cancelButtonColor: '#6b7280',
+          confirmButtonText: 'Yes, Confirm',
+          cancelButtonText: 'Cancel',
+          width: '400px',
+        }).then(function(result) {
+          if (!result.isConfirmed) return;
+
+          fetch("{{ route('inquiry.follow-up.confirm', ['followUp' => 'FOLLOWUP_ID']) }}".replace('FOLLOWUP_ID', followUpId), {
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': token,
+              'Accept': 'application/json',
+            },
+          })
+          .then(function(res) { return res.json(); })
+          .then(function(data) {
+            if (data && data.success) {
+              // Replace the pending icon with confirmed icon
+              var cell = btn.closest('td');
+              if(cell) {
+                cell.innerHTML = '<img src="{{ asset("action_icon/completed.svg") }}" alt="Confirmed" title="Follow Up Confirmed" style="width:20px;height:20px;opacity:1;">';
+              }
+              
+              Swal.fire({
+                title: 'Follow-up confirmed!',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false,
+                width: '380px',
+              });
+            }
+          })
+          .catch(function() {
+            Swal.fire('Error', 'Unable to confirm follow-up.', 'error');
+          });
+        });
+      }
+    });
   });
 </script>
 @endpush

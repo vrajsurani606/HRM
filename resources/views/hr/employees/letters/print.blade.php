@@ -50,8 +50,8 @@ if ($contentLength > 3000) {
     .letter-content { 
         position:relative; z-index:1;
         width:100%; max-width:800px; margin:0 auto; 
-        /* Top padding: ~160px for header, Bottom padding: ~220px for footer */
-        padding: 160px 36px 220px 36px;
+        /* Top padding: ~200px for header, Bottom padding: ~220px for footer */
+        padding: 200px 36px 220px 36px;
         box-sizing:border-box;
         min-height: 100vh;
     }
@@ -122,11 +122,11 @@ if ($contentLength > 3000) {
         
         .letter-content { 
             /* A4 height = 297mm = ~1123px
-               Header: 20% = ~225px
+               Header: 25% = ~280px
                Footer: 20% = ~225px
-               Content: 60% = ~673px */
-            padding: 225px 30px 225px 30px;
-            min-height: 673px;
+               Content: 55% = ~618px */
+            padding: 280px 30px 225px 30px;
+            min-height: 618px;
             overflow: visible !important;
         }
         

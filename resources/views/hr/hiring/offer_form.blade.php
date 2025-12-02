@@ -1,6 +1,11 @@
 @extends('layouts.macos')
 @section('page_title', $page_title)
 
+@push('styles')
+<!-- jQuery UI CSS for Datepicker -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+@endpush
+
 @section('content')
   <div class="hrp-card">
     <div class="Rectangle-30 hrp-compact">
@@ -18,7 +23,7 @@
 
         <div>
           <label class="hrp-label">Letter Issue Date:</label>
-          <input type="date" name="issue_date" value="{{ old('issue_date', optional($offer->issue_date ?? null)->format('Y-m-d')) }}" class="hrp-input Rectangle-29">
+          <input type="text" name="issue_date" id="issue_date" value="{{ old('issue_date', optional($offer->issue_date ?? null)->format('d/m/Y')) }}" class="hrp-input Rectangle-29 date-picker" placeholder="dd/mm/yyyy" autocomplete="off">
           @error('issue_date')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
 
@@ -54,7 +59,7 @@
 
         <div>
           <label class="hrp-label">Date of Joining:</label>
-          <input type="date" name="date_of_joining" value="{{ old('date_of_joining', optional($offer->date_of_joining ?? null)->format('Y-m-d')) }}" class="hrp-input Rectangle-29">
+          <input type="text" name="date_of_joining" id="date_of_joining" value="{{ old('date_of_joining', optional($offer->date_of_joining ?? null)->format('d/m/Y')) }}" class="hrp-input Rectangle-29 date-picker" placeholder="dd/mm/yyyy" autocomplete="off">
           @error('date_of_joining')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
 
@@ -89,3 +94,71 @@
   <span class="hrp-bc-sep">›</span>
   <span class="hrp-bc-current">{{ $page_title }}</span>
 @endsection
+
+@push('scripts')
+<!-- jQuery UI JS for Datepicker -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Initialize jQuery datepicker
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-100:+10',
+        showButtonPanel: true
+    });
+    
+    // Set today's date as default for issue date if empty
+    const issueDateEl = document.getElementById('issue_date');
+    if (issueDateEl && !issueDateEl.value) {
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const yyyy = today.getFullYear();
+        issueDateEl.value = dd + '/' + mm + '/' + yyyy;
+    }
+    
+    // Set default joining date to 7 days from now if empty
+    const joiningEl = document.getElementById('date_of_joining');
+    if (joiningEl && !joiningEl.value) {
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        const dd2 = String(nextWeek.getDate()).padStart(2, '0');
+        const mm2 = String(nextWeek.getMonth() + 1).padStart(2, '0');
+        const yyyy2 = nextWeek.getFullYear();
+        joiningEl.value = dd2 + '/' + mm2 + '/' + yyyy2;
+    }
+});
+
+// Convert dates from dd/mm/yyyy to yyyy-mm-dd before form submission
+$('#offerForm').on('submit', function(e) {
+    $('.date-picker').each(function() {
+        const dateValue = $(this).val();
+        if (dateValue && dateValue.match(/^\d{1,2}\/\d{1,2}\/\d{2,4}$/)) {
+            const parts = dateValue.split('/');
+            const day = parts[0].padStart(2, '0');
+            const month = parts[1].padStart(2, '0');
+            let year = parts[2];
+            
+            // Convert 2-digit year to 4-digit if needed
+            if (year.length === 2) {
+                const currentYear = new Date().getFullYear();
+                const century = Math.floor(currentYear / 100) * 100;
+                year = century + parseInt(year);
+            }
+            
+            // Create hidden input with converted date
+            const hiddenInput = $('<input>')
+                .attr('type', 'hidden')
+                .attr('name', $(this).attr('name'))
+                .val(year + '-' + month + '-' + day);
+            
+            // Remove name from original input and add hidden input
+            $(this).removeAttr('name');
+            $(this).after(hiddenInput);
+        }
+    });
+});
+</script>
+@endpush

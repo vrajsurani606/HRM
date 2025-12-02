@@ -5,6 +5,7 @@
 <div class="recipient">
     <div><b>To,</b></div>
     <div>{{ $letter->employee->name }}</div>
+    <div><b>Designation:</b> {{ $letter->employee->position ?? 'Employee' }}</div>
     @if($letter->employee->address)
     <div>Address :- {{ $letter->employee->address }}</div>
     @endif
@@ -13,7 +14,7 @@
 <div class="body">
 <p>Dear <b>{{ $letter->employee->name }}</b>,</p>
 
-<p>This letter serves as a <b>Warning Notice</b> regarding your conduct/performance at <span class="company">{{ $company_name }}</span>.</p>
+<p>This letter serves as a <b>Warning Notice</b> regarding your conduct/performance as <b>{{ $letter->employee->position ?? 'Employee' }}</b> at <span class="company">{{ $company_name }}</span>.</p>
 
 @if(!empty($letter->content))
     {!! $letter->content !!}

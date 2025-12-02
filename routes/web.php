@@ -83,7 +83,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile/bank', [ProfileController::class, 'updateBank'])->name('profile.bank.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Employees
+    // Employees - toggle-status must come before resource routes
+    Route::post('employees/{employeeId}/toggle-status', [EmployeeController::class, 'toggleStatus'])->name('employees.toggle-status');
     Route::resource('employees', EmployeeController::class);
     Route::prefix('employees/{employee}')->group(function () {
         Route::get('/letters', [EmployeeController::class, 'lettersIndex'])->name('employees.letters.index');
