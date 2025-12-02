@@ -26,7 +26,7 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
     }
     .offer-container .bg-cover img { width:100%; height:100%; object-fit:cover; display:block; }
     .letter-content { position:relative; z-index:1; }
-    .letter-content { width:100%; max-width:800px; margin:0 auto; margin-top:150px; padding:40px 30px 20px 30px; border-radius:8px; box-sizing:border-box; }
+    .letter-content { width:100%; max-width:800px; margin:0 auto; margin-top:220px; padding:40px 30px 20px 30px; border-radius:8px; box-sizing:border-box; }
     .letter-meta, .recipient, .subject, .body, .signature { margin-bottom:16px; }
     .letter-meta { display:flex; justify-content:space-between; font-size:16px; color:#222; font-weight:500; }
     .subject { font-size:17px; font-weight:700; color:#222; text-align:center; }
@@ -39,12 +39,40 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
     .signature .sign { margin:6px 0 6px 0; }
     .signature .sign img { height:62px; width:auto; display:block; object-fit:contain; }
     @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
       .print-btn { display:none; }
       body { background:none; }
-      .offer-container { box-shadow:none; border:none; }
-      .letter-content.first-page { page-break-after:always; overflow:visible !important; max-height:none !important; height:auto !important; }
+      .offer-container { 
+        box-shadow:none; 
+        border:none;
+        width: 210mm;
+        height: 297mm;
+        page-break-after: always;
+      }
+      .offer-container:last-child {
+        page-break-after: auto;
+      }
+      .letter-content { 
+        margin-top: 220px !important;
+        padding: 40px 30px 20px 30px !important;
+      }
+      .letter-content.first-page { 
+        page-break-after:always; 
+        overflow:visible !important; 
+        max-height:none !important; 
+        height:auto !important;
+        margin-top: 220px !important;
+        padding: 0 36px 4px 36px !important;
+      }
       .break-section { page-break-before: always; break-inside: avoid; }
       .bullets-avoid-break { break-inside: avoid; page-break-inside: avoid; }
+      .offer-container .bg-cover img { 
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact; 
+      }
     }
     @media screen {
       body, html { background:#f5f5f5; min-height:100vh; min-width:100vw; margin:0; padding:0; }
@@ -56,17 +84,13 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
     .doc-table th, .doc-table td { border:1.5px solid #b3b3b3; padding:10px 14px; background:transparent; }
     .doc-table th { font-weight:700; text-align:center; font-size:15px; background:transparent; padding:10px 0; }
     .doc-table .doc-table-header { border:2px solid #b3b3b3; font-weight:700; text-align:center; font-size:15px; background:rgba(69,108,181,0.18); padding:10px 0; }
-    .letter-content.first-page { padding:0 36px 4px 36px !important; margin-top:160px !important; font-size:13.2px !important; }
+    .letter-content.first-page { padding:0 36px 4px 36px !important; margin-top:220px !important; font-size:13.2px !important; }
     .print-btn {
       position: fixed; right: 24px; top: 20px; z-index: 9999;
       background: #1f2937; color: #fff; border: 0; padding: 10px 14px; border-radius: 6px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15); cursor: pointer; font-weight: 700;
     }
     .print-btn:hover { background: #111827; }
-    @media print {
-      .print-btn { display: none; }
-      .offer-container .bg-cover img { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    }
     .letter-content.first-page .letter-meta, .letter-content.first-page .recipient, .letter-content.first-page .subject, .letter-content.first-page .body, .letter-content.first-page .signature { margin-bottom:4px !important; }
     .letter-content.first-page .body p, .letter-content.first-page .body ol, .letter-content.first-page .body ul { margin-bottom:2px !important; }
     .letter-content.first-page .signature { margin-top:6px !important; }
@@ -78,28 +102,28 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
     <div class="bg-cover"><img src="{{ $background_url }}" alt="" /></div>
     <div class="letter-content first-page">
       <div class="letter-meta">
-        <div><b>Ref No.:</b> {{ $lead->unique_code }}</div>
-        <div><b>Date:</b> {{ optional($offer->issue_date)->format('d-m-Y') }}</div>
+        <div><b>Ref No.:</b> {{ $offer->reference_number ?? $lead->unique_code ?? 'N/A' }}</div>
+        <div><b>Date:</b> {{ optional($offer->issue_date)->format('d-m-Y') ?? now()->format('d-m-Y') }}</div>
       </div>
       <div class="recipient">
         <div><b>To,</b></div>
-        <div>Mr. / Mrs. {{ $lead->person_name }}</div>
+        <div>Mr. / Mrs. {{ $lead->person_name ?? $lead->name }}</div>
         @if(!empty($lead->address))
           <div>Address :- {{ $lead->address }}</div>
         @endif
       </div>
-      <div class="subject">Subject: Job Offer for {{ $lead->position }} Position</div>
+      <div class="subject">Subject: Job Offer for {{ $lead->position ?? $lead->designation ?? 'N/A' }} Position</div>
       <div class="body">
-        <p>Dear <b>{{ $lead->person_name }}</b>,</p>
-        <p><b>Congratulations!</b> We are pleased to inform you that you have been selected to join <span class="company">{{ $company_name }}</span><br> as a <span class="highlight">{{ $lead->position }}</span>. We are delighted to extend the following job offer:</p>
+        <p>Dear <b>{{ $lead->person_name ?? $lead->name }}</b>,</p>
+        <p><b>Congratulations!</b> We are pleased to inform you that you have been selected to join <span class="company">{{ $company_name }}</span><br> as a <span class="highlight">{{ $lead->position ?? $lead->designation ?? 'N/A' }}</span>. We are delighted to extend the following job offer:</p>
         <ol style="margin-top:-0px;">
           <li><b>Position & Compensation</b>
             <ul style="list-style-type: disc;">
-              <li><b>Designation:</b> {{ $lead->position }}</li>
-              <li><b>Monthly Salary:</b> {{ $offer->monthly_salary ?? '__________' }}</li>
-              <li><b>Annual Cost to Company (CTC):</b> ₹ {{ $offer->annual_ctc ?? '__________' }}</li>
+              <li><b>Designation:</b> {{ $lead->position ?? $lead->designation ?? 'N/A' }}</li>
+              <li><b>Monthly Salary:</b> ₹ {{ $offer->monthly_salary ? number_format($offer->monthly_salary, 2) : '__________' }}</li>
+              <li><b>Annual Cost to Company (CTC):</b> ₹ {{ $offer->annual_ctc ? number_format($offer->annual_ctc, 2) : '__________' }}</li>
               <li><b>Reporting Manager:</b> {{ $offer->reporting_manager ?? '__________' }}</li>
-              <li><b>Working Hours:</b> {{ $offer->working_hours ?? '' }}</li>
+              <li><b>Working Hours:</b> {{ $offer->working_hours ?? '9:30 AM to 6:30 PM' }}</li>
             </ul>
           </li>
           <li><b>Probation Period</b>

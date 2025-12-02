@@ -14,7 +14,7 @@
       </button>
       <div class="filter-right">
         <div class="view-toggle-group" style="margin-right:8px;">
-          <button class="view-toggle-btn" data-view="grid" title="Grid View" aria-label="Grid View">
+          <button type="button" class="view-toggle-btn" data-view="grid" title="Grid View" aria-label="Grid View">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="7" height="7" rx="1"></rect>
               <rect x="14" y="3" width="7" height="7" rx="1"></rect>
@@ -22,7 +22,7 @@
               <rect x="14" y="14" width="7" height="7" rx="1"></rect>
             </svg>
           </button>
-          <button class="view-toggle-btn active" data-view="list" title="List View" aria-label="List View">
+          <button type="button" class="view-toggle-btn active" data-view="list" title="List View" aria-label="List View">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="8" y1="6" x2="21" y2="6"></line>
               <line x1="8" y1="12" x2="21" y2="12"></line>
@@ -46,17 +46,18 @@
       <div class="employee-grid"> 
         
         @forelse($employees as $emp)
-          <div class="emp-card">
+          <div class="emp-card" data-employee-id="{{ $emp->id }}">
             <!-- Top Row: Badge and Actions -->
             <div class="card-header">
               @php(
                 $isModel = $emp instanceof \App\Models\Employee
               )
               @php(
+                // Top badge shows Experience/Fresher
                 $rawType = $emp->experience_type ?? ''
               )
               @php(
-                $displayType = $rawType === 'YES' ? 'Experience' : ($rawType === 'NO' ? 'Fresher' : ($rawType ?: 'Full - Time'))
+                $displayType = $rawType === 'YES' ? 'Experience' : ($rawType === 'NO' ? 'Fresher' : 'Full - Time')
               )
               @php(
                 $etype = strtolower(trim($displayType))
@@ -72,50 +73,74 @@
                 $map = [
                   'experience' => ['#fce7f3', '#be185d'], // pink
                   'fresher' => ['#dcfce7', '#166534'],     // green
-                  'trainee' => ['#dbeafe', '#1d4ed8'],     // blue
-                  'intern' => ['#e0e7ff', '#3730a3'],      // indigo
-                  'contract' => ['#fee2e2', '#b91c1c'],    // red
+                  'full - time' => ['#dbeafe', '#1d4ed8'], // blue
                 ]
               )
               @if(isset($map[$etype]))
                 @php($badge['bg'] = $map[$etype][0])
                 @php($badge['fg'] = $map[$etype][1])
               @endif
-              <span class="emp-badge" style="background: {{ $badge['bg'] }}; color: {{ $badge['fg'] }}">{{ $badge['text'] }}</span>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <span class="emp-badge" style="background: {{ $badge['bg'] }}; color: {{ $badge['fg'] }}">{{ $badge['text'] }}</span>
+              </div>
               
-              <div class="dropdown">
-                <button class="dropdown-toggle" onclick="toggleDropdown({{ $loop->index }})" title="More options">⋮</button>
-                <div id="dropdown-{{ $loop->index }}" class="dropdown-menu">
-                  @if($isModel)
-                    @can('Employees Management.view employee')
-                      <a href="{{ route('employees.show', $emp) }}">
-                        <img src="{{ asset('action_icon/view.svg') }}" width="16" height="16"> View
-                      </a>
-                    @endcan
-                    @can('Employees Management.edit employee')
-                      <a href="{{ route('employees.edit', $emp) }}">
-                        <img src="{{ asset('action_icon/edit.svg') }}" width="16" height="16"> Edit
-                      </a>
-                    @endcan
-                    @can('Employees Management.delete employee')
-                      <form method="POST" action="{{ route('employees.destroy', $emp) }}" class="delete-form">
-                        @csrf @method('DELETE')
-                        <button type="button" class="delete-btn" onclick="confirmDelete(this)">
-                          <img src="{{ asset('action_icon/delete.svg') }}" width="16" height="16"> Delete
-                        </button>
-                      </form>
-                    @endcan
-                    @can('Employees Management.letters')
-                      <a href="{{ route('employees.letters.index', $emp) }}">
-                        <img src="{{ asset('action_icon/print.svg') }}" width="16" height="16"> Letter
-                      </a>
-                    @endcan
-                    @can('Employees Management.digital card')
-                      <a href="{{ route('employees.digital-card.create', $emp) }}">
-                        <img src="{{ asset('action_icon/pluse.svg') }}" width="16" height="16"> Add Dig. Card
-                      </a>
-                    @endcan
-                  @endif
+              <div style="display: flex; gap: 8px; align-items: center;">
+                @if(($emp->status ?? 'active') === 'inactive')
+                  <img src="{{ asset('action_icon/block.svg') }}" width="20" height="20" title="Account Blocked" alt="Blocked">
+                @endif
+                <div class="dropdown">
+                  <button class="dropdown-toggle" onclick="toggleDropdown({{ $loop->index }})" title="More options">⋮</button>
+                  <div id="dropdown-{{ $loop->index }}" class="dropdown-menu">
+                    @if($isModel)
+                      @can('Employees Management.view employee')
+                        <a href="{{ route('employees.show', $emp) }}">
+                          <img src="{{ asset('action_icon/view.svg') }}" width="16" height="16"> View
+                        </a>
+                      @endcan
+                      @can('Employees Management.edit employee')
+                        <a href="{{ route('employees.edit', $emp) }}">
+                          <img src="{{ asset('action_icon/edit.svg') }}" width="16" height="16"> Edit
+                        </a>
+                        <form method="POST" action="{{ route('employees.toggle-status', $emp->id) }}" style="display:inline;margin:0;">
+                          @csrf
+                          <button type="submit" class="dropdown-item-btn">
+                            @if(($emp->status ?? 'active') === 'active')
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                              </svg>
+                              Mark Inactive
+                            @else
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="9 11 12 14 22 4"></polyline>
+                              </svg>
+                              Mark Active
+                            @endif
+                          </button>
+                        </form>
+                      @endcan
+                      @can('Employees Management.delete employee')
+                        <form method="POST" action="{{ route('employees.destroy', $emp) }}" class="delete-form">
+                          @csrf @method('DELETE')
+                          <button type="button" class="delete-btn" onclick="confirmDelete(this)">
+                            <img src="{{ asset('action_icon/delete.svg') }}" width="16" height="16"> Delete
+                          </button>
+                        </form>
+                      @endcan
+                      @can('Employees Management.letters')
+                        <a href="{{ route('employees.letters.index', $emp) }}">
+                          <img src="{{ asset('action_icon/print.svg') }}" width="16" height="16"> Letter
+                        </a>
+                      @endcan
+                      @can('Employees Management.digital card')
+                        <a href="{{ route('employees.digital-card.create', $emp) }}">
+                          <img src="{{ asset('action_icon/pluse.svg') }}" width="16" height="16"> Add Dig. Card
+                        </a>
+                      @endcan
+                    @endif
+                  </div>
                 </div>
               </div>
             </div>
@@ -147,7 +172,9 @@
             <div class="role-section">
               <div class="role-badge">
                 <div class="role-dot"></div>
-                <span class="role-title">{{ $emp->position ?: '-' }}</span>
+                @php($userRole = $emp->user && $emp->user->roles->first() ? $emp->user->roles->first()->name : null)
+                @php($displayRole = $userRole ? ucwords(str_replace('-', ' ', $userRole)) : 'Employee')
+                <span class="role-title">{{ $displayRole }}</span>
               </div>
               <span class="role-description">{{ $emp->position ?: '-' }}</span>
             </div>
@@ -177,9 +204,11 @@
           <thead>
             <tr>
               <th>Action</th>
+              <th>Status</th>
               <th>Code</th>
               <th>Name</th>
               <th>Email</th>
+              <th>Role</th>
               <th>Position</th>
               <th>Payroll</th>
               <th>Join Date</th>
@@ -187,7 +216,7 @@
           </thead>
           <tbody>
             @forelse($employees as $emp)
-            <tr>
+            <tr data-employee-id="{{ $emp->id }}">
               <td>
                 <div class="action-icons">
                   @can('Employees Management.view employee')
@@ -212,15 +241,60 @@
                   @endcan
                 </div>
               </td>
+              <td>
+                @can('Employees Management.edit employee')
+                  <form method="POST" action="{{ route('employees.toggle-status', $emp->id) }}" style="display:inline;margin:0;">
+                    @csrf
+                    <button type="submit" class="status-toggle-btn" title="Click to toggle status">
+                      @if(($emp->status ?? 'active') === 'active')
+                        <span class="status-badge active-badge">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                          </svg>
+                          Active
+                        </span>
+                      @else
+                        <span class="status-badge inactive-badge">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                          </svg>
+                          Inactive
+                        </span>
+                      @endif
+                    </button>
+                  </form>
+                @else
+                  @if(($emp->status ?? 'active') === 'active')
+                    <span class="status-badge active-badge">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="12" r="10"></circle>
+                      </svg>
+                      Active
+                    </span>
+                  @else
+                    <span class="status-badge inactive-badge">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="12" r="10"></circle>
+                      </svg>
+                      Inactive
+                    </span>
+                  @endif
+                @endcan
+              </td>
               <td>{{ $emp->code ?: '-' }}</td>
               <td>{{ $emp->name ?: '-' }}</td>
               <td>{{ $emp->email ?: '-' }}</td>
+              <td>
+                @php($userRole = $emp->user && $emp->user->roles->first() ? $emp->user->roles->first()->name : null)
+                @php($displayRole = $userRole ? ucwords(str_replace('-', ' ', $userRole)) : 'Employee')
+                <span class="role-badge-small">{{ $displayRole }}</span>
+              </td>
               <td>{{ $emp->position ?: '-' }}</td>
               <td>{{ isset($emp->current_offer_amount) ? ('₹'.number_format($emp->current_offer_amount,0)) : '-' }}</td>
               <td>{{ !empty($emp->joining_date) ? \Carbon\Carbon::parse($emp->joining_date)->format('d M, Y') : '-' }}</td>
             </tr>
             @empty
-            <tr><td colspan="7" class="text-center py-3">No employees found</td></tr>
+            <tr><td colspan="9" class="text-center py-3">No employees found</td></tr>
             @endforelse
           </tbody>
         </table>
@@ -256,6 +330,76 @@
   .action-icons { display:inline-flex; align-items:center; gap:8px; }
   .action-icons form { margin:0; padding:0; display:inline-flex; }
   .action-icons button { display:inline-flex; align-items:center; justify-content:center; padding:0; margin:0; line-height:1; background:transparent; border:0; cursor:pointer; }
+  
+  /* Status badges */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+  }
+  
+  .status-badge.active-badge {
+    background: #dcfce7;
+    color: #166534;
+  }
+  
+  .status-badge.inactive-badge {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  
+  .status-toggle-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  
+  .status-toggle-btn:hover {
+    opacity: 0.7;
+  }
+  
+  .role-badge-small {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #f3f4f6;
+    color: #374151;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+
+  
+  .dropdown-item-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    color: #374151;
+    transition: background 0.2s;
+  }
+  
+  .dropdown-item-btn:hover {
+    background: #f3f4f6;
+  }
+  
+  .dropdown-item-btn svg {
+    flex-shrink: 0;
+  }
+  
   .pagination-wrapper {
     margin-top: 32px;
     display: flex;
@@ -385,11 +529,150 @@ function confirmDelete(button) {
     }
     const saved = localStorage.getItem('employees_view') || 'grid';
     applyView(saved);
-    buttons.forEach(btn => btn.addEventListener('click', function(){
+    buttons.forEach(btn => btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
       const v = this.getAttribute('data-view');
       localStorage.setItem('employees_view', v);
       applyView(v);
     }));
   });
+
+  // Toggle employee status - Using form submission for reliability
+  function toggleEmployeeStatus(employeeId, currentStatus) {
+    console.log('Toggle status called:', employeeId, currentStatus);
+    
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    const actionText = newStatus === 'inactive' ? 'deactivate' : 'activate';
+    
+    Swal.fire({
+      title: `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} Employee?`,
+      text: `Are you sure you want to ${actionText} this employee?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: newStatus === 'inactive' ? '#ef4444' : '#10b981',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: `Yes, ${actionText}!`,
+      cancelButtonText: 'Cancel',
+      width: '400px',
+      padding: '1.5rem',
+      customClass: {
+        popup: 'large-swal-popup'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Create and submit a form (more reliable than fetch for Laravel)
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/employees/${employeeId}/toggle-status`;
+        form.style.display = 'none';
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        if (csrfToken) {
+          const tokenInput = document.createElement('input');
+          tokenInput.type = 'hidden';
+          tokenInput.name = '_token';
+          tokenInput.value = csrfToken.getAttribute('content') || csrfToken.content;
+          form.appendChild(tokenInput);
+        }
+        
+        // Add a hidden input to indicate we want JSON response
+        const ajaxInput = document.createElement('input');
+        ajaxInput.type = 'hidden';
+        ajaxInput.name = 'ajax';
+        ajaxInput.value = '1';
+        form.appendChild(ajaxInput);
+        
+        document.body.appendChild(form);
+        
+        // Show loading
+        Swal.fire({
+          title: 'Processing...',
+          text: 'Updating employee status',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        
+        // Submit form and handle response
+        const formData = new FormData(form);
+        
+        fetch(form.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+          },
+          credentials: 'same-origin'
+        })
+        .then(response => {
+          console.log('Response status:', response.status);
+          console.log('Content-Type:', response.headers.get('content-type'));
+          
+          return response.text().then(text => {
+            console.log('Response (first 500 chars):', text.substring(0, 500));
+            
+            // Try to parse as JSON
+            try {
+              const data = JSON.parse(text);
+              return { ok: response.ok, status: response.status, data: data };
+            } catch (e) {
+              // Not JSON, return as HTML error
+              return { ok: false, status: response.status, html: text };
+            }
+          });
+        })
+        .then(result => {
+          document.body.removeChild(form);
+          
+          if (result.html) {
+            // Got HTML instead of JSON
+            console.error('Received HTML response');
+            throw new Error('Server error. Please refresh the page and try again.');
+          }
+          
+          if (!result.ok) {
+            if (result.status === 419) {
+              throw new Error('Session expired. Please refresh the page.');
+            }
+            throw new Error(result.data.message || 'Failed to update status');
+          }
+          
+          if (result.data.success) {
+            Swal.fire({
+              title: 'Success!',
+              text: result.data.message,
+              icon: 'success',
+              timer: 1500,
+              showConfirmButton: false
+            }).then(() => {
+              window.location.reload();
+            });
+          } else {
+            throw new Error(result.data.message || 'Failed to update status');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          if (form.parentNode) {
+            document.body.removeChild(form);
+          }
+          Swal.fire({
+            title: 'Error!',
+            text: error.message || 'An error occurred',
+            icon: 'error',
+            customClass: {
+              popup: 'large-swal-popup'
+            }
+          });
+        });
+      }
+    });
+  }
 </script>
 @endpush

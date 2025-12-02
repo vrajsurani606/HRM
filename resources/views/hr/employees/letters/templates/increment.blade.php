@@ -6,6 +6,7 @@
     <div class="recipient">
         <div><b>To,</b></div>
         <div>{{ $employee->name }}</div>
+        <div><b>Designation:</b> {{ $employee->position ?? 'Employee' }}</div>
         @if($employee->address)
         <div>Address :- {{ $employee->address }}</div>
         @endif
@@ -13,7 +14,7 @@
     @if($letter->subject)
     <div class="subject">Subject: {{ $letter->subject }}</div>
     @else
-    <div class="subject">Subject: Salary Increment Letter for {{ $employee->name }} </div>
+    <div class="subject">Subject: Salary Increment Letter</div>
     @endif
 
 <div class="body">

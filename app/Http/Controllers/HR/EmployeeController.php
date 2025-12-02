@@ -28,8 +28,35 @@ class EmployeeController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
-        // Skip DataTables if not available
-        $employees = Employee::orderByDesc('id')->paginate(12);
+        // Build query with filters
+        $query = Employee::with('user.roles');
+        
+        // Apply filters
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+        
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+        
+        if ($request->filled('code')) {
+            $query->where('code', 'like', '%' . $request->code . '%');
+        }
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%')
+                  ->orWhere('code', 'like', '%' . $search . '%')
+                  ->orWhere('position', 'like', '%' . $search . '%')
+                  ->orWhere('mobile_no', 'like', '%' . $search . '%');
+            });
+        }
+        
+        $employees = $query->orderByDesc('id')->paginate(12)->withQueryString();
+        
         return view('hr.employees.index', [
             'page_title' => 'Employee List',
             'employees'  => $employees,
@@ -466,6 +493,83 @@ class EmployeeController extends Controller
         
         $employee->delete();
         return back()->with('success', 'Employee deleted');
+    }
+
+    /**
+     * Toggle employee status between active and inactive.
+     */
+    public function toggleStatus(Request $request, $employeeId)
+    {
+        try {
+            // Log the request
+            \Log::info('Toggle status request received', [
+                'employee_id' => $employeeId,
+                'method' => $request->method(),
+                'is_ajax' => $request->ajax(),
+                'user_id' => auth()->id()
+            ]);
+            
+            // Check authentication
+            if (!auth()->check()) {
+                \Log::warning('Toggle status: User not authenticated');
+                return response()->json(['success' => false, 'message' => 'Not authenticated.'], 401);
+            }
+            
+            // Find employee
+            $employee = Employee::find($employeeId);
+            if (!$employee) {
+                \Log::error('Toggle status: Employee not found', ['employee_id' => $employeeId]);
+                return response()->json(['success' => false, 'message' => 'Employee not found.'], 404);
+            }
+            
+            // Check permissions
+            $user = auth()->user();
+            $hasPermission = true; // Default to true for authenticated users
+            
+            try {
+                if (method_exists($user, 'hasRole') && method_exists($user, 'can')) {
+                    $hasPermission = $user->hasRole('super-admin') || $user->can('Employees Management.edit employee');
+                }
+            } catch (\Exception $e) {
+                \Log::warning('Permission check failed, allowing access: ' . $e->getMessage());
+            }
+            
+            if (!$hasPermission) {
+                \Log::warning('Toggle status: Permission denied', ['user_id' => $user->id]);
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            
+            // Toggle status
+            $currentStatus = $employee->status ?? 'active';
+            $newStatus = $currentStatus === 'active' ? 'inactive' : 'active';
+            
+            \Log::info('Updating employee status', [
+                'employee_id' => $employee->id,
+                'from' => $currentStatus,
+                'to' => $newStatus
+            ]);
+            
+            $employee->status = $newStatus;
+            $employee->save();
+            
+            \Log::info('Employee status updated successfully', [
+                'employee_id' => $employee->id,
+                'new_status' => $newStatus
+            ]);
+            
+            return redirect()->back()->with('success', 'Employee status updated to ' . $newStatus);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error toggling employee status', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Server error: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

@@ -235,6 +235,9 @@
             
             <!-- Internship Offer Letter Fields -->
             <div id="internshipOfferFields" class="hidden col-span-2 space-y-4">
+                <div class="hrp-alert hrp-alert-info mb-3">
+                    <i class="fas fa-info-circle"></i> Fill in the basic details below. You can customize the letter content in the "Additional Content" section that appears below.
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="hrp-label">Position: <span class="text-red-500">*</span></label>
@@ -273,11 +276,14 @@
             
             <!-- Internship Letter Fields -->
             <div id="internshipLetterFields" class="hidden col-span-2 space-y-4">
+                <div class="hrp-alert hrp-alert-info mb-3">
+                    <i class="fas fa-info-circle"></i> Fill in the basic details below. You can customize the letter content in the "Additional Content" section that appears below.
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="hrp-label">Position: <span class="text-red-500">*</span></label>
                         <input type="text" name="internship_position" id="internship_letter_position" class="hrp-input Rectangle-29" 
-                               placeholder="e.g., Developer" value="{{ old('internship_position') }}">
+                               placeholder="e.g., Developer" value="{{ old('internship_position', isset($letter)?$letter->internship_position:'') }}">
                         @error('internship_position')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -285,7 +291,7 @@
                     <div>
                         <label class="hrp-label">Start Date: <span class="text-red-500">*</span></label>
                         <input type="text" name="internship_start_date" id="internship_letter_start_date" class="hrp-input Rectangle-29 date-picker" 
-                               placeholder="dd/mm/yyyy" value="{{ old('internship_start_date') }}" autocomplete="off">
+                               placeholder="dd/mm/yyyy" value="{{ old('internship_start_date', isset($letter)?optional($letter->internship_start_date)->format('d/m/Y'):null) }}" autocomplete="off">
                         @error('internship_start_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -293,7 +299,7 @@
                     <div>
                         <label class="hrp-label">End Date:</label>
                         <input type="text" name="internship_end_date" id="internship_letter_end_date" class="hrp-input Rectangle-29 date-picker" 
-                               placeholder="dd/mm/yyyy" value="{{ old('internship_end_date') }}" autocomplete="off">
+                               placeholder="dd/mm/yyyy" value="{{ old('internship_end_date', isset($letter)?optional($letter->internship_end_date)->format('d/m/Y'):null) }}" autocomplete="off">
                         @error('internship_end_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror

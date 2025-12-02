@@ -21,7 +21,7 @@ $background_url = asset('letters/back.png');
             position:absolute; inset:0; width:100%; height:100%; z-index:0;
         }
         .letter-container .bg-cover img { width:100%; height:100%; object-fit:cover; display:block; }
-        .letter-content { position:relative; z-index:1; width:100%; max-width:800px; margin:0 auto; margin-top:150px; padding:40px 30px 20px 30px; border-radius:8px; box-sizing:border-box; }
+        .letter-content { position:relative; z-index:1; width:100%; max-width:800px; margin:0 auto; margin-top:200px; padding:40px 30px 20px 30px; border-radius:8px; box-sizing:border-box; }
         .letter-meta, .recipient, .subject, .body, .signature { margin-bottom:16px; }
         .letter-meta { display:flex; justify-content:space-between; font-size:16px; color:#222; font-weight:500; }
         .subject { font-size:17px; font-weight:700; color:#222; text-align:center; }

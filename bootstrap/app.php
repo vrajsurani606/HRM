@@ -16,6 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'role_permission' => \App\Http\Middleware\RolePermissionMiddleware::class,
+            'check.employee.status' => \App\Http\Middleware\CheckEmployeeStatus::class,
+        ]);
+        
+        // Apply employee status check to all authenticated routes
+        $middleware->appendToGroup('web', [
+            \App\Http\Middleware\CheckEmployeeStatus::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

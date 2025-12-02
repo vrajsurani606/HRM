@@ -49,6 +49,18 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Check if user's employee account is active
+        $user = Auth::user();
+        if ($user && $user->employee) {
+            $employeeStatus = $user->employee->status ?? 'active';
+            if ($employeeStatus === 'inactive') {
+                Auth::logout();
+                throw ValidationException::withMessages([
+                    'email' => 'Your account has been deactivated. Please contact administrator.',
+                ]);
+            }
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
