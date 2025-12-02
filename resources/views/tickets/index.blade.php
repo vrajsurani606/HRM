@@ -42,12 +42,14 @@
 
     <div class="filter-right">
       <input name="q" class="filter-pill" placeholder="Search tickets..." value="{{ request('q') }}">
-      <button type="button" class="pill-btn pill-success" onclick="openAddTicketModal()" style="display: flex; align-items: center; gap: 8px;">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-        </svg>
-        Add Ticket
-      </button>
+      @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.create ticket'))
+        <button type="button" class="pill-btn pill-success" onclick="openAddTicketModal()" style="display: flex; align-items: center; gap: 8px;">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+          Add Ticket
+        </button>
+      @endif
     </div>
   </form>
 
@@ -71,8 +73,15 @@
           <tr>
             <td style="text-align: center; padding: 14px;">
               <div style="display: inline-flex; gap: 8px; align-items: center;">
-                <img src="{{ asset('action_icon/view.svg') }}" alt="View" style="cursor: pointer; width: 18px; height: 18px;" onclick="viewTicket({{ $ticket->id }})" title="View">
-                <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 18px; height: 18px;" onclick="deleteTicket({{ $ticket->id }})" title="Delete">
+                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.view ticket'))
+                  <img src="{{ asset('action_icon/view.svg') }}" alt="View" style="cursor: pointer; width: 18px; height: 18px;" onclick="viewTicket({{ $ticket->id }})" title="View">
+                @endif
+                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.edit ticket'))
+                  <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" style="cursor: pointer; width: 18px; height: 18px;" onclick="editTicket({{ $ticket->id }})" title="Edit">
+                @endif
+                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.delete ticket'))
+                  <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 18px; height: 18px;" onclick="deleteTicket({{ $ticket->id }})" title="Delete">
+                @endif
               </div>
             </td>
             <td style="padding: 14px 16px; text-align: center;">{{ ($tickets->currentPage()-1) * $tickets->perPage() + $i + 1 }}</td>
@@ -130,21 +139,25 @@
                       <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                     </svg>
                     <span style="color: #374151; font-size: 13px; font-weight: 500;">{{ $ticket->assignedEmployee->name }}</span>
-                    <button onclick="assignTicket({{ $ticket->id }})" style="background: #f3f4f6; border: 1px solid #e5e7eb; cursor: pointer; padding: 3px 8px; border-radius: 6px; font-size: 11px; color: #6b7280; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'" title="Reassign">
-                      <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24" style="vertical-align: middle;">
-                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                      </svg>
-                    </button>
+                    @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.reassign ticket'))
+                      <button onclick="assignTicket({{ $ticket->id }})" style="background: #f3f4f6; border: 1px solid #e5e7eb; cursor: pointer; padding: 3px 8px; border-radius: 6px; font-size: 11px; color: #6b7280; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'" title="Reassign">
+                        <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24" style="vertical-align: middle;">
+                          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                        </svg>
+                      </button>
+                    @endif
                   </div>
                 </div>
               @else
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                  <button onclick="assignTicket({{ $ticket->id }})" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.3s; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(59, 130, 246, 0.3)'">
-                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
-                    Assign Employee
-                  </button>
+                  @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.assign ticket'))
+                    <button onclick="assignTicket({{ $ticket->id }})" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.3s; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(59, 130, 246, 0.3)'">
+                      <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                      </svg>
+                      Assign Employee
+                    </button>
+                  @endif
                 </div>
               @endif
             </td>
@@ -180,37 +193,43 @@
       <input type="hidden" name="ticket_id" id="ticket_id">
       
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-        <div>
-          <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Ticket Status</label>
-          <select name="status" id="ticket_status" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
-            <option value="open">Open</option>
-            <option value="needs_approval">Needs Approval</option>
-            <option value="in_progress">In Progress</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-          </select>
-        </div>
+        @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.change status') || auth()->user()->can('Tickets Management.create ticket'))
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Ticket Status</label>
+            <select name="status" id="ticket_status" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+              <option value="open">Open</option>
+              <option value="needs_approval">Needs Approval</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+        @endif
         
-        <div>
-          <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Work Status</label>
-          <select name="work_status" id="ticket_work_status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
-            <option value="not_assigned">Not Assigned</option>
-            <option value="in_progress">In Progress</option>
-            <option value="on_hold">On Hold</option>
-            <option value="completed">Completed</option>
-          </select>
-        </div>
+        @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.change work status') || auth()->user()->can('Tickets Management.create ticket'))
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Work Status</label>
+            <select name="work_status" id="ticket_work_status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+              <option value="not_assigned">Not Assigned</option>
+              <option value="in_progress">In Progress</option>
+              <option value="on_hold">On Hold</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        @endif
       </div>
 
-      <div style="margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Assign To Employee</label>
-        <select name="assigned_to" id="ticket_assigned_to" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
-         
-          @foreach(\App\Models\Employee::orderBy('name')->get() as $emp)
-            <option value="{{ $emp->id }}">{{ $emp->name }} - {{ $emp->position ?? 'N/A' }}</option>
-          @endforeach
-        </select>
-      </div>
+      @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.assign ticket') || auth()->user()->can('Tickets Management.reassign ticket') || auth()->user()->can('Tickets Management.create ticket'))
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Assign To Employee</label>
+          <select name="assigned_to" id="ticket_assigned_to" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+            <option value="">Not Assigned</option>
+            @foreach(\App\Models\Employee::orderBy('name')->get() as $emp)
+              <option value="{{ $emp->id }}">{{ $emp->name }} - {{ $emp->position ?? 'N/A' }}</option>
+            @endforeach
+          </select>
+        </div>
+      @endif
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
         <div>

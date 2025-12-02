@@ -25,6 +25,7 @@ class User extends Authenticatable
         'mobile_no',
         'address',
         'photo_path',
+        'company_id',
     ];
 
     /**
@@ -56,5 +57,13 @@ class User extends Authenticatable
     public function employee()
     {
         return $this->hasOne(Employee::class);
+    }
+
+    /**
+     * Get the company associated with the user.
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 }

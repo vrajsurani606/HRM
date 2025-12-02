@@ -14,6 +14,11 @@ class LeaveApprovalController extends Controller
      */
     public function index(Request $request)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.view leave approval'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+
         $query = Leave::with('employee');
 
         // Filter by status
@@ -45,6 +50,14 @@ class LeaveApprovalController extends Controller
      */
     public function store(Request $request)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.create leave approval'))) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'leave_type' => 'required|in:casual,medical,personal,company_holiday',
@@ -107,6 +120,14 @@ class LeaveApprovalController extends Controller
 
         // Check if this is a status update (approve/reject)
         if ($request->has('status') && !$request->has('employee_id')) {
+            // Permission check for approve/reject
+            $requiredPermission = $request->status === 'approved' ? 'Attendance Management.approve leave' : 'Attendance Management.reject leave';
+            if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can($requiredPermission))) {
+                if ($request->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+                }
+                return redirect()->back()->with('error', 'Permission denied.');
+            }
             $validated = $request->validate([
                 'status' => 'required|in:approved,rejected',
             ]);
@@ -127,6 +148,14 @@ class LeaveApprovalController extends Controller
                 $message = 'Leave rejected successfully!';
             }
         } else {
+            // Permission check for edit
+            if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.edit leave approval'))) {
+                if ($request->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+                }
+                return redirect()->back()->with('error', 'Permission denied.');
+            }
+
             // Full update
             $validated = $request->validate([
                 'employee_id' => 'required|exists:employees,id',
@@ -159,6 +188,14 @@ class LeaveApprovalController extends Controller
      */
     public function destroy($id)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.delete leave approval'))) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+
         $leave = Leave::findOrFail($id);
         $leave->delete();
 
@@ -177,6 +214,14 @@ class LeaveApprovalController extends Controller
      */
     public function edit($id)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.edit leave approval'))) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+
         $leave = Leave::findOrFail($id);
 
         if (request()->ajax()) {

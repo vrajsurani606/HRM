@@ -13,6 +13,10 @@ class ProjectController extends Controller
 {
     public function index(): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.view project'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $stages = ProjectStage::with(['projects.company'])->orderBy('order')->get();
         $companies = \App\Models\Company::orderBy('company_name')->get();
         return view('projects.index', compact('stages', 'companies'));
@@ -20,6 +24,10 @@ class ProjectController extends Controller
 
     public function storeStage(Request $request): JsonResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.create stage'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'color' => 'required|string|size:7'
@@ -36,6 +44,10 @@ class ProjectController extends Controller
 
     public function updateProjectStage(Request $request, Project $project): JsonResponse
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.edit stage'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         $request->validate(['stage_id' => 'required|exists:project_stages,id']);
         
         $project->update(['stage_id' => $request->stage_id]);
@@ -45,11 +57,19 @@ class ProjectController extends Controller
 
     public function create(): View
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.create project'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         return view('projects.create');
     }
 
     public function store(Request $request)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.create project'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -76,6 +96,10 @@ class ProjectController extends Controller
 
     public function show($id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.view project'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             \Log::info('Project show method called', ['id' => $id, 'is_ajax' => request()->ajax()]);
             
@@ -107,6 +131,10 @@ class ProjectController extends Controller
 
     public function overview($id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.project overview'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $project = Project::with(['company', 'stage', 'tasks', 'members'])->findOrFail($id);
         return view('projects.overview', ['id' => $id]);
     }
@@ -119,6 +147,10 @@ class ProjectController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.edit project'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $project = Project::findOrFail($id);
             
@@ -158,6 +190,10 @@ class ProjectController extends Controller
 
     public function destroy(int $id)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.delete project'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         try {
             $project = Project::findOrFail($id);
             $project->delete();
@@ -185,6 +221,10 @@ class ProjectController extends Controller
     // Task Management Methods
     public function storeTasks(Request $request, Project $project)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.create task'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'parent_id' => 'nullable|exists:project_tasks,id',
@@ -209,6 +249,10 @@ class ProjectController extends Controller
 
     public function updateTask(Request $request, Project $project, $taskId)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.edit task'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         $task = $project->allTasks()->findOrFail($taskId);
         
         $validated = $request->validate([
@@ -244,6 +288,10 @@ class ProjectController extends Controller
 
     public function deleteTask(Project $project, $taskId)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.delete task'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         $task = $project->allTasks()->findOrFail($taskId);
         $task->delete();
         
@@ -255,6 +303,10 @@ class ProjectController extends Controller
 
     public function getTasks(Project $project)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.view tasks'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         $tasks = $project->tasks()->with('subtasks')->get();
         
         return response()->json([
@@ -266,6 +318,10 @@ class ProjectController extends Controller
     // Comment Management Methods
     public function getComments(Project $project)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.view comments'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         $comments = $project->comments()->with('user')->orderBy('created_at', 'desc')->get();
         
         return response()->json([
@@ -276,6 +332,10 @@ class ProjectController extends Controller
 
     public function storeComment(Request $request, Project $project)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.create comment'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         $validated = $request->validate([
             'message' => 'required|string'
         ]);
@@ -294,6 +354,10 @@ class ProjectController extends Controller
     // Member Management Methods
     public function getMembers(Project $project)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.view members'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         // Get members with their employee data
         $members = $project->members()->get()->map(function($user) {
             $employee = \App\Models\Employee::where('user_id', $user->id)->first();
@@ -321,6 +385,10 @@ class ProjectController extends Controller
 
     public function getAvailableUsers(Project $project)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.view members'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         try {
             // Get all employees
             $employees = \App\Models\Employee::orderBy('name')->get();
@@ -365,6 +433,10 @@ class ProjectController extends Controller
 
     public function addMember(Request $request, Project $project)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.add member'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'role' => 'nullable|in:member,lead,viewer'
@@ -393,6 +465,10 @@ class ProjectController extends Controller
 
     public function removeMember(Project $project, $userId)
     {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.remove member'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         $project->members()->detach($userId);
 
         return response()->json([

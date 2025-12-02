@@ -35,12 +35,14 @@
     </a>
 
     <div class="filter-right">
-      <button type="button" class="pill-btn pill-success" onclick="openAddLeaveModal()" style="display: flex; align-items: center; gap: 8px;">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-        </svg>
-        Add Leave
-      </button>
+      @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.create leave approval'))
+        <button type="button" class="pill-btn pill-success" onclick="openAddLeaveModal()" style="display: flex; align-items: center; gap: 8px;">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+          Add Leave
+        </button>
+      @endif
     </div>
   </form>
 
@@ -87,12 +89,20 @@
             <div>
               @if($leave->status == 'pending')
                 <!-- Approve/Reject buttons for pending leaves -->
-                <img src="{{ asset('action_icon/approve.svg') }}" alt="Approve" style="cursor: pointer; width: 20px; height: 20px;" onclick="approveLeave({{ $leave->id }})">
-                <img src="{{ asset('action_icon/reject.svg') }}" alt="Reject" style="cursor: pointer; width: 20px; height: 20px;" onclick="rejectLeave({{ $leave->id }})">
+                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.approve leave'))
+                  <img src="{{ asset('action_icon/approve.svg') }}" alt="Approve" style="cursor: pointer; width: 20px; height: 20px;" onclick="approveLeave({{ $leave->id }})">
+                @endif
+                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.reject leave'))
+                  <img src="{{ asset('action_icon/reject.svg') }}" alt="Reject" style="cursor: pointer; width: 20px; height: 20px;" onclick="rejectLeave({{ $leave->id }})">
+                @endif
               @else
                 <!-- Edit/Delete buttons for approved/rejected leaves -->
-                <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" style="cursor: pointer; width: 18px; height: 18px;" onclick="editLeave({{ $leave->id }})">
-                <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 18px; height: 18px;" onclick="deleteLeave({{ $leave->id }})">
+                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.edit leave approval'))
+                  <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" style="cursor: pointer; width: 18px; height: 18px;" onclick="editLeave({{ $leave->id }})">
+                @endif
+                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.delete leave approval'))
+                  <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 18px; height: 18px;" onclick="deleteLeave({{ $leave->id }})">
+                @endif
               @endif
             </div>
           </td>

@@ -11,6 +11,11 @@ class AttendanceReportController extends Controller
 {
     public function index(Request $request)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.view attendance report'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+
         $query = Attendance::with('employee.user');
 
         // Filter by date range
@@ -45,6 +50,11 @@ class AttendanceReportController extends Controller
 
     public function generate(Request $request)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.view attendance report'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+
         $query = Attendance::with('employee.user');
 
         // Apply filters
@@ -76,6 +86,11 @@ class AttendanceReportController extends Controller
 
     public function export(Request $request)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.export attendance report'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+
         $query = Attendance::with('employee.user');
 
         // Apply filters

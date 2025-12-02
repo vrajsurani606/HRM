@@ -199,6 +199,7 @@ class CompanyController extends Controller
                     'password' => Hash::make($validated['company_password']),
                     'mobile_no' => $validated['contact_person_mobile'] ?? '',
                     'address' => $validated['company_address'] ?? '',
+                    'company_id' => $company->id, // Link user to company
                 ]);
             
                 // Assign customer role
@@ -215,7 +216,7 @@ class CompanyController extends Controller
                 $companyLoginEmail = $validated['company_email'];
                 $companyLoginPassword = $validated['company_password'];
                 
-                \Log::info('Company user account created', [
+                \Log::info('Company user account created and linked', [
                     'user_id' => $user->id,
                     'email' => $user->email,
                     'company_id' => $company->id
@@ -234,6 +235,7 @@ class CompanyController extends Controller
                     'password' => Hash::make($request->company_employee_password),
                     'mobile_no' => $validated['contact_person_mobile'] ?? '',
                     'address' => $validated['company_address'] ?? '',
+                    'company_id' => $company->id, // Link employee user to company
                 ]);
             
                 // Assign customer role
@@ -250,7 +252,7 @@ class CompanyController extends Controller
                 $employeeLoginEmail = $validated['company_employee_email'];
                 $employeeLoginPassword = $request->company_employee_password;
                 
-                \Log::info('Employee user account created', [
+                \Log::info('Employee user account created and linked', [
                     'user_id' => $employeeUser->id,
                     'email' => $employeeUser->email,
                     'company_id' => $company->id
