@@ -6,11 +6,132 @@
 <style>
   .dataTables_filter, .dataTables_length { display: none !important; }
   .top-right{ display:flex; align-items:center; gap:12px; justify-content:flex-end; }
-  .notify-bell{ position:relative; display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:9999px; background:#fff; border:1px solid #ececec }
-  .notify-bell .badge-dot{ position:absolute; top:-3px; right:-3px; width:16px; height:16px; background:#ef4444; color:#fff; border-radius:9999px; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center }
-  .search-wrap{ max-width:420px }
-  /* Dashboard: avoid double search icon (we already render <span class="search-ico">) */
-  .top-right #globalSearch{ background-image:none !important; padding-left:0 !important; }
+  .notify-bell{ position:relative; display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:9999px; background:#fff; border:1px solid #ececec; transition: all 0.2s ease; }
+  .notify-bell:hover { background: #f8fafc; transform: scale(1.05); }
+  .notify-bell .badge-dot{ position:absolute; top:-3px; right:-3px; min-width:18px; height:18px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color:#fff; border-radius:9999px; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; padding: 0 4px; box-shadow: 0 2px 6px rgba(239,68,68,0.4); animation: pulse 2s infinite; }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  .notify-dropdown { animation: dropdownSlide 0.2s ease; }
+  @keyframes dropdownSlide {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .notify-item:hover { background: #f8fafc !important; }
+  #readAllBtn:hover { background: rgba(255,255,255,0.25) !important; }
+  .search-wrap{ max-width:420px; border: none !important; }
+  /* Dashboard: avoid double search icon and remove black border */
+  .top-right #globalSearch{ background-image:none !important; padding-left:0 !important; border: none !important; outline: none !important; }
+  .search-input { border: none !important; outline: none !important; box-shadow: none !important; }
+  .search-wrap:focus-within { border: none !important; box-shadow: none !important; }
+  
+  /* Enhanced KPI Cards */
+  .dash-kpi {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+    position: relative;
+    overflow: hidden;
+  }
+  .dash-kpi::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    border-radius: 16px 16px 0 0;
+  }
+  .dash-kpi:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  }
+  .kpi-emp::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+  .kpi-proj::before { background: linear-gradient(90deg, #10b981, #34d399); }
+  .kpi-task::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .kpi-attn::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+  .dash-kpi .value {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1;
+  }
+  .dash-kpi .kpi-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .dash-kpi .kpi-sub {
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+  .dash-kpi .kpi-sub.green { background: #d1fae5; color: #065f46; }
+  .dash-kpi .kpi-sub.red { background: #fee2e2; color: #991b1b; }
+  .dash-kpi .kpi-sub.blue { background: #dbeafe; color: #1e40af; }
+  .dash-kpi .kpi-ico {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .kpi-emp .kpi-ico { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+  .kpi-proj .kpi-ico { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+  .kpi-task .kpi-ico { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+  .kpi-attn .kpi-ico { background: linear-gradient(135deg, #ede9fe, #ddd6fe); }
+  
+  /* Enhanced Table Styling */
+  .card-table {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+  }
+  .card-table .table-header {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: white;
+    padding: 16px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .hrp-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 16px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  .hrp-table td {
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #475569;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .hrp-table tr:hover td {
+    background: #f8fafc;
+  }
+  .hrp-table .text-green { color: #059669; font-weight: 600; }
+  .hrp-table .text-orange { color: #d97706; font-weight: 600; }
+  .hrp-table .link-blue { color: #2563eb; font-weight: 500; text-decoration: none; }
+  .hrp-table .link-blue:hover { text-decoration: underline; }
   
   /* Admin Notes - Perfect Chip Design */
   .chip { 
@@ -86,6 +207,116 @@
     background: #0f9d4f !important;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(20, 174, 92, 0.3);
+  }
+  
+  /* Notes Pagination */
+  .pager-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 0;
+    margin-top: 12px;
+  }
+  .pager-num .prev,
+  .pager-num .next {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #f1f5f9;
+    color: #475569;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .pager-num .prev:hover,
+  .pager-num .next:hover {
+    background: #267bf5;
+    color: white;
+  }
+  .pager-num .pager-info {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+  }
+  
+  /* Note card delete button */
+  .note-card .del {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  .note-card .del:hover {
+    transform: scale(1.2);
+  }
+  
+  /* Enhanced Notes Typography */
+  .notes-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 14px;
+    letter-spacing: -0.3px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  .notes-area {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #374151;
+    background: #f8fafc;
+    resize: vertical;
+    transition: all 0.2s ease;
+  }
+  .notes-area:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  .notes-area::placeholder {
+    color: #94a3b8;
+    font-style: italic;
+  }
+  .notes-entry {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  .notes-send {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  }
+  .notes-send:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  }
+  .notes-send:active {
+    transform: translateY(0);
+  }
+  .notes-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
   
   /* Employee Selection Modal */
@@ -268,7 +499,14 @@
 @endpush
 
 @section('content')
-  @php($stats = $stats ?? [])
+  @php
+    $stats = $stats ?? [];
+    $empDelta = data_get($stats, 'delta_employees', '+0%');
+    $empDeltaClass = (strpos($empDelta, '-') === 0) ? 'red' : 'green';
+    $projDelta = data_get($stats, 'delta_projects', '+0%');
+    $projDeltaClass = (strpos($projDelta, '-') === 0) ? 'red' : 'green';
+    $urgentCount = data_get($stats, 'urgent_priority', 0);
+  @endphp
   <div class="hrp-grid" style="padding:14px">
     <div class="hrp-col-12">
       <div class="top-right">
@@ -278,14 +516,50 @@
           </span>
           <input id="globalSearch" type="text" class="search-input" placeholder="Type to search..." />
         </div>
-        <div class="notify-pill" title="Notifications">
-          <span class="notify-bell">
+        <div class="notify-pill" title="Notifications" style="position: relative;">
+          <span class="notify-bell" id="notifyBellBtn" style="cursor: pointer;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
               <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
             </svg>
-            <span class="badge-dot">{{ (isset($notifications) && is_countable($notifications)) ? min(count($notifications),9) : 3 }}</span>
+            <span class="badge-dot" id="notifyBadge">{{ (isset($notifications) && is_countable($notifications)) ? count($notifications) : 0 }}</span>
           </span>
+          
+          <!-- Notification Dropdown -->
+          <div id="notifyDropdown" class="notify-dropdown" style="display: none; position: absolute; top: 48px; right: 0; width: 360px; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; overflow: hidden; border: 1px solid #e2e8f0;">
+            <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700; font-size: 15px;">🔔 Notifications</span>
+              <button type="button" id="readAllBtn" style="background: rgba(255,255,255,0.15); color: white; border: none; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                ✓ Read All
+              </button>
+            </div>
+            <div id="notifyList" style="max-height: 350px; overflow-y: auto;">
+              @forelse(($notifications ?? []) as $notif)
+                <a href="{{ $notif['link'] ?? '#' }}" class="notify-item" style="display: flex; align-items: flex-start; gap: 12px; padding: 14px 20px; border-bottom: 1px solid #f1f5f9; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                  <span style="font-size: 24px; flex-shrink: 0;">{{ $notif['icon'] ?? '📌' }}</span>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $notif['title'] ?? 'Notification' }}</div>
+                    <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">{{ $notif['subtitle'] ?? '' }}</div>
+                    <div style="font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 4px;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      {{ $notif['time'] ?? 'Just now' }}
+                    </div>
+                  </div>
+                  <span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; flex-shrink: 0; margin-top: 6px;"></span>
+                </a>
+              @empty
+                <div style="padding: 40px 20px; text-align: center; color: #94a3b8;">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 12px; opacity: 0.5;"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+                  <div style="font-size: 13px;">No new notifications</div>
+                </div>
+              @endforelse
+            </div>
+            @if(count($notifications ?? []) > 0)
+            <div style="padding: 12px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;">
+              <a href="{{ route('tickets.index') }}" style="font-size: 13px; color: #3b82f6; font-weight: 600; text-decoration: none;">View All Tickets →</a>
+            </div>
+            @endif
+          </div>
         </div>
       </div>
     </div>
@@ -298,11 +572,10 @@
               <div class="kpi-left">
                 <div class="kpi-ico"><img src="{{ asset('kpi_icon/kpi1.svg') }}" alt="Employees"></div>
               </div>
-              <div class="value">{{ data_get($stats, 'employees', 126) }}</div>
+              <div class="value">{{ data_get($stats, 'employees', 0) }}</div>
             </div>
             <div class="kpi-title">Total Employees</div>
-            <div class="delta" style="display:none">{{ data_get($stats, 'delta_employees', '+3%') }}</div>
-            <div class="kpi-sub green">{{ data_get($stats, 'delta_employees', '+8%') }} From Last Month</div>
+            <div class="kpi-sub {{ $empDeltaClass }}">{{ $empDelta }} From Last Month</div>
           </div>
         </div>
         <div class="hrp-col-3">
@@ -311,11 +584,10 @@
               <div class="kpi-left">
                 <div class="kpi-ico"><img src="{{ asset('kpi_icon/kpi2.svg') }}" alt="Projects"></div>
               </div>
-              <div class="value">{{ data_get($stats, 'projects', 18) }}</div>
+              <div class="value">{{ data_get($stats, 'projects', 0) }}</div>
             </div>
             <div class="kpi-title">Active Projects</div>
-            <div class="delta" style="display:none">{{ data_get($stats, 'delta_projects', '+12%') }}</div>
-            <div class="kpi-sub green">{{ data_get($stats, 'delta_projects', '+3%') }} From Last Month</div>
+            <div class="kpi-sub {{ $projDeltaClass }}">{{ $projDelta }} From Last Month</div>
           </div>
         </div>
         <div class="hrp-col-3">
@@ -324,11 +596,10 @@
               <div class="kpi-left">
                 <div class="kpi-ico"><img src="{{ asset('kpi_icon/kpi3.svg') }}" alt="Open Positions"></div>
               </div>
-              <div class="value">{{ data_get($stats, 'open_positions', 6) }}</div>
+              <div class="value">{{ data_get($stats, 'open_positions', 0) }}</div>
             </div>
-            <div class="kpi-title">Pending Task</div>
-            <div class="delta" style="display:none">{{ data_get($stats, 'delta_open_positions', '-2%') }}</div>
-            <div class="kpi-sub red">{{ data_get($stats, 'urgent_priority', '+7') }} Urgent Priority</div>
+            <div class="kpi-title">Pending Tasks</div>
+            <div class="kpi-sub {{ $urgentCount > 0 ? 'red' : 'blue' }}">{{ $urgentCount }} Urgent Priority</div>
           </div>
         </div>
         <div class="hrp-col-3">
@@ -337,11 +608,10 @@
               <div class="kpi-left">
                 <div class="kpi-ico"><img src="{{ asset('kpi_icon/kpi4.svg') }}" alt="Attendance"></div>
               </div>
-              <div class="value">{{ data_get($stats, 'attendance_percent', '96%') }}</div>
+              <div class="value">{{ data_get($stats, 'attendance_percent', '0%') }}</div>
             </div>
             <div class="kpi-title">Attendance Today</div>
-            <div class="delta" style="display:none">{{ data_get($stats, 'attendance_percent', '92%') }}</div>
-            <div class="kpi-sub blue">{{ data_get($stats, 'attendance_present', '32/35') }} Present</div>
+            <div class="kpi-sub blue">{{ data_get($stats, 'attendance_present', '0/0') }} Present</div>
           </div>
         </div>
       </div>
@@ -365,18 +635,39 @@
               </tr>
               </thead>
               <tbody>
-              @foreach(($recentInquiries ?? []) as $inq)
+              @forelse(($recentInquiries ?? []) as $inq)
+                @php
+                  $isConfirm = strtoupper($inq['is_confirm'] ?? 'NO');
+                  $confirmClass = ($isConfirm === 'YES') ? 'text-green' : 'text-orange';
+                  $status = ucfirst($inq['status'] ?? 'New');
+                  $statusClass = in_array(strtolower($status), ['confirmed', 'completed', 'done']) ? 'text-green' : 'link-blue';
+                @endphp
                 <tr>
-                  <td><a href="#" class="action-icon view"><img src="{{ asset('action_icon/view.svg') }}" alt="view"></a></td>
-                  <td class="text-green">YES</td>
-                  <td>{{ $inq['company'] }}</td>
-                  <td>{{ $inq['person'] ?? '—' }}</td>
-                  <td>{{ $inq['phone'] ?? '—' }}</td>
-                  <td>{{ $inq['next'] ?? $inq['date'] }}</td>
-                  <td><a href="#" class="link-blue">{{ $inq['status'] }}</a></td>
-                  <td>{{ $inq['demo'] ?? $inq['date'].' | 10:42 AM' }}</td>
+                  <td>
+                    <a href="{{ route('inquiries.show', $inq['id'] ?? 1) }}" class="action-icon view" title="View Inquiry" style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #eff6ff; border-radius: 6px; border: none;">
+                      <img src="{{ asset('action_icon/view.svg') }}" alt="view" style="width: 16px; height: 16px;">
+                    </a>
+                  </td>
+                  <td><span class="{{ $confirmClass }}" style="font-weight: 600;">{{ $isConfirm }}</span></td>
+                  <td style="font-weight: 600; color: #1e293b;">{{ $inq['company'] ?? '—' }}</td>
+                  <td style="color: #475569;">{{ $inq['person'] ?? '—' }}</td>
+                  <td style="font-family: monospace; color: #64748b;">{{ $inq['phone'] ?? '—' }}</td>
+                  <td style="color: #2563eb; font-weight: 500;">{{ $inq['next'] ?? $inq['date'] ?? '—' }}</td>
+                  <td><span class="{{ $statusClass }}" style="font-weight: 500;">{{ $status }}</span></td>
+                  <td style="font-size: 12px; color: #64748b;">{{ $inq['demo'] ?? '—' }}</td>
                 </tr>
-              @endforeach
+              @empty
+                <tr>
+                  <td colspan="8" style="text-align: center; color: #9ca3af; padding: 30px;">
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5">
+                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                      </svg>
+                      <span>No recent inquiries found</span>
+                    </div>
+                  </td>
+                </tr>
+              @endforelse
               </tbody>
             </table>
           </div>
@@ -403,21 +694,33 @@
               </tr>
               </thead>
               <tbody>
-              @foreach(($recentTickets ?? []) as $idx => $t)
-                <tr>
-                  <td class="action-icons">
-                    <button class="action-icon view" title="View"><img src="{{ asset('action_icon/view.svg') }}" alt="view"></button>
-                      <button class="action-icon delete" title="Delete"><img src="{{ asset('action_icon/delete.svg') }}" alt="delete"></button>
+              @forelse(($recentTickets ?? []) as $idx => $t)
+                <tr data-ticket-id="{{ $t['id'] ?? '' }}">
+                  <td class="action-icons" style="display: flex; gap: 6px;">
+                    <a href="{{ route('tickets.show', $t['id'] ?? 1) }}" class="action-icon view" title="View Ticket" style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #eff6ff; border-radius: 6px; border: none;">
+                      <img src="{{ asset('action_icon/view.svg') }}" alt="view" style="width: 16px; height: 16px;">
+                    </a>
+                    <form action="{{ route('tickets.destroy', $t['id'] ?? 1) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this ticket?');">
+                      @csrf
+                      @method('DELETE')
+                      <button type="submit" class="action-icon delete" title="Delete Ticket" style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #fef2f2; border-radius: 6px; border: none; cursor: pointer;">
+                        <img src="{{ asset('action_icon/delete.svg') }}" alt="delete" style="width: 16px; height: 16px;">
+                      </button>
+                    </form>
                   </td>
-                  <td>{{ $idx+1 }}</td>
-                  <td><a href="#" class="link-blue">{{ $t['status'] ?? 'Closed' }}</a></td>
-                  <td class="{{ $t['priority'] === 'green' ? 'text-green' : ($t['priority'] === 'orange' ? 'text-red' : '') }}">{{ $t['work'] ?? ($t['priority']==='green'?'Completed':'Work Not Assigned') }}</td>
-                  <td>{{ $t['category'] ?? 'General Inquiry' }}</td>
-                  <td>{{ $t['customer'] ?? 'Customer' }}</td>
-                  <td>{{ $t['title'] }}</td>
-                  <td>{{ $t['desc'] ?? 'All OK & Working' }}</td>
+                  <td style="font-weight: 600;">{{ $idx + 1 }}</td>
+                  <td><span class="link-blue" style="font-weight: 500;">{{ $t['status'] ?? 'Open' }}</span></td>
+                  <td class="{{ ($t['priority'] ?? '') === 'green' ? 'text-green' : (($t['priority'] ?? '') === 'orange' ? 'text-orange' : '') }}" style="font-weight: 500;">{{ $t['work'] ?? 'Not Assigned' }}</td>
+                  <td>{{ $t['category'] ?? 'General' }}</td>
+                  <td>{{ $t['customer'] ?? '—' }}</td>
+                  <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $t['title'] ?? '—' }}</td>
+                  <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $t['desc'] ?? '—' }}</td>
                 </tr>
-              @endforeach
+              @empty
+                <tr>
+                  <td colspan="8" style="text-align: center; color: #9ca3af; padding: 20px;">No tickets found</td>
+                </tr>
+              @endforelse
               </tbody>
             </table>
           </div>
@@ -448,26 +751,18 @@
             <div class="notes-title">Add New Notes</div>
             @can('Dashboard.manage dashboard')
             <div class="notes-entry">
-              <textarea class="notes-area" rows="3" placeholder="Enter your Note....."></textarea>
+              <textarea class="notes-area" id="systemNoteText" rows="3" placeholder="Enter your Note....."></textarea>
               <button class="notes-send" type="button" aria-label="Add">➤</button>
             </div>
             @endcan
             <div class="chips-wrap" style="display:none"></div>
-            <div class="notes-grid">
-              @foreach(data_get($notes, 'notes', []) as $n)
-                <div class="note-card">
-                  <div class="note-text">{{ $n['text'] }}</div>
-                  <div class="note-meta">{{ $n['date'] }} <span class="del">🗑️</span></div>
-                </div>
-              @endforeach
+            <div class="notes-grid" id="systemNotesGrid">
+              <!-- Notes will be loaded dynamically -->
             </div>
             <div class="pager pager-num" id="notesPager">
-              <a class="prev" href="#">«</a>
-              <span class="num active">01</span>
-              <span class="num">02</span>
-              <span class="sep">…</span>
-              <span class="num">20</span>
-              <a class="next" href="#">»</a>
+              <a class="prev" href="#" onclick="changeSystemNotesPage(-1); return false;">«</a>
+              <span class="pager-info" id="pagerInfo">Page 1</span>
+              <a class="next" href="#" onclick="changeSystemNotesPage(1); return false;">»</a>
             </div>
           </div>
           <div class="tab-pane" id="tab-admin" hidden>
@@ -496,42 +791,146 @@
               <button type="button" id="btnSaveAdminNote" class="hrp-btn hrp-btn-primary" style="margin-top: 20px; padding: 12px 32px; background: #14ae5c; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; width: 100%;">
                 💾 Save Admin Note
               </button>
+
+              <!-- Display Created Admin Notes - Hidden, shown in EMP. NOTES tab instead -->
+              <div id="adminNotesDisplay" style="display: none;">
+                <!-- Notes will be displayed in EMP. NOTES tab -->
+              </div>
             @endcan
           </div>
           <div class="tab-pane" id="tab-emp" hidden>
-            <div class="notes-list">
-              @foreach(data_get($notes, 'emp', []) as $n)
-                <div class="notes-item">
-                  <div class="item-text">{{ $n['text'] }}</div>
-                  <div class="item-chips">
-                    @foreach(($n['assignees'] ?? []) as $ass)
-                      <span class="chip chip-blue">{{ $ass }}</span>
-                    @endforeach
-                  </div>
-                  <div class="item-meta">
-                    <span class="ico">⏰</span> {{ $n['date'] }}
-                    <span class="ico">⏳</span> {{ $n['expiry'] ?? 'No expiration' }}
-                    @can('Dashboard.manage dashboard')
-                    <span class="actions">
-                      <a href="#" class="view" title="View"><img src="{{ asset('action_icon/view.svg') }}" alt="view"></a>
-                      <a href="#" class="edit" title="Edit"><img src="{{ asset('action_icon/edit.svg') }}" alt="edit"></a>
-                      <a href="#" class="trash" title="Delete"><img src="{{ asset('action_icon/delete.svg') }}" alt="delete"></a>
-                    </span>
-                    @endcan
-                  </div>
-                </div>
-              @endforeach
+            <div class="notes-list" id="adminEmpNotesList" style="max-height: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; padding: 8px 12px 16px 4px; display: flex; flex-direction: column; gap: 14px;">
+              <!-- Notes will be loaded dynamically -->
             </div>
-            <div class="pager pager-num">
-              <a class="prev" href="#">«</a>
-              <span class="num active">01</span>
-              <span class="num">02</span>
-              <span class="num">03</span>
-              <span class="num">04</span>
-              <span class="num">05</span>
-              <span class="sep">…</span>
-              <span class="num">20</span>
-            </div>
+            <!-- Scrollbar styling -->
+            <style>
+              #adminEmpNotesList {
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 #f1f5f9;
+              }
+              #adminEmpNotesList::-webkit-scrollbar {
+                width: 10px;
+              }
+              #adminEmpNotesList::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 10px;
+                margin: 5px 0;
+              }
+              #adminEmpNotesList::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+                border: 2px solid #f1f5f9;
+              }
+              #adminEmpNotesList::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+              }
+              #adminEmpNotesList::-webkit-scrollbar-thumb:active {
+                background: #64748b;
+              }
+              .emp-note-card {
+                background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 18px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                transition: all 0.25s ease;
+                position: relative;
+                overflow: hidden;
+              }
+              .emp-note-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 4px;
+                height: 100%;
+                background: linear-gradient(180deg, #3b82f6 0%, #8b5cf6 100%);
+                border-radius: 14px 0 0 14px;
+              }
+              .emp-note-card:hover {
+                box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+                transform: translateY(-2px);
+              }
+              .emp-note-text {
+                font-size: 14px;
+                color: #1e293b;
+                line-height: 1.7;
+                margin-bottom: 14px;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-weight: 500;
+                letter-spacing: -0.2px;
+              }
+              .emp-note-assignees {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 14px;
+              }
+              .emp-note-chip {
+                display: inline-flex;
+                align-items: center;
+                padding: 6px 14px;
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                color: white;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+                letter-spacing: 0.2px;
+                box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+              }
+              .emp-note-meta {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                font-size: 12px;
+                color: #64748b;
+                font-weight: 500;
+                padding-top: 12px;
+                border-top: 1px solid #f1f5f9;
+              }
+              .emp-note-meta svg {
+                opacity: 0.7;
+              }
+              .emp-note-actions {
+                display: flex;
+                gap: 10px;
+                margin-top: 14px;
+              }
+              .emp-note-btn {
+                padding: 8px 16px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 12px;
+                font-weight: 600;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+              }
+              .emp-note-edit {
+                background: #eff6ff;
+                color: #1e40af;
+                border: 1px solid #bfdbfe;
+              }
+              .emp-note-edit:hover {
+                background: #2563eb;
+                color: white;
+                border-color: #2563eb;
+                transform: translateY(-1px);
+              }
+              .emp-note-delete {
+                background: #fef2f2;
+                color: #dc2626;
+                border: 1px solid #fecaca;
+              }
+              .emp-note-delete:hover {
+                background: #dc2626;
+                color: white;
+                border-color: #dc2626;
+                transform: translateY(-1px);
+              }
+            </style>
           </div>
         </div>
       </div>
@@ -591,6 +990,87 @@
 @push('scripts')
 <script src="{{ asset('new_theme/bower_components/chart.js/Chart.js') }}"></script>
 <script>
+  // ========== NOTIFICATION DROPDOWN FUNCTIONALITY ==========
+  (function() {
+    var notifyBell = document.getElementById('notifyBellBtn');
+    var notifyDropdown = document.getElementById('notifyDropdown');
+    var notifyBadge = document.getElementById('notifyBadge');
+    var readAllBtn = document.getElementById('readAllBtn');
+    var notifyList = document.getElementById('notifyList');
+    
+    if (notifyBell && notifyDropdown) {
+      // Toggle dropdown on bell click
+      notifyBell.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var isVisible = notifyDropdown.style.display === 'block';
+        notifyDropdown.style.display = isVisible ? 'none' : 'block';
+        
+        // Add animation
+        if (!isVisible) {
+          notifyDropdown.style.opacity = '0';
+          notifyDropdown.style.transform = 'translateY(-10px)';
+          setTimeout(function() {
+            notifyDropdown.style.transition = 'all 0.2s ease';
+            notifyDropdown.style.opacity = '1';
+            notifyDropdown.style.transform = 'translateY(0)';
+          }, 10);
+        }
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!notifyDropdown.contains(e.target) && !notifyBell.contains(e.target)) {
+          notifyDropdown.style.display = 'none';
+        }
+      });
+      
+      // Read All button functionality
+      if (readAllBtn) {
+        readAllBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Hide badge
+          if (notifyBadge) {
+            notifyBadge.style.display = 'none';
+          }
+          
+          // Remove blue dots from all items
+          var blueDots = notifyList.querySelectorAll('span[style*="background: #3b82f6"]');
+          blueDots.forEach(function(dot) {
+            dot.style.display = 'none';
+          });
+          
+          // Change button text
+          this.innerHTML = '✓ All Read';
+          this.style.background = 'rgba(16, 185, 129, 0.3)';
+          
+          // Store in localStorage that notifications are read
+          localStorage.setItem('notificationsReadAt', Date.now());
+          
+          // Show toast if available
+          if (window.toastr) {
+            toastr.success('All notifications marked as read');
+          }
+        });
+      }
+      
+      // Check if notifications were already read
+      var lastReadAt = localStorage.getItem('notificationsReadAt');
+      if (lastReadAt) {
+        var readTime = parseInt(lastReadAt);
+        var oneHourAgo = Date.now() - (60 * 60 * 1000); // 1 hour
+        
+        // If read within the last hour, keep badge hidden
+        if (readTime > oneHourAgo) {
+          if (notifyBadge) {
+            notifyBadge.style.display = 'none';
+          }
+        }
+      }
+    }
+  })();
+
   (function(){
     try{
       // Determine Chart.js major version once
@@ -739,6 +1219,558 @@
   })();
 </script>
 <script>
+  // Flag to prevent duplicate note loading
+  var notesLoaded = false;
+  
+  // System Notes (first NOTES tab) - Pagination variables
+  var systemNotesCurrentPage = 1;
+  var systemNotesPerPage = 4;
+  var systemNotesTotalPages = 1;
+  var systemNotesData = [];
+
+  // Load system notes from server
+  function loadSystemNotes(page) {
+    page = page || 1;
+    systemNotesCurrentPage = page;
+    
+    fetch('{{ route("employee.notes.get") }}?type=system&page=' + page + '&limit=' + systemNotesPerPage, {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+      if (data.success) {
+        systemNotesData = data.notes;
+        systemNotesTotalPages = data.pages || 1;
+        displaySystemNotes(data.notes);
+        updateSystemNotesPager();
+      }
+    })
+    .catch(function(error) {
+      console.error('Error loading system notes:', error);
+    });
+  }
+
+  // Display system notes in the grid with beautiful design
+  function displaySystemNotes(notes) {
+    var container = document.getElementById('systemNotesGrid');
+    if (!container) return;
+    
+    if (!notes || notes.length === 0) {
+      container.innerHTML = '<div style="text-align: center; padding: 30px; color: #9ca3af; font-size: 13px; background: #f9fafb; border-radius: 12px; border: 2px dashed #e5e7eb;">📝 No notes yet. Add your first note above!</div>';
+      return;
+    }
+    
+    var html = '';
+    notes.forEach(function(note) {
+      html += 
+        '<div class="note-card" data-note-id="' + note.id + '" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.2s ease;">' +
+          '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">' +
+            '<div style="flex: 1;">' +
+              '<div style="font-size: 14px; color: #1e293b; line-height: 1.6; font-weight: 500;">' + escapeHtml(note.text) + '</div>' +
+              '<div style="display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 11px; color: #94a3b8;">' +
+                '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' +
+                '<span>' + note.date + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<div style="display: flex; gap: 6px; flex-shrink: 0;">' +
+              '<button onclick="editSystemNote(' + note.id + ')" style="width: 32px; height: 32px; border-radius: 8px; background: #eff6ff; border: 1px solid #bfdbfe; color: #2563eb; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" title="Edit note" onmouseover="this.style.background=\'#2563eb\'; this.style.color=\'white\';" onmouseout="this.style.background=\'#eff6ff\'; this.style.color=\'#2563eb\';">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>' +
+              '</button>' +
+              '<button onclick="deleteSystemNote(' + note.id + ')" style="width: 32px; height: 32px; border-radius: 8px; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" title="Delete note" onmouseover="this.style.background=\'#dc2626\'; this.style.color=\'white\';" onmouseout="this.style.background=\'#fef2f2\'; this.style.color=\'#dc2626\';">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    });
+    
+    container.innerHTML = html;
+  }
+  
+  // Edit system note
+  function editSystemNote(noteId) {
+    // Find current text
+    var noteCard = document.querySelector('.note-card[data-note-id="' + noteId + '"]');
+    var currentText = '';
+    if (noteCard) {
+      var textEl = noteCard.querySelector('div[style*="font-size: 14px"]');
+      if (textEl) currentText = textEl.textContent;
+    }
+    
+    var newText = prompt('Edit note:', currentText);
+    if (newText && newText.trim() && newText.trim() !== currentText) {
+      var csrfToken = document.querySelector('meta[name="csrf-token"]');
+      if (!csrfToken) {
+        alert('Error: CSRF token not found.');
+        return;
+      }
+      
+      fetch('{{ url("/api/admin-notes") }}/' + noteId, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': csrfToken.content
+        },
+        body: JSON.stringify({ text: newText.trim() })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          loadSystemNotes(systemNotesCurrentPage);
+          if (window.toastr) toastr.success('Note updated!');
+        } else {
+          alert('Error: ' + (data.message || 'Failed to update'));
+        }
+      })
+      .catch(function(e) { console.error(e); alert('Error updating note'); });
+    }
+  }
+
+  // Update pagination display
+  function updateSystemNotesPager() {
+    var pagerInfo = document.getElementById('pagerInfo');
+    if (pagerInfo) {
+      pagerInfo.textContent = 'Page ' + systemNotesCurrentPage + ' of ' + systemNotesTotalPages;
+    }
+    
+    // Update prev/next button states
+    var prevBtn = document.querySelector('#notesPager .prev');
+    var nextBtn = document.querySelector('#notesPager .next');
+    
+    if (prevBtn) {
+      prevBtn.style.opacity = systemNotesCurrentPage <= 1 ? '0.5' : '1';
+      prevBtn.style.pointerEvents = systemNotesCurrentPage <= 1 ? 'none' : 'auto';
+    }
+    if (nextBtn) {
+      nextBtn.style.opacity = systemNotesCurrentPage >= systemNotesTotalPages ? '0.5' : '1';
+      nextBtn.style.pointerEvents = systemNotesCurrentPage >= systemNotesTotalPages ? 'none' : 'auto';
+    }
+  }
+
+  // Change page
+  function changeSystemNotesPage(direction) {
+    var newPage = systemNotesCurrentPage + direction;
+    if (newPage >= 1 && newPage <= systemNotesTotalPages) {
+      loadSystemNotes(newPage);
+    }
+  }
+
+  // Delete system note (admin can delete any note)
+  function deleteSystemNote(noteId) {
+    if (!confirm('Are you sure you want to delete this note?')) {
+      return;
+    }
+    
+    var csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (!csrfToken) {
+      alert('Error: CSRF token not found. Please refresh the page.');
+      return;
+    }
+    
+    // Use admin route to delete any note
+    fetch('{{ url("/api/admin-notes") }}/' + noteId, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': csrfToken.content
+      }
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+      if (data.success) {
+        // Remove the note card from DOM
+        var noteCard = document.querySelector('.note-card[data-note-id="' + noteId + '"]');
+        if (noteCard) {
+          noteCard.remove();
+        }
+        // Reload notes to update pagination
+        loadSystemNotes(systemNotesCurrentPage);
+        if (window.toastr) {
+          toastr.success('Note deleted successfully!');
+        } else {
+          alert('Note deleted successfully!');
+        }
+      } else {
+        alert('Error: ' + (data.message || 'Failed to delete note'));
+      }
+    })
+    .catch(function(error) {
+      console.error('Error deleting note:', error);
+      alert('Error deleting note');
+    });
+  }
+
+  // Helper function to escape HTML
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Define all note functions globally (outside try-catch)
+  function displayAdminNotes(notes) {
+    var container = document.getElementById('adminNotesDisplay');
+    if (!container) return;
+    
+    if (notes.length === 0) {
+      container.innerHTML = '<p style="color: #9ca3af; font-size: 13px;">No notes created yet</p>';
+      return;
+    }
+    
+    var html = '';
+    notes.forEach(function(note) {
+      html += `
+        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <div style="font-size: 13px; color: #374151; line-height: 1.6; margin-bottom: 12px;">${note.text}</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #9ca3af; margin-bottom: 12px;">
+            <span>Employee ID: ${note.employee_id}</span>
+            <span>${note.date}</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button onclick="editAdminNote(${note.id})" style="flex: 1; padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">Edit</button>
+            <button onclick="deleteAdminNote(${note.id})" style="flex: 1; padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">Delete</button>
+          </div>
+        </div>
+      `;
+    });
+    
+    container.innerHTML = html;
+  }
+
+  // Edit note text
+  function editAdminNoteText(noteId) {
+    // Find the current note text
+    var noteCard = document.querySelector('.emp-note-card');
+    var currentText = '';
+    
+    // Try to get current text from the displayed notes
+    var allNoteCards = document.querySelectorAll('.emp-note-card');
+    allNoteCards.forEach(function(card) {
+      var deleteBtn = card.querySelector('button[onclick*="deleteAdminNote(' + noteId + ')"]');
+      if (deleteBtn) {
+        var textEl = card.querySelector('.emp-note-text');
+        if (textEl) {
+          currentText = textEl.textContent;
+        }
+      }
+    });
+    
+    var newText = prompt('Edit note text:', currentText);
+    if (newText && newText.trim()) {
+      var csrfToken = document.querySelector('meta[name="csrf-token"]');
+      if (!csrfToken) {
+        alert('Error: CSRF token not found. Please refresh the page.');
+        return;
+      }
+      
+      fetch('{{ url("/api/admin-notes") }}/' + noteId, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': csrfToken.content
+        },
+        body: JSON.stringify({ text: newText.trim() })
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        if (data.success) {
+          loadAdminEmpNotes();
+          if (window.toastr) {
+            toastr.success('Note text updated successfully!');
+          } else {
+            alert('Note text updated successfully!');
+          }
+        } else {
+          alert('Error: ' + (data.message || 'Failed to update note'));
+        }
+      })
+      .catch(function(error) {
+        console.error('Error:', error);
+        alert('Error updating note');
+      });
+    }
+  }
+
+  // Edit note employees (add/remove)
+  var editingNoteId = null;
+  
+  function editAdminNoteEmployees(noteId) {
+    editingNoteId = noteId;
+    
+    // Fetch current note data
+    fetch('{{ route("employee.notes.get") }}?type=employee&limit=500', {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+      if (data.success && data.notes) {
+        // Find the specific note
+        var currentNote = data.notes.find(function(n) { return n.id == noteId; });
+        if (!currentNote) {
+          alert('Note not found');
+          return;
+        }
+        
+        var currentAssignees = currentNote.assignees || [];
+        
+        // Clear previous selections
+        selectedUsers = [];
+        
+        // Open modal for editing
+        var modal = document.getElementById('employeeModal');
+        modal.style.display = 'flex';
+        
+        // Pre-select current employees based on names
+        var checkboxes = document.querySelectorAll('.employee-card input[type="checkbox"]');
+        checkboxes.forEach(function(cb) {
+          var userId = cb.value;
+          var card = cb.closest('.employee-card');
+          var userName = card ? card.getAttribute('data-name') : '';
+          
+          // Check if this employee's name is in the assignees
+          var isSelected = currentAssignees.some(function(assigneeName) {
+            return assigneeName === userName;
+          });
+          
+          cb.checked = isSelected;
+          if (card) {
+            card.classList.toggle('selected', isSelected);
+          }
+          
+          // Add to selectedUsers if selected
+          if (isSelected) {
+            var userPhoto = allUsers.find(function(u) { return u.id == userId; });
+            selectedUsers.push({
+              id: userId,
+              name: userName,
+              photo: userPhoto ? userPhoto.photo : '{{ asset("new_theme/dist/img/avatar.png") }}'
+            });
+          }
+        });
+        
+        updateSelectedCount();
+        
+        // Change modal title to indicate editing
+        var modalTitle = modal.querySelector('.modal-header h3 span');
+        if (modalTitle) {
+          modalTitle.textContent = 'Edit Assigned Employees';
+        }
+        
+        // Change confirm button text
+        var confirmBtn = document.getElementById('btnConfirmSelection');
+        if (confirmBtn) {
+          confirmBtn.textContent = '✓ Update Employees';
+        }
+      }
+    })
+    .catch(function(error) {
+      console.error('Error:', error);
+      alert('Error loading note data');
+    });
+  }
+
+  // Update note employees
+  function updateNoteEmployees() {
+    if (!editingNoteId) {
+      alert('No note selected for editing');
+      return;
+    }
+    
+    if (selectedUsers.length === 0) {
+      alert('Please select at least one employee!');
+      return;
+    }
+    
+    var csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (!csrfToken) {
+      alert('Error: CSRF token not found. Please refresh the page.');
+      return;
+    }
+    
+    fetch('{{ url("/api/admin-notes") }}/' + editingNoteId + '/employees', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': csrfToken.content
+      },
+      body: JSON.stringify({
+        assignees: selectedUsers.map(function(u) { return parseInt(u.id, 10); })
+      })
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+      if (data.success) {
+        closeModal();
+        editingNoteId = null;
+        selectedUsers = [];
+        updateChipsDisplay();
+        loadAdminEmpNotes();
+        
+        // Reset modal title and button
+        resetModalForCreate();
+        
+        if (window.toastr) {
+          toastr.success('Note employees updated successfully!');
+        } else {
+          alert('Note employees updated successfully!');
+        }
+      } else {
+        alert('Error: ' + (data.message || 'Failed to update employees'));
+      }
+    })
+    .catch(function(error) {
+      console.error('Error:', error);
+      alert('Error updating employees');
+    });
+  }
+  
+  // Reset modal for creating new notes
+  function resetModalForCreate() {
+    var modal = document.getElementById('employeeModal');
+    var modalTitle = modal ? modal.querySelector('.modal-header h3 span') : null;
+    if (modalTitle) {
+      modalTitle.textContent = 'Select Employees to Assign';
+    }
+    var confirmBtn = document.getElementById('btnConfirmSelection');
+    if (confirmBtn) {
+      confirmBtn.textContent = '✓ Confirm Selection';
+    }
+    editingNoteId = null;
+  }
+
+  function deleteAdminNote(noteId) {
+    if (!confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
+      return;
+    }
+    
+    var csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (!csrfToken) {
+      alert('Error: CSRF token not found. Please refresh the page.');
+      return;
+    }
+    
+    fetch('{{ url("/api/admin-notes") }}/' + noteId, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': csrfToken.content
+      }
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+      if (data.success) {
+        loadAdminEmpNotes();
+        if (window.toastr) {
+          toastr.success('Note deleted successfully!');
+        } else {
+          alert('Note deleted successfully!');
+        }
+      } else {
+        alert('Error: ' + (data.message || 'Failed to delete note'));
+      }
+    })
+    .catch(function(error) {
+      console.error('Error:', error);
+      alert('Error deleting note');
+    });
+  }
+
+
+
+  // Load admin emp notes (for admin dashboard)
+  function loadAdminEmpNotes() {
+    fetch('{{ route("employee.notes.get") }}?type=employee&limit=500', {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+      if (data.success) {
+        displayAdminEmpNotes(data.notes);
+      }
+    })
+    .catch(function(error) {
+      console.error('Error loading notes:', error);
+    });
+  }
+
+  // Display admin emp notes with beautiful design
+  function displayAdminEmpNotes(notes) {
+    var container = document.getElementById('adminEmpNotesList');
+    if (!container) return;
+    
+    // Clear container
+    container.innerHTML = '';
+    
+    if (!notes || notes.length === 0) {
+      container.innerHTML = '<div style="text-align: center; padding: 40px; color: #9ca3af; font-size: 13px; background: #f9fafb; border-radius: 12px; border: 2px dashed #e5e7eb;">📋 No employee notes created yet</div>';
+      return;
+    }
+    
+    // Display notes with beautiful design
+    notes.forEach(function(note) {
+      // Build assignees chips with gradient background
+      var assigneesHtml = '';
+      var assigneesList = note.assignees || [];
+      
+      // Handle if assignees is a string (JSON)
+      if (typeof assigneesList === 'string') {
+        try {
+          assigneesList = JSON.parse(assigneesList);
+        } catch(e) {
+          assigneesList = [];
+        }
+      }
+      
+      if (Array.isArray(assigneesList) && assigneesList.length > 0) {
+        assigneesList.forEach(function(assignee) {
+          assigneesHtml += '<span style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border-radius: 20px; font-size: 12px; font-weight: 600; margin-right: 8px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(59,130,246,0.3);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>' + escapeHtml(assignee) + '</span>';
+        });
+      } else {
+        assigneesHtml = '<span style="display: inline-flex; align-items: center; padding: 6px 14px; background: #f1f5f9; color: #64748b; border-radius: 20px; font-size: 12px; font-weight: 500;">No assignees</span>';
+      }
+      
+      var noteDate = note.date || 'No date';
+      
+      var noteHtml = 
+        '<div class="emp-note-card" data-note-id="' + note.id + '" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; border-left: 4px solid #3b82f6; border-radius: 12px; padding: 18px 18px 18px 20px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); transition: all 0.25s ease;">' +
+          '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">' +
+            '<div style="flex: 1; min-width: 0;">' +
+              '<div style="font-size: 15px; color: #1e293b; line-height: 1.7; font-weight: 500; margin-bottom: 14px; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;">' + escapeHtml(note.text || '') + '</div>' +
+              '<div style="margin-bottom: 14px;">' +
+                '<div style="font-size: 11px; color: #64748b; margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">👥 Assigned to:</div>' +
+                '<div style="display: flex; flex-wrap: wrap; gap: 6px;">' + assigneesHtml + '</div>' +
+              '</div>' +
+              '<div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #64748b; padding-top: 12px; border-top: 1px solid #f1f5f9;">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' +
+                '<span style="font-weight: 500;">' + noteDate + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<div style="display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;">' +
+              '<button onclick="editAdminNoteText(' + note.id + ')" style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #bfdbfe; color: #2563eb; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(37,99,235,0.1);" title="Edit note">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>' +
+              '</button>' +
+              '<button onclick="deleteAdminNote(' + note.id + ')" style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 1px solid #fecaca; color: #dc2626; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(220,38,38,0.1);" title="Delete note">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      
+      container.innerHTML += noteHtml;
+    });
+  }
+
   (function(){
     try{
       // Helpers that work per-card (so class name changes won't break)
@@ -810,6 +1842,10 @@
           initNotesPagerFor(panes);
           initEmpPagerFor(panes);
         }
+        // Load admin emp notes when emp tab is clicked
+        if(key === 'emp'){
+          loadAdminEmpNotes();
+        }
       });
       // Initial activation for notes card on load
       var notesCard = document.querySelector('.hrp-card #tab-notes');
@@ -828,6 +1864,8 @@
       var allUsers = @json($users ?? []);
       var modal = document.getElementById('employeeModal');
       var chipsPanel = document.getElementById('adminChips');
+      
+      console.log('Admin notes initialized. Users available:', allUsers.length);
       
       function updateChipsDisplay() {
         if (!chipsPanel) return;
@@ -893,10 +1931,19 @@
       // Close modal
       function closeModal() {
         modal.style.display = 'none';
+        // Reset modal for create mode when closed
+        resetModalForCreate();
       }
       
       document.getElementById('btnCloseModal').addEventListener('click', closeModal);
-      document.getElementById('btnCancelModal').addEventListener('click', closeModal);
+      document.getElementById('btnCancelModal').addEventListener('click', function() {
+        closeModal();
+        // Clear selections when canceling
+        if (editingNoteId) {
+          selectedUsers = [];
+          updateModalCheckboxes();
+        }
+      });
       document.getElementById('modalOverlay').addEventListener('click', closeModal);
       
       // Employee card click
@@ -942,16 +1989,24 @@
         });
       }
       
-      // Confirm selection
+      // Confirm selection - handles both create and edit modes
       document.getElementById('btnConfirmSelection').addEventListener('click', function() {
-        updateChipsDisplay();
-        closeModal();
+        if (editingNoteId) {
+          // We're editing an existing note's employees
+          updateNoteEmployees();
+        } else {
+          // We're creating a new note - just update chips and close modal
+          updateChipsDisplay();
+          closeModal();
+        }
       });
       
       // Save admin note handler
       var saveBtn = document.getElementById('btnSaveAdminNote');
+      console.log('Save button found:', !!saveBtn);
       if (saveBtn) {
         saveBtn.addEventListener('click', function() {
+          console.log('Save button clicked');
           var noteText = document.getElementById('adminNoteText');
           if (!noteText || !noteText.value.trim()) {
             alert('Please enter a note!');
@@ -963,38 +2018,166 @@
             return;
           }
           
+          // Disable button and show loading state
+          var originalText = saveBtn.innerHTML;
+          saveBtn.disabled = true;
+          saveBtn.innerHTML = '⏳ Saving...';
+          
+          var csrfToken = document.querySelector('meta[name="csrf-token"]');
+          if (!csrfToken) {
+            alert('Error: CSRF token not found. Please refresh the page.');
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalText;
+            return;
+          }
+          
+          var requestData = {
+            text: noteText.value.trim(),
+            assignees: selectedUsers.map(function(u) { return parseInt(u.id, 10); })
+          };
+          
+          console.log('Sending admin note:', requestData);
+          
           // Send to backend via AJAX
-          fetch('/api/admin-notes', {
+          fetch('{{ route("admin.notes.store") }}', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+              'Accept': 'application/json',
+              'X-CSRF-TOKEN': csrfToken.content
             },
-            body: JSON.stringify({
-              text: noteText.value,
-              assignees: selectedUsers.map(function(u) { return u.id; })
-            })
+            body: JSON.stringify(requestData)
           })
-          .then(function(response) { return response.json(); })
+          .then(function(response) {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+              return response.text().then(function(text) {
+                console.error('Error response:', text);
+                throw new Error('HTTP ' + response.status + ': ' + text);
+              });
+            }
+            return response.json();
+          })
           .then(function(data) {
-            alert('Admin note saved successfully! Employees will see this on their dashboard.');
-            noteText.value = '';
-            selectedUsers = [];
-            updateChipsDisplay();
+            console.log('Response data:', data);
+            if (data.success) {
+              alert(data.message || 'Admin note saved successfully! Employees will see this on their dashboard.');
+              noteText.value = '';
+              selectedUsers = [];
+              updateChipsDisplay();
+              
+              // Display created notes
+              if (data.notes && data.notes.length > 0) {
+                displayAdminNotes(data.notes);
+              }
+              
+              // Reload employee notes in both tabs
+              if (typeof loadEmployeeNotes === 'function') loadEmployeeNotes();
+              if (typeof loadAdminEmpNotes === 'function') loadAdminEmpNotes();
+            } else {
+              alert('Error: ' + (data.message || 'Failed to save note'));
+            }
           })
           .catch(function(error) {
-            console.log('Note data:', {
-              text: noteText.value,
-              assignees: selectedUsers
-            });
-            alert('Admin note saved! (Backend integration pending)');
-            noteText.value = '';
-            selectedUsers = [];
-            updateChipsDisplay();
+            console.error('Error saving admin note:', error);
+            alert('Error: ' + error.message);
+          })
+          .finally(function() {
+            // Re-enable button
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalText;
           });
         });
       }
-    }catch(e){}
+
+      // Note functions are now defined globally above
+
+      // Handler for "Add New Notes" button (first NOTES tab - system notes)
+      var notesSendBtn = document.querySelector('.notes-send');
+      console.log('Notes send button found:', !!notesSendBtn);
+      if (notesSendBtn) {
+        notesSendBtn.addEventListener('click', function() {
+          var textarea = document.getElementById('systemNoteText');
+          
+          if (!textarea || !textarea.value.trim()) {
+            alert('Please enter a note!');
+            return;
+          }
+          
+          var noteText = textarea.value.trim();
+          var originalHtml = this.innerHTML;
+          this.disabled = true;
+          this.innerHTML = '⏳';
+          
+          var csrfToken = document.querySelector('meta[name="csrf-token"]');
+          if (!csrfToken) {
+            alert('Error: CSRF token not found. Please refresh the page.');
+            this.disabled = false;
+            this.innerHTML = originalHtml;
+            return;
+          }
+          
+          var self = this;
+          
+          // Send to backend - store as system note
+          fetch('{{ route("employee.notes.store") }}', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'X-CSRF-TOKEN': csrfToken.content
+            },
+            body: JSON.stringify({
+              note_text: noteText,
+              note_type: 'notes'  // 'notes' = system type
+            })
+          })
+          .then(function(response) {
+            if (!response.ok) {
+              return response.text().then(function(text) {
+                throw new Error('HTTP ' + response.status + ': ' + text);
+              });
+            }
+            return response.json();
+          })
+          .then(function(data) {
+            if (data.success) {
+              textarea.value = '';
+              // Reload system notes to show the new note
+              loadSystemNotes(1);
+              if (window.toastr) {
+                toastr.success('Note saved successfully!');
+              } else {
+                alert('Note saved successfully!');
+              }
+            } else {
+              alert('Error: ' + (data.message || 'Failed to save note'));
+            }
+          })
+          .catch(function(error) {
+            console.error('Error saving note:', error);
+            alert('Error: ' + error.message);
+          })
+          .finally(function() {
+            self.disabled = false;
+            self.innerHTML = originalHtml;
+          });
+        });
+      }
+
+      // Load notes on page load (only once)
+      document.addEventListener('DOMContentLoaded', function() {
+        if (!notesLoaded) {
+          notesLoaded = true;
+          // Load system notes for first NOTES tab
+          loadSystemNotes(1);
+          // Load employee notes for EMP. NOTES tab
+          loadEmployeeNotes();
+        }
+      });
+    }catch(e){
+      console.error('Dashboard script error:', e);
+    }
   })();
 </script>
 @endpush

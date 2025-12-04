@@ -125,6 +125,17 @@ class Employee extends Model
         return $this->belongsTo(\App\Models\User::class);
     }
 
+    /**
+     * Get all notes assigned to this employee
+     */
+    public function notes()
+    {
+        return $this->belongsToMany(Note::class, 'note_employee', 'employee_id', 'note_id')
+            ->withTimestamps()
+            ->withPivot('read_at', 'acknowledged_at')
+            ->orderBy('created_at', 'desc');
+    }
+
     public static function nextCode(string $prefix = 'CMS/EMP/'): string
     {
         $last = static::where('code', 'like', $prefix.'%')->orderByDesc('id')->value('code');

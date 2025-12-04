@@ -16,7 +16,13 @@ class TicketController extends Controller
 
         // Filter by role: customers see only their company's tickets
         if ($user->hasRole('customer') && $user->company_id) {
-            $query->where('company_id', $user->company_id);
+            $company = $user->company;
+            if ($company) {
+                $query->where(function($q) use ($company) {
+                    $q->where('company', $company->company_name)
+                      ->orWhere('customer', $company->name ?? auth()->user()->name);
+                });
+            }
         }
         
         // Filter by role: employees see only their assigned tickets
@@ -47,7 +53,13 @@ class TicketController extends Controller
         // Filter companies list based on role
         $companiesQuery = Ticket::query()->whereNotNull('company')->distinct();
         if ($user->hasRole('customer') && $user->company_id) {
-            $companiesQuery->where('company_id', $user->company_id);
+            $company = $user->company;
+            if ($company) {
+                $companiesQuery->where(function($q) use ($company) {
+                    $q->where('company', $company->company_name)
+                      ->orWhere('customer', $company->name ?? auth()->user()->name);
+                });
+            }
         }
         $companies = $companiesQuery->pluck('company');
         
@@ -66,7 +78,8 @@ class TicketController extends Controller
         
         // Check access: customers can only view their company's tickets, employees can only view assigned tickets
         if ($user->hasRole('customer') && $user->company_id) {
-            if ($ticket->company_id != $user->company_id) {
+            $company = $user->company;
+            if ($company && $ticket->company != $company->company_name && $ticket->customer != ($company->name ?? $user->name)) {
                 abort(403, 'Unauthorized access to this ticket.');
             }
         } elseif ($user->hasRole('employee')) {

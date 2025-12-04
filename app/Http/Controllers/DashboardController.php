@@ -89,59 +89,107 @@ class DashboardController extends Controller
             'attendance_present' => $presentToday . '/' . $totalEmployees,
         ];
 
-        // ========== NOTIFICATIONS - DYNAMIC ==========
+        // ========== NOTIFICATIONS - LATEST 5 TICKETS & INQUIRIES ==========
         $notifications = [];
         
-        // Pending leaves
-        $pendingLeaves = Leave::where('status', 'pending')->count();
-        if ($pendingLeaves > 0) {
+        // Get latest 5 tickets (newest first)
+        $latestTickets = Ticket::orderBy('created_at', 'desc')->limit(5)->get();
+        foreach ($latestTickets as $ticket) {
             $notifications[] = [
-                'title' => $pendingLeaves . ' pending leave request' . ($pendingLeaves > 1 ? 's' : ''),
-                'time' => 'Now'
+                'id' => 'ticket_' . $ticket->id,
+                'type' => 'ticket',
+                'icon' => '🎫',
+                'title' => 'New Ticket: ' . ($ticket->title ?? $ticket->subject ?? 'Untitled'),
+                'subtitle' => $ticket->customer ?? 'Customer',
+                'time' => Carbon::parse($ticket->created_at)->diffForHumans(),
+                'timestamp' => $ticket->created_at->timestamp,
+                'link' => route('tickets.show', $ticket->id),
             ];
         }
         
-        // Recent tickets (last 24 hours)
-        $recentTicketsCount = Ticket::where('created_at', '>=', now()->subHours(24))->count();
-        if ($recentTicketsCount > 0) {
-            $notifications[] = [
-                'title' => $recentTicketsCount . ' new ticket' . ($recentTicketsCount > 1 ? 's' : ''),
-                'time' => '24h'
-            ];
+        // Get latest 5 inquiries (newest first)
+        try {
+            if (DB::getSchemaBuilder()->hasTable('inquiries')) {
+                $latestInquiries = DB::table('inquiries')
+                    ->orderBy('created_at', 'desc')
+                    ->limit(5)
+                    ->get();
+                
+                foreach ($latestInquiries as $inquiry) {
+                    $notifications[] = [
+                        'id' => 'inquiry_' . $inquiry->id,
+                        'type' => 'inquiry',
+                        'icon' => '📋',
+                        'title' => 'New Inquiry: ' . ($inquiry->company_name ?? 'Unknown Company'),
+                        'subtitle' => $inquiry->contact_name ?? 'Contact',
+                        'time' => isset($inquiry->created_at) ? Carbon::parse($inquiry->created_at)->diffForHumans() : 'Recently',
+                        'timestamp' => isset($inquiry->created_at) ? Carbon::parse($inquiry->created_at)->timestamp : 0,
+                        'link' => route('inquiries.show', $inquiry->id),
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            // Ignore if inquiries table doesn't exist
         }
-
-        // Absent employees today
-        $absentToday = $totalEmployees - $presentToday;
-        if ($absentToday > 0) {
-            $notifications[] = [
-                'title' => $absentToday . ' employee' . ($absentToday > 1 ? 's' : '') . ' absent today',
-                'time' => 'Today'
-            ];
-        }
+        
+        // Sort all notifications by timestamp (newest first) and take only 5
+        usort($notifications, function($a, $b) {
+            return ($b['timestamp'] ?? 0) - ($a['timestamp'] ?? 0);
+        });
+        $notifications = array_slice($notifications, 0, 5);
 
         // ========== RECENT INQUIRIES - DYNAMIC ==========
         $recentInquiries = [];
         try {
             if (DB::getSchemaBuilder()->hasTable('inquiries')) {
+                // Get inquiries with their latest follow-up data
                 $inquiries = DB::table('inquiries')
-                    ->orderBy('created_at', 'desc')
+                    ->leftJoin('inquiry_follow_ups', function($join) {
+                        $join->on('inquiries.id', '=', 'inquiry_follow_ups.inquiry_id')
+                             ->whereRaw('inquiry_follow_ups.id = (SELECT MAX(id) FROM inquiry_follow_ups WHERE inquiry_id = inquiries.id)');
+                    })
+                    ->select('inquiries.*', 
+                             'inquiry_follow_ups.next_followup_date',
+                             'inquiry_follow_ups.demo_date',
+                             'inquiry_follow_ups.demo_time',
+                             'inquiry_follow_ups.demo_status',
+                             'inquiry_follow_ups.is_confirm')
+                    ->orderBy('inquiries.created_at', 'desc')
                     ->limit(6)
                     ->get();
                 
                 foreach ($inquiries as $inq) {
+                    // Determine demo status
+                    $demoStatus = $inq->demo_status ?? ($inq->quotation_sent ? 'Quotation Sent' : 'Pending');
+                    
+                    // Check if confirmed from follow-up
+                    $isConfirm = !empty($inq->is_confirm) ? 'YES' : 'NO';
+                    
+                    // Format demo date and time
+                    $demoDateTime = '—';
+                    if (!empty($inq->demo_date)) {
+                        $demoDateTime = Carbon::parse($inq->demo_date)->format('M d, Y');
+                        if (!empty($inq->demo_time)) {
+                            $demoDateTime .= ' | ' . Carbon::parse($inq->demo_time)->format('h:i A');
+                        }
+                    }
+                    
                     $recentInquiries[] = [
+                        'id' => $inq->id,
                         'company' => $inq->company_name ?? 'N/A',
-                        'person' => $inq->person_name ?? '—',
-                        'phone' => $inq->phone ?? '—',
-                        'date' => isset($inq->created_at) ? Carbon::parse($inq->created_at)->format('M d') : '—',
-                        'next' => isset($inq->next_followup_date) ? Carbon::parse($inq->next_followup_date)->format('M d') : '—',
-                        'status' => $inq->status ?? 'New',
-                        'demo' => isset($inq->demo_date) ? Carbon::parse($inq->demo_date)->format('M d, Y | h:i A') : '—',
+                        'person' => $inq->contact_name ?? '—',
+                        'phone' => $inq->contact_mobile ?? $inq->company_phone ?? '—',
+                        'date' => isset($inq->inquiry_date) ? Carbon::parse($inq->inquiry_date)->format('M d') : (isset($inq->created_at) ? Carbon::parse($inq->created_at)->format('M d') : '—'),
+                        'next' => !empty($inq->next_followup_date) ? Carbon::parse($inq->next_followup_date)->format('M d') : '—',
+                        'status' => ucfirst($demoStatus),
+                        'demo' => $demoDateTime,
+                        'is_confirm' => $isConfirm,
                     ];
                 }
             }
         } catch (\Exception $e) {
-            // Table doesn't exist - leave empty
+            // Table doesn't exist or query error - leave empty
+            \Log::error('Dashboard inquiries error: ' . $e->getMessage());
         }
 
         // ========== RECENT TICKETS - DYNAMIC ==========
@@ -287,15 +335,35 @@ class DashboardController extends Controller
         $employee = Employee::where('user_id', auth()->id())->first();
         
         if (!$employee) {
-            // If no employee record, show basic message
+            // If no employee record, show basic message with default stats
             return view('dashboard-employee', [
                 'employee' => null,
-                'stats' => [],
+                'stats' => [
+                    'present_days' => '00',
+                    'absent_days' => '00',
+                    'working_hours' => 0,
+                    'active_projects' => '00',
+                    'late_entries' => '00',
+                    'early_exits' => '00',
+                ],
                 'birthdays' => [],
                 'notes' => [],
                 'todayBirthdays' => [],
                 'upcomingBirthdays' => [],
-                'todayLeaves' => []
+                'todayLeaves' => [],
+                'attendanceCalendar' => [],
+                'leavesCalendar' => [],
+                'birthdaysCalendar' => [],
+                'anniversariesCalendar' => [],
+                'pendingLeavesCalendar' => [],
+                'rejectedLeavesCalendar' => [],
+                'systemNotes' => [],
+                'empNotes' => [],
+                'notesPage' => 1,
+                'empNotesPage' => 1,
+                'systemNotesTotalPages' => 1,
+                'empNotesTotalPages' => 1,
+                'allEmployees' => []
             ]);
         }
 
@@ -308,20 +376,28 @@ class DashboardController extends Controller
             ->whereMonth('date', $currentMonth)
             ->get();
 
-        // Calculate stats
-        $presentDays = $attendances->whereIn('status', ['present'])->count();
-        $absentDays = $attendances->where('status', 'absent')->count();
+        // Calculate stats - count UNIQUE dates since employee can check in/out multiple times per day
+        // Present days = unique dates where employee has at least one attendance entry
+        $presentDays = $attendances->pluck('date')->unique()->count();
+        
+        // Absent days calculation (optional - based on working days minus present)
+        $absentDays = $attendances->where('status', 'absent')->pluck('date')->unique()->count();
+        
+        // Working hours - sum all durations from all entries
         $workingHours = $attendances->sum(function($att) {
             if ($att->check_in && $att->check_out) {
                 $checkIn = Carbon::parse($att->check_in);
                 $checkOut = Carbon::parse($att->check_out);
-                return $checkIn->diffInHours($checkOut);
+                return $checkIn->diffInMinutes($checkOut) / 60; // Return hours with decimals
             }
             return 0;
         });
         
-        $lateEntries = $attendances->where('status', 'late')->count();
-        $earlyExits = $attendances->where('status', 'early_leave')->count();
+        // Late entries - count unique dates with late status (first entry of day was late)
+        $lateEntries = $attendances->where('status', 'late')->pluck('date')->unique()->count();
+        
+        // Early exits - count unique dates with early_leave status
+        $earlyExits = $attendances->where('status', 'early_leave')->pluck('date')->unique()->count();
 
         // Get active projects count for this employee
         $activeProjects = 0;
@@ -340,10 +416,10 @@ class DashboardController extends Controller
         $stats = [
             'present_days' => str_pad($presentDays, 2, '0', STR_PAD_LEFT),
             'absent_days' => str_pad($absentDays, 2, '0', STR_PAD_LEFT),
-            'working_hours' => number_format($workingHours, 0),
+            'working_hours' => round($workingHours, 1), // Pass raw number for formatting in view
             'active_projects' => str_pad($activeProjects, 2, '0', STR_PAD_LEFT),
-            'late_entries' => str_pad($lateEntries, 3, '0', STR_PAD_LEFT),
-            'early_exits' => str_pad($earlyExits, 3, '0', STR_PAD_LEFT),
+            'late_entries' => str_pad($lateEntries, 2, '0', STR_PAD_LEFT),
+            'early_exits' => str_pad($earlyExits, 2, '0', STR_PAD_LEFT),
         ];
 
         // Get TODAY's birthdays
@@ -405,29 +481,14 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Get pagination parameters
-        $notesPage = request()->get('notes_page', 1);
-        $empNotesPage = request()->get('emp_notes_page', 1);
-        $perPage = 4;
-
-        // Get system notes with pagination
+        // Get ALL system notes (no pagination - using horizontal scroll)
         $systemNotes = [];
-        $systemNotesTotal = 0;
+        $notesPage = 1;
+        $empNotesPage = 1;
         $systemNotesTotalPages = 1;
         
         try {
             if (DB::getSchemaBuilder()->hasTable('notes')) {
-                $systemNotesTotal = DB::table('notes')
-                    ->where('type', 'system')
-                    ->where(function($query) use ($employee) {
-                        $query->where('user_id', auth()->id())
-                              ->orWhere('employee_id', $employee->id)
-                              ->orWhereNull('user_id');
-                    })
-                    ->count();
-                
-                $systemNotesTotalPages = ceil($systemNotesTotal / $perPage);
-                
                 $systemNotesData = DB::table('notes')
                     ->where('type', 'system')
                     ->where(function($query) use ($employee) {
@@ -436,8 +497,6 @@ class DashboardController extends Controller
                               ->orWhereNull('user_id');
                     })
                     ->orderBy('created_at', 'desc')
-                    ->skip(($notesPage - 1) * $perPage)
-                    ->take($perPage)
                     ->get();
                 
                 foreach ($systemNotesData as $note) {
@@ -452,25 +511,21 @@ class DashboardController extends Controller
             // Fallback
         }
 
-        // Get employee notes with pagination (includes admin-created notes)
+        // Get ALL employee notes (no pagination - using horizontal scroll)
         $empNotes = [];
-        $empNotesTotal = 0;
         $empNotesTotalPages = 1;
         
         try {
             if (DB::getSchemaBuilder()->hasTable('notes')) {
-                // Get all employee-type notes (including those created by admin for this employee)
-                $empNotesTotal = DB::table('notes')
-                    ->where('type', 'employee')
-                    ->count();
-                
-                $empNotesTotalPages = ceil($empNotesTotal / $perPage);
-                
+                // Get ALL employee-type notes assigned to THIS employee
+                // Check both employee_id AND if employee name is in assignees JSON
                 $empNotesData = DB::table('notes')
                     ->where('type', 'employee')
+                    ->where(function($query) use ($employee) {
+                        $query->where('employee_id', $employee->id)
+                              ->orWhereRaw("JSON_CONTAINS(assignees, JSON_QUOTE(?), '$')", [$employee->name]);
+                    })
                     ->orderBy('created_at', 'desc')
-                    ->skip(($empNotesPage - 1) * $perPage)
-                    ->take($perPage)
                     ->get();
                 
                 foreach ($empNotesData as $note) {
@@ -486,12 +541,16 @@ class DashboardController extends Controller
                         }
                     }
                     
+                    // Check if current user can delete this note (only if they created it)
+                    $canDelete = ($note->user_id == auth()->id());
+                    
                     $empNotes[] = [
                         'id' => $note->id,
                         'text' => $note->content ?? '',
                         'date' => isset($note->created_at) ? Carbon::parse($note->created_at)->format('M d, Y') : now()->format('M d, Y'),
                         'assignees' => $assignees,
-                        'assignee_photos' => $assigneePhotos
+                        'assignee_photos' => $assigneePhotos,
+                        'can_delete' => $canDelete
                     ];
                 }
             }
@@ -506,16 +565,17 @@ class DashboardController extends Controller
             $attendanceCalendar[$day] = $att->status; // present, late, early_leave, absent, leave
         }
 
-        // Get leaves calendar data for current month
+        // Get leaves calendar data for current month - ONLY FOR CURRENT EMPLOYEE
         $leavesCalendar = [];
+        $monthStart = Carbon::create($currentYear, $currentMonth, 1)->startOfMonth();
+        $monthEnd = Carbon::create($currentYear, $currentMonth, 1)->endOfMonth();
+        
+        // Only get leaves for the current logged-in employee
         $monthLeaves = Leave::where('status', 'approved')
-            ->where(function($query) use ($currentYear, $currentMonth) {
-                $query->whereYear('start_date', $currentYear)
-                      ->whereMonth('start_date', $currentMonth)
-                      ->orWhere(function($q) use ($currentYear, $currentMonth) {
-                          $q->whereYear('end_date', $currentYear)
-                            ->whereMonth('end_date', $currentMonth);
-                      });
+            ->where('employee_id', $employee->id) // Filter by current employee
+            ->where(function($query) use ($monthStart, $monthEnd) {
+                $query->where('start_date', '<=', $monthEnd)
+                      ->where('end_date', '>=', $monthStart);
             })
             ->with('employee')
             ->get();
@@ -524,20 +584,20 @@ class DashboardController extends Controller
             $startDate = Carbon::parse($leave->start_date);
             $endDate = Carbon::parse($leave->end_date);
             
-            // Mark all days in the leave period
-            $currentDate = $startDate->copy();
-            while ($currentDate->lte($endDate)) {
-                if ($currentDate->month == $currentMonth && $currentDate->year == $currentYear) {
-                    $day = $currentDate->day;
+            // Mark all days in the leave period within this month
+            $loopDate = $startDate->copy();
+            while ($loopDate->lte($endDate)) {
+                if ($loopDate->month == $currentMonth && $loopDate->year == $currentYear) {
+                    $day = $loopDate->day;
                     if (!isset($leavesCalendar[$day])) {
                         $leavesCalendar[$day] = [];
                     }
                     $leavesCalendar[$day][] = [
-                        'name' => $leave->employee->name ?? 'Unknown',
-                        'type' => $leave->leave_type ?? 'Leave'
+                        'name' => $leave->employee->name ?? 'You',
+                        'type' => ucfirst($leave->leave_type ?? 'Leave')
                     ];
                 }
-                $currentDate->addDay();
+                $loopDate->addDay();
             }
         }
 
@@ -554,6 +614,104 @@ class DashboardController extends Controller
             ];
         }
 
+        // Get work anniversaries for current month
+        $anniversariesCalendar = [];
+        $anniversaryEmployees = Employee::whereMonth('joining_date', $currentMonth)
+            ->whereNotNull('joining_date')
+            ->where('joining_date', '<', now()) // Only past joining dates
+            ->get();
+        
+        foreach ($anniversaryEmployees as $emp) {
+            $joiningDate = Carbon::parse($emp->joining_date);
+            $yearsWorked = $joiningDate->diffInYears(now());
+            
+            // Only show if at least 1 year
+            if ($yearsWorked >= 1) {
+                $day = $joiningDate->day;
+                if (!isset($anniversariesCalendar[$day])) {
+                    $anniversariesCalendar[$day] = [];
+                }
+                $anniversariesCalendar[$day][] = [
+                    'name' => $emp->name,
+                    'years' => $yearsWorked,
+                    'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png')
+                ];
+            }
+        }
+
+        // Get pending leaves for current month - ONLY FOR CURRENT EMPLOYEE
+        $pendingLeavesCalendar = [];
+        $pendingLeaves = Leave::where('status', 'pending')
+            ->where('employee_id', $employee->id) // Filter by current employee
+            ->where(function($query) use ($monthStart, $monthEnd) {
+                $query->where('start_date', '<=', $monthEnd)
+                      ->where('end_date', '>=', $monthStart);
+            })
+            ->with('employee')
+            ->get();
+
+        foreach ($pendingLeaves as $leave) {
+            $startDate = Carbon::parse($leave->start_date);
+            $endDate = Carbon::parse($leave->end_date);
+            
+            $loopDate = $startDate->copy();
+            while ($loopDate->lte($endDate)) {
+                if ($loopDate->month == $currentMonth && $loopDate->year == $currentYear) {
+                    $day = $loopDate->day;
+                    if (!isset($pendingLeavesCalendar[$day])) {
+                        $pendingLeavesCalendar[$day] = [];
+                    }
+                    $pendingLeavesCalendar[$day][] = [
+                        'name' => $leave->employee->name ?? 'You',
+                        'type' => ucfirst($leave->leave_type ?? 'Leave')
+                    ];
+                }
+                $loopDate->addDay();
+            }
+        }
+
+        // Get rejected leaves for current month - ONLY FOR CURRENT EMPLOYEE
+        $rejectedLeavesCalendar = [];
+        $rejectedLeaves = Leave::where('status', 'rejected')
+            ->where('employee_id', $employee->id) // Filter by current employee
+            ->where(function($query) use ($monthStart, $monthEnd) {
+                $query->where('start_date', '<=', $monthEnd)
+                      ->where('end_date', '>=', $monthStart);
+            })
+            ->with('employee')
+            ->get();
+
+        foreach ($rejectedLeaves as $leave) {
+            $startDate = Carbon::parse($leave->start_date);
+            $endDate = Carbon::parse($leave->end_date);
+            
+            $loopDate = $startDate->copy();
+            while ($loopDate->lte($endDate)) {
+                if ($loopDate->month == $currentMonth && $loopDate->year == $currentYear) {
+                    $day = $loopDate->day;
+                    if (!isset($rejectedLeavesCalendar[$day])) {
+                        $rejectedLeavesCalendar[$day] = [];
+                    }
+                    $rejectedLeavesCalendar[$day][] = [
+                        'name' => $leave->employee->name ?? 'You',
+                        'type' => ucfirst($leave->leave_type ?? 'Leave')
+                    ];
+                }
+                $loopDate->addDay();
+            }
+        }
+
+        // Get all employees for admin/hr to select when creating notes
+        $allEmployees = [];
+        if (auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr') || auth()->user()->hasRole('super-admin')) {
+            $allEmployees = Employee::select('id', 'name')->orderBy('name')->get()->map(function($emp) {
+                return [
+                    'id' => $emp->id,
+                    'name' => $emp->name
+                ];
+            })->toArray();
+        }
+
         return view('dashboard-employee', compact(
             'employee', 
             'stats', 
@@ -564,27 +722,215 @@ class DashboardController extends Controller
             'todayLeaves',
             'leavesCalendar',
             'birthdaysCalendar',
+            'anniversariesCalendar',
+            'pendingLeavesCalendar',
+            'rejectedLeavesCalendar',
             'systemNotes',
             'empNotes',
             'notesPage',
             'empNotesPage',
             'systemNotesTotalPages',
-            'empNotesTotalPages'
+            'empNotesTotalPages',
+            'allEmployees'
         ));
     }
 
     /**
-     * Store a new note for employee
+     * Get calendar data for a specific month (AJAX)
+     */
+    public function getCalendarData(Request $request)
+    {
+        $month = $request->get('month', now()->month);
+        $year = $request->get('year', now()->year);
+        
+        $employee = Employee::where('user_id', auth()->id())->first();
+        
+        // Get birthdays for the requested month (all employees)
+        $birthdaysCalendar = [];
+        $birthdays = Employee::whereMonth('date_of_birth', $month)
+            ->orderByRaw('DAY(date_of_birth)')
+            ->get();
+        
+        foreach ($birthdays as $emp) {
+            $day = Carbon::parse($emp->date_of_birth)->day;
+            if (!isset($birthdaysCalendar[$day])) {
+                $birthdaysCalendar[$day] = [];
+            }
+            $birthdaysCalendar[$day][] = [
+                'name' => $emp->name,
+                'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png')
+            ];
+        }
+        
+        // Get attendance for the requested month (current employee only)
+        $attendanceCalendar = [];
+        if ($employee) {
+            $attendances = Attendance::where('employee_id', $employee->id)
+                ->whereYear('date', $year)
+                ->whereMonth('date', $month)
+                ->get();
+            
+            foreach ($attendances as $att) {
+                $day = Carbon::parse($att->date)->day;
+                // Only store first entry status for the day (for the dot indicator)
+                if (!isset($attendanceCalendar[$day])) {
+                    $attendanceCalendar[$day] = $att->status;
+                }
+            }
+        }
+        
+        // Get leaves for the requested month - ONLY FOR CURRENT EMPLOYEE
+        $leavesCalendar = [];
+        $monthStart = Carbon::create($year, $month, 1)->startOfMonth();
+        $monthEnd = Carbon::create($year, $month, 1)->endOfMonth();
+        
+        if ($employee) {
+            $monthLeaves = Leave::where('status', 'approved')
+                ->where('employee_id', $employee->id) // Filter by current employee
+                ->where(function($query) use ($monthStart, $monthEnd) {
+                    $query->where('start_date', '<=', $monthEnd)
+                          ->where('end_date', '>=', $monthStart);
+                })
+                ->with('employee')
+                ->get();
+
+            foreach ($monthLeaves as $leave) {
+                $startDate = Carbon::parse($leave->start_date);
+                $endDate = Carbon::parse($leave->end_date);
+                
+                $currentDate = $startDate->copy();
+                while ($currentDate->lte($endDate)) {
+                    if ($currentDate->month == $month && $currentDate->year == $year) {
+                        $day = $currentDate->day;
+                        if (!isset($leavesCalendar[$day])) {
+                            $leavesCalendar[$day] = [];
+                        }
+                        $leavesCalendar[$day][] = [
+                            'name' => $leave->employee->name ?? 'You',
+                            'type' => ucfirst($leave->leave_type ?? 'Leave')
+                        ];
+                    }
+                    $currentDate->addDay();
+                }
+            }
+        }
+        
+        // Get work anniversaries for the requested month
+        $anniversariesCalendar = [];
+        $anniversaryEmployees = Employee::whereMonth('joining_date', $month)
+            ->whereNotNull('joining_date')
+            ->where('joining_date', '<', now())
+            ->get();
+        
+        foreach ($anniversaryEmployees as $emp) {
+            $joiningDate = Carbon::parse($emp->joining_date);
+            $yearsWorked = $joiningDate->diffInYears(now());
+            
+            if ($yearsWorked >= 1) {
+                $day = $joiningDate->day;
+                if (!isset($anniversariesCalendar[$day])) {
+                    $anniversariesCalendar[$day] = [];
+                }
+                $anniversariesCalendar[$day][] = [
+                    'name' => $emp->name,
+                    'years' => $yearsWorked,
+                    'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png')
+                ];
+            }
+        }
+
+        // Get pending leaves for the requested month - ONLY FOR CURRENT EMPLOYEE
+        $pendingLeavesCalendar = [];
+        if ($employee) {
+            $pendingLeaves = Leave::where('status', 'pending')
+                ->where('employee_id', $employee->id) // Filter by current employee
+                ->where(function($query) use ($monthStart, $monthEnd) {
+                    $query->where('start_date', '<=', $monthEnd)
+                          ->where('end_date', '>=', $monthStart);
+                })
+                ->with('employee')
+                ->get();
+
+            foreach ($pendingLeaves as $leave) {
+                $startDate = Carbon::parse($leave->start_date);
+                $endDate = Carbon::parse($leave->end_date);
+                
+                $currentDate = $startDate->copy();
+                while ($currentDate->lte($endDate)) {
+                    if ($currentDate->month == $month && $currentDate->year == $year) {
+                        $day = $currentDate->day;
+                        if (!isset($pendingLeavesCalendar[$day])) {
+                            $pendingLeavesCalendar[$day] = [];
+                        }
+                        $pendingLeavesCalendar[$day][] = [
+                            'name' => $leave->employee->name ?? 'You',
+                            'type' => ucfirst($leave->leave_type ?? 'Leave')
+                        ];
+                    }
+                    $currentDate->addDay();
+                }
+            }
+        }
+
+        // Get rejected leaves for the requested month - ONLY FOR CURRENT EMPLOYEE
+        $rejectedLeavesCalendar = [];
+        if ($employee) {
+            $rejectedLeaves = Leave::where('status', 'rejected')
+                ->where('employee_id', $employee->id) // Filter by current employee
+                ->where(function($query) use ($monthStart, $monthEnd) {
+                    $query->where('start_date', '<=', $monthEnd)
+                          ->where('end_date', '>=', $monthStart);
+                })
+                ->with('employee')
+                ->get();
+
+            foreach ($rejectedLeaves as $leave) {
+                $startDate = Carbon::parse($leave->start_date);
+                $endDate = Carbon::parse($leave->end_date);
+                
+                $currentDate = $startDate->copy();
+                while ($currentDate->lte($endDate)) {
+                    if ($currentDate->month == $month && $currentDate->year == $year) {
+                        $day = $currentDate->day;
+                        if (!isset($rejectedLeavesCalendar[$day])) {
+                            $rejectedLeavesCalendar[$day] = [];
+                        }
+                        $rejectedLeavesCalendar[$day][] = [
+                            'name' => $leave->employee->name ?? 'You',
+                            'type' => ucfirst($leave->leave_type ?? 'Leave')
+                        ];
+                    }
+                    $currentDate->addDay();
+                }
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'attendance' => $attendanceCalendar,
+            'leaves' => $leavesCalendar,
+            'birthdays' => $birthdaysCalendar,
+            'anniversaries' => $anniversariesCalendar,
+            'pendingLeaves' => $pendingLeavesCalendar,
+            'rejectedLeaves' => $rejectedLeavesCalendar,
+            'month' => $month,
+            'year' => $year
+        ]);
+    }
+
+    /**
+     * Store a new note for employee (AJAX)
      */
     public function storeNote(Request $request)
     {
         $request->validate([
             'note_text' => 'required|string|max:1000',
-            'note_type' => 'required|in:notes,empNotes'
+            'note_type' => 'required|in:notes,empNotes',
+            'employee_id' => 'nullable|exists:employees,id'
         ]);
 
         try {
-            // Check if notes table exists, if not create it
+            // Ensure notes table exists
             if (!DB::getSchemaBuilder()->hasTable('notes')) {
                 DB::statement("
                     CREATE TABLE notes (
@@ -595,21 +941,39 @@ class DashboardController extends Controller
                         content TEXT,
                         assignees JSON NULL,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+                        FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE SET NULL,
+                        INDEX (employee_id),
+                        INDEX (user_id),
+                        INDEX (type),
+                        INDEX (created_at)
                     )
                 ");
             }
 
-            // Get employee record
-            $employee = Employee::where('user_id', auth()->id())->first();
+            // Get current user's employee record
+            $currentUserEmployee = Employee::where('user_id', auth()->id())->first();
 
             // Determine note type
             $noteType = $request->note_type === 'notes' ? 'system' : 'employee';
 
+            // For employee notes, use the selected employee_id or current user's employee
+            $targetEmployeeId = null;
+            if ($noteType === 'employee') {
+                // If admin is creating note for specific employee
+                if ($request->has('employee_id') && $request->employee_id) {
+                    $targetEmployeeId = $request->employee_id;
+                } else {
+                    // If employee is creating their own note
+                    $targetEmployeeId = $currentUserEmployee ? $currentUserEmployee->id : null;
+                }
+            }
+
             // Insert note
-            DB::table('notes')->insert([
+            $noteId = DB::table('notes')->insertGetId([
                 'user_id' => auth()->id(),
-                'employee_id' => $employee ? $employee->id : null,
+                'employee_id' => $targetEmployeeId,
                 'type' => $noteType,
                 'content' => $request->note_text,
                 'assignees' => json_encode([auth()->user()->name]),
@@ -617,9 +981,109 @@ class DashboardController extends Controller
                 'updated_at' => now()
             ]);
 
+            // Return JSON response for AJAX
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Note saved successfully!',
+                    'note' => [
+                        'id' => $noteId,
+                        'text' => $request->note_text,
+                        'date' => now()->format('M d, Y g:i A'),
+                        'assignees' => [auth()->user()->name]
+                    ]
+                ], 201);
+            }
+
             return redirect()->back()->with('success', 'Note added successfully!');
         } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to add note: ' . $e->getMessage()
+                ], 500);
+            }
             return redirect()->back()->with('error', 'Failed to add note: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get notes for current user (AJAX)
+     */
+    public function getNotes(Request $request)
+    {
+        $page = $request->get('page', 1);
+        $type = $request->get('type', 'system'); // 'system' or 'employee'
+        $perPage = $request->get('limit', 100); // Show all notes (default 100, can be overridden)
+
+        try {
+            if (!DB::getSchemaBuilder()->hasTable('notes')) {
+                return response()->json([
+                    'success' => true,
+                    'notes' => [],
+                    'total' => 0,
+                    'pages' => 0
+                ]);
+            }
+
+            // Get current user's employee record
+            $currentUserEmployee = Employee::where('user_id', auth()->id())->first();
+
+            // Build query based on user role and note type
+            $query = DB::table('notes')->where('type', $type);
+
+            // If employee is viewing, only show notes assigned to them
+            if (auth()->user()->hasRole('employee') && $type === 'employee') {
+                if ($currentUserEmployee) {
+                    // Show notes where employee name is in assignees JSON OR employee_id matches
+                    $query->where(function($q) use ($currentUserEmployee) {
+                        $q->whereRaw("JSON_CONTAINS(assignees, JSON_QUOTE(?), '$')", [$currentUserEmployee->name])
+                          ->orWhere('employee_id', $currentUserEmployee->id);
+                    });
+                } else {
+                    // No employee record, show no notes
+                    return response()->json([
+                        'success' => true,
+                        'notes' => [],
+                        'total' => 0,
+                        'pages' => 0,
+                        'currentPage' => $page
+                    ]);
+                }
+            }
+            // If admin/hr is viewing, show all notes of that type
+            // (they can see all employee notes)
+            // For admin, we want to show DISTINCT notes (not duplicates)
+
+            $total = $query->count();
+            $totalPages = ceil($total / $perPage);
+
+            $notes = $query->orderBy('created_at', 'desc')
+                ->skip(($page - 1) * $perPage)
+                ->take($perPage)
+                ->get();
+
+            $formattedNotes = $notes->map(function($note) {
+                return [
+                    'id' => $note->id,
+                    'text' => $note->content,
+                    'date' => Carbon::parse($note->created_at)->format('M d, Y g:i A'),
+                    'assignees' => json_decode($note->assignees, true) ?? []
+                ];
+            })->toArray();
+
+            return response()->json([
+                'success' => true,
+                'notes' => $formattedNotes,
+                'total' => $total,
+                'pages' => $totalPages,
+                'currentPage' => $page
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch notes: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -629,18 +1093,238 @@ class DashboardController extends Controller
     public function deleteNote($id)
     {
         try {
+            // Only allow deletion by the note creator (admin/user who created it)
             $deleted = DB::table('notes')
                 ->where('id', $id)
                 ->where('user_id', auth()->id())
                 ->delete();
 
             if ($deleted) {
+                if (request()->expectsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Note deleted successfully!'
+                    ]);
+                }
                 return redirect()->back()->with('success', 'Note deleted successfully!');
             } else {
+                if (request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Note not found or unauthorized.'
+                    ], 403);
+                }
                 return redirect()->back()->with('error', 'Note not found or unauthorized.');
             }
         } catch (\Exception $e) {
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete note: ' . $e->getMessage()
+                ], 500);
+            }
             return redirect()->back()->with('error', 'Failed to delete note: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Store admin note for multiple employees
+     */
+    public function storeAdminNote(Request $request)
+    {
+        try {
+            $request->validate([
+                'text' => 'required|string|max:1000',
+                'assignees' => 'required|array|min:1',
+                'assignees.*' => 'exists:employees,id'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error: ' . implode(', ', array_merge(...array_values($e->errors())))
+            ], 422);
+        }
+
+        try {
+            // Ensure notes table exists
+            if (!DB::getSchemaBuilder()->hasTable('notes')) {
+                DB::statement("
+                    CREATE TABLE notes (
+                        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                        user_id BIGINT UNSIGNED NULL,
+                        employee_id BIGINT UNSIGNED NULL,
+                        type VARCHAR(50) DEFAULT 'employee',
+                        content TEXT,
+                        assignees JSON NULL,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+                        FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE SET NULL,
+                        INDEX (employee_id),
+                        INDEX (user_id),
+                        INDEX (type),
+                        INDEX (created_at)
+                    )
+                ");
+            }
+
+            // Get employee names for assignees
+            $employeeIds = $request->assignees;
+            $employeeNames = Employee::whereIn('id', $employeeIds)
+                ->pluck('name')
+                ->toArray();
+
+            // Create a SINGLE note with all assigned employees
+            $noteId = DB::table('notes')->insertGetId([
+                'user_id' => auth()->id(),
+                'employee_id' => null,  // No single employee - it's for multiple
+                'type' => 'employee',
+                'content' => $request->text,
+                'assignees' => json_encode($employeeNames),
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Admin note saved successfully! ' . count($employeeIds) . ' employee(s) will see this on their dashboard.',
+                'notes' => [[
+                    'id' => $noteId,
+                    'text' => $request->text,
+                    'assignees' => $employeeNames,
+                    'date' => now()->format('M d, Y g:i A')
+                ]]
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save admin note: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update admin note (admin/super-admin can update any note)
+     */
+    public function updateAdminNote(Request $request, $id)
+    {
+        $request->validate([
+            'text' => 'required|string|max:1000'
+        ]);
+
+        try {
+            // Check if user is admin/super-admin
+            $isAdmin = auth()->user()->hasRole('admin') || auth()->user()->hasRole('super-admin') || auth()->user()->can('Dashboard.manage dashboard');
+            
+            $query = DB::table('notes')->where('id', $id);
+            
+            // If not admin, only allow updating own notes
+            if (!$isAdmin) {
+                $query->where('user_id', auth()->id());
+            }
+            
+            $updated = $query->update([
+                'content' => $request->text,
+                'updated_at' => now()
+            ]);
+
+            if ($updated) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Note updated successfully!'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Note not found or unauthorized.'
+                ], 403);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update note: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete admin note (admin/super-admin can delete any note)
+     */
+    public function deleteAdminNote($id)
+    {
+        try {
+            // Check if user is admin/super-admin
+            $isAdmin = auth()->user()->hasRole('admin') || auth()->user()->hasRole('super-admin') || auth()->user()->can('Dashboard.manage dashboard');
+            
+            $query = DB::table('notes')->where('id', $id);
+            
+            // If not admin, only allow deleting own notes
+            if (!$isAdmin) {
+                $query->where('user_id', auth()->id());
+            }
+            
+            $deleted = $query->delete();
+
+            if ($deleted) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Note deleted successfully!'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Note not found or unauthorized.'
+                ], 403);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete note: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update note employees (add/remove)
+     */
+    public function updateNoteEmployees(Request $request, $id)
+    {
+        $request->validate([
+            'assignees' => 'required|array|min:1',
+            'assignees.*' => 'exists:employees,id'
+        ]);
+
+        try {
+            // Get employee names for assignees
+            $employeeIds = $request->assignees;
+            $employeeNames = Employee::whereIn('id', $employeeIds)
+                ->pluck('name')
+                ->toArray();
+
+            // Get the current note content
+            $currentNote = DB::table('notes')->where('id', $id)->first();
+            if (!$currentNote) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Note not found'
+                ], 404);
+            }
+
+            // Update the note with new assignees (single update, not duplicates)
+            DB::table('notes')->where('id', $id)->update([
+                'assignees' => json_encode($employeeNames),
+                'updated_at' => now()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Note employees updated successfully!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update note employees: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -1037,16 +1721,13 @@ class DashboardController extends Controller
             }
         } catch (\Exception $e) {}
 
-        // Tickets
-        if ($companyId) {
-            $openTickets = Ticket::where('company_id', $companyId)
-                ->whereIn('status', ['open', 'pending', 'in_progress'])
-                ->count();
-        } else {
-            $openTickets = Ticket::where('customer', $company->name ?? auth()->user()->name)
-                ->whereIn('status', ['open', 'pending', 'in_progress'])
-                ->count();
-        }
+        // Tickets - use company name since tickets table doesn't have company_id
+        $openTickets = Ticket::where(function($query) use ($company) {
+                $query->where('company', $company->company_name ?? '')
+                      ->orWhere('customer', $company->name ?? auth()->user()->name);
+            })
+            ->whereIn('status', ['open', 'pending', 'in_progress'])
+            ->count();
 
         $stats = [
             'total_quotations' => $totalQuotations,
@@ -1160,13 +1841,12 @@ class DashboardController extends Controller
             // Keep empty collection
         }
 
-        // Recent Tickets
+        // Recent Tickets - use company name since tickets table doesn't have company_id
         $ticketsQuery = Ticket::query();
-        if ($companyId) {
-            $ticketsQuery->where('company_id', $companyId);
-        } else {
-            $ticketsQuery->where('customer', $company->name ?? auth()->user()->name);
-        }
+        $ticketsQuery->where(function($query) use ($company) {
+            $query->where('company', $company->company_name ?? '')
+                  ->orWhere('customer', $company->name ?? auth()->user()->name);
+        });
         
         $recentTickets = $ticketsQuery->orderBy('created_at', 'desc')
             ->limit(5)

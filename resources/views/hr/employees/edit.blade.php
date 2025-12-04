@@ -231,6 +231,39 @@
           @error('incentive_amount')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
+        <!-- Employee Gender -->
+        <div>
+          <label class="hrp-label">Employee Gender:</label>
+          @php($g = old('gender', $employee->gender))
+          <select name="gender" class="Rectangle-29 Rectangle-29-select">
+            <option value="">Select Gender</option>
+            <option value="male" {{ $g==='male'?'selected':'' }}>Male</option>
+            <option value="female" {{ $g==='female'?'selected':'' }}>Female</option>
+            <option value="other" {{ $g==='other'?'selected':'' }}>Other</option>
+          </select>
+          @error('gender')<small class="hrp-error">{{ $message }}</small>@enderror
+        </div>
+        
+        <!-- Employee Date of Birth -->
+        <div>
+          <label class="hrp-label">Employee Date of Birth:</label>
+          <input name="date_of_birth" type="text" value="{{ old('date_of_birth', optional($employee->date_of_birth)->format('d/m/Y')) }}" class="hrp-input Rectangle-29 date-picker" placeholder="dd/mm/yyyy" autocomplete="off">
+          @error('date_of_birth')<small class="hrp-error">{{ $message }}</small>@enderror
+        </div>
+        
+        <!-- Employee Marital Status -->
+        <div>
+          <label class="hrp-label">Employee Marital Status:</label>
+          @php($ms = old('marital_status', $employee->marital_status))
+          <select name="marital_status" class="Rectangle-29 Rectangle-29-select">
+            <option value="">Select Marital Status</option>
+            <option value="single" {{ $ms==='single'?'selected':'' }}>Single</option>
+            <option value="married" {{ $ms==='married'?'selected':'' }}>Married</option>
+            <option value="other" {{ $ms==='other'?'selected':'' }}>Other</option>
+          </select>
+          @error('marital_status')<small class="hrp-error">{{ $message }}</small>@enderror
+        </div>
+        
         <!-- Employee Joining Date -->
         <div>
           <label class="hrp-label">Employee Joining Date:</label>
@@ -254,22 +287,25 @@
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
 <script>
-// Initialize jQuery datepicker with dd/mm/yyyy format (same as quotation)
+// Initialize jQuery datepicker with dd/mm/yyyy format
 $(document).ready(function() {
-    $('.date-picker').datepicker({
-        dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
+    // For joining date - recent years
+    $('input[name="joining_date"]').datepicker({
+        dateFormat: 'dd/mm/yy',
         changeMonth: true,
         changeYear: true,
         yearRange: '-10:+10',
-        showButtonPanel: true,
-        beforeShow: function(input, inst) {
-            setTimeout(function() {
-                inst.dpDiv.css({
-                    marginTop: '2px',
-                    marginLeft: '0px'
-                });
-            }, 0);
-        }
+        showButtonPanel: true
+    });
+    
+    // For date of birth - wider year range (18-70 years old)
+    $('input[name="date_of_birth"]').datepicker({
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-70:-18',
+        maxDate: '-18y',
+        showButtonPanel: true
     });
 });
 
@@ -299,18 +335,21 @@ $(document).ready(function() {
   var form = document.getElementById('employeeForm');
   if(form){
     form.addEventListener('submit', function(e){
-      // Convert date from dd/mm/yyyy to yyyy-mm-dd before submission
-      var dateInput = document.querySelector('input[name="joining_date"]');
-      if(dateInput && dateInput.value){
-        var parts = dateInput.value.split('/');
-        if(parts.length === 3){
-          // Convert dd/mm/yyyy to yyyy-mm-dd
-          var day = parts[0];
-          var month = parts[1];
-          var year = parts[2];
-          dateInput.value = year + '-' + month + '-' + day;
+      // Convert dates from dd/mm/yyyy to yyyy-mm-dd before submission
+      var dateFields = ['joining_date', 'date_of_birth'];
+      dateFields.forEach(function(fieldName) {
+        var dateInput = document.querySelector('input[name="' + fieldName + '"]');
+        if(dateInput && dateInput.value){
+          var parts = dateInput.value.split('/');
+          if(parts.length === 3){
+            // Convert dd/mm/yyyy to yyyy-mm-dd
+            var day = parts[0];
+            var month = parts[1];
+            var year = parts[2];
+            dateInput.value = year + '-' + month + '-' + day;
+          }
         }
-      }
+      });
     });
   }
 })();

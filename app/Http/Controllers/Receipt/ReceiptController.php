@@ -22,7 +22,10 @@ class ReceiptController extends Controller
         
         // Filter by role: customers see only their company's receipts
         if ($user->hasRole('customer') && $user->company_id) {
-            $query->where('company_id', $user->company_id);
+            $company = $user->company;
+            if ($company) {
+                $query->where('company_name', $company->company_name);
+            }
         }
         
         // Handle sorting
@@ -80,7 +83,10 @@ class ReceiptController extends Controller
             
             // Filter by role: customers see only their company's receipts
             if ($user->hasRole('customer') && $user->company_id) {
-                $query->where('company_id', $user->company_id);
+                $company = $user->company;
+                if ($company) {
+                    $query->where('company_name', $company->company_name);
+                }
             }
             
             // Apply filters if provided
@@ -127,7 +133,10 @@ class ReceiptController extends Controller
 
         // Filter by role: customers see only their company's receipts
         if ($user->hasRole('customer') && $user->company_id) {
-            $query->where('company_id', $user->company_id);
+            $company = $user->company;
+            if ($company) {
+                $query->where('company_name', $company->company_name);
+            }
         }
 
         if ($request->filled('from_date')) {
