@@ -70,8 +70,11 @@ $background_url = asset('letters/back.png');
             </div>
             <div class="recipient">
                 <div><b>To,</b></div>
-                <div>Mr. / Mrs. {{ $letter->employee->name }}</div>
-                <div>Employee ID: {{ $letter->employee->employee_id }}</div>
+                <div>{{ ($letter->employee->gender == 'Female' || $letter->employee->gender == 'female') ? 'Ms.' : 'Mr.' }} {{ $letter->employee->name }}</div>
+                <div>{{ $letter->employee->designation ?? $letter->employee->position ?? 'Employee' }}</div>
+                @if($letter->employee->address)
+                <div>{{ $letter->employee->address }}</div>
+                @endif
             </div>
             <div class="subject">Subject: {{ $letter->title }}</div>
             <div class="body">

@@ -620,6 +620,84 @@
   });
 </script>
 
+<!-- Browser navigation for yellow and green dots -->
+<script>
+(function() {
+  'use strict';
+  
+  let yellowInitialized = false;
+  let greenInitialized = false;
+  
+  function handleYellowClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    console.log('Yellow dot clicked - Going back');
+    window.history.back();
+    return false;
+  }
+  
+  function handleGreenClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    console.log('Green dot clicked - Going forward');
+    window.history.forward();
+    return false;
+  }
+  
+  function initNavigationDots() {
+    const yellowDot = document.querySelector('.hrp-dot-y');
+    const greenDot = document.querySelector('.hrp-dot-g');
+    
+    if (yellowDot && !yellowInitialized) {
+      // Add multiple event types to ensure it works
+      yellowDot.addEventListener('click', handleYellowClick, true);
+      yellowDot.addEventListener('mousedown', handleYellowClick, true);
+      yellowDot.addEventListener('touchstart', handleYellowClick, true);
+      
+      yellowDot.style.cursor = 'pointer';
+      yellowDot.title = 'Go Back';
+      yellowDot.setAttribute('role', 'button');
+      yellowDot.setAttribute('aria-label', 'Go Back');
+      
+      yellowInitialized = true;
+      console.log('Yellow dot initialized');
+    }
+    
+    if (greenDot && !greenInitialized) {
+      // Add multiple event types to ensure it works
+      greenDot.addEventListener('click', handleGreenClick, true);
+      greenDot.addEventListener('mousedown', handleGreenClick, true);
+      greenDot.addEventListener('touchstart', handleGreenClick, true);
+      
+      greenDot.style.cursor = 'pointer';
+      greenDot.title = 'Go Forward';
+      greenDot.setAttribute('role', 'button');
+      greenDot.setAttribute('aria-label', 'Go Forward');
+      
+      greenInitialized = true;
+      console.log('Green dot initialized');
+    }
+  }
+  
+  // Initialize immediately if DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNavigationDots);
+  } else {
+    initNavigationDots();
+  }
+  
+  // Also try after window load
+  window.addEventListener('load', initNavigationDots);
+  
+  // And after delays to catch any dynamic content
+  setTimeout(initNavigationDots, 100);
+  setTimeout(initNavigationDots, 500);
+  setTimeout(initNavigationDots, 1000);
+})();
+</script>
+
 @stack('scripts')
 <!-- Toastr initialization is handled in partials/flash.blade.php -->
 </body>

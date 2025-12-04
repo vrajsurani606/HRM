@@ -26,7 +26,23 @@ if ($contentLength > 3000) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ $letter->type }} Letter - {{ $employee->name }}</title>
 <style>
-    body, html { margin:0 !important; padding:0 !important; font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif !important; }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    
+    * {
+        font-family: 'Poppins', sans-serif !important;
+    }
+    
+    body, html { 
+        margin:0 !important; 
+        padding:0 !important; 
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 400;
+    }
+    
+    b, strong {
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 700 !important;
+    }
     @page { margin: 0; }
     
     /* Page Container */
@@ -57,20 +73,99 @@ if ($contentLength > 3000) {
     }
     
     /* Letter Elements */
-    .letter-meta, .recipient, .subject, .body, .signature { margin-bottom:10px; }
-    .letter-meta { display:flex; justify-content:space-between; font-size:13px; color:#222; font-weight:500; }
-    .recipient { font-size:13px; color:#222; line-height:1.5; }
-    .subject { font-size:14px; font-weight:700; color:#222; text-align:center; text-decoration:underline; }
-    .body { font-size:{{ $bodyFontSize }}; color:#222; line-height:{{ $lineHeight }}; text-align:justify; }
-    .body p { margin-bottom:6px; page-break-inside:avoid; }
-    .body ol, .body ul { margin:6px 0; padding-left:20px; }
-    .body li { margin-bottom:4px; page-break-inside:avoid; }
-    .body .company { color:#456DB5; font-weight:700; }
-    .body .highlight { font-weight:700; }
+    .letter-meta, .recipient, .subject, .body, .signature { 
+        margin-bottom:10px; 
+        font-family: 'Poppins', sans-serif !important;
+    }
+    .letter-meta { 
+        display:flex; 
+        justify-content:space-between; 
+        font-size:14px; 
+        color:#222; 
+        font-weight:400;
+        font-family: 'Poppins', sans-serif !important;
+    }
+    .letter-meta b {
+        font-weight: 700 !important;
+    }
+    .recipient { 
+        font-size:14px; 
+        color:#222; 
+        line-height:1.5;
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 400;
+    }
+    .recipient b {
+        font-weight: 700 !important;
+    }
+    .subject { 
+        font-size:16px; 
+        font-weight:700 !important; 
+        color:#222; 
+        text-align:center; 
+        text-decoration:underline;
+        font-family: 'Poppins', sans-serif !important;
+    }
+    .body { 
+        font-size:15px; 
+        color:#222; 
+        line-height:1.7; 
+        text-align:justify;
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 400;
+    }
+    .body b, .body strong {
+        font-weight: 700 !important;
+    }
+    .body p { 
+        margin-bottom:6px; 
+        page-break-inside:avoid;
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 400;
+    }
+    .body ol, .body ul { 
+        margin:6px 0; 
+        padding-left:20px;
+        font-family: 'Poppins', sans-serif !important;
+    }
+    .body li { 
+        margin-bottom:4px; 
+        page-break-inside:avoid;
+        font-family: 'Poppins', sans-serif !important;
+    }
+    .body .company { 
+        color:#456DB5; 
+        font-weight:700 !important;
+        font-family: 'Poppins', sans-serif !important;
+    }
+    .body .highlight { 
+        font-weight:700 !important;
+        font-family: 'Poppins', sans-serif !important;
+    }
     
-    .signature { font-size:13px; color:#222; text-align:left; margin-top:16px; page-break-inside:avoid; }
-    .signature .name { font-weight:700; font-size:14px; }
-    .signature .company { font-size:13px; color:#456DB5; font-weight:700; }
+    .signature { 
+        font-size:14px; 
+        color:#222; 
+        text-align:left; 
+        margin-top:16px; 
+        page-break-inside:avoid;
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 400;
+    }
+    .signature b {
+        font-weight: 700 !important;
+    }
+    .signature .name { 
+        font-weight:700 !important; 
+        font-size:15px;
+        font-family: 'Poppins', sans-serif !important;
+    }
+    .signature .company { 
+        font-size:14px; 
+        color:#456DB5; 
+        font-weight:700 !important;
+        font-family: 'Poppins', sans-serif !important;
+    }
     .signature .sign { margin:6px 0 6px 0; }
     .signature .sign img { height:50px; width:auto; display:block; object-fit:contain; }
     
@@ -79,12 +174,22 @@ if ($contentLength > 3000) {
         border-left: 4px solid #456DB5;
         padding: 10px 14px;
         margin: 12px 0;
-        font-size: 11px;
+        font-size: 13px;
         border-radius: 4px;
         page-break-inside: avoid;
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 400;
     }
-    .note-rectangle b { color: #333; }
-    .font-weight-bold { font-weight: bold; font-size: 13px; }
+    .note-rectangle b { 
+        color: #333; 
+        font-weight: 700 !important;
+        font-family: 'Poppins', sans-serif !important;
+    }
+    .font-weight-bold { 
+        font-weight: 700 !important; 
+        font-size: 14px;
+        font-family: 'Poppins', sans-serif !important;
+    }
     .bullets-avoid-break { break-inside: avoid; page-break-inside: avoid; }
     
     /* Print Button */

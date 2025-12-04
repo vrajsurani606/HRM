@@ -1,16 +1,20 @@
-<div class="letter-meta">
-    <div><b>Letter No:</b> {{ $letter->reference_number }}</div>
-    <div><b>Date:</b> {{ \Carbon\Carbon::parse($letter->issue_date)->format('d F Y') }}</div>
-</div>
-
-<div class="recipient">
-    <div><b>To,</b></div>
-    <div>{{ $employee->name }}</div>
-    @if($letter->internship_address)
-    <div>{{ $letter->internship_address }}</div>
-    @elseif($employee->address)
-    <div>{{ $employee->address }}</div>
-    @endif
+<div class="letter-header">
+    <div style="margin-bottom: 15px;"><b>Ref No.:</b> {{ $letter->reference_number }}</div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+        <div class="recipient" style="flex: 1;">
+            <div><b>To,</b></div>
+            <div>{{ ($employee->gender == 'Female' || $employee->gender == 'female') ? 'Ms.' : 'Mr.' }} {{ $employee->name }}</div>
+            <div>{{ $letter->internship_position ?? $employee->designation ?? $employee->position ?? 'Candidate' }}</div>
+            @if($letter->internship_address)
+            <div>{{ $letter->internship_address }}</div>
+            @elseif($employee->address)
+            <div>{{ $employee->address }}</div>
+            @endif
+        </div>
+        <div class="letter-meta" style="text-align: right;">
+            <div><b>Date:</b> {{ \Carbon\Carbon::parse($letter->issue_date)->format('d-m-Y') }}</div>
+        </div>
+    </div>
 </div>
 
 @if($letter->subject)
@@ -26,7 +30,9 @@
 
     <p><strong>Internship Details:</strong></p>
     <ul>
-        <li><strong>Position:</strong> {{ $letter->internship_position ?? 'Intern' }}</li>
+        @if($letter->internship_position)
+        <li><strong>Position:</strong> {{ $letter->internship_position }}</li>
+        @endif
         @if($letter->internship_start_date)
         <li><strong>Start Date:</strong> {{ \Carbon\Carbon::parse($letter->internship_start_date)->format('d F Y') }}</li>
         @endif
@@ -41,12 +47,15 @@
         @endphp
         <li><strong>Duration:</strong> {{ $duration }} month{{ $duration != 1 ? 's' : '' }}</li>
         @endif
+        @if($letter->working_hours)
+        <li><strong>Working Hours:</strong> {{ $letter->working_hours }}</li>
+        @endif
+        @if($letter->reporting_manager)
+        <li><strong>Reporting To:</strong> {{ $letter->reporting_manager }}</li>
+        @endif
     </ul>
 
-    @if(!empty($letter->content))
-        {!! $letter->content !!}
-    @else
-
+    @if($letter->use_default_content ?? true)
         <p>This internship is designed to provide you with practical experience and skill development in your field. The internship period is structured to help you gain valuable industry exposure while contributing to our organization.</p>
 
         <p><strong>During your internship, you will:</strong></p>
@@ -69,6 +78,10 @@
         <p>Based on your performance during the internship, you may be considered for a permanent position with our organization.</p>
 
         <p>We look forward to your contribution and growth with <strong>{{ $company_name }}</strong>.</p>
+    @endif
+    
+    @if(!empty($letter->content))
+        {!! $letter->content !!}
     @endif
 
     @php

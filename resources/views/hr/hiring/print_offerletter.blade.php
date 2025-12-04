@@ -101,16 +101,19 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
   <div class="offer-container">
     <div class="bg-cover"><img src="{{ $background_url }}" alt="" /></div>
     <div class="letter-content first-page">
-      <div class="letter-meta">
-        <div><b>Ref No.:</b> {{ $offer->reference_number ?? $lead->unique_code ?? 'N/A' }}</div>
-        <div><b>Date:</b> {{ optional($offer->issue_date)->format('d-m-Y') ?? now()->format('d-m-Y') }}</div>
-      </div>
-      <div class="recipient">
-        <div><b>To,</b></div>
-        <div>Mr. / Mrs. {{ $lead->person_name ?? $lead->name }}</div>
-        @if(!empty($lead->address))
-          <div>Address :- {{ $lead->address }}</div>
-        @endif
+      <div style="margin-bottom: 15px;"><b>Ref No.:</b> {{ $offer->reference_number ?? $lead->unique_code ?? 'N/A' }}</div>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+        <div class="recipient" style="flex: 1;">
+          <div><b>To,</b></div>
+          <div>{{ ($lead->gender == 'Female' || $lead->gender == 'female') ? 'Ms.' : 'Mr.' }} {{ $lead->person_name ?? $lead->name }}</div>
+          <div>{{ $lead->position ?? $lead->designation ?? 'Candidate' }}</div>
+          @if(!empty($lead->address))
+          <div>{{ $lead->address }}</div>
+          @endif
+        </div>
+        <div class="letter-meta" style="text-align: right;">
+          <div><b>Date:</b> {{ optional($offer->issue_date)->format('d-m-Y') ?? now()->format('d-m-Y') }}</div>
+        </div>
       </div>
       <div class="subject">Subject: Job Offer for {{ $lead->position ?? $lead->designation ?? 'N/A' }} Position</div>
       <div class="body">

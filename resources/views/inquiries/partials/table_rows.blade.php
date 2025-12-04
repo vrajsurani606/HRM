@@ -57,21 +57,22 @@
     {{ optional(optional($inquiry->followUps->first())->next_followup_date)->format('d-m-Y') }}
   </td>
   <td style="text-align:center;">
-    @php
-      $latestFollowUp = $inquiry->followUps->first();
-    @endphp
-    @if($latestFollowUp)
-      @if($latestFollowUp->is_confirm)
-        <img src="{{ asset('action_icon/completed.svg') }}" alt="Confirmed" title="Follow Up Confirmed" style="width:20px;height:20px;opacity:1;">
+    @if($inquiry->followUps->isNotEmpty())
+      @if($inquiry->followUps->first()->is_confirm)
+        <span class="status-badge status-confirmed" style="display:inline-flex;align-items:center;gap:4px;">
+          <img src="{{ asset('action_icon/completed.svg') }}" alt="Confirmed" style="width:14px;height:14px;">
+          Confirmed
+        </span>
       @else
         @can('Inquiries Management.follow up confirm')
-          <button type="button" class="confirm-followup-btn" data-followup-id="{{ $latestFollowUp->id }}" data-row-id="{{ $inquiry->id }}" title="Click to Confirm" aria-label="Click to Confirm" style="background:transparent;border:0;padding:0;cursor:pointer;">
-            <img src="{{ asset('action_icon/pending.svg') }}" alt="Pending" style="width:20px;height:20px;">
+          <button type="button" class="confirm-followup-btn status-badge status-pending" data-followup-id="{{ $inquiry->followUps->first()->id }}" data-row-id="{{ $inquiry->id }}" title="Click to Confirm" style="border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+            <img src="{{ asset('action_icon/pending.svg') }}" alt="Pending" style="width:14px;height:14px;">
+            Pending
           </button>
         @endcan
       @endif
     @else
-      —
+      <span style="color:#9ca3af;">—</span>
     @endif
   </td>
   <td><a href="{{ $inquiry->scope_link }}" class="scope-link">View</a></td>

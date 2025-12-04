@@ -1,14 +1,18 @@
-<div class="letter-meta">
-    <div><b>Ref No.:</b> {{ $letter->reference_number ?? 'REF001' }}</div>
-    <div><b>Date:</b> {{ $letter->issue_date ? $letter->issue_date->format('d-m-Y') : date('d-m-Y') }}</div>
-</div>
-<div class="recipient">
-    <div><b>To,</b></div>
-    <div>{{ $letter->employee->name }}</div>
-    <div><b>Designation:</b> {{ $letter->employee->position ?? 'Employee' }}</div>
-    @if($letter->employee->address)
-    <div>Address :- {{ $letter->employee->address }}</div>
-    @endif
+<div class="letter-header">
+    <div style="margin-bottom: 15px;"><b>Ref No.:</b> {{ $letter->reference_number ?? 'REF001' }}</div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+        <div class="recipient" style="flex: 1;">
+            <div><b>To,</b></div>
+            <div>{{ ($letter->employee->gender == 'Female' || $letter->employee->gender == 'female') ? 'Ms.' : 'Mr.' }} {{ $letter->employee->name }}</div>
+            <div>{{ $letter->employee->designation ?? $letter->employee->position ?? 'Employee' }}</div>
+            @if($letter->employee->address)
+            <div>{{ $letter->employee->address }}</div>
+            @endif
+        </div>
+        <div class="letter-meta" style="text-align: right;">
+            <div><b>Date:</b> {{ $letter->issue_date ? $letter->issue_date->format('d-m-Y') : date('d-m-Y') }}</div>
+        </div>
+    </div>
 </div>
 <div class="subject">Subject: Warning Notice</div>
 <div class="body">
@@ -16,10 +20,7 @@
 
 <p>This letter serves as a <b>Warning Notice</b> regarding your conduct/performance as <b>{{ $letter->employee->position ?? 'Employee' }}</b> at <span class="company">{{ $company_name }}</span>.</p>
 
-@if(!empty($letter->content))
-    {!! $letter->content !!}
-@else
-
+@if($letter->use_default_content ?? true)
     <p><b>Issue Details:</b></p>
     <p>We have observed the following concerns that require immediate attention and improvement:</p>
     <ul style="list-style-type: disc; margin: 4px 0 0 18px; padding:0;">
@@ -27,6 +28,10 @@
         <li>Date and time of occurrence (if applicable)</li>
         <li>Impact on work/team/organization</li>
     </ul>
+@endif
+
+@if(!empty($letter->content))
+    {!! $letter->content !!}
 @endif
     {{-- <p><b>Expected Improvement:</b></p>
     <ol style="margin-top: 4px;">

@@ -131,6 +131,32 @@
                 @enderror
             </div>
             
+            <!-- Use Default Content Checkbox -->
+            <div id="defaultContentCheckboxContainer" class="hidden col-span-2">
+                <div class="p-5 bg-blue-50 border-2 border-blue-300 rounded-lg shadow-sm transition-all" id="checkbox-container">
+                    <div class="flex items-start gap-4">
+                        <input type="hidden" name="use_default_content" id="use_default_content_hidden" value="1">
+                        <input type="checkbox" id="use_default_content" class="w-6 h-6 mt-1 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer" checked>
+                        <div class="flex-1">
+                            <label for="use_default_content" class="text-lg font-bold text-gray-900 cursor-pointer flex items-center gap-2 mb-2">
+                                <i class="fas fa-file-alt text-blue-600 text-xl" id="checkbox-icon"></i> 
+                                <span>Use Default Letter Content</span>
+                            </label>
+                            <div class="text-sm text-gray-700 leading-relaxed">
+                                <div class="mb-1">
+                                    <i class="fas fa-check-circle text-green-600"></i> 
+                                    <strong>When Checked:</strong> Letter will include standard template content plus any custom content you add below.
+                                </div>
+                                <div>
+                                    <i class="fas fa-times-circle text-red-600"></i> 
+                                    <strong>When Unchecked:</strong> Letter will show only your custom content (no default template).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div>
                 <label class="hrp-label">Title: <span class="text-red-500">*</span></label>
                 <input type="text" name="title" id="title" class="hrp-input Rectangle-29" 
@@ -548,6 +574,7 @@ $(document).on('change', 'select[name="type"]', function() {
     const universalFields = document.getElementById('universalFields');
     const standardFields = document.getElementById('standardLetterFields');
     const submitBtn = document.getElementById('submitBtn');
+    const defaultContentCheckbox = document.getElementById('defaultContentCheckboxContainer');
     
     // Hide all fields first
     offerLetterFields.classList.add('hidden');
@@ -560,6 +587,13 @@ $(document).on('change', 'select[name="type"]', function() {
     otherFields.classList.add('hidden');
     universalFields.classList.add('hidden');
     standardFields.classList.add('hidden');
+    defaultContentCheckbox.classList.add('hidden');
+    
+    // Show default content checkbox for letters that have default templates
+    const lettersWithDefaults = ['joining', 'confidentiality', 'impartiality', 'experience', 'agreement', 'warning', 'termination', 'increment', 'internship_offer', 'internship_letter'];
+    if (lettersWithDefaults.includes(this.value)) {
+        defaultContentCheckbox.classList.remove('hidden');
+    }
     
     if (this.value === 'offer') {
         offerLetterFields.classList.remove('hidden');
@@ -768,6 +802,47 @@ $(document).ready(function() {
         });
     });
 
+    // Handle default content checkbox
+    $('#use_default_content').on('change', function() {
+        const isChecked = $(this).is(':checked');
+        $('#use_default_content_hidden').val(isChecked ? '1' : '0');
+        
+        // Update visual feedback
+        const container = $('#checkbox-container');
+        const icon = $('#checkbox-icon');
+        
+        if (isChecked) {
+            container.removeClass('bg-red-50 border-red-200').addClass('bg-blue-50 border-blue-200');
+            icon.removeClass('fa-times-circle text-red-600').addClass('fa-file-alt text-blue-600');
+        } else {
+            container.removeClass('bg-blue-50 border-blue-200').addClass('bg-red-50 border-red-200');
+            icon.removeClass('fa-file-alt text-blue-600').addClass('fa-times-circle text-red-600');
+        }
+        
+        console.log('Checkbox changed. Checked:', isChecked, 'Hidden value:', $('#use_default_content_hidden').val());
+    });
+    
+    // Initialize checkbox state on page load
+    $(document).ready(function() {
+        // Load saved value from server if editing
+        @if(isset($letter))
+            const savedValue = '{{ $letter->use_default_content ? "1" : "0" }}';
+            console.log('Loading saved value:', savedValue);
+            
+            const checkbox = $('#use_default_content');
+            const hiddenInput = $('#use_default_content_hidden');
+            
+            hiddenInput.val(savedValue);
+            
+            if (savedValue === '0') {
+                checkbox.prop('checked', false);
+                checkbox.trigger('change');
+            } else {
+                checkbox.prop('checked', true);
+            }
+        @endif
+    });
+
     // Auto-populate content based on letter type
     $('#type').change(function() {
         var letterType = $(this).val();
@@ -792,6 +867,30 @@ $(document).ready(function() {
     $('form').on('submit', function(e) {
         e.preventDefault();
         
+        // Ensure use_default_content hidden input has the correct value
+        const checkbox = $('#use_default_content');
+        const hiddenInput = $('#use_default_content_hidden');
+        console.log('Checkbox exists:', checkbox.length > 0);
+        console.log('Hidden input exists:', hiddenInput.length > 0);
+        console.log('Checkbox is checked:', checkbox.is(':checked'));
+        
+        if (checkbox.length && hiddenInput.length) {
+            const checkboxValue = checkbox.is(':checked') ? '1' : '0';
+            hiddenInput.val(checkboxValue);
+            console.log('Form submit - Setting hidden input to:', checkboxValue);
+            console.log('Form submit - Hidden input value is now:', hiddenInput.val());
+        } else {
+            console.warn('Checkbox or hidden input not found! Setting default value 1');
+            // If checkbox doesn't exist (letter type doesn't support it), default to 1
+            if (!hiddenInput.length) {
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'use_default_content',
+                    value: '1'
+                }).appendTo($(this));
+            }
+        }
+        
         // Get content from all Summernote editors before submission
         $('.summernote, .summernote-notes').each(function() {
             if ($(this).next('.note-editor').length) {
@@ -803,6 +902,12 @@ $(document).ready(function() {
         
         // Create FormData from the form
         var formData = new FormData(this);
+        
+        // Explicitly add use_default_content to FormData to ensure it's included
+        if (hiddenInput.length) {
+            formData.set('use_default_content', hiddenInput.val());
+            console.log('FormData use_default_content:', formData.get('use_default_content'));
+        }
         
         // Debug: Log what's being submitted
         console.log('Form submission data:');

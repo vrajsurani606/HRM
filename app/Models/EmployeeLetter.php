@@ -18,6 +18,7 @@ class EmployeeLetter extends Model
         'title',
         'subject',
         'content',
+        'use_default_content',
         'type',
         'issue_date',
         'notes',
@@ -52,6 +53,7 @@ class EmployeeLetter extends Model
         'increment_effective_date' => 'date',
         'internship_start_date' => 'date',
         'internship_end_date' => 'date',
+        'use_default_content' => 'boolean',
     ];
 
     /**
