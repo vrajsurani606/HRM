@@ -1,12 +1,72 @@
-<div class="letter-meta">
-    <div><b>Letter No:</b> {{ $letter->reference_number }}</div>
-    <div><b>Date:</b> {{ \Carbon\Carbon::parse($letter->issue_date)->format('d/m/Y') }}</div>
-</div>
 
-<div class="recipient">
-    <div><b>To:</b> {{ $employee->name }}</div>
-    <div><b>Designation:</b> {{ $employee->position ?? 'Employee' }}</div>
-    <div><b>Address:</b> {{ $employee->address ?? 'N/A' }}</div>
+<style>
+    * {
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.6;
+        color: #333;
+    }
+    
+    .letter-header, .recipient, .subject, .body, .signature {
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .subject {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .body p {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 400;
+        margin: 10px 0;
+        text-align: justify;
+    }
+    
+    b, strong {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700 !important;
+    }
+    
+    .letter-header b, .recipient b, .body b {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700 !important;
+    }
+    
+    .signature {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 400;
+    }
+    
+    .signature b {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700 !important;
+    }
+</style>
+
+<div class="letter-header">
+    <div style="margin-bottom: 15px;"><b>Ref No.:</b> {{ $letter->reference_number }}</div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+        <div class="recipient" style="flex: 1;">
+            <div><b>To,</b></div>
+            <div>{{ ($employee->gender == 'Female' || $employee->gender == 'female') ? 'Ms.' : 'Mr.' }} {{ $employee->name }}</div>
+            <div>{{ $employee->designation ?? $employee->position ?? 'Employee' }}</div>
+            @if($employee->address)
+            <div>{{ $employee->address }}</div>
+            @endif
+        </div>
+        <div class="letter-meta" style="text-align: right;">
+            <div><b>Date:</b> {{ \Carbon\Carbon::parse($letter->issue_date)->format('d-m-Y') }}</div>
+        </div>
+    </div>
 </div>
 
 @if($letter->subject)
@@ -26,9 +86,7 @@
         $endDateFormatted = $endDate ? $endDate->format('jS F Y') : 'Current';
     @endphp
     
-    @if($letter->content)
-        {!! $letter->content !!}
-    @else
+    @if($letter->use_default_content ?? true)
         <p>This is to certify that <b>{{ $employee->name }}</b> is employed with <b>{{ $company_name }}</b> 
         as a <b>{{ $employee->position ?? 'Employee' }}</b> from <b>{{ $startDateFormatted }}</b> to <b>{{ $endDateFormatted }}</b>.</p>
         
@@ -37,6 +95,10 @@
         <p>{{ $employee->gender === 'Female' ? 'She' : 'He' }} maintained good relationships with colleagues and clients, and is known for punctuality and problem-solving skills. We found {{ $employee->gender === 'Female' ? 'her' : 'him' }} to be trustworthy and sincere in all duties.</p>
         
         <p>We wish <b>{{ $employee->name }}</b> all the best in {{ $employee->gender === 'Female' ? 'her' : 'his' }} future endeavors.</p>
+    @endif
+    
+    @if($letter->content)
+        {!! $letter->content !!}
     @endif
     
     @php

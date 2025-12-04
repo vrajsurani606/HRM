@@ -122,7 +122,6 @@
           <div class="hrp-segment">
             <input id="g-male" type="radio" name="gender" value="male" {{ $g==='male' ? 'checked' : '' }} ><label for="g-male">Male</label>
             <input id="g-female" type="radio" name="gender" value="female" {{ $g==='female' ? 'checked' : '' }} ><label for="g-female">Female</label>
-            <input id="g-other" type="radio" name="gender" value="other" {{ $g==='other' ? 'checked' : '' }} ><label for="g-other">Other</label>
           </div>
           @error('gender')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
