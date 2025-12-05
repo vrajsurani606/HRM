@@ -41,7 +41,7 @@
     </a>
 
     <div class="filter-right">
-      <input name="q" class="filter-pill" placeholder="Search tickets..." value="{{ request('q') }}">
+      <input name="q" class="filter-pill live-search" placeholder="Search tickets..." value="{{ request('q') }}">
       @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.create ticket'))
         <button type="button" class="pill-btn pill-success" onclick="openAddTicketModal()" style="display: flex; align-items: center; gap: 8px;">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
@@ -177,11 +177,6 @@
     </table>
   </div>
 
-  @if($tickets->hasPages())
-  <div style="margin-top: 20px; display: flex; justify-content: center;">
-    {{ $tickets->links() }}
-  </div>
-  @endif
 </div>
 
 <!-- Add/Edit Ticket Modal -->
@@ -476,4 +471,30 @@ function submitAssignment(event) {
   });
 }
 </script>
+@endsection
+
+@section('footer_pagination')
+  @if(isset($tickets) && method_exists($tickets,'links'))
+  <form method="GET" class="hrp-entries-form">
+    <span>Entries</span>
+    @php($currentPerPage = (int) request()->get('per_page', 10))
+    <select name="per_page" onchange="this.form.submit()">
+      @foreach([10,25,50,100] as $size)
+      <option value="{{ $size }}" {{ $currentPerPage === $size ? 'selected' : '' }}>{{ $size }}</option>
+      @endforeach
+    </select>
+    @foreach(request()->except(['per_page','page']) as $k => $v)
+    <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+    @endforeach
+  </form>
+  {{ $tickets->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
+  @endif
+@endsection
+
+@section('breadcrumb')
+  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+  <span class="hrp-bc-sep">›</span>
+  <a href="{{ route('tickets.index') }}" style="font-weight:800;color:#0f0f0f;text-decoration:none">Ticket Support</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">Tickets List</span>
 @endsection

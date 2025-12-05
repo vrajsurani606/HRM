@@ -420,7 +420,7 @@
                             <input type="text" name="reporting_manager" class="hrp-input Rectangle-29 w-full" placeholder="e.g., John Doe" value="{{ old('reporting_manager', isset($letter) ? $letter->reporting_manager : '') }}">
                         </div>
                         <div>
-                            <label class="hrp-label">Working Hours:</label>
+                            <label class="hrp-label">Working Time:</label>
                             <input type="text" name="working_hours" class="hrp-input Rectangle-29 w-full" placeholder="e.g., 9:30 AM to 6:30 PM" value="{{ old('working_hours', isset($letter) ? $letter->working_hours : '') }}">
                         </div>
                         <div>

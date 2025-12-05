@@ -1,11 +1,20 @@
 <div>
-  <div style="margin-bottom: 28px;">
-    <h2 style="font-size: 22px; font-weight: 800; color: #111; margin: 0 0 10px 0; line-height: 1.3; font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-      {{ __('Documents') }}
-    </h2>
-    <p style="font-size: 14px; color: #6b7280; margin: 0; line-height: 1.6;">
-      {{ __('View and manage your uploaded documents.') }}
-    </p>
+  <div style="margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h2 style="font-size: 22px; font-weight: 800; color: #111; margin: 0 0 10px 0; line-height: 1.3; font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        {{ __('Documents') }}
+      </h2>
+      <p style="font-size: 14px; color: #6b7280; margin: 0; line-height: 1.6;">
+        {{ __('View and manage your uploaded documents.') }}
+      </p>
+    </div>
+    @if($employee)
+    <button type="button" onclick="openUploadModal()" class="hrp-btn hrp-btn-primary" style="display: flex !important; align-items: center; gap: 8px; white-space: nowrap; cursor: pointer;">
+      <i class="fa fa-plus"></i> Add Document
+    </button>
+    @else
+    <!-- Debug: Employee not found -->
+    @endif
   </div>
 
   @if($employee)
@@ -110,9 +119,70 @@
   @endif
 </div>
 
+<!-- Upload Document Modal -->
+<div id="uploadModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+  <div style="background: white; border-radius: 12px; padding: 32px; max-width: 500px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h3 style="font-size: 20px; font-weight: 700; color: #111; margin: 0; font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        <i class="fa fa-upload"></i> Upload Document
+      </h3>
+      <button onclick="closeUploadModal()" style="background: none; border: none; font-size: 24px; color: #9ca3af; cursor: pointer; padding: 0; line-height: 1;">
+        &times;
+      </button>
+    </div>
+    
+    <form id="uploadDocumentForm" method="POST" action="{{ route('profile.documents.upload') }}" enctype="multipart/form-data">
+      @csrf
+      
+      <div style="margin-bottom: 20px;">
+        <label class="hrp-label" style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Document Type</label>
+        <select name="document_type" id="documentType" class="Rectangle-29 Rectangle-29-select" required style="width: 100%;">
+          <option value="">Select Document Type</option>
+          <option value="aadhaar_photo_front">Aadhaar Card (Front)</option>
+          <option value="aadhaar_photo_back">Aadhaar Card (Back)</option>
+          <option value="pan_photo">PAN Card</option>
+          <option value="cheque_photo">Bank Cheque</option>
+          <option value="marksheet_photo">Marksheet</option>
+        </select>
+      </div>
+      
+      <div style="margin-bottom: 24px;">
+        <label class="hrp-label" style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Select File</label>
+        <input type="file" name="document" id="documentFile" accept="image/*,application/pdf" required class="hrp-input Rectangle-29" style="width: 100%; padding: 8px;">
+        <small style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">Accepted formats: JPG, PNG, PDF (Max: 5MB)</small>
+      </div>
+      
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <button type="button" onclick="closeUploadModal()" class="hrp-btn" style="background: #f3f4f6; color: #374151;">
+          Cancel
+        </button>
+        <button type="submit" class="hrp-btn hrp-btn-primary">
+          <i class="fa fa-upload"></i> Upload
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
 function viewDocument(type) {
   console.log('View document:', type);
   // Can be implemented to show document in modal
 }
+
+function openUploadModal() {
+  document.getElementById('uploadModal').style.display = 'flex';
+}
+
+function closeUploadModal() {
+  document.getElementById('uploadModal').style.display = 'none';
+  document.getElementById('uploadDocumentForm').reset();
+}
+
+// Close modal when clicking outside
+document.getElementById('uploadModal')?.addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeUploadModal();
+  }
+});
 </script>

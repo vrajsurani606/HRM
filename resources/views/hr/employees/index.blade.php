@@ -33,7 +33,7 @@
             </svg>
           </button>
         </div>
-        <input type="text" name="search" class="filter-pill" placeholder="Search here..." value="{{ request('search') }}">
+        <input type="text" name="search" class="filter-pill live-search" placeholder="Search here..." value="{{ request('search') }}">
         <a href="{{ route('employees.index') }}" class="pill-btn pill-secondary">Reset</a>
         @can('Employees Management.create employee')
           <a href="{{ route('employees.create') }}" class="pill-btn pill-success">+ Add</a>
@@ -301,13 +301,25 @@
       </div>
     </div>
     
-    <!-- Pagination -->
-    @if($employees->hasPages())
-      <div class="pagination-wrapper">
-        {{ $employees->links() }}
-      </div>
-    @endif
   </div>
+@endsection
+
+@section('footer_pagination')
+  @if(isset($employees) && method_exists($employees,'links'))
+  <form method="GET" class="hrp-entries-form">
+    <span>Entries</span>
+    @php($currentPerPage = (int) request()->get('per_page', 12))
+    <select name="per_page" onchange="this.form.submit()">
+      @foreach([12,24,48,100] as $size)
+      <option value="{{ $size }}" {{ $currentPerPage === $size ? 'selected' : '' }}>{{ $size }}</option>
+      @endforeach
+    </select>
+    @foreach(request()->except(['per_page','page']) as $k => $v)
+    <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+    @endforeach
+  </form>
+  {{ $employees->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
+  @endif
 @endsection
 
 @push('styles')
@@ -466,6 +478,14 @@
   }
 </style>
 @endpush
+
+@section('breadcrumb')
+  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+  <span class="hrp-bc-sep">›</span>
+  <a href="{{ route('employees.index') }}" style="font-weight:800;color:#0f0f0f;text-decoration:none">Employee Management</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">Employee List</span>
+@endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

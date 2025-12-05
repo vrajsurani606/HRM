@@ -55,7 +55,9 @@ class EmployeeController extends Controller
             });
         }
         
-        $employees = $query->orderByDesc('id')->paginate(12)->withQueryString();
+        // Get per_page from request, default to 12
+        $perPage = $request->get('per_page', 12);
+        $employees = $query->orderByDesc('id')->paginate($perPage)->withQueryString();
         
         return view('hr.employees.index', [
             'page_title' => 'Employee List',

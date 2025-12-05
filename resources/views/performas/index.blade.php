@@ -15,7 +15,7 @@
     </svg>
   </button>
   <div class="filter-right">
-    <input type="text" name="search" placeholder="Search here.." class="filter-pill" value="{{ request('search') }}" />
+    <input type="text" name="search" placeholder="Search here.." class="filter-pill live-search" value="{{ request('search') }}" />
     @can('Proformas Management.export proforma')
       <a href="{{ route('performas.export.csv', request()->only(['company_name','unique_code','mobile_no','from_date','to_date','search'])) }}" class="pill-btn pill-success">Excel</a>
     @endcan

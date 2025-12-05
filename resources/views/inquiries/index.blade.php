@@ -49,7 +49,7 @@
           </svg>
         </button>
       </div>
-      <input type="text" class="filter-pill" placeholder="Search here..." id="custom_search" name="search" value="{{ request('search') }}">
+      <input type="text" class="filter-pill live-search" placeholder="Search here..." id="custom_search" name="search" value="{{ request('search') }}">
       @can('Inquiries Management.export inquiry')
         <a href="{{ route('inquiries.export', request()->only(['from_date','to_date','search'])) }}" class="pill-btn pill-success" id="excel_btn">Excel</a>
       @endcan

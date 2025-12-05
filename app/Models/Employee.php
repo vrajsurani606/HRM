@@ -155,4 +155,12 @@ class Employee extends Model
     {
         $this->attributes['pan_no'] = !empty($value) ? strtoupper($value) : null;
     }
+
+    /**
+     * Get all custom documents for the employee.
+     */
+    public function documents()
+    {
+        return $this->hasMany(EmployeeDocument::class);
+    }
 }

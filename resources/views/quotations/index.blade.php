@@ -79,7 +79,7 @@
           </svg>
         </button>
       </div>
-      <input type="text" id="globalSearch" placeholder="Search here.." class="filter-pill" name="search" value="{{ request('search') }}">
+      <input type="text" id="globalSearch" placeholder="Search here.." class="filter-pill live-search" name="search" value="{{ request('search') }}">
       @can('Quotations Management.export quotation')
         <a href="{{ route('quotations.export.csv', request()->only(['quotation_no','from_date','to_date','search'])) }}" class="pill-btn pill-success">Excel</a>
       @endcan

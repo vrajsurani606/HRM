@@ -7,8 +7,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use App\Models\Employee;
+use App\Models\EmployeeDocument;
 use App\Models\Attendance;
 
 class ProfileController extends Controller
@@ -25,8 +27,11 @@ class ProfileController extends Controller
         }
         
         $user = $request->user();
-        // Try to find associated employee by email
-        $employee = Employee::where('email', $user->email)->first();
+        // Try to find associated employee by user_id first, then by email
+        $employee = Employee::with('documents')
+            ->where('user_id', $user->id)
+            ->orWhere('email', $user->email)
+            ->first();
 
         // Month/year filters for attendance (default to current)
         $month = (int) $request->get('month', now()->month);
@@ -137,6 +142,91 @@ class ProfileController extends Controller
         }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated')->with('active_tab', 'personal');
+    }
+
+    /**
+     * Upload document.
+     */
+    public function uploadDocument(Request $request): RedirectResponse
+    {
+        // Check permission
+        if (!$request->user()->can('Profile Management.upload documents') && 
+            !$request->user()->can('Profile Management.edit own profile')) {
+            abort(403, 'Unauthorized to upload documents.');
+        }
+        
+        $request->validate([
+            'document_name' => ['required', 'string', 'max:255'],
+            'document_type' => ['nullable', 'string', 'max:100'],
+            'description' => ['nullable', 'string', 'max:500'],
+            'document' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf,doc,docx', 'max:10240'], // 10MB max
+        ]);
+
+        $user = $request->user();
+        
+        // Try to find employee by user_id first, then by email
+        $employee = \App\Models\Employee::where('user_id', $user->id)
+            ->orWhere('email', $user->email)
+            ->first();
+
+        if (!$employee) {
+            // If no employee record exists, create one
+            $employee = \App\Models\Employee::create([
+                'user_id' => $user->id,
+                'code' => \App\Models\Employee::nextCode(),
+                'name' => $user->name,
+                'email' => $user->email,
+                'mobile_no' => $user->mobile_no,
+                'address' => $user->address,
+            ]);
+        }
+
+        // Handle file upload
+        if ($request->hasFile('document')) {
+            $file = $request->file('document');
+            
+            // Store file
+            $path = $file->store('employees/documents', 'public');
+            
+            // Create document record
+            $employee->documents()->create([
+                'document_name' => $request->document_name,
+                'document_type' => $request->document_type,
+                'description' => $request->description,
+                'file_path' => $path,
+                'file_type' => $file->getClientOriginalExtension(),
+                'file_size' => $file->getSize(),
+            ]);
+        }
+
+        return Redirect::route('profile.edit')->with('status', 'document-uploaded')->with('active_tab', 'documents');
+    }
+
+    /**
+     * Delete document.
+     */
+    public function deleteDocument(Request $request, $id): RedirectResponse
+    {
+        $user = $request->user();
+        
+        // Try to find employee by user_id first, then by email
+        $employee = \App\Models\Employee::where('user_id', $user->id)
+            ->orWhere('email', $user->email)
+            ->first();
+
+        if (!$employee) {
+            return Redirect::route('profile.edit')->with('error', 'Employee record not found.')->with('active_tab', 'documents');
+        }
+
+        $document = $employee->documents()->findOrFail($id);
+        
+        // Delete file from storage
+        Storage::disk('public')->delete($document->file_path);
+        
+        // Delete record
+        $document->delete();
+
+        return Redirect::route('profile.edit')->with('status', 'document-deleted')->with('active_tab', 'documents');
     }
 
     /**

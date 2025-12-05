@@ -60,9 +60,13 @@
         <!-- Employee Password -->
         <div>
           <label class="hrp-label">Employee Password:</label>
-          <div class="password-wrapper">
-            <input name="password" type="password" placeholder="Enter Password" class="hrp-input Rectangle-29">
+          <div class="password-wrapper" style="position: relative;">
+            <input name="password" id="passwordInput" type="password" placeholder="Leave blank to keep current password" class="hrp-input Rectangle-29" style="padding-right: 45px;">
+            <button type="button" id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666; font-size: 18px; padding: 5px;">
+              <i class="fa fa-eye" id="eyeIcon"></i>
+            </button>
           </div>
+          <small style="color: #666; font-size: 12px; display: block; margin-top: 4px;">Leave blank to keep the current password unchanged</small>
           @error('password')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
@@ -80,10 +84,10 @@
           @error('reference_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
-        <!-- Employee Adhar No -->
+        <!-- Employee Aadhaar No -->
         <div>
-          <label class="hrp-label">Employee Adhar No:</label>
-          <input name="aadhaar_no" value="{{ old('aadhaar_no', $employee->aadhaar_no) }}" placeholder="Enter Adhar No" class="hrp-input Rectangle-29">
+          <label class="hrp-label">Employee Aadhaar No:</label>
+          <input name="aadhaar_no" value="{{ old('aadhaar_no', $employee->aadhaar_no) }}" placeholder="Enter Aadhaar No" class="hrp-input Rectangle-29" maxlength="12" pattern="[0-9]{12}">
           @error('aadhaar_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
@@ -94,9 +98,9 @@
           @error('pan_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
-        <!-- Employee Adhar Photo 1 -->
+        <!-- Employee Aadhaar Photo 1 -->
         <div>
-          <label class="hrp-label">Employee Adhar Photo 1:</label>
+          <label class="hrp-label">Employee Aadhaar Photo 1:</label>
           <div class="upload-pill Rectangle-29">
             <div class="choose">Choose File</div>
             <div class="filename" id="aadhaarFrontFileName">{{ $employee->aadhaar_photo_front ? 'Current file selected' : 'No file chosen' }}</div>
@@ -113,9 +117,9 @@
           @error('aadhaar_photo_front')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
-        <!-- Employee Adhar Photo 2 -->
+        <!-- Employee Aadhaar Photo 2 -->
         <div>
-          <label class="hrp-label">Employee Adhar Photo 2:</label>
+          <label class="hrp-label">Employee Aadhaar Photo 2:</label>
           <div class="upload-pill Rectangle-29">
             <div class="choose">Choose File</div>
             <div class="filename" id="aadhaarBackFileName">{{ $employee->aadhaar_photo_back ? 'Current file selected' : 'No file chosen' }}</div>
@@ -438,6 +442,25 @@ $(document).ready(function() {
     if(incentiveAmount){ incentiveAmount.disabled = !hasIncentive; if(!hasIncentive){ incentiveAmount.value = ''; } }
   }
   if(incentiveSel){ incentiveSel.addEventListener('change', toggleIncentiveAmount); toggleIncentiveAmount(); }
+  
+  // Password toggle functionality
+  var togglePassword = document.getElementById('togglePassword');
+  var passwordInput = document.getElementById('passwordInput');
+  var eyeIcon = document.getElementById('eyeIcon');
+  
+  if(togglePassword && passwordInput && eyeIcon){
+    togglePassword.addEventListener('click', function(){
+      if(passwordInput.type === 'password'){
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+      }
+    });
+  }
   
   // Convert date format before form submission
   var form = document.getElementById('employeeForm');

@@ -26,7 +26,7 @@ class PermissionSeeder extends Seeder
             'Users Management' => ['view user', 'create user', 'edit user', 'delete user', 'manage user'],
             'Roles Management' => ['view role', 'create role', 'edit role', 'delete role', 'manage role'],
             'Dashboard' => ['view dashboard', 'manage dashboard'],
-            'Profile Management' => ['view profile', 'edit profile', 'update profile', 'update bank details', 'delete profile', 'view own profile', 'edit own profile', 'view own payroll', 'view own attendance', 'view own documents', 'view own bank details'],
+            'Profile Management' => ['view profile', 'edit profile', 'update profile', 'update bank details', 'delete profile', 'view own profile', 'edit own profile', 'view own payroll', 'view own attendance', 'view own documents', 'view own bank details', 'upload documents'],
             'Inquiries Management' => ['view inquiry', 'create inquiry', 'edit inquiry', 'delete inquiry', 'manage inquiry',
             'follow up', 'follow up create', 'follow up confirm', 'export inquiry'],
             'Quotations Management' => ['view quotation', 'create quotation', 'edit quotation', 'delete quotation', 'manage quotation',

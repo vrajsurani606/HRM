@@ -433,69 +433,8 @@
   </div>
 
   <div id="bank" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
-    <div style="background:#ffffff;border-bottom:1px solid #e5e7eb;padding:24px 32px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <h3 style="font-size:20px;font-weight:700;color:#1e293b;margin:0 0 4px 0">Banking Information</h3>
-          <p style="color:#6b7280;margin:0;font-size:14px">Manage employee banking details for payroll processing</p>
-        </div>
-        <button onclick="editBankDetails()" style="background:#3b82f6;color:white;padding:12px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/></svg>
-          Edit Details
-        </button>
-      </div>
-    </div>
-
-    <div style="padding:32px">
-      <div style="max-width:800px">
-        <div style="background:white;border:1px solid #e5e7eb;border-radius:16px;padding:24px 24px;box-shadow:0 6px 18px rgba(0,0,0,0.06);margin-bottom:24px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-            <div style="display:flex;align-items:center;gap:12px">
-              <div style="width:52px;height:52px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-radius:14px;display:flex;align-items:center;justify-content:center">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#2563eb"><path d="M11.5,1L2,6V8H21V6M16,10V17H19V19H5V17H8V10H10V17H14V10"/></svg>
-              </div>
-              <div>
-                <div style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:2px">{{ $employee->bank_name ?? 'Not Available' }}</div>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <span style="font-size:12px;color:#0ea5e9;background:#e0f2fe;border:1px solid #bae6fd;border-radius:9999px;padding:2px 8px">IFSC: {{ $employee->bank_ifsc ?? 'N/A' }}</span>
-                  <span style="font-size:12px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:9999px;padding:2px 8px">{{ strtoupper($employee->account_type ?? 'Savings') }}</span>
-                </div>
-              </div>
-            </div>
-            <div style="display:flex;gap:8px">
-              @if($employee->bank_ifsc)
-              <button type="button" onclick="copyText('{{ $employee->bank_ifsc }}')" style="height:36px;padding:0 12px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:8px;font-size:12px;color:#111827;cursor:pointer;display:flex;align-items:center;gap:6px">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19,21H8V7H19M19,3H8A2,2 0 0,0 6,5V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V5A2,2 0 0,0 19,3M5,3H4A2,2 0 0,0 2,5V19A2,2 0 0,0 4,21H5V3Z"/></svg>
-                Copy IFSC
-              </button>
-              @endif
-              <button type="button" onclick="editBankDetails()" style="height:36px;padding:0 12px;background:#2563eb;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/></svg>
-                Edit
-              </button>
-            </div>
-          </div>
-
-          <div style="padding:18px;border:1px dashed #e2e8f0;background:#ffffff;border-radius:12px;display:flex;align-items:center;justify-content:space-between">
-            <div style="display:flex;align-items:center;gap:12px">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#64748b"><path d="M6,2A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6M6,4H13V9H18V20H6V4Z"/></svg>
-              <div style="font-size:18px;font-weight:800;color:#0f172a;letter-spacing:1px">
-                <span id="accountNumber">{{ $employee->bank_account_no ? str_repeat('*', strlen($employee->bank_account_no) - 4) . substr($employee->bank_account_no, -4) : 'Not Available' }}</span>
-              </div>
-            </div>
-            @if($employee->bank_account_no)
-            <button id="toggleAccBtn" onclick="toggleAccountNumber()" style="padding:8px 12px;background:#ffffff;border:1px solid #d1d5db;border-radius:8px;font-size:12px;color:#111827;cursor:pointer">Show</button>
-            @endif
-          </div>
-        </div>
-        @if(!$employee->bank_name)
-        <div style="text-align:center;padding:60px 20px;color:#6b7280;border:2px dashed #e5e7eb;border-radius:16px;margin-top:24px">
-          <div style="font-size:18px;font-weight:600;margin-bottom:8px">No Banking Details Available</div>
-          <div style="font-size:14px;margin-bottom:20px">Add banking information to enable payroll processing</div>
-          <button onclick="editBankDetails()" style="background:#3b82f6;color:white;padding:12px 24px;border:none;border-radius:8px;font-weight:600;cursor:pointer">Add Bank Details</button>
-        </div>
-        @endif
-      </div>
+    <div style="padding:24px 32px">
+      @include('profile.partials.bank-details', ['employee' => $employee, 'user' => $employee->user ?? auth()->user()])
     </div>
   </div>
 @endsection
@@ -540,7 +479,7 @@
   let accountNumberVisible=false;
   const fullAccountNumber='{{ $employee->bank_account_no ?? "" }}';
   function switchTab(tabName){document.querySelectorAll('.tab-content').forEach(t=>{t.classList.remove('active');t.style.display='none'});document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('active');b.style.color='#718096';b.style.borderBottomColor='transparent'});const tab=document.getElementById(tabName);if(tab){tab.classList.add('active');tab.style.display='block'};const btn=document.querySelector(`[onclick="switchTab('${tabName}')"]`);if(btn){btn.classList.add('active');btn.style.color='#0ea5e9';btn.style.borderBottomColor='#0ea5e9'}}
-  function editBankDetails(){toastr.info('Bank details update form to be implemented');}
+
   async function copyText(text){
     const buttons = document.querySelectorAll('button');
     try{
@@ -645,5 +584,6 @@
     }
   }
 </script>
+
 @endpush
 
