@@ -114,7 +114,7 @@ class HiringController extends Controller
             'lead' => $lead,
             'positions' => $positions,
             'nextCode' => $nextCode,
-            'page_title' => 'Convert Lead to Employee - ' . $lead->person_name,
+            'page_title' => 'Convert Lead to Employee',
         ]);
     }
 

@@ -701,6 +701,7 @@
 <!-- Password Toggle Script -->
 <script src="{{ asset('js/password-toggle.js') }}"></script>
 <script src="{{ asset('js/live-search.js') }}"></script>
+<script src="{{ asset('js/mobile-number-limit.js') }}"></script>
 
 @stack('scripts')
 <!-- Toastr initialization is handled in partials/flash.blade.php -->
