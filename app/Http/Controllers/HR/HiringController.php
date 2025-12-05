@@ -21,6 +21,12 @@ class HiringController extends Controller
         
         $query = HiringLead::query();
 
+        // Exclude converted leads (only show active leads)
+        $query->where(function($q) {
+            $q->whereNull('status')
+              ->orWhere('status', '!=', 'converted');
+        });
+
         // Apply date filters if they exist
         if ($request->filled('from_date')) {
             $query->whereDate('created_at', '>=', $request->from_date);
@@ -252,11 +258,12 @@ class HiringController extends Controller
             'mobile_no' => ['required','regex:/^\d{10}$/'],
             'address' => ['required','string','max:255'],
             'position' => ['required','string','max:190'],
+            'other_position' => ['nullable','string','max:190'],
             'is_experience' => ['required','boolean'],
             'experience_count' => ['required_if:is_experience,1','numeric','min:0','max:99.9'],
             'experience_previous_company' => ['required_if:is_experience,1','string','max:190'],
             'previous_salary' => ['nullable','numeric','min:0'],
-            'gender' => ['required','in:male,female,other'],
+            'gender' => ['required','in:male,female'],
             'resume' => ['nullable','file','mimes:pdf,doc,docx','max:5120'],
         ]);
 
@@ -325,11 +332,12 @@ class HiringController extends Controller
             'mobile_no' => ['required','regex:/^\d{10}$/'],
             'address' => ['required','string','max:255'],
             'position' => ['required','string','max:190'],
+            'other_position' => ['nullable','string','max:190'],
             'is_experience' => ['required','boolean'],
             'experience_count' => ['required_if:is_experience,1','numeric','min:0','max:99.9'],
             'experience_previous_company' => ['required_if:is_experience,1','string','max:190'],
             'previous_salary' => ['nullable','numeric','min:0'],
-            'gender' => ['required','in:male,female,other'],
+            'gender' => ['required','in:male,female'],
             'resume' => ['nullable','file','mimes:pdf,doc,docx','max:5120'],
         ]);
 

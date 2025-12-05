@@ -54,28 +54,32 @@
                             <!-- Password -->
                             <div>
                                 <x-input-label for="password" :value="__('Password')" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" />
-                                <x-text-input
-                                    id="password"
-                                    class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white rounded-lg px-4 py-3 outline-none focus-visible:ring-[3px] focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 transition"
-                                    type="password"
-                                    name="password"
-                                    required
-                                    autocomplete="new-password"
-                                />
+                                <div class="password-wrapper">
+                                    <x-text-input
+                                        id="password"
+                                        class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white rounded-lg px-4 py-3 outline-none focus-visible:ring-[3px] focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 transition"
+                                        type="password"
+                                        name="password"
+                                        required
+                                        autocomplete="new-password"
+                                    />
+                                </div>
                                 <x-input-error :messages="$errors->get('password')" class="mt-2" />
                             </div>
 
                             <!-- Confirm Password -->
                             <div>
                                 <x-input-label for="password_confirmation" :value="__('Confirm Password')" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" />
-                                <x-text-input
-                                    id="password_confirmation"
-                                    class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white rounded-lg px-4 py-3 outline-none focus-visible:ring-[3px] focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 transition"
-                                    type="password"
-                                    name="password_confirmation"
-                                    required
-                                    autocomplete="new-password"
-                                />
+                                <div class="password-wrapper">
+                                    <x-text-input
+                                        id="password_confirmation"
+                                        class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white rounded-lg px-4 py-3 outline-none focus-visible:ring-[3px] focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 transition"
+                                        type="password"
+                                        name="password_confirmation"
+                                        required
+                                        autocomplete="new-password"
+                                    />
+                                </div>
                                 <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                             </div>
 

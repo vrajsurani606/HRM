@@ -19,7 +19,9 @@
         </div>
         <div>
           <label class="hrp-label">Password <small style="color:#6b7280">(leave blank to keep current)</small></label>
-          <input type="password" name="password" class="hrp-input Rectangle-29">
+          <div class="password-wrapper">
+            <input type="password" name="password" class="hrp-input Rectangle-29">
+          </div>
           @error('password')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>

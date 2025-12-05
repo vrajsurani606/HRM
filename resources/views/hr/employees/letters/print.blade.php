@@ -70,6 +70,7 @@ if ($contentLength > 3000) {
         padding: 200px 36px 220px 36px;
         box-sizing:border-box;
         min-height: 100vh;
+
     }
     
     /* Letter Elements */

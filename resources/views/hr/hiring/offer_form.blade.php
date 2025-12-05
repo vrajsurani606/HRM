@@ -35,13 +35,14 @@
 
         <div>
           <label class="hrp-label">Monthly Salary:</label>
-          <input type="number" step="0.01" min="0" name="monthly_salary" value="{{ old('monthly_salary', $offer->monthly_salary ?? '') }}" placeholder="e.g. 35000" class="hrp-input Rectangle-29">
+          <input type="number" step="0.01" min="0" name="monthly_salary" id="hiring_monthly_salary" value="{{ old('monthly_salary', $offer->monthly_salary ?? '') }}" placeholder="e.g. 35000" class="hrp-input Rectangle-29">
           @error('monthly_salary')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
 
         <div>
           <label class="hrp-label">Annual CTC:</label>
-          <input type="number" step="0.01" min="0" name="annual_ctc" value="{{ old('annual_ctc', $offer->annual_ctc ?? '') }}" placeholder="e.g. 420000" class="hrp-input Rectangle-29">
+          <input type="number" step="0.01" min="0" name="annual_ctc" id="hiring_annual_ctc" value="{{ old('annual_ctc', $offer->annual_ctc ?? '') }}" placeholder="e.g. 420000" class="hrp-input Rectangle-29" readonly>
+          <small class="text-xs text-gray-500">Auto-calculated (Monthly Salary × 12)</small>
           @error('annual_ctc')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
 
@@ -130,6 +131,18 @@ $(document).ready(function() {
         joiningEl.value = dd2 + '/' + mm2 + '/' + yyyy2;
     }
 });
+
+// Auto-calculate Annual CTC from Monthly Salary
+$(document).on('input', '#hiring_monthly_salary', function() {
+    var monthlySalary = parseFloat($(this).val()) || 0;
+    var annualCTC = monthlySalary * 12;
+    $('#hiring_annual_ctc').val(annualCTC.toFixed(2));
+});
+
+// Trigger calculation on page load if value exists
+if ($('#hiring_monthly_salary').val()) {
+    $('#hiring_monthly_salary').trigger('input');
+}
 
 // Convert dates from dd/mm/yyyy to yyyy-mm-dd before form submission
 $('#offerForm').on('submit', function(e) {

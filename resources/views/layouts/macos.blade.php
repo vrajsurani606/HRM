@@ -698,6 +698,9 @@
 })();
 </script>
 
+<!-- Password Toggle Script -->
+<script src="{{ asset('js/password-toggle.js') }}"></script>
+
 @stack('scripts')
 <!-- Toastr initialization is handled in partials/flash.blade.php -->
 </body>

@@ -90,40 +90,48 @@
         <div class="empty-state">No users found</div>
       @endforelse
     </div>
-
-    @if($users->hasPages())
-      <div class="pagination-wrapper">
-        {{ $users->links() }}
-      </div>
-    @endif
   </div>
+@endsection
+
+@section('footer_pagination')
+  @if($users->hasPages())
+    {{ $users->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
+  @endif
 @endsection
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/employee-grid.css') }}">
 <style>
-  .pagination-wrapper {
-    margin-top: 32px;
-    display: flex;
-    justify-content: center;
+  .large-swal-popup {
+    font-size: 15px !important;
   }
-  .pagination-wrapper .pagination { display:flex; gap:8px; align-items:center; }
-  .pagination-wrapper .pagination a,
-  .pagination-wrapper .pagination span {
-    padding: 8px 12px;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    color: #374151;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
+  
+  .large-swal-popup .swal2-title {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    margin-bottom: 1rem !important;
   }
-  .pagination-wrapper .pagination a:hover { background:#f3f4f6; }
-  .pagination-wrapper .pagination .active span { background:#3b82f6; color:#fff; border-color:#3b82f6; }
-  .large-swal-popup { font-size: 15px !important; }
-  .large-swal-popup .swal2-title { font-size: 20px !important; font-weight: 600 !important; margin-bottom: 1rem !important; }
-  .large-swal-popup .swal2-actions .swal2-styled { font-size: 14px !important; padding: 8px 16px !important; border-radius: 6px !important; }
-  .large-swal-popup .swal2-icon { margin: 0.5rem auto 1rem !important; }
+  
+  .large-swal-popup .swal2-content {
+    font-size: 15px !important;
+    margin-bottom: 1.5rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  .large-swal-popup .swal2-actions {
+    gap: 0.75rem !important;
+    margin-top: 1rem !important;
+  }
+  
+  .large-swal-popup .swal2-actions .swal2-styled {
+    font-size: 14px !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+  }
+  
+  .large-swal-popup .swal2-icon {
+    margin: 0.5rem auto 1rem !important;
+  }
 </style>
 @endpush
 

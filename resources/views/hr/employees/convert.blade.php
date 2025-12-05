@@ -75,7 +75,9 @@
 
         <div>
           <label class="hrp-label">Password:</label>
-          <input name="password" value="{{ old('password') }}" placeholder="Enter Password (optional)" class="Rectangle-29" type="password" minlength="6">
+          <div class="password-wrapper">
+            <input name="password" value="{{ old('password') }}" placeholder="Enter Password (optional)" class="Rectangle-29" type="password" minlength="6">
+          </div>
           @error('password')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
 

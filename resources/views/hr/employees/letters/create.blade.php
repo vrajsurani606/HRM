@@ -408,23 +408,24 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="hrp-label">Monthly Salary:</label>
-                            <input type="text" name="monthly_salary" class="hrp-input Rectangle-29 w-full" placeholder="e.g., 50,000">
+                            <input type="number" name="monthly_salary" id="offer_monthly_salary" class="hrp-input Rectangle-29 w-full" placeholder="e.g., 50,000" value="{{ old('monthly_salary', isset($letter) ? $letter->monthly_salary : '') }}" step="0.01">
                         </div>
                         <div>
                             <label class="hrp-label">Annual CTC:</label>
-                            <input type="text" name="annual_ctc" class="hrp-input Rectangle-29 w-full" placeholder="e.g., 6,00,000">
+                            <input type="number" name="annual_ctc" id="offer_annual_ctc" class="hrp-input Rectangle-29 w-full" placeholder="e.g., 6,00,000" value="{{ old('annual_ctc', isset($letter) ? $letter->annual_ctc : '') }}" step="0.01" readonly>
+                            <small class="text-xs text-gray-500">Auto-calculated (Monthly Salary × 12)</small>
                         </div>
                         <div>
                             <label class="hrp-label">Reporting Manager:</label>
-                            <input type="text" name="reporting_manager" class="hrp-input Rectangle-29 w-full" placeholder="e.g., John Doe">
+                            <input type="text" name="reporting_manager" class="hrp-input Rectangle-29 w-full" placeholder="e.g., John Doe" value="{{ old('reporting_manager', isset($letter) ? $letter->reporting_manager : '') }}">
                         </div>
                         <div>
                             <label class="hrp-label">Working Hours:</label>
-                            <input type="text" name="working_hours" class="hrp-input Rectangle-29 w-full" placeholder="e.g., 9:30 AM to 6:30 PM">
+                            <input type="text" name="working_hours" class="hrp-input Rectangle-29 w-full" placeholder="e.g., 9:30 AM to 6:30 PM" value="{{ old('working_hours', isset($letter) ? $letter->working_hours : '') }}">
                         </div>
                         <div>
                             <label class="hrp-label">Date of Joining:</label>
-                            <input type="text" name="date_of_joining" class="hrp-input Rectangle-29 w-full date-picker" id="joiningDate" placeholder="dd/mm/yyyy" autocomplete="off">
+                            <input type="text" name="date_of_joining" class="hrp-input Rectangle-29 w-full date-picker" id="joiningDate" placeholder="dd/mm/yyyy" autocomplete="off" value="{{ old('date_of_joining', isset($letter) ? optional($letter->date_of_joining)->format('d/m/Y') : '') }}">
                         </div>
                     </div>
                     
@@ -1025,6 +1026,18 @@ $(document).ready(function() {
             window.initializeSummernote();
         }
     }, 200);
+    
+    // Auto-calculate Annual CTC from Monthly Salary (Offer Letter)
+    $(document).on('input', '#offer_monthly_salary', function() {
+        var monthlySalary = parseFloat($(this).val()) || 0;
+        var annualCTC = monthlySalary * 12;
+        $('#offer_annual_ctc').val(annualCTC.toFixed(2));
+    });
+    
+    // Trigger calculation on page load if value exists
+    if ($('#offer_monthly_salary').val()) {
+        $('#offer_monthly_salary').trigger('input');
+    }
 });
 </script>
 @endpush

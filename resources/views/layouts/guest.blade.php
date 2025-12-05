@@ -10,6 +10,7 @@
         <!-- Theme CSS (optional) -->
         <link rel="stylesheet" href="{{ asset('new_theme/css/macos.css') }}">
         <link rel="stylesheet" href="{{ asset('new_theme/css/visby-fonts.css') }}">
+        <link rel="stylesheet" href="{{ asset('new_theme/css/hrportal.css') }}">
 
         <!-- Breeze/Vite assets -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -22,5 +23,8 @@
         
         <!-- Optional JS -->
         <script src="{{ asset('new_theme/bower_components/jquery/dist/jquery.min.js') }}"></script>
+        
+        <!-- Password Toggle Script -->
+        <script src="{{ asset('js/password-toggle.js') }}"></script>
     </body>
     </html>
