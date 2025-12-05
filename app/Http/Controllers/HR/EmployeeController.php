@@ -152,6 +152,11 @@ class EmployeeController extends Controller
         // Generate employee code
         $data['code'] = Employee::nextCode();
         
+        // Capitalize PAN number
+        if (!empty($data['pan_no'])) {
+            $data['pan_no'] = strtoupper($data['pan_no']);
+        }
+        
         // Handle file uploads
         $fileFields = ['aadhaar_photo_front', 'aadhaar_photo_back', 'pan_photo', 'cheque_photo', 'marksheet_photo', 'photo'];
         foreach ($fileFields as $field) {
@@ -238,6 +243,11 @@ class EmployeeController extends Controller
         ]);
         
         $data['code'] = Employee::nextCode();
+        
+        // Capitalize PAN number
+        if (!empty($data['pan_no'])) {
+            $data['pan_no'] = strtoupper($data['pan_no']);
+        }
         
         // Handle file uploads
         $fileFields = ['aadhaar_photo_front', 'aadhaar_photo_back', 'pan_photo', 'cheque_photo', 'marksheet_photo', 'photo'];
@@ -439,6 +449,11 @@ class EmployeeController extends Controller
             'photo' => 'nullable|image|max:2048',
         ]);
 
+        // Capitalize PAN number
+        if (!empty($data['pan_no'])) {
+            $data['pan_no'] = strtoupper($data['pan_no']);
+        }
+        
         // Handle file uploads
         $fileFields = ['aadhaar_photo_front', 'aadhaar_photo_back', 'pan_photo', 'cheque_photo', 'marksheet_photo', 'photo'];
         foreach ($fileFields as $field) {

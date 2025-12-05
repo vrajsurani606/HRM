@@ -92,6 +92,12 @@
           @error('date_of_birth')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
 
+        <div>
+          <label class="hrp-label">PAN No:</label>
+          <input name="pan_no" value="{{ old('pan_no') }}" placeholder="Enter PAN No" class="hrp-input Rectangle-29" style="text-transform: uppercase;" maxlength="10" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}">
+          @error('pan_no')<small class="hrp-error">{{ $message }}</small>@enderror
+        </div>
+
         <div class="md:col-span-2">
           <div class="hrp-actions">
             <button type="submit" class="hrp-btn hrp-btn-primary">Add Employee</button>

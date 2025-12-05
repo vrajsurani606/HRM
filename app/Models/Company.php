@@ -150,4 +150,12 @@ class Company extends Model
     {
         return $this->hasMany(Project::class);
     }
+
+    /**
+     * Set the PAN number attribute (always uppercase).
+     */
+    public function setPanNoAttribute($value)
+    {
+        $this->attributes['pan_no'] = !empty($value) ? strtoupper($value) : null;
+    }
 }

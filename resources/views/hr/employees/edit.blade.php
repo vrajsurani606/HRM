@@ -89,8 +89,8 @@
         
         <!-- Employee Pan No -->
         <div>
-          <label class="hrp-label">Employee Pan No:</label>
-          <input name="pan_no" value="{{ old('pan_no', $employee->pan_no) }}" placeholder="Enter Pan No" class="hrp-input Rectangle-29">
+          <label class="hrp-label">Employee PAN No:</label>
+          <input name="pan_no" value="{{ old('pan_no', $employee->pan_no) }}" placeholder="Enter PAN No" class="hrp-input Rectangle-29" style="text-transform: uppercase;" maxlength="10" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}">
           @error('pan_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
