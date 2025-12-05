@@ -504,7 +504,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   <!-- Header with search and controls -->
   <div class="kanban-header">
     <div class="search-container">
-      <input type="text" class="kanban-search" placeholder="Type to search..">
+      <input type="text" class="kanban-search live-search" placeholder="Type to search..">
     </div>
     <div class="header-controls">
       <!-- View Toggle Buttons -->

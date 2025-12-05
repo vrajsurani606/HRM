@@ -175,6 +175,19 @@ endif;
 unset($__errorArgs, $__bag); ?>
         </div>
 
+        <div>
+          <label class="hrp-label">PAN No:</label>
+          <input name="pan_no" value="<?php echo e(old('pan_no')); ?>" placeholder="Enter PAN No" class="hrp-input Rectangle-29" style="text-transform: uppercase;" maxlength="10" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}">
+          <?php $__errorArgs = ['pan_no'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+        </div>
+
         <div class="md:col-span-2">
           <div class="hrp-actions">
             <button type="submit" class="hrp-btn hrp-btn-primary">Add Employee</button>

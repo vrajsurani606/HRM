@@ -79,7 +79,7 @@
           </svg>
         </button>
       </div>
-      <input type="text" id="globalSearch" placeholder="Search here.." class="filter-pill" name="search" value="{{ request('search') }}">
+      <input type="text" id="globalSearch" placeholder="Search here.." class="filter-pill live-search" name="search" value="{{ request('search') }}">
       @can('Quotations Management.export quotation')
         <a href="{{ route('quotations.export.csv', request()->only(['quotation_no','from_date','to_date','search'])) }}" class="pill-btn pill-success">Excel</a>
       @endcan
@@ -447,7 +447,7 @@ function confirmDelete(id) {
       
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = `/GitVraj/HrPortal/quotations/${id}`;
+      form.action = `{{ url('quotations') }}/${id}`;
       form.innerHTML = `
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <input type="hidden" name="_method" value="DELETE">
@@ -513,7 +513,7 @@ function confirmConvertToCompany(id, companyName, companyEmail, companyPassword)
       
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = `/GitVraj/HrPortal/quotations/${id}/convert-to-company`;
+      form.action = `{{ url('quotations') }}/${id}/convert-to-company`;
       form.innerHTML = `
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
       `;

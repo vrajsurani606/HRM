@@ -52,7 +52,7 @@
             </svg>
           </button>
         </div>
-        <input type="text" name="search" class="filter-pill" placeholder="Search by company, contact, email..." value="{{ request('search') }}">
+        <input type="text" name="search" class="filter-pill live-search" placeholder="Search by company, contact, email..." value="{{ request('search') }}">
         <a href="{{ route('companies.index') }}" class="pill-btn pill-secondary">Reset</a>
         @can('Companies Management.export company')
           <a href="{{ route('companies.export', request()->query()) }}" class="pill-btn pill-success" id="excel_btn">

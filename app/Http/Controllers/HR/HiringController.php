@@ -97,7 +97,7 @@ class HiringController extends Controller
         return redirect()->back()->with('error', 'Permission denied.');
     }
     
-    $lead = HiringLead::findOrFail($id);
+    $lead = HiringLead::with('offerLetter')->findOrFail($id);
 
     // GET REQUEST (Show Form)
     if ($request->isMethod('GET')) {
@@ -150,15 +150,35 @@ class HiringController extends Controller
                 $user->assignRole('employee');
             } catch (\Exception $e) {}
 
-            Employee::create([
+            // Prepare employee data with ALL information from hiring lead
+            $employeeData = [
                 'code'      => Employee::nextCode(),
                 'name'      => $lead->person_name,
                 'email'     => $data['email'],
                 'mobile_no' => $lead->mobile_no,
                 'address'   => $lead->address,
                 'position'  => $lead->position,
+                'gender'    => $lead->gender,
                 'user_id'   => $user->id,
-            ]);
+            ];
+
+            // Transfer experience information
+            if ($lead->is_experience) {
+                $employeeData['experience_type'] = 'YES';
+                $employeeData['previous_company_name'] = $lead->experience_previous_company;
+                $employeeData['previous_salary'] = $lead->previous_salary;
+            } else {
+                $employeeData['experience_type'] = 'NO';
+            }
+
+            // Transfer offer letter information if exists
+            if ($lead->offerLetter) {
+                $offer = $lead->offerLetter;
+                $employeeData['current_offer_amount'] = $offer->monthly_salary;
+                $employeeData['joining_date'] = $offer->date_of_joining;
+            }
+
+            Employee::create($employeeData);
 
             // Update lead status (if exists)
             try {
@@ -171,14 +191,14 @@ class HiringController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Lead converted to employee successfully'
+                'message' => 'Lead converted to employee successfully with all details transferred'
             ]);
         }
 
         // SUCCESS – Web
         return redirect()
             ->route('hiring.index')
-            ->with('success', 'Lead converted to employee successfully');
+            ->with('success', 'Lead converted to employee successfully with all details transferred');
 
     } catch (\Exception $e) {
 

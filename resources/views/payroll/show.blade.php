@@ -303,8 +303,8 @@
             <tr>
                 <td>Designation</td>
                 <td>{{ $payroll->employee->position ?? 'N/A' }}</td>
-                <td>Email</td>
-                <td>{{ $payroll->employee->email ?? 'N/A' }}</td>
+                   <td>Bank Account Number</td>
+                <td>{{ $payroll->employee->bank_account_no ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td>Date of Joining</td>
@@ -313,8 +313,8 @@
                 <td>{{ $payroll->employee->bank_name ?? 'N/A' }}</td>
             </tr>
             <tr>
-                <td>Bank Account Number</td>
-                <td>{{ $payroll->employee->bank_account_no ?? 'N/A' }}</td>
+                <td>Email</td>
+                <td>{{ $payroll->employee->email ?? 'N/A' }}</td>
                 <td>IFSC Code</td>
                 <td>{{ $payroll->employee->bank_ifsc ?? 'N/A' }}</td>
             </tr>

@@ -147,4 +147,20 @@ class Employee extends Model
         }
         return $prefix . str_pad((string)$nextNumber, 4, '0', STR_PAD_LEFT);
     }
+
+    /**
+     * Set the PAN number attribute (always uppercase).
+     */
+    public function setPanNoAttribute($value)
+    {
+        $this->attributes['pan_no'] = !empty($value) ? strtoupper($value) : null;
+    }
+
+    /**
+     * Get all custom documents for the employee.
+     */
+    public function documents()
+    {
+        return $this->hasMany(EmployeeDocument::class);
+    }
 }

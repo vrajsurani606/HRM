@@ -8,7 +8,7 @@
         <div class="jv-filter">
           <div class="filter-right">
             <form method="GET" action="{{ route('roles.index') }}" class="filter-row">
-              <input type="text" name="q" value="{{ $q ?? '' }}" placeholder="Search roles..." class="filter-pill">
+              <input type="text" name="q" value="{{ $q ?? '' }}" placeholder="Search roles..." class="filter-pill live-search">
               <button type="submit" class="filter-search" aria-label="Search">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                   <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
@@ -70,10 +70,33 @@
         </table>
       </div>
 
-      <div class="pagination-wrapper">
-        {{ $roles->links() }}
-      </div>
   </div>
 </div>
 
+@endsection
+
+@section('footer_pagination')
+  @if(isset($roles) && method_exists($roles,'links'))
+  <form method="GET" class="hrp-entries-form">
+    <span>Entries</span>
+    @php($currentPerPage = (int) request()->get('per_page', 10))
+    <select name="per_page" onchange="this.form.submit()">
+      @foreach([10,25,50,100] as $size)
+      <option value="{{ $size }}" {{ $currentPerPage === $size ? 'selected' : '' }}>{{ $size }}</option>
+      @endforeach
+    </select>
+    @foreach(request()->except(['per_page','page']) as $k => $v)
+    <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+    @endforeach
+  </form>
+  {{ $roles->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
+  @endif
+@endsection
+
+@section('breadcrumb')
+  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+  <span class="hrp-bc-sep">›</span>
+  <a href="{{ route('roles.index') }}" style="font-weight:800;color:#0f0f0f;text-decoration:none">Roles Management</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">Roles List</span>
 @endsection

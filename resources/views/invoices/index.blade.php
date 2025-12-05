@@ -4,7 +4,7 @@
 
 <!-- Filter Row -->
 <form method="GET" action="{{ route('invoices.index') }}" class="jv-filter performa-filter">
-  <input type="text" name="search" placeholder="Search Invoice No, Company..." class="filter-pill" value="{{ request('search') }}" />
+  <input type="text" name="search" placeholder="Search Invoice No, Company..." class="filter-pill live-search" value="{{ request('search') }}" />
   <select name="invoice_type" class="filter-pill">
     <option value="">All Types</option>
     <option value="gst" {{ request('invoice_type') == 'gst' ? 'selected' : '' }}>GST Invoice</option>
@@ -185,7 +185,7 @@ function confirmDelete(id) {
     if (result.isConfirmed) {
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = `/GitVraj/HrPortal/invoices/${id}`;
+      form.action = `{{ url('invoices') }}/${id}`;
       form.innerHTML = `
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <input type="hidden" name="_method" value="DELETE">

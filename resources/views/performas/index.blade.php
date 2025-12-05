@@ -15,7 +15,7 @@
     </svg>
   </button>
   <div class="filter-right">
-    <input type="text" name="search" placeholder="Search here.." class="filter-pill" value="{{ request('search') }}" />
+    <input type="text" name="search" placeholder="Search here.." class="filter-pill live-search" value="{{ request('search') }}" />
     @can('Proformas Management.export proforma')
       <a href="{{ route('performas.export.csv', request()->only(['company_name','unique_code','mobile_no','from_date','to_date','search'])) }}" class="pill-btn pill-success">Excel</a>
     @endcan
@@ -182,7 +182,7 @@ function confirmDelete(id) {
     if (result.isConfirmed) {
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = `/GitVraj/HrPortal/performas/${id}`;
+      form.action = `{{ url('performas') }}/${id}`;
       form.innerHTML = `
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <input type="hidden" name="_method" value="DELETE">

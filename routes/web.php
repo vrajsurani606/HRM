@@ -136,6 +136,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/bank', [ProfileController::class, 'updateBank'])->name('profile.bank.update');
+    Route::post('/profile/documents/upload', [ProfileController::class, 'uploadDocument'])->name('profile.documents.upload');
+    Route::delete('/profile/documents/{id}', [ProfileController::class, 'deleteDocument'])->name('profile.documents.delete');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Employees - toggle-status must come before resource routes

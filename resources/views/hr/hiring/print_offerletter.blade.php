@@ -236,7 +236,7 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
           <td>
             <ol style="margin:0 0 0 18px; padding:0;">
               <li>VALID PASSPORT</li>
-              <li>AADHAR CARD</li>
+              <li>AADHAAR CARD</li>
               <li>UTILITY BILL (Land Line Phone Bill's ; Electricity Bill)</li>
               <li>LIC POLICY DOCUMENT (Bearing Address)</li>
               <li>LEAVE AND LICENSE COPY or AGREEMENT COPY (Registered)</li>
@@ -258,7 +258,7 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
               <li>VALID PASSPORT</li>
               <li>PAN CARD</li>
               <li>DRIVER'S LICENSE</li>
-              <li>VOTER'S ID or AADHAR CARD</li>
+              <li>VOTER'S ID or AADHAAR CARD</li>
               <li>BANK PASSBOOK (With Photograph)</li>
               <li>COLLEGE ID (For Fresher's)</li>
               <li>DEFENSE ID CARD (Issued By Govt. Of India For Defense Staff)</li>

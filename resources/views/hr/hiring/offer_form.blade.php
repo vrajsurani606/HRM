@@ -53,7 +53,7 @@
         </div>
 
         <div>
-          <label class="hrp-label">Working Hours:</label>
+          <label class="hrp-label">Working Time:</label>
           <input name="working_hours" value="{{ old('working_hours', $offer->working_hours ?? '') }}" placeholder="e.g. 9:30 AM - 6:30 PM" class="hrp-input Rectangle-29">
           @error('working_hours')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>

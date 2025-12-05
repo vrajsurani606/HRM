@@ -140,12 +140,15 @@ class Company extends Model
     {
         return $this->hasMany(Project::class);
     }
-
-    /**
-     * Get all documents for this company
-     */
     public function documents()
     {
         return $this->hasMany(CompanyDocument::class);
+    }
+    /**
+     * Set the PAN number attribute (always uppercase).
+     */
+    public function setPanNoAttribute($value)
+    {
+        $this->attributes['pan_no'] = !empty($value) ? strtoupper($value) : null;
     }
 }
