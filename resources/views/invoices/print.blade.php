@@ -19,9 +19,8 @@
         body {
             font-family: Arial, Helvetica, sans-serif;
             background: #f5f5f5;
-            padding: 15px;
+            padding: 20px;
             margin: 0;
-            line-height: 1.4;
         }
         
         .page {
@@ -29,7 +28,7 @@
             min-height: 297mm;
             margin: 0 auto;
             background: white;
-            padding: 25px 35px;
+            padding: 20px;
             border: 2px solid var(--border-color);
             position: relative;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -59,45 +58,44 @@
         /* Logo Section */
         .logo-section {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 30px;
         }
         
         .logo-section img {
-            max-width: 160px;
+            max-width: 180px;
             height: auto;
         }
         
         /* Header Info */
         .header-info {
             text-align: right;
-            margin-bottom: 15px;
-            font-size: 11px;
-            color: #555;
-            line-height: 1.5;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #666;
         }
         
         .header-info p {
-            margin: 1px 0;
+            margin: 3px 0;
+            line-height: 1.5;
         }
         
         .header-info strong {
-            color: #333;
-            font-weight: 600;
+            color: #000;
         }
         
         /* Title */
         .invoice-title {
             text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+            margin-bottom: 25px;
+            padding-bottom: 8px;
             border-bottom: 2px solid var(--primary-color);
         }
         
         .invoice-title h1 {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 700;
             color: var(--primary-color);
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             text-transform: uppercase;
         }
         
@@ -105,7 +103,7 @@
         .parties-section {
             display: table;
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             border-bottom: 1px solid #ddd;
             padding-bottom: 15px;
         }
@@ -126,18 +124,17 @@
         }
         
         .party-heading {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--primary-color);
             text-transform: uppercase;
-            margin-bottom: 8px;
-            letter-spacing: 0.8px;
+            margin-bottom: 10px;
         }
         
         .party-details {
-            font-size: 11px;
-            line-height: 1.6;
-            color: #555;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #666;
         }
         
         .party-details p {
@@ -145,15 +142,15 @@
         }
         
         .party-details strong {
-            color: #222;
-            font-weight: 600;
+            color: #000;
+            font-weight: 700;
         }
         
         /* Table */
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         
         .items-table thead {
@@ -162,24 +159,19 @@
         }
         
         .items-table th {
-            padding: 10px 8px;
+            padding: 12px 10px;
             text-align: left;
             font-weight: 700;
-            font-size: 10px;
+            font-size: 12px;
             text-transform: uppercase;
             border: 1px solid var(--primary-color);
-            letter-spacing: 0.5px;
         }
         
         .items-table td {
-            padding: 8px;
-            border: 1px solid #e0e0e0;
-            font-size: 11px;
-            color: #444;
-        }
-        
-        td strong {
-            color: #000;
+            padding: 10px;
+            border: 1px solid #ddd;
+            font-size: 13px;
+            color: #333;
         }
         
         .items-table tbody tr:nth-child(even) {
@@ -198,7 +190,7 @@
         .summary-section {
             display: table;
             width: 100%;
-            margin-bottom: 25px;
+            margin-bottom: 40px;
         }
         
         .summary-left {
@@ -216,18 +208,17 @@
         
         /* Bank Details */
         .bank-details-heading {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--primary-color);
             text-transform: uppercase;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
+            margin-bottom: 10px;
         }
         
         .bank-details-text {
-            font-size: 10px;
-            line-height: 1.5;
-            color: #555;
+            font-size: 12px;
+            line-height: 1.7;
+            color: #666;
         }
         
         .bank-details-text p {
@@ -235,8 +226,7 @@
         }
         
         .bank-details-text strong {
-            color: #333;
-            font-weight: 600;
+            color: #000;
         }
         
         /* Totals Table */
@@ -250,22 +240,19 @@
         }
         
         .totals-table td {
-            padding: 5px 8px;
-            font-size: 11px;
+            padding: 8px 10px;
+            font-size: 13px;
         }
         
         .totals-table td:first-child {
-            text-align: right;
-            padding-right: 15px;
-            font-weight: 500;
-            color: #555;
+            text-align: left;
+            color: #666;
         }
         
         .totals-table td:last-child {
             text-align: right;
-            font-weight: 600;
-            color: #222;
-            min-width: 110px;
+            font-weight: 700;
+            color: #000;
         }
         
         .total-amount-row {
@@ -275,8 +262,8 @@
         
         .total-amount-row td {
             font-weight: 700;
-            font-size: 12px;
-            padding: 8px;
+            font-size: 14px;
+            padding: 10px;
             color: white !important;
             border: none;
         }
@@ -286,15 +273,14 @@
             background: #E8F0FC;
             border: 1px solid #C5D9F2;
             border-radius: 4px;
-            padding: 8px 12px;
+            padding: 12px 15px;
             display: table;
             width: 100%;
-            margin-top: 10px;
         }
         
         .balance-due-box .label {
             display: table-cell;
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--primary-color);
         }
@@ -302,17 +288,16 @@
         .balance-due-box .amount {
             display: table-cell;
             text-align: right;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
             color: var(--primary-color);
-            letter-spacing: 0.5px;
         }
         
         /* Signatures */
         .signatures-section {
             display: table;
             width: 100%;
-            margin-top: 30px;
+            margin-top: 60px;
         }
         
         .signature-box {
@@ -325,17 +310,12 @@
         }
         
         .signature-label {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--primary-color);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .signature-line {
-            height: 50px;
-            border-bottom: 2px solid #ddd;
-            margin-top: 30px;
+            margin-bottom: 60px;
+            display: inline-block;
         }
         
         @media print {
@@ -391,15 +371,14 @@
             </div>
             
             <!-- Title -->
-            @if($invoice->invoice_type === 'gst')
             <div class="invoice-title">
-                <h1>TAX INVOICE</h1>
-            </div> 
-            @else
-            <div class="invoice-title">
-                <h1>INVOICE</h1>
-            </div> 
-            @endif
+                @if($invoice->invoice_type === 'gst')
+                <h1>Tax Invoice</h1>
+                @else
+                <h1>Invoice</h1>
+                @endif
+            </div>
+            
             <!-- From and Bill To -->
             <div class="parties-section">
                 <div class="party-column">
@@ -457,7 +436,7 @@
                     @if(!empty($descriptions[$i]) || !empty($quantities[$i]))
                     <tr>
                         <td><strong>{{ strtoupper($descriptions[$i] ?? '-') }}</strong></td>
-                        <td class="text-center">{{ $sacCodes[$i] ?? 'df' }}</td>
+                        <td class="text-center">{{ $sacCodes[$i] ?? '-' }}</td>
                         <td class="text-center">{{ $quantities[$i] ?? '-' }}</td>
                         <td class="text-right">{{ isset($rates[$i]) ? number_format($rates[$i], 0) : '-' }}</td>
                         <td class="text-right"><strong>{{ isset($totals[$i]) ? number_format($totals[$i], 2) : '-' }}</strong></td>
@@ -536,11 +515,9 @@
             <div class="signatures-section">
                 <div class="signature-box">
                     <div class="signature-label">Company Signature</div>
-                    <div class="signature-line"></div>
                 </div>
-                <div class="signature-box" style="text-align: right;">
+                <div class="signature-box">
                     <div class="signature-label">Client Signature</div>
-                    <div class="signature-line"></div>
                 </div>
             </div>
         </div>

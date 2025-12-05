@@ -73,6 +73,10 @@
             value="{{ $phoneNumber }}"
             class="phone-number-input"
             inputmode="numeric"
+            maxlength="10"
+            minlength="10"
+            pattern="[0-9]{10}"
+            title="Please enter exactly 10 digits"
             {{ $required ? 'required' : '' }}
             {{ $attributes }}
         >
@@ -118,8 +122,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update on phone number input
         input.addEventListener('input', function() {
-            // Only allow digits
-            this.value = this.value.replace(/\D/g, '');
+            // Only allow digits and limit to 10 characters
+            this.value = this.value.replace(/\D/g, '').substring(0, 10);
             updateFullValue();
         });
         

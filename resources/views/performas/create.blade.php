@@ -67,11 +67,11 @@
       <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
         <div>
           <label class="hrp-label">GST No :</label>
-          <input type="text" class="Rectangle-29" name="gst_no" value="{{ old('gst_no', $quotation->gst_no ?? '') }}" placeholder="Enter GS no.">
+          <input type="text" class="Rectangle-29" name="gst_no" id="gstNoInput" value="{{ old('gst_no', $quotation->gst_no ?? '') }}" placeholder="Enter GST No." style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase(); toggleGstFields();">
         </div>
         <div>
           <label class="hrp-label">Mobile No :</label>
-          <input type="text" class="Rectangle-29" name="mobile_no" value="{{ old('mobile_no', $quotation->mobile_no ?? '') }}" placeholder="Enter Mobile No..">
+          <input type="text" class="Rectangle-29" name="mobile_no" value="{{ old('mobile_no', $quotation->mobile_no ?? '') }}" placeholder="Enter Mobile No.">
         </div>
       </div>
   </div>
@@ -193,31 +193,36 @@
     </div>
   </div>
 
-  <!-- Row 2: Tax Information - 6 fields in one row -->
-  <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+  <!-- Row 2: Tax Information - GST Fields (shown only when GST No is entered) -->
+  <!-- CGST + SGST Fields (for Gujarat - GST starts with 24) -->
+  <div id="cgstSgstFieldsRow" style="display: none; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
     <div>
       <label class="hrp-label">CGST Per(%):</label>
-      <input type="number" class="Rectangle-29 js-cgst-per" name="cgst_percent" placeholder="1000">
+      <input type="number" class="Rectangle-29 js-cgst-per" name="cgst_percent" placeholder="9">
     </div>
     <div>
       <label class="hrp-label">CGST Amount:</label>
-      <input class="Rectangle-29" name="cgst_amount" id="cgstAmount" placeholder="000" readonly>
+      <input class="Rectangle-29" name="cgst_amount" id="cgstAmount" placeholder="0.00" readonly>
     </div>
     <div>
       <label class="hrp-label">SGST Per(%):</label>
-      <input type="number" class="Rectangle-29 js-sgst-per" name="sgst_percent" placeholder="000000">
+      <input type="number" class="Rectangle-29 js-sgst-per" name="sgst_percent" placeholder="9">
     </div>
     <div>
       <label class="hrp-label">SGST Amount:</label>
-      <input class="Rectangle-29" name="sgst_amount" id="sgstAmount" placeholder="000" readonly>
+      <input class="Rectangle-29" name="sgst_amount" id="sgstAmount" placeholder="0.00" readonly>
     </div>
+  </div>
+  
+  <!-- IGST Fields (for Outside Gujarat - GST does NOT start with 24) -->
+  <div id="igstFieldsRow" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
     <div>
       <label class="hrp-label">IGST Per(%):</label>
-      <input type="number" class="Rectangle-29 js-igst-per" name="igst_percent" placeholder="000">
+      <input type="number" class="Rectangle-29 js-igst-per" name="igst_percent" placeholder="18">
     </div>
     <div>
       <label class="hrp-label">IGST Amount:</label>
-      <input class="Rectangle-29" name="igst_amount" id="igstAmount" placeholder="0000" readonly>
+      <input class="Rectangle-29" name="igst_amount" id="igstAmount" placeholder="0.00" readonly>
     </div>
   </div>
 
@@ -259,6 +264,71 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<script>
+  // Toggle GST fields based on GST No input
+  // Gujarat GST starts with "24" - show CGST+SGST
+  // Other states - show IGST
+  function toggleGstFields() {
+    const gstNoInput = document.getElementById('gstNoInput');
+    const cgstSgstFieldsRow = document.getElementById('cgstSgstFieldsRow');
+    const igstFieldsRow = document.getElementById('igstFieldsRow');
+    
+    if (gstNoInput && cgstSgstFieldsRow && igstFieldsRow) {
+      const gstNo = gstNoInput.value.trim().toUpperCase();
+      
+      if (gstNo !== '') {
+        // Check if GST number starts with "24" (Gujarat)
+        const isGujarat = gstNo.startsWith('24');
+        
+        if (isGujarat) {
+          // Show CGST + SGST, hide IGST
+          cgstSgstFieldsRow.style.display = 'grid';
+          igstFieldsRow.style.display = 'none';
+          // Clear IGST values
+          const igstPer = document.querySelector('.js-igst-per');
+          if (igstPer) igstPer.value = '';
+          document.getElementById('igstAmount').value = '';
+        } else {
+          // Show IGST, hide CGST + SGST
+          cgstSgstFieldsRow.style.display = 'none';
+          igstFieldsRow.style.display = 'grid';
+          // Clear CGST/SGST values
+          const cgstPer = document.querySelector('.js-cgst-per');
+          const sgstPer = document.querySelector('.js-sgst-per');
+          if (cgstPer) cgstPer.value = '';
+          if (sgstPer) sgstPer.value = '';
+          document.getElementById('cgstAmount').value = '';
+          document.getElementById('sgstAmount').value = '';
+        }
+      } else {
+        // Hide all GST fields when no GST number
+        cgstSgstFieldsRow.style.display = 'none';
+        igstFieldsRow.style.display = 'none';
+        // Clear all GST values
+        const cgstPer = document.querySelector('.js-cgst-per');
+        const sgstPer = document.querySelector('.js-sgst-per');
+        const igstPer = document.querySelector('.js-igst-per');
+        if (cgstPer) cgstPer.value = '';
+        if (sgstPer) sgstPer.value = '';
+        if (igstPer) igstPer.value = '';
+        document.getElementById('cgstAmount').value = '';
+        document.getElementById('sgstAmount').value = '';
+        document.getElementById('igstAmount').value = '';
+      }
+      
+      // Recalculate taxes after toggling
+      if (typeof recalcTaxes === 'function') {
+        recalcTaxes();
+      }
+    }
+  }
+  
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    toggleGstFields();
+  });
+</script>
 
 <script>
   // Initialize date picker
