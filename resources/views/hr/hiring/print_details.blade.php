@@ -22,7 +22,7 @@
     <tr><th>Position</th><td>{{ $lead->position }}</td></tr>
     <tr><th>Is Experience</th><td>{{ $lead->is_experience ? 'Yes' : 'No' }}</td></tr>
     <tr><th>Experience Count</th><td>{{ $lead->experience_count }}</td></tr>
-    <tr><th>Experience Previous Company</th><td>{{ $lead->experience_previous_company }}</td></tr>
+    <tr><th>Previous Company</th><td>{{ $lead->experience_previous_company }}</td></tr>
     <tr><th>Previous Salary</th><td>{{ $lead->previous_salary }}</td></tr>
     <tr><th>Gender</th><td>{{ $lead->gender }}</td></tr>
   </table>

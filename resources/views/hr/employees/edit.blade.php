@@ -60,7 +60,9 @@
         <!-- Employee Password -->
         <div>
           <label class="hrp-label">Employee Password:</label>
-          <input name="password" type="password" placeholder="Enter Password" class="hrp-input Rectangle-29">
+          <div class="password-wrapper">
+            <input name="password" type="password" placeholder="Enter Password" class="hrp-input Rectangle-29">
+          </div>
           @error('password')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         

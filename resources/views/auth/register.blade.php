@@ -58,29 +58,33 @@
 
                             <div>
                                 <x-input-label for="password" :value="__('Password')" class="block text-sm font-semibold text-gray-700 mb-2" />
-                                <x-text-input
-                                    id="password"
-                                    class="w-full border-2 border-gray-200 bg-gray-50 text-gray-900 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                                    type="password"
-                                    name="password"
-                                    required
-                                    autocomplete="new-password"
-                                    placeholder="Create a strong password"
-                                />
+                                <div class="password-wrapper">
+                                    <x-text-input
+                                        id="password"
+                                        class="w-full border-2 border-gray-200 bg-gray-50 text-gray-900 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                        type="password"
+                                        name="password"
+                                        required
+                                        autocomplete="new-password"
+                                        placeholder="Create a strong password"
+                                    />
+                                </div>
                                 <x-input-error :messages="$errors->get('password')" class="mt-2" />
                             </div>
 
                             <div>
                                 <x-input-label for="password_confirmation" :value="__('Confirm Password')" class="block text-sm font-semibold text-gray-700 mb-2" />
-                                <x-text-input
-                                    id="password_confirmation"
-                                    class="w-full border-2 border-gray-200 bg-gray-50 text-gray-900 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                                    type="password"
-                                    name="password_confirmation"
-                                    required
-                                    autocomplete="new-password"
-                                    placeholder="Confirm your password"
-                                />
+                                <div class="password-wrapper">
+                                    <x-text-input
+                                        id="password_confirmation"
+                                        class="w-full border-2 border-gray-200 bg-gray-50 text-gray-900 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                        type="password"
+                                        name="password_confirmation"
+                                        required
+                                        autocomplete="new-password"
+                                        placeholder="Confirm your password"
+                                    />
+                                </div>
                                 <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                             </div>
 

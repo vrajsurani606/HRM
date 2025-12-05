@@ -37,8 +37,10 @@
 
             <div style="margin-bottom: 0;">
               <label class="hrp-label Mobile-No" for="password">{{ __('Password') }} <span style="color: #ef4444;">*</span></label>
-              <input type="password" id="password" name="password" class="Rectangle-29" 
-                     placeholder="{{ __('Enter your password') }}" required />
+              <div class="password-wrapper">
+                <input type="password" id="password" name="password" class="Rectangle-29" 
+                       placeholder="{{ __('Enter your password') }}" required />
+              </div>
               @if($errors->userDeletion->get('password'))
                 <div style="color: #ef4444; font-size: 13px; margin-top: 8px; font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
                   {{ $errors->userDeletion->first('password') }}

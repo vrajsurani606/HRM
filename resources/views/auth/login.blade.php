@@ -26,6 +26,40 @@
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js" defer></script>
+  <style>
+    /* Password Toggle Styles */
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .password-wrapper input {
+      padding-right: 45px !important;
+    }
+    .password-toggle-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      transition: color 0.2s;
+      z-index: 10;
+    }
+    .password-toggle-btn:hover {
+      color: #374151;
+    }
+    .password-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+  </style>
 </head>
 <body class="min-h-screen bg-white dark:bg-slate-900 font-[Instrument_Sans]">
 
@@ -63,9 +97,11 @@
                 <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
                 <a href="{{ route('password.request') }}" class="text-emerald-600 hover:underline text-sm">Forgot Password?</a>
               </div>
-              <input type="password" name="password" id="password" required autocomplete="current-password"
-                     class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-4 py-3 outline-none focus-visible:ring-[3px] focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 transition"
-                     placeholder="••••••••">
+              <div class="password-wrapper">
+                <input type="password" name="password" id="password" required autocomplete="current-password"
+                       class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-4 py-3 outline-none focus-visible:ring-[3px] focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 transition"
+                       placeholder="••••••••">
+              </div>
             </div>
             <div class="flex items-center justify-between text-sm">
               <label class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
@@ -148,6 +184,63 @@
       } else {
         // fallback to static SVG
         wrapper.innerHTML = staticFallbackHTML;
+      }
+    })();
+  </script>
+
+  <!-- Password Toggle Script -->
+  <script>
+    (function() {
+      function initPasswordToggles() {
+        const wrappers = document.querySelectorAll('.password-wrapper');
+        
+        wrappers.forEach(wrapper => {
+          const input = wrapper.querySelector('input[type="password"], input[type="text"][data-password]');
+          if (!input) return;
+          
+          // Check if button already exists
+          if (wrapper.querySelector('.password-toggle-btn')) return;
+          
+          // Create toggle button
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'password-toggle-btn';
+          button.setAttribute('aria-label', 'Toggle password visibility');
+          button.innerHTML = `
+            <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <svg class="eye-closed" style="display:none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+            </svg>
+          `;
+          
+          // Add click handler
+          button.addEventListener('click', function() {
+            const eyeOpen = button.querySelector('.eye-open');
+            const eyeClosed = button.querySelector('.eye-closed');
+            
+            if (input.type === 'password') {
+              input.type = 'text';
+              eyeOpen.style.display = 'none';
+              eyeClosed.style.display = 'block';
+            } else {
+              input.type = 'password';
+              eyeOpen.style.display = 'block';
+              eyeClosed.style.display = 'none';
+            }
+          });
+          
+          wrapper.appendChild(button);
+        });
+      }
+      
+      // Initialize on DOM ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPasswordToggles);
+      } else {
+        initPasswordToggles();
       }
     })();
   </script>

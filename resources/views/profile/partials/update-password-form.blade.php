@@ -15,9 +15,11 @@
     <div class="hrp-grid">
       <div class="hrp-col-4">
         <label class="hrp-label Mobile-No" for="update_password_current_password">{{ __('Current Password') }} <span style="color: #ef4444;">*</span></label>
-        <input type="password" id="update_password_current_password" name="current_password" 
-               class="Rectangle-29" autocomplete="current-password" 
-               placeholder="{{ __('Enter current password') }}" required />
+        <div class="password-wrapper">
+          <input type="password" id="update_password_current_password" name="current_password" 
+                 class="Rectangle-29" autocomplete="current-password" 
+                 placeholder="{{ __('Enter current password') }}" required />
+        </div>
         @if($errors->updatePassword->get('current_password'))
           <div style="color: #ef4444; font-size: 13px; margin-top: 8px; font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
             {{ $errors->updatePassword->first('current_password') }}
@@ -27,9 +29,11 @@
 
       <div class="hrp-col-4">
         <label class="hrp-label Mobile-No" for="update_password_password">{{ __('New Password') }} <span style="color: #ef4444;">*</span></label>
-        <input type="password" id="update_password_password" name="password" 
-               class="Rectangle-29" autocomplete="new-password" 
-               placeholder="{{ __('Enter new password') }}" required />
+        <div class="password-wrapper">
+          <input type="password" id="update_password_password" name="password" 
+                 class="Rectangle-29" autocomplete="new-password" 
+                 placeholder="{{ __('Enter new password') }}" required />
+        </div>
         @if($errors->updatePassword->get('password'))
           <div style="color: #ef4444; font-size: 13px; margin-top: 8px; font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
             {{ $errors->updatePassword->first('password') }}
@@ -39,9 +43,11 @@
 
       <div class="hrp-col-4">
         <label class="hrp-label Mobile-No" for="update_password_password_confirmation">{{ __('Confirm Password') }} <span style="color: #ef4444;">*</span></label>
-        <input type="password" id="update_password_password_confirmation" name="password_confirmation" 
-               class="Rectangle-29" autocomplete="new-password" 
-               placeholder="{{ __('Confirm new password') }}" required />
+        <div class="password-wrapper">
+          <input type="password" id="update_password_password_confirmation" name="password_confirmation" 
+                 class="Rectangle-29" autocomplete="new-password" 
+                 placeholder="{{ __('Confirm new password') }}" required />
+        </div>
         @if($errors->updatePassword->get('password_confirmation'))
           <div style="color: #ef4444; font-size: 13px; margin-top: 8px; font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
             {{ $errors->updatePassword->first('password_confirmation') }}
