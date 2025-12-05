@@ -185,7 +185,7 @@ function confirmDelete(id) {
     if (result.isConfirmed) {
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = `/GitVraj/HrPortal/invoices/${id}`;
+      form.action = `{{ url('invoices') }}/${id}`;
       form.innerHTML = `
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <input type="hidden" name="_method" value="DELETE">

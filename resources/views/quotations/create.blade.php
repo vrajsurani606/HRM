@@ -1449,7 +1449,7 @@ async function fetchCustomerDetails(companyId) {
     if (!companyId) return;
 
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const baseUrl = window.location.origin + '/GitVraj/HrPortal';
+    const baseUrl = '{{ url('/') }}';
 
     // 1st API
     let response = await fetch(`${baseUrl}/quotations/company/${companyId}`, {

@@ -1320,15 +1320,11 @@ class QuotationController extends Controller
         return back()->with('status', 'Follow-up confirmed successfully!');
     }
 
-    public function templateList(int $id): View
+    /**
+     * Helper method to get templates from quotation
+     */
+    private function getTemplatesFromQuotation($quotation): array
     {
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.template list'))) {
-            return redirect()->back()->with('error', 'Permission denied.');
-        }
-        
-        $quotation = Quotation::with('proformas')->findOrFail($id);
-        
-        // Generate templates based on payment terms (services_2)
         $templates = [];
         
         if ($quotation->terms_description && is_array($quotation->terms_description)) {
@@ -1350,6 +1346,20 @@ class QuotationController extends Controller
                 }
             }
         }
+        
+        return $templates;
+    }
+
+    public function templateList(int $id): View
+    {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.template list'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
+        $quotation = Quotation::with('proformas')->findOrFail($id);
+        
+        // Generate templates based on payment terms (services_2)
+        $templates = $this->getTemplatesFromQuotation($quotation);
         
         return view('quotations.template_list', compact('quotation', 'templates'));
     }
@@ -1472,6 +1482,24 @@ class QuotationController extends Controller
             if ($quotation->customer_type !== 'new') {
                 return redirect()->back()
                     ->with('error', 'Only quotations with new customers can be converted to companies.');
+            }
+            
+            // Check if all template lists are completed (all proformas generated)
+            $templates = $this->getTemplatesFromQuotation($quotation);
+            if (count($templates) > 0) {
+                $pendingTemplates = [];
+                foreach ($templates as $template) {
+                    $proformaGenerated = $quotation->proformas()->where('type_of_billing', $template['description'])->first();
+                    if (!$proformaGenerated) {
+                        $pendingTemplates[] = $template['description'];
+                    }
+                }
+                
+                if (count($pendingTemplates) > 0) {
+                    $pendingList = implode(', ', $pendingTemplates);
+                    return redirect()->back()
+                        ->with('error', 'Cannot convert to company. Please complete all template lists first. Pending: ' . $pendingList);
+                }
             }
             
             // Check if required fields are provided

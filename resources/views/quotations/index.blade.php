@@ -448,7 +448,7 @@ function confirmDelete(id) {
       
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = `/GitVraj/HrPortal/quotations/${id}`;
+      form.action = `{{ url('quotations') }}/${id}`;
       form.innerHTML = `
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <input type="hidden" name="_method" value="DELETE">
@@ -514,7 +514,7 @@ function confirmConvertToCompany(id, companyName, companyEmail, companyPassword)
       
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = `/GitVraj/HrPortal/quotations/${id}/convert-to-company`;
+      form.action = `{{ url('quotations') }}/${id}/convert-to-company`;
       form.innerHTML = `
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
       `;
