@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receipt - {{ $receipt->unique_code }}</title>
+    <title>Receipt - <?php echo e($receipt->unique_code); ?></title>
     <style>
         :root {
             --primary-color: #456DB5;
@@ -372,7 +372,7 @@
     </style>
 </head>
 <body>
-    @php
+    <?php
         // Get linked invoices for additional details
         $invoices = $receipt->invoices();
         $firstInvoice = $invoices->first();
@@ -406,36 +406,36 @@
                 if ($igstPercent == 0) $igstPercent = $inv->igst_percent ?? 0;
             }
         }
-    @endphp
+    ?>
     
     <div class="page">
         <!-- Background Watermark -->
         <div class="watermark">
-            <img src="{{ asset('full_logo.jpeg') }}" alt="Watermark">
+            <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Watermark">
         </div>
         
         <div class="content">
             <!-- Logo -->
             <div class="logo-section">
-                <img src="{{ asset('full_logo.jpeg') }}" alt="Enlargesoft Logo">
+                <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Enlargesoft Logo">
             </div>
             
             <!-- Header Info -->
             <div class="header-info">
-                <p><strong>Date:</strong> {{ $receipt->receipt_date ? $receipt->receipt_date->format('d-m-Y') : date('d-m-Y') }}</p>
-                <p><strong>Receipt No.:</strong> {{ $receipt->unique_code }}</p>
-                @if($invoices->count() > 0)
-                <p><strong>Invoice No.:</strong> {{ $invoices->pluck('unique_code')->implode(', ') }}</p>
-                @endif
+                <p><strong>Date:</strong> <?php echo e($receipt->receipt_date ? $receipt->receipt_date->format('d-m-Y') : date('d-m-Y')); ?></p>
+                <p><strong>Receipt No.:</strong> <?php echo e($receipt->unique_code); ?></p>
+                <?php if($invoices->count() > 0): ?>
+                <p><strong>Invoice No.:</strong> <?php echo e($invoices->pluck('unique_code')->implode(', ')); ?></p>
+                <?php endif; ?>
             </div>
             
             <!-- Title -->
             <div class="receipt-title">
-                @if($isGstReceipt)
+                <?php if($isGstReceipt): ?>
                 <h1>Payment Receipt</h1>
-                @else
+                <?php else: ?>
                 <h1>Receipt</h1>
-                @endif
+                <?php endif; ?>
             </div>
             
             <!-- From and Bill To -->
@@ -446,9 +446,9 @@
                         <p><strong>CHITRI ENLARGE SOFT IT HUB PVT. LTD.</strong></p>
                         <p>401/B, RISE ON PLAZA, SARKHEJ JAKAT NAKA,</p>
                         <p>SURAT, 390006.</p>
-                        @if($isGstReceipt)
+                        <?php if($isGstReceipt): ?>
                         <p>GST. NO.: 24AAMCC4413E1Z1</p>
-                        @endif
+                        <?php endif; ?>
                         <p>Mo. (+91) 72763 23999</p>
                     </div>
                 </div>
@@ -456,16 +456,16 @@
                 <div class="party-column">
                     <div class="party-heading">Received From</div>
                     <div class="party-details">
-                        <p><strong>{{ strtoupper($receipt->company_name) }}</strong></p>
-                        @if($clientAddress)
-                        <p>{{ $clientAddress }}</p>
-                        @endif
-                        @if($isGstReceipt && $clientGstNo)
-                        <p>GST. NO.: {{ $clientGstNo }}</p>
-                        @endif
-                        @if($clientMobile)
-                        <p>Mo. {{ $clientMobile }}</p>
-                        @endif
+                        <p><strong><?php echo e(strtoupper($receipt->company_name)); ?></strong></p>
+                        <?php if($clientAddress): ?>
+                        <p><?php echo e($clientAddress); ?></p>
+                        <?php endif; ?>
+                        <?php if($isGstReceipt && $clientGstNo): ?>
+                        <p>GST. NO.: <?php echo e($clientGstNo); ?></p>
+                        <?php endif; ?>
+                        <?php if($clientMobile): ?>
+                        <p>Mo. <?php echo e($clientMobile); ?></p>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -482,11 +482,11 @@
                     <tr>
                         <td>
                             <strong>PAYMENT RECEIVED</strong>
-                            @if($invoices->count() > 0)
-                            <br><small style="color: #666;">Against Invoice: {{ $invoices->pluck('unique_code')->implode(', ') }}</small>
-                            @endif
+                            <?php if($invoices->count() > 0): ?>
+                            <br><small style="color: #666;">Against Invoice: <?php echo e($invoices->pluck('unique_code')->implode(', ')); ?></small>
+                            <?php endif; ?>
                         </td>
-                        <td class="text-right"><strong>₹{{ number_format($receipt->received_amount, 2) }}</strong></td>
+                        <td class="text-right"><strong>₹<?php echo e(number_format($receipt->received_amount, 2)); ?></strong></td>
                     </tr>
                 </tbody>
             </table>
@@ -510,21 +510,21 @@
                 <!-- Amount Received -->
                 <div class="summary-right">
                     <table class="totals-table">
-                        @if($isGstReceipt && $totalTax > 0)
+                        <?php if($isGstReceipt && $totalTax > 0): ?>
                         <tr>
                             <td>Total Tax (GST)</td>
-                            <td>₹{{ number_format($totalTax, 2) }}</td>
+                            <td>₹<?php echo e(number_format($totalTax, 2)); ?></td>
                         </tr>
-                        @endif
+                        <?php endif; ?>
                         <tr class="total-amount-row">
                             <td>Amount Received</td>
-                            <td>₹{{ number_format($receipt->received_amount, 2) }}</td>
+                            <td>₹<?php echo e(number_format($receipt->received_amount, 2)); ?></td>
                         </tr>
                     </table>
                     
                     <div class="amount-box">
                         <div class="label">Total Received</div>
-                        <div class="amount">₹{{ number_format($receipt->received_amount, 2) }} /-</div>
+                        <div class="amount">₹<?php echo e(number_format($receipt->received_amount, 2)); ?> /-</div>
                     </div>
                 </div>
             </div>
@@ -548,3 +548,4 @@
     </script>
 </body>
 </html>
+<?php /**PATH C:\xampp\htdocs\GitVraj\HrPortal\resources\views/receipts/print.blade.php ENDPATH**/ ?>

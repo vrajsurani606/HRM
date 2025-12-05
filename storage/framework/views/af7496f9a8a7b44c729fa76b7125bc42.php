@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receipt - {{ $receipt->unique_code }}</title>
+    <title>Invoice - <?php echo e($invoice->unique_code); ?></title>
     <style>
         :root {
             --primary-color: #456DB5;
@@ -84,14 +84,14 @@
         }
         
         /* Title */
-        .receipt-title {
+        .invoice-title {
             text-align: center;
             margin-bottom: 25px;
             padding-bottom: 8px;
             border-bottom: 2px solid var(--primary-color);
         }
         
-        .receipt-title h1 {
+        .invoice-title h1 {
             font-size: 28px;
             font-weight: 700;
             color: var(--primary-color);
@@ -268,8 +268,8 @@
             border: none;
         }
         
-        /* Amount Box */
-        .amount-box {
+        /* Balance Due */
+        .balance-due-box {
             background: #E8F0FC;
             border: 1px solid #C5D9F2;
             border-radius: 4px;
@@ -278,42 +278,19 @@
             width: 100%;
         }
         
-        .amount-box .label {
+        .balance-due-box .label {
             display: table-cell;
             font-size: 15px;
             font-weight: 700;
             color: var(--primary-color);
         }
         
-        .amount-box .amount {
+        .balance-due-box .amount {
             display: table-cell;
             text-align: right;
             font-size: 16px;
             font-weight: 700;
             color: var(--primary-color);
-        }
-        
-        /* Narration Box */
-        .narration-box {
-            background: #f9f9f9;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 12px 15px;
-            margin-top: 15px;
-        }
-        
-        .narration-box .label {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--primary-color);
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-        
-        .narration-box .text {
-            font-size: 13px;
-            color: #333;
-            line-height: 1.6;
         }
         
         /* Signatures */
@@ -372,70 +349,34 @@
     </style>
 </head>
 <body>
-    @php
-        // Get linked invoices for additional details
-        $invoices = $receipt->invoices();
-        $firstInvoice = $invoices->first();
-        $clientAddress = $firstInvoice->address ?? null;
-        $clientGstNo = $firstInvoice->gst_no ?? null;
-        $clientMobile = $firstInvoice->mobile_no ?? null;
-        $isGstReceipt = $receipt->invoice_type === 'gst' || ($firstInvoice && $firstInvoice->invoice_type === 'gst');
-        
-        // Calculate total tax from all linked invoices
-        $totalCgst = 0;
-        $totalSgst = 0;
-        $totalIgst = 0;
-        $totalTax = 0;
-        $totalSubtotal = 0;
-        $totalInvoiceAmount = 0;
-        $cgstPercent = 0;
-        $sgstPercent = 0;
-        $igstPercent = 0;
-        
-        foreach ($invoices as $inv) {
-            if ($inv->invoice_type === 'gst') {
-                $totalCgst += $inv->cgst_amount ?? 0;
-                $totalSgst += $inv->sgst_amount ?? 0;
-                $totalIgst += $inv->igst_amount ?? 0;
-                $totalTax += ($inv->cgst_amount ?? 0) + ($inv->sgst_amount ?? 0) + ($inv->igst_amount ?? 0);
-                $totalSubtotal += $inv->sub_total ?? 0;
-                $totalInvoiceAmount += $inv->final_amount ?? 0;
-                // Get tax percentages from first GST invoice
-                if ($cgstPercent == 0) $cgstPercent = $inv->cgst_percent ?? 0;
-                if ($sgstPercent == 0) $sgstPercent = $inv->sgst_percent ?? 0;
-                if ($igstPercent == 0) $igstPercent = $inv->igst_percent ?? 0;
-            }
-        }
-    @endphp
-    
     <div class="page">
         <!-- Background Watermark -->
         <div class="watermark">
-            <img src="{{ asset('full_logo.jpeg') }}" alt="Watermark">
+            <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Watermark">
         </div>
         
         <div class="content">
             <!-- Logo -->
             <div class="logo-section">
-                <img src="{{ asset('full_logo.jpeg') }}" alt="Enlargesoft Logo">
+                <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Enlargesoft Logo">
             </div>
             
             <!-- Header Info -->
             <div class="header-info">
-                <p><strong>Date:</strong> {{ $receipt->receipt_date ? $receipt->receipt_date->format('d-m-Y') : date('d-m-Y') }}</p>
-                <p><strong>Receipt No.:</strong> {{ $receipt->unique_code }}</p>
-                @if($invoices->count() > 0)
-                <p><strong>Invoice No.:</strong> {{ $invoices->pluck('unique_code')->implode(', ') }}</p>
-                @endif
+                <p><strong>Date:</strong> <?php echo e($invoice->invoice_date ? $invoice->invoice_date->format('d-m-Y') : date('d-m-Y')); ?></p>
+                <p><strong>Invoice No.:</strong> <?php echo e($invoice->unique_code); ?></p>
+                <?php if($invoice->proforma): ?>
+                <p><strong>Proforma No.:</strong> <?php echo e($invoice->proforma->unique_code); ?></p>
+                <?php endif; ?>
             </div>
             
             <!-- Title -->
-            <div class="receipt-title">
-                @if($isGstReceipt)
-                <h1>Payment Receipt</h1>
-                @else
-                <h1>Receipt</h1>
-                @endif
+            <div class="invoice-title">
+                <?php if($invoice->invoice_type === 'gst'): ?>
+                <h1>Tax Invoice</h1>
+                <?php else: ?>
+                <h1>Invoice</h1>
+                <?php endif; ?>
             </div>
             
             <!-- From and Bill To -->
@@ -446,48 +387,62 @@
                         <p><strong>CHITRI ENLARGE SOFT IT HUB PVT. LTD.</strong></p>
                         <p>401/B, RISE ON PLAZA, SARKHEJ JAKAT NAKA,</p>
                         <p>SURAT, 390006.</p>
-                        @if($isGstReceipt)
+                        <?php if($invoice->invoice_type === 'gst'): ?>
                         <p>GST. NO.: 24AAMCC4413E1Z1</p>
-                        @endif
+                        <?php endif; ?>
                         <p>Mo. (+91) 72763 23999</p>
                     </div>
                 </div>
                 
                 <div class="party-column">
-                    <div class="party-heading">Received From</div>
+                    <div class="party-heading">Bill To</div>
                     <div class="party-details">
-                        <p><strong>{{ strtoupper($receipt->company_name) }}</strong></p>
-                        @if($clientAddress)
-                        <p>{{ $clientAddress }}</p>
-                        @endif
-                        @if($isGstReceipt && $clientGstNo)
-                        <p>GST. NO.: {{ $clientGstNo }}</p>
-                        @endif
-                        @if($clientMobile)
-                        <p>Mo. {{ $clientMobile }}</p>
-                        @endif
+                        <p><strong><?php echo e(strtoupper($invoice->company_name)); ?></strong></p>
+                        <?php if($invoice->address): ?>
+                        <p><?php echo e($invoice->address); ?></p>
+                        <?php endif; ?>
+                        <?php if($invoice->invoice_type === 'gst' && $invoice->gst_no): ?>
+                        <p>GST. NO.: <?php echo e($invoice->gst_no); ?></p>
+                        <?php endif; ?>
+                        <?php if($invoice->mobile_no): ?>
+                        <p>Mo. <?php echo e($invoice->mobile_no); ?></p>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
             
-            <!-- Payment Details Table -->
+            <!-- Items Table -->
             <table class="items-table">
                 <thead>
                     <tr>
                         <th>DESCRIPTION</th>
-                        <th class="text-right" style="width: 180px;">AMOUNT (INR)</th>
+                        <th class="text-center" style="width: 80px;">HSN/SAC</th>
+                        <th class="text-center" style="width: 60px;">QTY</th>
+                        <th class="text-right" style="width: 130px;">UNIT PRICE (INR)</th>
+                        <th class="text-right" style="width: 130px;">TOTAL</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <?php
+                        $descriptions = is_array($invoice->description) ? $invoice->description : [];
+                        $sacCodes = is_array($invoice->sac_code) ? $invoice->sac_code : [];
+                        $quantities = is_array($invoice->quantity) ? $invoice->quantity : [];
+                        $rates = is_array($invoice->rate) ? $invoice->rate : [];
+                        $totals = is_array($invoice->total) ? $invoice->total : [];
+                        $maxCount = max(count($descriptions), count($sacCodes), count($quantities), count($rates), count($totals));
+                    ?>
+                    
+                    <?php for($i = 0; $i < $maxCount; $i++): ?>
+                    <?php if(!empty($descriptions[$i]) || !empty($quantities[$i])): ?>
                     <tr>
-                        <td>
-                            <strong>PAYMENT RECEIVED</strong>
-                            @if($invoices->count() > 0)
-                            <br><small style="color: #666;">Against Invoice: {{ $invoices->pluck('unique_code')->implode(', ') }}</small>
-                            @endif
-                        </td>
-                        <td class="text-right"><strong>₹{{ number_format($receipt->received_amount, 2) }}</strong></td>
+                        <td><strong><?php echo e(strtoupper($descriptions[$i] ?? '-')); ?></strong></td>
+                        <td class="text-center"><?php echo e($sacCodes[$i] ?? '-'); ?></td>
+                        <td class="text-center"><?php echo e($quantities[$i] ?? '-'); ?></td>
+                        <td class="text-right"><?php echo e(isset($rates[$i]) ? number_format($rates[$i], 0) : '-'); ?></td>
+                        <td class="text-right"><strong><?php echo e(isset($totals[$i]) ? number_format($totals[$i], 2) : '-'); ?></strong></td>
                     </tr>
+                    <?php endif; ?>
+                    <?php endfor; ?>
                 </tbody>
             </table>
             
@@ -504,27 +459,54 @@
                         <p>NEAR MAHAVIR HOSPITAL, NEAR RTO,</p>
                         <p>SURAT 395001.</p>
                     </div>
-                    
                 </div>
                 
-                <!-- Amount Received -->
+                <!-- Totals -->
                 <div class="summary-right">
                     <table class="totals-table">
-                        @if($isGstReceipt && $totalTax > 0)
                         <tr>
-                            <td>Total Tax (GST)</td>
-                            <td>₹{{ number_format($totalTax, 2) }}</td>
+                            <td>Subtotal</td>
+                            <td>₹<?php echo e(number_format($invoice->sub_total ?? 0, 2)); ?></td>
                         </tr>
-                        @endif
+                        <?php if($invoice->discount_amount > 0): ?>
+                        <tr>
+                            <td>Discount (<?php echo e($invoice->discount_percent); ?>%)</td>
+                            <td>₹<?php echo e(number_format($invoice->discount_amount, 2)); ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        <?php if(isset($invoice->retention_amount) && $invoice->retention_amount > 0): ?>
+                        <tr>
+                            <td>Retention (<?php echo e(number_format($invoice->retention_percent ?? 0, 2)); ?>%)</td>
+                            <td>₹<?php echo e(number_format($invoice->retention_amount, 2)); ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        <?php if($invoice->invoice_type === 'gst' && $invoice->cgst_amount > 0): ?>
+                        <tr>
+                            <td>CGST (<?php echo e($invoice->cgst_percent); ?>%)</td>
+                            <td>₹<?php echo e(number_format($invoice->cgst_amount, 2)); ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        <?php if($invoice->invoice_type === 'gst' && $invoice->sgst_amount > 0): ?>
+                        <tr>
+                            <td>SGST (<?php echo e($invoice->sgst_percent); ?>%)</td>
+                            <td>₹<?php echo e(number_format($invoice->sgst_amount, 2)); ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        <?php if($invoice->invoice_type === 'gst' && $invoice->igst_amount > 0): ?>
+                        <tr>
+                            <td>IGST (<?php echo e($invoice->igst_percent); ?>%)</td>
+                            <td>₹<?php echo e(number_format($invoice->igst_amount, 2)); ?></td>
+                        </tr>
+                        <?php endif; ?>
                         <tr class="total-amount-row">
-                            <td>Amount Received</td>
-                            <td>₹{{ number_format($receipt->received_amount, 2) }}</td>
+                            <td>Total Amount</td>
+                            <td>₹<?php echo e(number_format($invoice->final_amount ?? 0, 2)); ?></td>
                         </tr>
                     </table>
                     
-                    <div class="amount-box">
-                        <div class="label">Total Received</div>
-                        <div class="amount">₹{{ number_format($receipt->received_amount, 2) }} /-</div>
+                    <div class="balance-due-box">
+                        <div class="label">Balance Due</div>
+                        <div class="amount">₹<?php echo e(number_format($invoice->final_amount ?? 0, 2)); ?> /-</div>
                     </div>
                 </div>
             </div>
@@ -532,10 +514,10 @@
             <!-- Signatures -->
             <div class="signatures-section">
                 <div class="signature-box">
-                    <div class="signature-label">Authorized Signature</div>
+                    <div class="signature-label">Company Signature</div>
                 </div>
                 <div class="signature-box">
-                    <div class="signature-label">Received By</div>
+                    <div class="signature-label">Client Signature</div>
                 </div>
             </div>
         </div>
@@ -548,3 +530,4 @@
     </script>
 </body>
 </html>
+<?php /**PATH C:\xampp\htdocs\GitVraj\HrPortal\resources\views/invoices/print.blade.php ENDPATH**/ ?>

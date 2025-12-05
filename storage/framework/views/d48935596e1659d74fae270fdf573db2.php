@@ -386,10 +386,10 @@ $(document).ready(function() {
           .then(function(res) { return res.json(); })
           .then(function(data) {
             if (data && data.success) {
-              // Replace the pending icon with confirmed icon
+              // Replace the pending badge with confirmed badge
               var cell = btn.closest('td');
               if(cell) {
-                cell.innerHTML = '<img src="<?php echo e(asset("action_icon/completed.svg")); ?>" alt="Confirmed" title="Follow Up Confirmed" style="width:20px;height:20px;opacity:1;">';
+                cell.innerHTML = '<span class="status-badge status-confirmed" style="display:inline-flex;align-items:center;gap:4px;"><img src="<?php echo e(asset("action_icon/completed.svg")); ?>" alt="Confirmed" style="width:14px;height:14px;">Confirmed</span>';
               }
               
               Swal.fire({
@@ -413,6 +413,26 @@ $(document).ready(function() {
 
 <?php $__env->startPush('styles'); ?>
 <style>
+  /* Status Badges */
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+
+  .status-confirmed {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+
   /* Toggle */
   .view-toggle-group { display:flex; gap:4px; background:#f3f4f6; padding:4px; border-radius:8px; }
   .view-toggle-btn { padding:8px 12px; background:transparent; border:none; border-radius:6px; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; }

@@ -150,6 +150,18 @@
           var li = a.parentElement;
           if(!li || !li.matches('.hrp-menu-item[data-group]') || a.getAttribute('href') !== "#") return;
           e.preventDefault();
+          
+          // Close all other open menus
+          var allMenuItems = document.querySelectorAll('.hrp-menu-item[data-group]');
+          allMenuItems.forEach(function(item){
+            if(item !== li && item.classList.contains('open')){
+              item.classList.remove('open');
+              var link = item.querySelector('a');
+              if(link) link.setAttribute('aria-expanded', 'false');
+            }
+          });
+          
+          // Toggle current menu
           var isOpen = li.classList.toggle('open');
           a.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         }

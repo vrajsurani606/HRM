@@ -1,19 +1,19 @@
-@extends('layouts.macos')
-@section('page_title', 'Add Proforma')
+<?php $__env->startSection('page_title', 'Add Proforma'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
-@if(session('error'))
+<?php if(session('error')): ?>
 <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
-    <strong>⚠ Error:</strong> {{ session('error') }}
-</div>
-@endif
+    <strong>⚠ Error:</strong> <?php echo e(session('error')); ?>
 
-<form method="POST" action="{{ route('performas.store') }}" id="performaForm" class="hrp-form">
-  @csrf
+</div>
+<?php endif; ?>
+
+<form method="POST" action="<?php echo e(route('performas.store')); ?>" id="performaForm" class="hrp-form">
+  <?php echo csrf_field(); ?>
   
-  <input type="hidden" name="quotation_id" value="{{ $quotation->id ?? '' }}">
-  <input type="hidden" name="template_index" value="{{ $templateIndex ?? '' }}">
+  <input type="hidden" name="quotation_id" value="<?php echo e($quotation->id ?? ''); ?>">
+  <input type="hidden" name="template_index" value="<?php echo e($templateIndex ?? ''); ?>">
 
 <div class="hrp-card">
   <div class="Rectangle-30 hrp-compact">
@@ -22,30 +22,86 @@
       <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
         <div>
           <label class="hrp-label">Unique Code: <span class="text-red-500">*</span></label>
-          <input type="text" class="Rectangle-29 @error('unique_code') is-invalid @enderror" name="unique_code" value="{{ $nextCode }}" readonly style="background: #f3f4f6;">
-          @error('unique_code')<small class="hrp-error">{{ $message }}</small>@enderror
+          <input type="text" class="Rectangle-29 <?php $__errorArgs = ['unique_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="unique_code" value="<?php echo e($nextCode); ?>" readonly style="background: #f3f4f6;">
+          <?php $__errorArgs = ['unique_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
         <div>
           <label class="hrp-label">Proforma Date: <span class="text-red-500">*</span></label>
-          <input type="text" class="Rectangle-29 date-picker @error('proforma_date') is-invalid @enderror" name="proforma_date" placeholder="dd/mm/yyyy" value="{{ old('proforma_date', date('d/m/Y')) }}" autocomplete="off" required>
-          @error('proforma_date')<small class="hrp-error">{{ $message }}</small>@enderror
+          <input type="text" class="Rectangle-29 date-picker <?php $__errorArgs = ['proforma_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="proforma_date" placeholder="dd/mm/yyyy" value="<?php echo e(old('proforma_date', date('d/m/Y'))); ?>" autocomplete="off" required>
+          <?php $__errorArgs = ['proforma_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
         <div>
           <label class="hrp-label">Type Of Billing:</label>
-          <select class="Rectangle-29-select @error('type_of_billing') is-invalid @enderror" name="type_of_billing">
+          <select class="Rectangle-29-select <?php $__errorArgs = ['type_of_billing'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="type_of_billing">
             <option value="">Select</option>
-            <option value="ADVANCE" {{ old('type_of_billing', $templateData['description'] ?? '') == 'ADVANCE' ? 'selected' : '' }}>ADVANCE</option>
-            <option value="ON INSTALLATION" {{ old('type_of_billing', $templateData['description'] ?? '') == 'ON INSTALLATION' ? 'selected' : '' }}>ON INSTALLATION</option>
-            <option value="COMPLETION" {{ old('type_of_billing', $templateData['description'] ?? '') == 'COMPLETION' ? 'selected' : '' }}>COMPLETION</option>
-            <option value="RETENTION" {{ old('type_of_billing', $templateData['description'] ?? '') == 'RETENTION' ? 'selected' : '' }}>RETENTION</option>
-            <option value="AMC" {{ old('type_of_billing') == 'AMC' ? 'selected' : '' }}>AMC</option>
+            <option value="ADVANCE" <?php echo e(old('type_of_billing', $templateData['description'] ?? '') == 'ADVANCE' ? 'selected' : ''); ?>>ADVANCE</option>
+            <option value="ON INSTALLATION" <?php echo e(old('type_of_billing', $templateData['description'] ?? '') == 'ON INSTALLATION' ? 'selected' : ''); ?>>ON INSTALLATION</option>
+            <option value="COMPLETION" <?php echo e(old('type_of_billing', $templateData['description'] ?? '') == 'COMPLETION' ? 'selected' : ''); ?>>COMPLETION</option>
+            <option value="RETENTION" <?php echo e(old('type_of_billing', $templateData['description'] ?? '') == 'RETENTION' ? 'selected' : ''); ?>>RETENTION</option>
+            <option value="AMC" <?php echo e(old('type_of_billing') == 'AMC' ? 'selected' : ''); ?>>AMC</option>
           </select>
-          @error('type_of_billing')<small class="hrp-error">{{ $message }}</small>@enderror
+          <?php $__errorArgs = ['type_of_billing'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
         <div>
           <label class="hrp-label">Bill No:</label>
-          <input type="text" class="Rectangle-29 @error('bill_no') is-invalid @enderror" name="bill_no" value="{{ old('bill_no') }}" placeholder="Enter Bill No">
-          @error('bill_no')<small class="hrp-error">{{ $message }}</small>@enderror
+          <input type="text" class="Rectangle-29 <?php $__errorArgs = ['bill_no'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="bill_no" value="<?php echo e(old('bill_no')); ?>" placeholder="Enter Bill No">
+          <?php $__errorArgs = ['bill_no'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
       </div>
 
@@ -53,13 +109,41 @@
       <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
         <div>
           <label class="hrp-label">Company Name: <span class="text-red-500">*</span></label>
-          <input type="text" class="Rectangle-29 @error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name', $quotation->company_name ?? '') }}" placeholder="Enter Company Name" required>
-          @error('company_name')<small class="hrp-error">{{ $message }}</small>@enderror
+          <input type="text" class="Rectangle-29 <?php $__errorArgs = ['company_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="company_name" value="<?php echo e(old('company_name', $quotation->company_name ?? '')); ?>" placeholder="Enter Company Name" required>
+          <?php $__errorArgs = ['company_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
         <div>
           <label class="hrp-label">Address:</label>
-          <textarea class="Rectangle-29 Rectangle-29-textarea @error('address') is-invalid @enderror" name="address" placeholder="Enter Address" style="min-height:80px">{{ old('address', $quotation->address ?? '') }}</textarea>
-          @error('address')<small class="hrp-error">{{ $message }}</small>@enderror
+          <textarea class="Rectangle-29 Rectangle-29-textarea <?php $__errorArgs = ['address'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="address" placeholder="Enter Address" style="min-height:80px"><?php echo e(old('address', $quotation->address ?? '')); ?></textarea>
+          <?php $__errorArgs = ['address'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
       </div>
 
@@ -67,11 +151,11 @@
       <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
         <div>
           <label class="hrp-label">GST No :</label>
-          <input type="text" class="Rectangle-29" name="gst_no" id="gstNoInput" value="{{ old('gst_no', $quotation->gst_no ?? '') }}" placeholder="Enter GST No." style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase(); toggleGstFields();">
+          <input type="text" class="Rectangle-29" name="gst_no" id="gstNoInput" value="<?php echo e(old('gst_no', $quotation->gst_no ?? '')); ?>" placeholder="Enter GST No." style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase(); toggleGstFields();">
         </div>
         <div>
           <label class="hrp-label">Mobile No :</label>
-          <input type="text" class="Rectangle-29" name="mobile_no" value="{{ old('mobile_no', $quotation->mobile_no ?? '') }}" placeholder="Enter Mobile No.">
+          <input type="text" class="Rectangle-29" name="mobile_no" value="<?php echo e(old('mobile_no', $quotation->mobile_no ?? '')); ?>" placeholder="Enter Mobile No.">
         </div>
       </div>
   </div>
@@ -95,28 +179,28 @@
         </tr>
       </thead>
       <tbody id="itemsWrap">
-        @if($templateData)
+        <?php if($templateData): ?>
         <tr class="item-row" data-index="0">
           <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input class="Rectangle-29" name="description[]" value="{{ $templateData['description'] ?? '' }}" placeholder="Enter Description" style="border: none; background: transparent; margin: 0;">
+            <input class="Rectangle-29" name="description[]" value="<?php echo e($templateData['description'] ?? ''); ?>" placeholder="Enter Description" style="border: none; background: transparent; margin: 0;">
           </td>
           <td style="padding: 12px; border-bottom: 1px solid #eee;">
             <input class="Rectangle-29" name="sac_code[]" placeholder="Enter SAC Code" style="border: none; background: transparent; margin: 0;">
           </td>
           <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input type="number" min="0" step="1" class="Rectangle-29 js-qty" name="quantity[]" value="{{ $templateData['quantity'] ?? 1 }}" placeholder="Qty" style="border: none; background: transparent; margin: 0;">
+            <input type="number" min="0" step="1" class="Rectangle-29 js-qty" name="quantity[]" value="<?php echo e($templateData['quantity'] ?? 1); ?>" placeholder="Qty" style="border: none; background: transparent; margin: 0;">
           </td>
           <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input type="number" min="0" step="0.01" class="Rectangle-29 js-rate" name="rate[]" value="{{ $templateData['rate'] ?? 0 }}" placeholder="Rate" style="border: none; background: transparent; margin: 0;">
+            <input type="number" min="0" step="0.01" class="Rectangle-29 js-rate" name="rate[]" value="<?php echo e($templateData['rate'] ?? 0); ?>" placeholder="Rate" style="border: none; background: transparent; margin: 0;">
           </td>
           <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input type="number" class="Rectangle-29 js-line-total" name="total[]" value="{{ $templateData['amount'] ?? 0 }}" placeholder="Total" style="border: none; background: transparent; margin: 0;" readonly>
+            <input type="number" class="Rectangle-29 js-line-total" name="total[]" value="<?php echo e($templateData['amount'] ?? 0); ?>" placeholder="Total" style="border: none; background: transparent; margin: 0;" readonly>
           </td>
           <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">
             <button type="button" class="js-remove-row" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">×</button>
           </td>
         </tr>
-        @else
+        <?php else: ?>
         <tr class="item-row" data-index="0">
           <td style="padding: 12px; border-bottom: 1px solid #eee;">
             <input class="Rectangle-29" name="description[]" placeholder="Enter Description" style="border: none; background: transparent; margin: 0;">
@@ -157,7 +241,7 @@
             <button type="button" class="js-remove-row" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">×</button>
           </td>
         </tr>
-        @endif
+        <?php endif; ?>
       </tbody>
     </table>
   </div>
@@ -250,17 +334,17 @@
 
 </form>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('breadcrumb')
-  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+<?php $__env->startSection('breadcrumb'); ?>
+  <a class="hrp-bc-home" href="<?php echo e(route('dashboard')); ?>">Dashboard</a>
   <span class="hrp-bc-sep">›</span>
-  <a href="{{ route('performas.index') }}">Performas</a>
+  <a href="<?php echo e(route('performas.index')); ?>">Performas</a>
   <span class="hrp-bc-sep">›</span>
   <span class="hrp-bc-current">Add Proforma</span>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
@@ -469,4 +553,5 @@
     }
   })();
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('layouts.macos', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\GitVraj\HrPortal\resources\views/performas/create.blade.php ENDPATH**/ ?>

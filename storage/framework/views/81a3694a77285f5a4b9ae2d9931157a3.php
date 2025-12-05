@@ -1,19 +1,21 @@
-@extends('layouts.macos')
-@section('page_title', 'Add Proforma')
 
-@section('content')
+<?php $__env->startSection('page_title', 'Edit Proforma'); ?>
 
-@if(session('error'))
+<?php $__env->startSection('content'); ?>
+
+<?php if(session('error')): ?>
 <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
-    <strong>⚠ Error:</strong> {{ session('error') }}
-</div>
-@endif
+    <strong>⚠ Error:</strong> <?php echo e(session('error')); ?>
 
-<form method="POST" action="{{ route('performas.store') }}" id="performaForm" class="hrp-form">
-  @csrf
+</div>
+<?php endif; ?>
+
+<form method="POST" action="<?php echo e(route('performas.update', $proforma->id)); ?>" id="performaForm" class="hrp-form">
+  <?php echo csrf_field(); ?>
+  <?php echo method_field('PUT'); ?>
   
-  <input type="hidden" name="quotation_id" value="{{ $quotation->id ?? '' }}">
-  <input type="hidden" name="template_index" value="{{ $templateIndex ?? '' }}">
+  <input type="hidden" name="quotation_id" value="<?php echo e($proforma->quotation_id); ?>">
+  <input type="hidden" name="template_index" value="<?php echo e($proforma->template_index); ?>">
 
 <div class="hrp-card">
   <div class="Rectangle-30 hrp-compact">
@@ -22,30 +24,71 @@
       <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
         <div>
           <label class="hrp-label">Unique Code: <span class="text-red-500">*</span></label>
-          <input type="text" class="Rectangle-29 @error('unique_code') is-invalid @enderror" name="unique_code" value="{{ $nextCode }}" readonly style="background: #f3f4f6;">
-          @error('unique_code')<small class="hrp-error">{{ $message }}</small>@enderror
+          <input type="text" class="Rectangle-29" name="unique_code" value="<?php echo e($proforma->unique_code); ?>" readonly style="background: #f3f4f6;">
         </div>
         <div>
           <label class="hrp-label">Proforma Date: <span class="text-red-500">*</span></label>
-          <input type="text" class="Rectangle-29 date-picker @error('proforma_date') is-invalid @enderror" name="proforma_date" placeholder="dd/mm/yyyy" value="{{ old('proforma_date', date('d/m/Y')) }}" autocomplete="off" required>
-          @error('proforma_date')<small class="hrp-error">{{ $message }}</small>@enderror
+          <input type="text" class="Rectangle-29 date-picker <?php $__errorArgs = ['proforma_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="proforma_date" placeholder="dd/mm/yyyy" value="<?php echo e(old('proforma_date', $proforma->proforma_date?->format('d/m/Y'))); ?>" autocomplete="off" required>
+          <?php $__errorArgs = ['proforma_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
         <div>
           <label class="hrp-label">Type Of Billing:</label>
-          <select class="Rectangle-29-select @error('type_of_billing') is-invalid @enderror" name="type_of_billing">
+          <select class="Rectangle-29-select <?php $__errorArgs = ['type_of_billing'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="type_of_billing">
             <option value="">Select</option>
-            <option value="ADVANCE" {{ old('type_of_billing', $templateData['description'] ?? '') == 'ADVANCE' ? 'selected' : '' }}>ADVANCE</option>
-            <option value="ON INSTALLATION" {{ old('type_of_billing', $templateData['description'] ?? '') == 'ON INSTALLATION' ? 'selected' : '' }}>ON INSTALLATION</option>
-            <option value="COMPLETION" {{ old('type_of_billing', $templateData['description'] ?? '') == 'COMPLETION' ? 'selected' : '' }}>COMPLETION</option>
-            <option value="RETENTION" {{ old('type_of_billing', $templateData['description'] ?? '') == 'RETENTION' ? 'selected' : '' }}>RETENTION</option>
-            <option value="AMC" {{ old('type_of_billing') == 'AMC' ? 'selected' : '' }}>AMC</option>
+            <option value="ADVANCE" <?php echo e(old('type_of_billing', $proforma->type_of_billing) == 'ADVANCE' ? 'selected' : ''); ?>>ADVANCE</option>
+            <option value="ON INSTALLATION" <?php echo e(old('type_of_billing', $proforma->type_of_billing) == 'ON INSTALLATION' ? 'selected' : ''); ?>>ON INSTALLATION</option>
+            <option value="COMPLETION" <?php echo e(old('type_of_billing', $proforma->type_of_billing) == 'COMPLETION' ? 'selected' : ''); ?>>COMPLETION</option>
+            <option value="RETENTION" <?php echo e(old('type_of_billing', $proforma->type_of_billing) == 'RETENTION' ? 'selected' : ''); ?>>RETENTION</option>
+            <option value="AMC" <?php echo e(old('type_of_billing', $proforma->type_of_billing) == 'AMC' ? 'selected' : ''); ?>>AMC</option>
           </select>
-          @error('type_of_billing')<small class="hrp-error">{{ $message }}</small>@enderror
+          <?php $__errorArgs = ['type_of_billing'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
         <div>
           <label class="hrp-label">Bill No:</label>
-          <input type="text" class="Rectangle-29 @error('bill_no') is-invalid @enderror" name="bill_no" value="{{ old('bill_no') }}" placeholder="Enter Bill No">
-          @error('bill_no')<small class="hrp-error">{{ $message }}</small>@enderror
+          <input type="text" class="Rectangle-29 <?php $__errorArgs = ['bill_no'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="bill_no" value="<?php echo e(old('bill_no', $proforma->bill_no)); ?>" placeholder="Enter Bill No">
+          <?php $__errorArgs = ['bill_no'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
       </div>
 
@@ -53,13 +96,41 @@
       <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
         <div>
           <label class="hrp-label">Company Name: <span class="text-red-500">*</span></label>
-          <input type="text" class="Rectangle-29 @error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name', $quotation->company_name ?? '') }}" placeholder="Enter Company Name" required>
-          @error('company_name')<small class="hrp-error">{{ $message }}</small>@enderror
+          <input type="text" class="Rectangle-29 <?php $__errorArgs = ['company_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="company_name" value="<?php echo e(old('company_name', $proforma->company_name)); ?>" placeholder="Enter Company Name" required>
+          <?php $__errorArgs = ['company_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
         <div>
           <label class="hrp-label">Address:</label>
-          <textarea class="Rectangle-29 Rectangle-29-textarea @error('address') is-invalid @enderror" name="address" placeholder="Enter Address" style="min-height:80px">{{ old('address', $quotation->address ?? '') }}</textarea>
-          @error('address')<small class="hrp-error">{{ $message }}</small>@enderror
+          <textarea class="Rectangle-29 Rectangle-29-textarea <?php $__errorArgs = ['address'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="address" placeholder="Enter Address" style="min-height:80px"><?php echo e(old('address', $proforma->address)); ?></textarea>
+          <?php $__errorArgs = ['address'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
       </div>
 
@@ -67,22 +138,21 @@
       <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
         <div>
           <label class="hrp-label">GST No :</label>
-          <input type="text" class="Rectangle-29" name="gst_no" id="gstNoInput" value="{{ old('gst_no', $quotation->gst_no ?? '') }}" placeholder="Enter GST No." style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase(); toggleGstFields();">
+          <input type="text" class="Rectangle-29" name="gst_no" id="gstNoInput" value="<?php echo e(old('gst_no', $proforma->gst_no)); ?>" placeholder="Enter GST No." style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase(); toggleGstFields();">
         </div>
         <div>
           <label class="hrp-label">Mobile No :</label>
-          <input type="text" class="Rectangle-29" name="mobile_no" value="{{ old('mobile_no', $quotation->mobile_no ?? '') }}" placeholder="Enter Mobile No.">
+          <input type="text" class="Rectangle-29" name="mobile_no" value="<?php echo e(old('mobile_no', $proforma->mobile_no)); ?>" placeholder="Enter Mobile No.">
         </div>
       </div>
   </div>
 
 <!-- Items Table Section -->
 <div style="margin: 30px 0;">
- 
   <div class="Rectangle-30 hrp-compact">
-     <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-    <button type="button" class="inquiry-submit-btn" id="addItemBtn" style="background: #28a745;">+ Add More</button>
-  </div>
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+      <button type="button" class="inquiry-submit-btn" id="addItemBtn" style="background: #28a745;">+ Add More</button>
+    </div>
     <table class="items-table" style="width: 100%; border-collapse: collapse;">
       <thead>
         <tr>
@@ -95,69 +165,37 @@
         </tr>
       </thead>
       <tbody id="itemsWrap">
-        @if($templateData)
-        <tr class="item-row" data-index="0">
+        <?php
+          $descriptions = is_array($proforma->description) ? $proforma->description : [];
+          $sacCodes = is_array($proforma->sac_code) ? $proforma->sac_code : [];
+          $quantities = is_array($proforma->quantity) ? $proforma->quantity : [];
+          $rates = is_array($proforma->rate) ? $proforma->rate : [];
+          $totals = is_array($proforma->total) ? $proforma->total : [];
+          $maxCount = max(count($descriptions), count($sacCodes), count($quantities), count($rates), count($totals), 2);
+        ?>
+        
+        <?php for($i = 0; $i < $maxCount; $i++): ?>
+        <tr class="item-row" data-index="<?php echo e($i); ?>">
           <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input class="Rectangle-29" name="description[]" value="{{ $templateData['description'] ?? '' }}" placeholder="Enter Description" style="border: none; background: transparent; margin: 0;">
+            <input class="Rectangle-29" name="description[]" value="<?php echo e($descriptions[$i] ?? ''); ?>" placeholder="Enter Description" style="border: none; background: transparent; margin: 0;">
           </td>
           <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input class="Rectangle-29" name="sac_code[]" placeholder="Enter SAC Code" style="border: none; background: transparent; margin: 0;">
+            <input class="Rectangle-29" name="sac_code[]" value="<?php echo e($sacCodes[$i] ?? ''); ?>" placeholder="Enter SAC Code" style="border: none; background: transparent; margin: 0;">
           </td>
           <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input type="number" min="0" step="1" class="Rectangle-29 js-qty" name="quantity[]" value="{{ $templateData['quantity'] ?? 1 }}" placeholder="Qty" style="border: none; background: transparent; margin: 0;">
+            <input type="number" min="0" step="1" class="Rectangle-29 js-qty" name="quantity[]" value="<?php echo e($quantities[$i] ?? ''); ?>" placeholder="Qty" style="border: none; background: transparent; margin: 0;">
           </td>
           <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input type="number" min="0" step="0.01" class="Rectangle-29 js-rate" name="rate[]" value="{{ $templateData['rate'] ?? 0 }}" placeholder="Rate" style="border: none; background: transparent; margin: 0;">
+            <input type="number" min="0" step="0.01" class="Rectangle-29 js-rate" name="rate[]" value="<?php echo e($rates[$i] ?? ''); ?>" placeholder="Rate" style="border: none; background: transparent; margin: 0;">
           </td>
           <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input type="number" class="Rectangle-29 js-line-total" name="total[]" value="{{ $templateData['amount'] ?? 0 }}" placeholder="Total" style="border: none; background: transparent; margin: 0;" readonly>
+            <input type="number" class="Rectangle-29 js-line-total" name="total[]" value="<?php echo e($totals[$i] ?? ''); ?>" placeholder="Total" style="border: none; background: transparent; margin: 0;" readonly>
           </td>
           <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">
             <button type="button" class="js-remove-row" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">×</button>
           </td>
         </tr>
-        @else
-        <tr class="item-row" data-index="0">
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input class="Rectangle-29" name="description[]" placeholder="Enter Description" style="border: none; background: transparent; margin: 0;">
-          </td>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input class="Rectangle-29" name="sac_code[]" placeholder="Enter SAC Code" style="border: none; background: transparent; margin: 0;">
-          </td>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input type="number" min="0" step="1" class="Rectangle-29 js-qty" name="quantity[]" placeholder="Qty" style="border: none; background: transparent; margin: 0;">
-          </td>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input type="number" min="0" step="0.01" class="Rectangle-29 js-rate" name="rate[]" placeholder="Rate" style="border: none; background: transparent; margin: 0;">
-          </td>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input type="number" class="Rectangle-29 js-line-total" name="total[]" placeholder="Total" style="border: none; background: transparent; margin: 0;" readonly>
-          </td>
-          <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">
-            <button type="button" class="js-remove-row" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">×</button>
-          </td>
-        </tr>
-        <tr class="item-row" data-index="1">
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input class="Rectangle-29" name="description[]" placeholder="Enter Description" style="border: none; background: transparent; margin: 0;">
-          </td>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input class="Rectangle-29" name="sac_code[]" placeholder="Enter SAC Code" style="border: none; background: transparent; margin: 0;">
-          </td>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input type="number" min="0" step="1" class="Rectangle-29 js-qty" name="quantity[]" placeholder="Qty" style="border: none; background: transparent; margin: 0;">
-          </td>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input type="number" min="0" step="0.01" class="Rectangle-29 js-rate" name="rate[]" placeholder="Rate" style="border: none; background: transparent; margin: 0;">
-          </td>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <input type="number" class="Rectangle-29 js-line-total" name="total[]" placeholder="Total" style="border: none; background: transparent; margin: 0;" readonly>
-          </td>
-          <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">
-            <button type="button" class="js-remove-row" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">×</button>
-          </td>
-        </tr>
-        @endif
+        <?php endfor; ?>
       </tbody>
     </table>
   </div>
@@ -169,27 +207,27 @@
   <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
     <div>
       <label class="hrp-label">Sub Total</label>
-      <input class="Rectangle-29" name="sub_total" id="subTotal" placeholder="1000" readonly>
+      <input class="Rectangle-29" name="sub_total" id="subTotal" value="<?php echo e(old('sub_total', $proforma->sub_total)); ?>" placeholder="1000" readonly>
     </div>
     <div>
       <label class="hrp-label">Discount Per(%):</label>
-      <input type="number" class="Rectangle-29 js-discount-per" name="discount_percent" placeholder="000">
+      <input type="number" class="Rectangle-29 js-discount-per" name="discount_percent" value="<?php echo e(old('discount_percent', $proforma->discount_percent)); ?>" placeholder="000">
     </div>
     <div>
       <label class="hrp-label">Discount Amount:</label>
-      <input class="Rectangle-29" name="discount_amount" id="discountAmount" placeholder="000000" readonly>
+      <input class="Rectangle-29" name="discount_amount" id="discountAmount" value="<?php echo e(old('discount_amount', $proforma->discount_amount)); ?>" placeholder="000000" readonly>
     </div>
     <div>
       <label class="hrp-label">Retention per(%):</label>
-      <input type="number" class="Rectangle-29 js-retention-per" name="retention_percent" placeholder="000">
+      <input type="number" class="Rectangle-29 js-retention-per" name="retention_percent" value="<?php echo e(old('retention_percent', $proforma->retention_percent ?? 0)); ?>" placeholder="000">
     </div>
     <div>
       <label class="hrp-label">Retention Amount:</label>
-      <input class="Rectangle-29" name="retention_amount" id="retentionAmount" placeholder="000" readonly>
+      <input class="Rectangle-29" name="retention_amount" id="retentionAmount" value="<?php echo e(old('retention_amount', $proforma->retention_amount ?? 0)); ?>" placeholder="000" readonly>
     </div>
     <div>
       <label class="hrp-label">Grand Total:</label>
-      <input class="Rectangle-29" name="grand_total" id="grandTotal" placeholder="1000" readonly>
+      <input class="Rectangle-29" name="grand_total" id="grandTotal" value="<?php echo e(old('sub_total', $proforma->sub_total)); ?>" placeholder="1000" readonly>
     </div>
   </div>
 
@@ -198,19 +236,19 @@
   <div id="cgstSgstFieldsRow" style="display: none; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
     <div>
       <label class="hrp-label">CGST Per(%):</label>
-      <input type="number" class="Rectangle-29 js-cgst-per" name="cgst_percent" placeholder="9">
+      <input type="number" class="Rectangle-29 js-cgst-per" name="cgst_percent" value="<?php echo e(old('cgst_percent', $proforma->cgst_percent)); ?>" placeholder="9">
     </div>
     <div>
       <label class="hrp-label">CGST Amount:</label>
-      <input class="Rectangle-29" name="cgst_amount" id="cgstAmount" placeholder="0.00" readonly>
+      <input class="Rectangle-29" name="cgst_amount" id="cgstAmount" value="<?php echo e(old('cgst_amount', $proforma->cgst_amount)); ?>" placeholder="0.00" readonly>
     </div>
     <div>
       <label class="hrp-label">SGST Per(%):</label>
-      <input type="number" class="Rectangle-29 js-sgst-per" name="sgst_percent" placeholder="9">
+      <input type="number" class="Rectangle-29 js-sgst-per" name="sgst_percent" value="<?php echo e(old('sgst_percent', $proforma->sgst_percent)); ?>" placeholder="9">
     </div>
     <div>
       <label class="hrp-label">SGST Amount:</label>
-      <input class="Rectangle-29" name="sgst_amount" id="sgstAmount" placeholder="0.00" readonly>
+      <input class="Rectangle-29" name="sgst_amount" id="sgstAmount" value="<?php echo e(old('sgst_amount', $proforma->sgst_amount)); ?>" placeholder="0.00" readonly>
     </div>
   </div>
   
@@ -218,11 +256,11 @@
   <div id="igstFieldsRow" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
     <div>
       <label class="hrp-label">IGST Per(%):</label>
-      <input type="number" class="Rectangle-29 js-igst-per" name="igst_percent" placeholder="18">
+      <input type="number" class="Rectangle-29 js-igst-per" name="igst_percent" value="<?php echo e(old('igst_percent', $proforma->igst_percent)); ?>" placeholder="18">
     </div>
     <div>
       <label class="hrp-label">IGST Amount:</label>
-      <input class="Rectangle-29" name="igst_amount" id="igstAmount" placeholder="0.00" readonly>
+      <input class="Rectangle-29" name="igst_amount" id="igstAmount" value="<?php echo e(old('igst_amount', $proforma->igst_amount)); ?>" placeholder="0.00" readonly>
     </div>
   </div>
 
@@ -230,37 +268,37 @@
   <div style="display: grid; grid-template-columns: 1fr 1fr 4fr; gap: 1rem;">
     <div>
       <label class="hrp-label">TDS Amount:</label>
-      <input type="number" class="Rectangle-29 js-tds-amount" name="tds_amount" placeholder="1000">
+      <input type="number" class="Rectangle-29 js-tds-amount" name="tds_amount" value="<?php echo e(old('tds_amount', $proforma->tds_amount)); ?>" placeholder="1000">
     </div>
     <div>
       <label class="hrp-label">Final Amount:</label>
-      <input class="Rectangle-29" name="final_amount" id="finalAmount" placeholder="1000" readonly>
+      <input class="Rectangle-29" name="final_amount" id="finalAmount" value="<?php echo e(old('final_amount', $proforma->final_amount)); ?>" placeholder="1000" readonly>
     </div>
     <div>
       <label class="hrp-label">Billing Note:</label>
-      <input class="Rectangle-29" name="remark" placeholder="Enter Billing Note">
+      <input class="Rectangle-29" name="remark" value="<?php echo e(old('remark', $proforma->remark)); ?>" placeholder="Enter Billing Note">
     </div>
   </div>
 </div>
 
 <div style="display:flex;justify-content:end;margin-top:40px;">
-  <button type="submit" class="inquiry-submit-btn" style="padding: 15px 40px; font-size: 16px; width: fit-content;">Add Proforma</button>
+  <button type="submit" class="inquiry-submit-btn" style="padding: 15px 40px; font-size: 16px; width: fit-content;">Update Proforma</button>
 </div>
 </div>
 
 </form>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('breadcrumb')
-  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+<?php $__env->startSection('breadcrumb'); ?>
+  <a class="hrp-bc-home" href="<?php echo e(route('dashboard')); ?>">Dashboard</a>
   <span class="hrp-bc-sep">›</span>
-  <a href="{{ route('performas.index') }}">Performas</a>
+  <a href="<?php echo e(route('performas.index')); ?>">Performas</a>
   <span class="hrp-bc-sep">›</span>
-  <span class="hrp-bc-current">Add Proforma</span>
-@endsection
+  <span class="hrp-bc-current">Edit Proforma</span>
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
@@ -454,7 +492,7 @@
       subtotal();
     });
 
-    // Initial calculation on page load (for template data)
+    // Initial calculation
     wrap.querySelectorAll('.item-row').forEach(calcRow);
     subtotal();
 
@@ -469,4 +507,6 @@
     }
   })();
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.macos', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\GitVraj\HrPortal\resources\views/performas/edit.blade.php ENDPATH**/ ?>
