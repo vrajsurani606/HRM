@@ -1171,7 +1171,7 @@ unset($__errorArgs, $__bag); ?>
 
     <div>
       <label class="hrp-label">Company Name:</label>
-      <input class="Rectangle-29" name="footer_company_name" value="<?php echo e(old('footer_company_name', 'CHITRI INFOTECH PVT LTD')); ?>">
+      <input class="Rectangle-29" name="footer_company_name" value="<?php echo e(old('footer_company_name', 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)')); ?>">
       <?php $__errorArgs = ['footer_company_name'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :

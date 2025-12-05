@@ -801,7 +801,7 @@
 
     <div>
       <label class="hrp-label">Company Name:</label>
-      <input class="Rectangle-29" name="footer_company_name" value="{{ old('footer_company_name', 'CHITRI INFOTECH PVT LTD') }}">
+      <input class="Rectangle-29" name="footer_company_name" value="{{ old('footer_company_name', 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)') }}">
       @error('footer_company_name')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     {{-- <div>

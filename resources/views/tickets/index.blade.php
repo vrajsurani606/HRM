@@ -323,16 +323,28 @@ function submitTicket(event) {
   .then(response => response.json())
   .then(data => {
     if (data.success) {
-      toastr.success(data.message);
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'success', title: 'Success', text: data.message || 'Ticket saved successfully!', timer: 1500, showConfirmButton: false });
+      } else {
+        alert(data.message || 'Ticket saved successfully!');
+      }
       closeTicketModal();
       setTimeout(() => location.reload(), 1000);
     } else {
-      toastr.error('Error: ' + (data.message || 'Unknown error'));
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Unknown error' });
+      } else {
+        alert('Error: ' + (data.message || 'Unknown error'));
+      }
     }
   })
   .catch(error => {
     console.error('Error:', error);
-    toastr.error('Error saving ticket');
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Error saving ticket' });
+    } else {
+      alert('Error saving ticket');
+    }
   });
 }
 
@@ -359,12 +371,20 @@ function editTicket(id) {
       document.getElementById('ticket_description').value = ticket.description || '';
       document.getElementById('ticketModal').style.display = 'flex';
     } else {
-      toastr.error('Error loading ticket data');
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Error loading ticket data' });
+      } else {
+        alert('Error loading ticket data');
+      }
     }
   })
   .catch(error => {
     console.error('Error:', error);
-    toastr.error('Error loading ticket data');
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Error loading ticket data' });
+    } else {
+      alert('Error loading ticket data');
+    }
   });
 }
 
@@ -415,15 +435,27 @@ function performDeleteTicket(id) {
   .then(response => response.json())
   .then(data => {
     if (data.success) {
-      toastr.success('Ticket deleted successfully!');
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'success', title: 'Deleted', text: 'Ticket deleted successfully!', timer: 1500, showConfirmButton: false });
+      } else {
+        alert('Ticket deleted successfully!');
+      }
       setTimeout(() => location.reload(), 1000);
     } else {
-      toastr.error('Error deleting ticket');
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Error deleting ticket' });
+      } else {
+        alert('Error deleting ticket');
+      }
     }
   })
   .catch(error => {
     console.error('Error:', error);
-    toastr.error('Error deleting ticket');
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Error deleting ticket' });
+    } else {
+      alert('Error deleting ticket');
+    }
   });
 }
 
@@ -458,16 +490,28 @@ function submitAssignment(event) {
   .then(response => response.json())
   .then(data => {
     if (data.success) {
-      toastr.success('Ticket assigned successfully!');
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'success', title: 'Success', text: 'Ticket assigned successfully!', timer: 1500, showConfirmButton: false });
+      } else {
+        alert('Ticket assigned successfully!');
+      }
       closeAssignModal();
       setTimeout(() => location.reload(), 1000);
     } else {
-      toastr.error('Error assigning ticket');
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Error assigning ticket' });
+      } else {
+        alert('Error assigning ticket');
+      }
     }
   })
   .catch(error => {
     console.error('Error:', error);
-    toastr.error('Error assigning ticket');
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Error assigning ticket' });
+    } else {
+      alert('Error assigning ticket');
+    }
   });
 }
 </script>

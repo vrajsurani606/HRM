@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>{{ $quotation->quotation_title }} - Quotation</title>
+    <title><?php echo e($quotation->quotation_title); ?> - Quotation</title>
     <meta charset="utf-8">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -200,13 +200,13 @@
     <div class="page">
         <div class="page-content">
             <div style="text-align: right; clear: both; overflow: hidden; margin-bottom: 20px;">
-                <img src="{{ asset('full_logo.jpeg') }}" alt="Logo" class="header-logo"
+                <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Logo" class="header-logo"
                     style="float: right; margin-right: 0px;">
             </div>
 
-            <img src="{{ asset('full_logo.jpeg') }}" alt="Background Logo" class="background-logo">
+            <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Background Logo" class="background-logo">
 
-            <h1 class="proposal-title">{{ $quotation->quotation_title }}</h1>
+            <h1 class="proposal-title"><?php echo e($quotation->quotation_title); ?></h1>
 
             <div class="page-number">1 | Page</div>
         </div>
@@ -216,7 +216,7 @@
     <div class="page">
         <div
             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none;">
-            <img src="{{ asset('full_logo.jpeg') }}" alt="Background Logo"
+            <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Background Logo"
                 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.08;">
             <div
                 style="position: absolute; bottom: 40%; left: 0; right: 0; text-align: center; color: rgba(59, 134, 179, 0.04); font-size: 48px; font-weight: 700; letter-spacing: -0.02em;">
@@ -232,14 +232,15 @@
                             style="font-size: 30px; font-weight: 700; margin-bottom: 6px; text-align: center; margin-top: 30px; letter-spacing: -0.01em; color: #1a1a1a;">
                             Commercial Proposal</div>
                         <div style="font-size: 16px; font-weight: 600; margin-bottom: 6px; color: #4a5568;">
-                            Date: {{ $quotation->quotation_date->format('d/m/Y') }}
+                            Date: <?php echo e($quotation->quotation_date->format('d/m/Y')); ?>
+
                         </div>
 
                         <div
                             style="border-top: 3px solid #3B86B3; border-bottom: 3px solid #3B86B3; margin: 16px 0; padding: 16px 0; text-align: center; line-height: 1.6; font-size: 18px;">
-                            <span style="font-weight: 600; color: #2d3748;">Client Name:</span> <span style="color: #1a1a1a;">{{ $quotation->contact_person_1 }}</span><br>
-                            <span style="font-weight: 700; font-size: 20px; color: #1a1a1a;">{{ $quotation->company_name }}</span><br>
-                            <span style="font-size: 16px; font-weight: 400; color: #4a5568;">{{ $quotation->address }}</span>
+                            <span style="font-weight: 600; color: #2d3748;">Client Name:</span> <span style="color: #1a1a1a;"><?php echo e($quotation->contact_person_1); ?></span><br>
+                            <span style="font-weight: 700; font-size: 20px; color: #1a1a1a;"><?php echo e($quotation->company_name); ?></span><br>
+                            <span style="font-size: 16px; font-weight: 400; color: #4a5568;"><?php echo e($quotation->address); ?></span>
                         </div>
 
                         <div style="font-size: 24px; font-weight: 700; margin-bottom: 12px; margin-top: 20px; color: #1a1a1a; letter-spacing: -0.01em;">1. Introduction</div>
@@ -253,7 +254,7 @@
                         <div style="font-size: 24px; font-weight: 700; margin-bottom: 12px; margin-top: 20px; color: #1a1a1a; letter-spacing: -0.01em;">2. Company Overview</div>
                         <div
                             style="font-size: 16px; margin-left: 0; line-height: 1.65; text-align: justify; margin-bottom: 16px; color: #2d3748;">
-                            {{ $quotation->own_company_name ?? 'Chitri Enlargesoft IT Hub Pvt. Ltd.' }} is based in Surat, Gujarat. We are well-known for providing high-quality, dependable, and timely delivery of IT services with tailor-made requirements for all facets of business development. We have professional developers with extensive industry knowledge to build the best solution for you.
+                            <?php echo e($quotation->own_company_name ?? 'Chitri Enlargesoft IT Hub Pvt. Ltd.'); ?> is based in Surat, Gujarat. We are well-known for providing high-quality, dependable, and timely delivery of IT services with tailor-made requirements for all facets of business development. We have professional developers with extensive industry knowledge to build the best solution for you.
                         </div>
 
                         <div style="font-size: 24px; font-weight: 700; margin-bottom: 12px; margin-top: 20px; color: #1a1a1a; letter-spacing: -0.01em;">3. Understanding Your Needs
@@ -279,7 +280,7 @@
     <div class="page">
         <!-- Background watermark -->
         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none;">
-            <img src="{{ asset('full_logo.jpeg') }}" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.08;">
+            <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.08;">
             <div style="position: absolute; bottom: 40%; left: 0; right: 0; text-align: center; color: rgba(59, 134, 179, 0.04); font-size: 48px; font-weight: 700; letter-spacing: -0.02em;">
                 IT Hub Pvt. Ltd.
             </div>
@@ -290,7 +291,7 @@
             <table style="width: 100%;">
                 <tr>
                     <td>
-                        <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #1a1a1a; letter-spacing: -0.01em;">&#10020; Greetings from {{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }}</div>
+                        <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #1a1a1a; letter-spacing: -0.01em;">&#10020; Greetings from <?php echo e($quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)'); ?></div>
                         <div style="font-size: 17px; margin-left: 0; margin-bottom: 28px; color: #4a5568; line-height: 1.6;">We develop LIMS so you don't have to</div>
                         
                         <div style="font-size: 24px; font-weight: 700; margin-bottom: 12px; margin-top: 32px; color: #1a1a1a; letter-spacing: -0.01em;">&#10020; What to Expect</div>
@@ -305,12 +306,12 @@
                         <div style="font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #2d3748;">Expenses</div>
                         <div style="font-size: 22px; font-weight: 700; margin-bottom: 32px; color: #2d3748;">Agreement</div>
                         
-                        <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px; margin-top: 40px; color: #1a1a1a; letter-spacing: -0.01em;">&#10020; Greetings from {{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }}</div>
+                        <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px; margin-top: 40px; color: #1a1a1a; letter-spacing: -0.01em;">&#10020; Greetings from <?php echo e($quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)'); ?></div>
                         <div style="margin-bottom: 24px;"></div>
-                        <div style="font-size: 20px; margin-bottom: 24px; color: #1a1a1a; font-weight: 600;">Dear {{ $quotation->contact_person_1 }},</div>
+                        <div style="font-size: 20px; margin-bottom: 24px; color: #1a1a1a; font-weight: 600;">Dear <?php echo e($quotation->contact_person_1); ?>,</div>
                         
                         <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">
-                            I am pleased to introduce myself and my company, <strong style="font-weight: 600; color: #1a1a1a;">{{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }}</strong>. We are excited to get to work on your new {{ $quotation->quotation_title ?? 'Software' }}, and we want to make sure you're satisfied with our proposal and have a full understanding of what to expect in this lengthy process. Creating {{ $quotation->quotation_title ?? 'Software' }} is exciting, and our expert team is fully capable of giving you something unique that will help grow your business.
+                            I am pleased to introduce myself and my company, <strong style="font-weight: 600; color: #1a1a1a;"><?php echo e($quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)'); ?></strong>. We are excited to get to work on your new <?php echo e($quotation->quotation_title ?? 'Software'); ?>, and we want to make sure you're satisfied with our proposal and have a full understanding of what to expect in this lengthy process. Creating <?php echo e($quotation->quotation_title ?? 'Software'); ?> is exciting, and our expert team is fully capable of giving you something unique that will help grow your business.
                         </div>
                         
                         <div style="font-size: 17px; line-height: 1.8; margin-bottom: 48px; text-align: justify; color: #2d3748;">
@@ -334,7 +335,7 @@
     <div class="page" style="position: relative;">
         <!-- Background watermark -->
         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none;">
-            <img src="{{ asset('full_logo.jpeg') }}" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.08;">
+            <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.08;">
                 <div style="position: absolute; bottom: 40%; left: 0; right: 0; text-align: center; color: rgba(59, 134, 179, 0.04); font-size: 48px; font-weight: 700; letter-spacing: -0.02em;">
                             IT Hub Pvt. Ltd.            
                 </div>       
@@ -346,12 +347,12 @@
                     <div style="font-size: 26px; font-weight: 700; margin-bottom: 16px; color: #1a1a1a; letter-spacing: -0.01em;">We develop LIMS so you don't have to</div>
                     <div style="margin-bottom: 24px;"></div>
                     <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">We are living in the age of connectivity, and that means more things than ever before are right at your fingertips — literally. With one press of the button, one swipe left or right, you can open up new worlds in seconds. We're talking about LIMS.</div>
-                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">But at {{ $quotation->own_company_name ?? 'Enlargesoft' }}, we don't just talk about LIMS, we live and breathe LIMS. We have assembled a team of the best and brightest minds in LIMS development, marketing, and leadership, giving our clients access to the most cutting-edge technology. You can rest assured you're in good hands, as we have years of experience in LIMS development.</div>
-                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">Our goal is to create something you're proud of and that helps your business. LIMS can be transcendent, and they can also be colossal failures. That's why {{ $quotation->own_company_name ?? 'Enlargesoft' }} has developed a comprehensive approach to LIMS development that takes the guessing out of the game. We're ecstatic that you're considering doing business with us, so let's get started.</div>
+                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">But at <?php echo e($quotation->own_company_name ?? 'Enlargesoft'); ?>, we don't just talk about LIMS, we live and breathe LIMS. We have assembled a team of the best and brightest minds in LIMS development, marketing, and leadership, giving our clients access to the most cutting-edge technology. You can rest assured you're in good hands, as we have years of experience in LIMS development.</div>
+                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">Our goal is to create something you're proud of and that helps your business. LIMS can be transcendent, and they can also be colossal failures. That's why <?php echo e($quotation->own_company_name ?? 'Enlargesoft'); ?> has developed a comprehensive approach to LIMS development that takes the guessing out of the game. We're ecstatic that you're considering doing business with us, so let's get started.</div>
                     <div style="font-size: 26px; font-weight: 700; margin-bottom: 16px; margin-top: 32px; color: #1a1a1a; letter-spacing: -0.01em;">What to Expect</div>
-                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">LIMS development is serious business. It takes time and patience to create something that works for you and is free of bugs and other issues. Updates are required, but it's important to start with a sound foundation. At {{ $quotation->own_company_name ?? 'Enlargesoft' }}, we believe in a thorough approach that provides our clients with as much engagement as they request. While our entire team will be developing your LIMS, we will assign a project lead who will be your main point of contact.</div>
+                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">LIMS development is serious business. It takes time and patience to create something that works for you and is free of bugs and other issues. Updates are required, but it's important to start with a sound foundation. At <?php echo e($quotation->own_company_name ?? 'Enlargesoft'); ?>, we believe in a thorough approach that provides our clients with as much engagement as they request. While our entire team will be developing your LIMS, we will assign a project lead who will be your main point of contact.</div>
                     <div style="font-size: 26px; font-weight: 700; margin-bottom: 16px; margin-top: 32px; color: #1a1a1a; letter-spacing: -0.01em;">Research and outreach</div>
-                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">A large part of the work {{ $quotation->own_company_name ?? 'Enlargesoft' }} does is behind the scenes. There will be times when we don't communicate with {{ $quotation->own_company_name ?? 'Enlargesoft' }} for weeks, but that's only because we're intimately involved in the development phase. However, before any of that begins, we need to make a checklist of everything you want in your new LIMS.</div>
+                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">A large part of the work <?php echo e($quotation->own_company_name ?? 'Enlargesoft'); ?> does is behind the scenes. There will be times when we don't communicate with <?php echo e($quotation->own_company_name ?? 'Enlargesoft'); ?> for weeks, but that's only because we're intimately involved in the development phase. However, before any of that begins, we need to make a checklist of everything you want in your new LIMS.</div>
                 </td>                
             </tr>        
         </div>
@@ -365,7 +366,7 @@
     <div class="page" style="position: relative;">
         <!-- Background watermark -->
         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none;">
-            <img src="{{ asset('full_logo.jpeg') }}" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.08;">
+            <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.08;">
             <div style="position: absolute; bottom: 40%; left: 0; right: 0; text-align: center; color: rgba(59, 134, 179, 0.04); font-size: 48px; font-weight: 700; letter-spacing: -0.02em;">
                 IT Hub Pvt. Ltd.
             </div>
@@ -377,7 +378,7 @@
                 <tr>
                     <td style="vertical-align: top;">
                         <div style="font-size: 17px; line-height: 1.8; margin-bottom: 32px; text-align: justify; color: #2d3748;">
-                            We will gather information about your company and how it works. We will figure out who your customers are and how we can attract more through your new LIMS. Audience engagement, research, and branding are key in LIMS development, and we will conduct focus groups to find out why people choose <strong style="font-weight: 600; color: #1a1a1a;">{{ $quotation->company_name }}</strong>.
+                            We will gather information about your company and how it works. We will figure out who your customers are and how we can attract more through your new LIMS. Audience engagement, research, and branding are key in LIMS development, and we will conduct focus groups to find out why people choose <strong style="font-weight: 600; color: #1a1a1a;"><?php echo e($quotation->company_name); ?></strong>.
                         </div>
 
                         <div style="font-size: 26px; font-weight: 700; margin-bottom: 16px; margin-top: 32px; color: #1a1a1a; letter-spacing: -0.01em;">Framework</div>
@@ -396,7 +397,7 @@
                         <div style="font-size: 26px; font-weight: 700; margin-bottom: 16px; margin-top: 32px; color: #1a1a1a; letter-spacing: -0.01em;">Testing and launch</div>
 
                         <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">
-                            We're almost there. Your new LIMS is built and ready to launch. But before that happens, {{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }} and {{ $quotation->company_name }} need to collaborate on a marketing strategy. After all, just because you invested all this time and money into your LIMS, it doesn't mean anyone will know it exists unless we tell them.
+                            We're almost there. Your new LIMS is built and ready to launch. But before that happens, <?php echo e($quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)'); ?> and <?php echo e($quotation->company_name); ?> need to collaborate on a marketing strategy. After all, just because you invested all this time and money into your LIMS, it doesn't mean anyone will know it exists unless we tell them.
                         </div>
                     </td>
                 </tr>
@@ -409,7 +410,7 @@
     <div class="page" style="position: relative;">
         <!-- Background watermark -->        
         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none;">            
-            <img src="{{ asset('full_logo.jpeg') }}" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.08;">        
+            <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.08;">        
         </div>
         <!-- Main content -->        
         <div style="position: relative; height: 100%;">
@@ -418,7 +419,7 @@
                 <td style="vertical-align: top;">                                        
                     <table class="inner-table" cellspacing="0" style="width:100%; border-collapse:separate; margin:20px 0; border-radius:8px; overflow:hidden;">                                                
                         <tr>                                                        
-                            <td colspan="4" style="font-size:17px; color:#2d3748; line-height:1.8; background:#fff; border-radius:8px 8px 0 0; text-align: justify;">{{ $quotation->own_company_name ?? 'Enlargesoft' }} estimates that it will take {{ $quotation->completion_time ?? '90 Days' }} to complete your new LIMS. Upon signing this agreement, we can begin immediately. Here's what to expect:</td>                                                                            
+                            <td colspan="4" style="font-size:17px; color:#2d3748; line-height:1.8; background:#fff; border-radius:8px 8px 0 0; text-align: justify;"><?php echo e($quotation->own_company_name ?? 'Enlargesoft'); ?> estimates that it will take <?php echo e($quotation->completion_time ?? '90 Days'); ?> to complete your new LIMS. Upon signing this agreement, we can begin immediately. Here's what to expect:</td>                                                                            
                         </tr>                                                
                         <tr>
                             <td colspan="4" style="height:32px;"></td>
@@ -432,7 +433,7 @@
                         </tr>                                                
                         <tr>                                                        
                             <td colspan="2" style="padding:14px 16px; border:1px solid #e2e8f0; border-radius:0 0 0 8px; font-weight:600; font-size:15px; color:#2d3748;">Development For LIMS</td>                                                        
-                            <td colspan="2" style="padding:14px 16px; border:1px solid #e2e8f0; border-radius:0 0 8px 0; font-weight:600; font-size:15px; color:#2d3748;">{{ $quotation->completion_time ?? '90 Days' }}</td>                                                    
+                            <td colspan="2" style="padding:14px 16px; border:1px solid #e2e8f0; border-radius:0 0 8px 0; font-weight:600; font-size:15px; color:#2d3748;"><?php echo e($quotation->completion_time ?? '90 Days'); ?></td>                                                    
                         </tr>                                            
                     </table>
                                             
@@ -461,46 +462,46 @@
                                                             
                             <td class="blue-header" style="width:25%; background:#3B86B3 !important; color:#ffffff !important; padding:14px 16px; font-size:15px; font-weight:700; text-align:center; border-radius:0 8px 0 0; border:1px solid #e2e8f0; letter-spacing:0.01em; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">Subtotal</td>                                                    
                         </tr>
-                                                    @if($quotation->service_description && count($quotation->service_description) > 0)                                @foreach($quotation->service_description as $index => $description)                                    @if(trim($description) !== '')                                        
+                                                    <?php if($quotation->service_description && count($quotation->service_description) > 0): ?>                                <?php $__currentLoopData = $quotation->service_description; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $description): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>                                    <?php if(trim($description) !== ''): ?>                                        
                         <tr>                                                                    
-                            <td style="padding:14px 16px; width:25%; text-align:left; border:1px solid #e2e8f0; font-weight:600; font-size:15px; color:#2d3748;">{{ $description }}</td>                                                                    
-                            <td style="padding:14px 16px; width:25%; text-align:center; border:1px solid #e2e8f0; font-weight:500; font-size:15px; color:#2d3748;">{{ number_format($quotation->service_rate[$index] ?? 0, 2) }}</td>                                                                    
-                            <td style="padding:14px 16px; width:25%; text-align:center; border:1px solid #e2e8f0; font-weight:500; font-size:15px; color:#2d3748;">{{ $quotation->service_quantity[$index] ?? 0 }}</td>                                                                    
-                            <td style="padding:14px 16px; width:25%; text-align:center; border:1px solid #e2e8f0; font-weight:600; font-size:15px; color:#1a1a1a;">{{ number_format($quotation->service_total[$index] ?? 0, 2) }}</td>                                                                
+                            <td style="padding:14px 16px; width:25%; text-align:left; border:1px solid #e2e8f0; font-weight:600; font-size:15px; color:#2d3748;"><?php echo e($description); ?></td>                                                                    
+                            <td style="padding:14px 16px; width:25%; text-align:center; border:1px solid #e2e8f0; font-weight:500; font-size:15px; color:#2d3748;"><?php echo e(number_format($quotation->service_rate[$index] ?? 0, 2)); ?></td>                                                                    
+                            <td style="padding:14px 16px; width:25%; text-align:center; border:1px solid #e2e8f0; font-weight:500; font-size:15px; color:#2d3748;"><?php echo e($quotation->service_quantity[$index] ?? 0); ?></td>                                                                    
+                            <td style="padding:14px 16px; width:25%; text-align:center; border:1px solid #e2e8f0; font-weight:600; font-size:15px; color:#1a1a1a;"><?php echo e(number_format($quotation->service_total[$index] ?? 0, 2)); ?></td>                                                                
                         </tr>
-                                                            @endif                                @endforeach                            @endif                            
+                                                            <?php endif; ?>                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>                            <?php endif; ?>                            
                         <tr>                                                        
                             <td colspan="2" style="border:1px solid #e2e8f0; background:#f7fafc !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;"></td>                                                        
                             <td style="padding:14px 16px; font-weight:700; text-align:right; border:1px solid #e2e8f0; font-size:15px; color:#2d3748; background:#f7fafc !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">Subtotal</td>                                                        
-                            <td style="padding:14px 16px; font-weight:700; text-align:center; border:1px solid #e2e8f0; font-size:15px; color:#1a1a1a; background:#f7fafc !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">{{ number_format($quotation->service_contract_amount ?? 0, 2) }}</td>                                                    
+                            <td style="padding:14px 16px; font-weight:700; text-align:center; border:1px solid #e2e8f0; font-size:15px; color:#1a1a1a; background:#f7fafc !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;"><?php echo e(number_format($quotation->service_contract_amount ?? 0, 2)); ?></td>                                                    
                         </tr>                                                
                         <tr>                           
                             <td colspan="2" style="border:1px solid #e2e8f0; border-radius:0 0 0 8px; background:#edf2f7 !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;"></td>                                                        
                             <td style="padding:14px 16px; font-weight:700; text-align:right; border:1px solid #e2e8f0; font-size:16px; color:#2c5282; background:#edf2f7 !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">Total</td>                                                        
-                            <td style="padding:14px 16px; font-weight:700; text-align:center; border-radius:0 0 8px 0; border:1px solid #e2e8f0; font-size:16px; color:#2c5282; background:#edf2f7 !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">{{ number_format($quotation->service_contract_amount ?? 0, 2) }}</td>                                                    
+                            <td style="padding:14px 16px; font-weight:700; text-align:center; border-radius:0 0 8px 0; border:1px solid #e2e8f0; font-size:16px; color:#2c5282; background:#edf2f7 !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;"><?php echo e(number_format($quotation->service_contract_amount ?? 0, 2)); ?></td>                                                    
                         </tr>                                            
                     </table>                                                                
                     <table>
-                        @if($quotation->support_description && count($quotation->support_description) > 0)                                
+                        <?php if($quotation->support_description && count($quotation->support_description) > 0): ?>                                
                         <tr>                                                            
-                            <td style="font-weight: 600; padding: 16px 0; font-size: 15px; color: #2d3748;">- Annual Renewal Charge: {{ number_format($quotation->support_total[0] ?? 0, 2) }}/- Per Year & Per Lab.</td>                                                        
+                            <td style="font-weight: 600; padding: 16px 0; font-size: 15px; color: #2d3748;">- Annual Renewal Charge: <?php echo e(number_format($quotation->support_total[0] ?? 0, 2)); ?>/- Per Year & Per Lab.</td>                                                        
                         </tr>
-                        @endif                            
+                        <?php endif; ?>                            
                         <tr>                                                        
                             <td style="font-weight: 700; padding: 12px 0;">Payment Terms:</td>                                                    
                         </tr>
-                        @if($quotation->terms_description && count($quotation->terms_description) > 0)                                
-                        @foreach($quotation->terms_description as $index => $description)                                    
-                        @if(trim($description) !== '')                                        
+                        <?php if($quotation->terms_description && count($quotation->terms_description) > 0): ?>                                
+                        <?php $__currentLoopData = $quotation->terms_description; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $description): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>                                    
+                        <?php if(trim($description) !== ''): ?>                                        
                         <tr>                                                                   
                             <td style="padding: 8px 25px; font-weight: 500; letter-spacing: 0.8px;">                                                
                                 <span style="display: inline-block; width: 8px; height: 8px; background-color: #000; border-radius: 50%; margin-right: 10px;"></span>                                                
-                                {{ $description }} - {{ $quotation->terms_completion[$index] ?? 0 }}%                                            
+                                <?php echo e($description); ?> - <?php echo e($quotation->terms_completion[$index] ?? 0); ?>%                                            
                             </td>                                                                
                         </tr>
-                        @endif                               
-                        @endforeach                            
-                        @endif                        
+                        <?php endif; ?>                               
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>                            
+                        <?php endif; ?>                        
                     </table>                                    
                 </td>                            
                 </tr>                        
@@ -516,7 +517,7 @@
     <div class="page" style="position: relative;">
         <!-- Background watermark -->
         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none;">
-            <img src="{{ asset('full_logo.jpeg') }}" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.1;">
+            <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.1;">
         </div>
 
         <!-- Main content -->
@@ -533,18 +534,18 @@
                                 <td style="background:#3B86B3 !important; color:white !important; padding:12px 15px; font-size:16px; font-weight:600; text-align:center; border:1px solid #ddd; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">Completion Term</td>
                                 <td style="background:#3B86B3 !important; color:white !important; padding:12px 15px; font-size:16px; font-weight:600; text-align:center; border:1px solid #ddd; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">Amount</td>
                             </tr>
-                            @if($quotation->terms_description && count($quotation->terms_description) > 0)
-                                @foreach($quotation->terms_description as $index => $description)
-                                    @if(trim($description) !== '')
+                            <?php if($quotation->terms_description && count($quotation->terms_description) > 0): ?>
+                                <?php $__currentLoopData = $quotation->terms_description; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $description): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php if(trim($description) !== ''): ?>
                                         <tr>
-                                            <td style="padding:12px 15px; text-align:left; border:1px solid #ddd; font-weight:600;">{{ $description }}</td>
-                                            <td style="padding:12px 15px; text-align:center; border:1px solid #ddd; font-weight:600;">{{ $quotation->terms_completion[$index] ?? '' }}%</td>
-                                            <td style="padding:12px 15px; text-align:center; border:1px solid #ddd; font-weight:600;">{{ $quotation->completion_terms[$index] ?? '' }}</td>
-                                            <td style="padding:12px 15px; text-align:center; border:1px solid #ddd; font-weight:600;">{{ number_format($quotation->terms_total[$index] ?? 0, 0) }}</td>
+                                            <td style="padding:12px 15px; text-align:left; border:1px solid #ddd; font-weight:600;"><?php echo e($description); ?></td>
+                                            <td style="padding:12px 15px; text-align:center; border:1px solid #ddd; font-weight:600;"><?php echo e($quotation->terms_completion[$index] ?? ''); ?>%</td>
+                                            <td style="padding:12px 15px; text-align:center; border:1px solid #ddd; font-weight:600;"><?php echo e($quotation->completion_terms[$index] ?? ''); ?></td>
+                                            <td style="padding:12px 15px; text-align:center; border:1px solid #ddd; font-weight:600;"><?php echo e(number_format($quotation->terms_total[$index] ?? 0, 0)); ?></td>
                                         </tr>
-                                    @endif
-                                @endforeach
-                            @else
+                                    <?php endif; ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php else: ?>
                                 <tr>
                                     <td style="padding:12px 15px; text-align:left; border:1px solid #ddd; font-weight:600;">ADVANCE</td>
                                     <td style="padding:12px 15px; text-align:center; border:1px solid #ddd; font-weight:600;"></td>
@@ -557,44 +558,44 @@
                                     <td style="padding:12px 15px; text-align:center; border:1px solid #ddd; font-weight:600;"></td>
                                     <td style="padding:12px 15px; text-align:center; border:1px solid #ddd; font-weight:600;">150000</td>
                                 </tr>
-                            @endif
+                            <?php endif; ?>
                         </table>
 
                         <div style="font-size: 24px; font-weight: 600; margin-bottom: 15px; margin-top: 30px;">Terms & Conditions:</div>
                         
                         <div style="font-size: 16px; line-height: 1.8; margin-left: 20px;">
-                            @php
+                            <?php
                                 $termNumber = 1;
                                 $customTerms = is_array($quotation->custom_terms_and_conditions) ? $quotation->custom_terms_and_conditions : json_decode($quotation->custom_terms_and_conditions ?? '[]', true);
-                            @endphp
+                            ?>
                                     
-                            {{-- Default Terms --}}
-                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> Quotation is valid till one week from send date. After the expiration of this period, the Quotation may be subject to changes.</div>
-                            @php $termNumber++; @endphp
-                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> 18% GST will be extra</div>
-                            @php $termNumber++; @endphp
-                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> We will deliver the Software in accordance with the specifications and milestones detailed in the Quotation. Any delays in the project timeline will be communicated to the Client promptly.</div>
-                            @php $termNumber++; @endphp
-                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> The Client agrees to provide all necessary materials, access, and cooperation required for the successful completion of the project. Delays caused by the Client may result in an extension of the project timeline and additional charges.</div>
-                            @php $termNumber++; @endphp
-                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> Both parties agree to treat any confidential information exchanged during the course of the project as confidential and not to disclose it to third parties.</div>
-                            @php $termNumber++; @endphp
-                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> This Agreement constitutes the entire understanding between the parties and supersedes any prior agreements or understandings, whether oral or written</div>
-                            @php $termNumber++; @endphp
-                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> Accommodation charges will be in your scope.</div>
-                            @php $termNumber++; @endphp
-                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> Payments made are strictly non-refundable. By completing transaction, you agree to these terms without exception.</div>
-                            @php $termNumber++; @endphp
+                            
+                            <div style="margin-bottom: 10px;"><strong><?php echo e($termNumber); ?>.</strong> Quotation is valid till one week from send date. After the expiration of this period, the Quotation may be subject to changes.</div>
+                            <?php $termNumber++; ?>
+                            <div style="margin-bottom: 10px;"><strong><?php echo e($termNumber); ?>.</strong> 18% GST will be extra</div>
+                            <?php $termNumber++; ?>
+                            <div style="margin-bottom: 10px;"><strong><?php echo e($termNumber); ?>.</strong> We will deliver the Software in accordance with the specifications and milestones detailed in the Quotation. Any delays in the project timeline will be communicated to the Client promptly.</div>
+                            <?php $termNumber++; ?>
+                            <div style="margin-bottom: 10px;"><strong><?php echo e($termNumber); ?>.</strong> The Client agrees to provide all necessary materials, access, and cooperation required for the successful completion of the project. Delays caused by the Client may result in an extension of the project timeline and additional charges.</div>
+                            <?php $termNumber++; ?>
+                            <div style="margin-bottom: 10px;"><strong><?php echo e($termNumber); ?>.</strong> Both parties agree to treat any confidential information exchanged during the course of the project as confidential and not to disclose it to third parties.</div>
+                            <?php $termNumber++; ?>
+                            <div style="margin-bottom: 10px;"><strong><?php echo e($termNumber); ?>.</strong> This Agreement constitutes the entire understanding between the parties and supersedes any prior agreements or understandings, whether oral or written</div>
+                            <?php $termNumber++; ?>
+                            <div style="margin-bottom: 10px;"><strong><?php echo e($termNumber); ?>.</strong> Accommodation charges will be in your scope.</div>
+                            <?php $termNumber++; ?>
+                            <div style="margin-bottom: 10px;"><strong><?php echo e($termNumber); ?>.</strong> Payments made are strictly non-refundable. By completing transaction, you agree to these terms without exception.</div>
+                            <?php $termNumber++; ?>
 
-                            {{-- Display Custom Terms Last --}}
-                            @if(!empty($customTerms) && is_array($customTerms))
-                                @foreach($customTerms as $customTerm)
-                                    @if(!empty(trim($customTerm)))
-                                        <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> {{ trim($customTerm) }}</div>
-                                        @php $termNumber++; @endphp
-                                    @endif
-                                @endforeach
-                            @endif
+                            
+                            <?php if(!empty($customTerms) && is_array($customTerms)): ?>
+                                <?php $__currentLoopData = $customTerms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customTerm): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php if(!empty(trim($customTerm))): ?>
+                                        <div style="margin-bottom: 10px;"><strong><?php echo e($termNumber); ?>.</strong> <?php echo e(trim($customTerm)); ?></div>
+                                        <?php $termNumber++; ?>
+                                    <?php endif; ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endif; ?>
                         </div>
                     </td>
                 </tr>
@@ -607,7 +608,7 @@
     <div class="page" style="position: relative;">
         <!-- Background watermark -->
         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none;">
-            <img src="{{ asset('full_logo.jpeg') }}" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.1;">
+            <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.1;">
         </div>
 
         <!-- Main content -->
@@ -639,7 +640,7 @@
 
                         <div style="margin-top:20px;">
                             <div style="font-size:24px; font-weight: 600; margin-bottom: 15px;">Agreement</div>
-                            <div style="font-size:20px; line-height:1.8; margin-bottom: 30px;">By signing below, you agree to accept this proposal for {{ $quotation->quotation_title ?? 'Software' }} development and any modifications already agreed upon with {{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }}.</div>
+                            <div style="font-size:20px; line-height:1.8; margin-bottom: 30px;">By signing below, you agree to accept this proposal for <?php echo e($quotation->quotation_title ?? 'Software'); ?> development and any modifications already agreed upon with <?php echo e($quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)'); ?>.</div>
                         </div>
 
                         <table class="inner-table" style="width: 100%; margin-top: 20px;">
@@ -647,12 +648,12 @@
                                 <td style="width: 45%; vertical-align: top;">
                                     <div style="background: linear-gradient(to bottom right, #ffffff, #f8f9fa); border-radius: 16px; padding: 2px;">
                                         <div style="background: #3B86B3; border-radius: 15px 15px 0 0; padding: 15px 25px;">
-                                            <h3 style="font-size: 20px; color: #ffffff; margin: 0; letter-spacing: 0.5px; font-weight: 600;">{{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }}</h3>
+                                            <h3 style="font-size: 20px; color: #ffffff; margin: 0; letter-spacing: 0.5px; font-weight: 600;"><?php echo e($quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)'); ?></h3>
                                         </div>
                                         <div style="padding: 25px;">
                                             <div style="margin-bottom: 25px;">
                                                 <label style="display: block; font-size: 15px; color: #555; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Authorized Signatory</label>
-                                                <p style="font-size: 19px; color: #2c3e50; margin: 0; font-weight: 600; border-bottom: 2px solid #3B86B3; padding-bottom: 8px; display: inline-block;">MR. {{ $quotation->prepared_by ?? 'CHINTAN KACHHADIYA' }}</p>
+                                                <p style="font-size: 19px; color: #2c3e50; margin: 0; font-weight: 600; border-bottom: 2px solid #3B86B3; padding-bottom: 8px; display: inline-block;">MR. <?php echo e($quotation->prepared_by ?? 'CHINTAN KACHHADIYA'); ?></p>
                                             </div>
                                             <div style="border: 2px dashed rgb(190, 190, 190); height: 100px; margin: 30px 0; background: rgba(59,134,179,0.03); border-radius: 12px;"></div>
                                             <div style="margin-top: 25px;">
@@ -666,12 +667,12 @@
                                 <td style="width: 45%; vertical-align: top;">
                                     <div style="background: linear-gradient(to bottom right, #ffffff, #f8f9fa); border-radius: 16px; padding: 2px;">
                                         <div style="background: #3B86B3; border-radius: 15px 15px 0 0; padding: 15px 25px;">
-                                            <h3 style="font-size: 20px; color: #ffffff; margin: 0; letter-spacing: 0.5px; font-weight: 600;">{{ $quotation->company_name }}</h3>
+                                            <h3 style="font-size: 20px; color: #ffffff; margin: 0; letter-spacing: 0.5px; font-weight: 600;"><?php echo e($quotation->company_name); ?></h3>
                                         </div>
                                         <div style="padding: 25px;">
                                             <div style="margin-bottom: 25px;">
                                                 <label style="display: block; font-size: 15px; color: #555; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Authorized Signatory</label>
-                                                <p style="font-size: 19px; color: #2c3e50; margin: 0; font-weight: 600; border-bottom: 2px solid #3B86B3; padding-bottom: 8px; display: inline-block;">MR. {{ $quotation->contact_person_1 }}</p>
+                                                <p style="font-size: 19px; color: #2c3e50; margin: 0; font-weight: 600; border-bottom: 2px solid #3B86B3; padding-bottom: 8px; display: inline-block;">MR. <?php echo e($quotation->contact_person_1); ?></p>
                                             </div>
                                             <div style="border: 2px dashed rgb(190, 190, 190); height: 100px; margin: 30px 0; background: rgba(59,134,179,0.03); border-radius: 12px;"></div>
                                             <div style="margin-top: 25px;">
@@ -693,7 +694,7 @@
     <!-- Page 9 - Why Choose Us -->
     <div class="page">
         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none;">
-            <img src="{{ asset('full_logo.jpeg') }}" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.1;">
+            <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.1;">
         </div>
 
         <div style="position: relative;">
@@ -731,16 +732,13 @@
     <div class="page">
         <!-- Background watermark -->
         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none;">
-            <img src="{{ asset('full_logo.jpeg') }}" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.05;">
+            <img src="<?php echo e(asset('full_logo.jpeg')); ?>" alt="Background Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.05;">
         </div>
 
         <!-- Main content -->
         <div style="position: relative; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
             <div style="max-width: 600px; margin: 0 auto;">
-                {{-- <!-- Thank You Icon/Image -->
-                <div style="margin-bottom: 40px;">
-                    <img src="{{ asset('thank-you.png') }}" alt="Thank You" style="width: 200px; height: 200px; margin: 0 auto; display: block;">
-                </div> --}}
+                
 
                 <!-- Main Thank You Message -->
                 <div style="font-size: 48px; font-weight: 700; color: #3B86B3; margin-bottom: 24px; letter-spacing: -0.02em;">
@@ -754,7 +752,7 @@
 
                 <!-- Message -->
                 <div style="font-size: 17px; line-height: 1.8; color: #2d3748; margin-bottom: 40px; text-align: center;">
-                    We are excited about the opportunity to partner with <strong style="color: #1a1a1a;">{{ $quotation->company_name }}</strong> and help transform your vision into reality. Our team is ready to deliver exceptional results that exceed your expectations.
+                    We are excited about the opportunity to partner with <strong style="color: #1a1a1a;"><?php echo e($quotation->company_name); ?></strong> and help transform your vision into reality. Our team is ready to deliver exceptional results that exceed your expectations.
                 </div>
 
                 <!-- Contact Information Box -->
@@ -763,18 +761,21 @@
                         Let's Get Started!
                     </div>
                     <div style="font-size: 16px; color: #ffffff; line-height: 1.8; margin-bottom: 8px;">
-                        <strong>Contact Person:</strong> {{ $quotation->prepared_by ?? 'MR. CHINTAN KACHHADIYA' }}
+                        <strong>Contact Person:</strong> <?php echo e($quotation->prepared_by ?? 'MR. CHINTAN KACHHADIYA'); ?>
+
                     </div>
                     <div style="font-size: 16px; color: #ffffff; line-height: 1.8; margin-bottom: 8px;">
                         <strong>Phone:</strong> 
-                        @if($quotation->mobile_no)
-                            {{ str_starts_with($quotation->mobile_no, '+91') ? $quotation->mobile_no : '+91 ' . $quotation->mobile_no }}
-                        @else
+                        <?php if($quotation->mobile_no): ?>
+                            <?php echo e(str_starts_with($quotation->mobile_no, '+91') ? $quotation->mobile_no : '+91 ' . $quotation->mobile_no); ?>
+
+                        <?php else: ?>
                             +91 72763 23999
-                        @endif
+                        <?php endif; ?>
                     </div>
                     <div style="font-size: 16px; color: #ffffff; line-height: 1.8;">
-                        <strong>Company:</strong> {{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD' }}
+                        <strong>Company:</strong> <?php echo e($quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD'); ?>
+
                     </div>
                 </div>
 
@@ -790,4 +791,4 @@
 
 </body>
 
-</html>
+</html><?php /**PATH C:\xampp\htdocs\GitVraj\HrPortal\resources\views/quotations/pdf.blade.php ENDPATH**/ ?>

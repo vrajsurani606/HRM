@@ -141,13 +141,12 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
               </a>
             <?php endif; ?>
-            <?php if($isConfirmed): ?>
-              <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.template list')): ?>
-                <a class="quotation-grid-action-btn btn-template" href="<?php echo e(route('quotations.template-list', $quotation->id)); ?>" title="View Template List" aria-label="View Template List">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                </a>
-              <?php endif; ?>
-            <?php elseif(!$isConfirmed): ?>
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.template list')): ?>
+              <a class="quotation-grid-action-btn btn-template" href="<?php echo e(route('quotations.template-list', $quotation->id)); ?>" title="View Template List" aria-label="View Template List">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              </a>
+            <?php endif; ?>
+            <?php if(!$isConfirmed): ?>
               <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.follow up')): ?>
                 <a class="quotation-grid-action-btn btn-followup" href="<?php echo e(route('quotation.follow-up', $quotation->id)); ?>" title="Follow Up" aria-label="Follow Up">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
@@ -216,13 +215,13 @@
                   </a>
                 <?php endif; ?>
 
-                <?php if($isConfirmed): ?>
-                  <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.template list')): ?>
-                    <a href="<?php echo e(route('quotations.template-list', $quotation->id)); ?>" title="View Template List" aria-label="View Template List">
-                      <img class="action-icon" src="<?php echo e(asset('action_icon/view_temp_list.svg')); ?>" alt="Template List">
-                    </a>
-                  <?php endif; ?>
-                <?php else: ?>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.template list')): ?>
+                  <a href="<?php echo e(route('quotations.template-list', $quotation->id)); ?>" title="View Template List" aria-label="View Template List">
+                    <img class="action-icon" src="<?php echo e(asset('action_icon/view_temp_list.svg')); ?>" alt="Template List">
+                  </a>
+                <?php endif; ?>
+                
+                <?php if(!$isConfirmed): ?>
                   <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.follow up')): ?>
                     <a href="<?php echo e(route('quotation.follow-up', $quotation->id)); ?>" title="Follow Up" aria-label="Follow Up">
                       <img class="action-icon" src="<?php echo e(asset('action_icon/follow-up.svg')); ?>" alt="Follow Up">

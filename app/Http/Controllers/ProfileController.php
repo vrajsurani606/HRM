@@ -33,57 +33,175 @@ class ProfileController extends Controller
             ->orWhere('email', $user->email)
             ->first();
 
-        // Month/year filters for attendance (default to current)
-        $month = (int) $request->get('month', now()->month);
-        $year  = (int) $request->get('year', now()->year);
+        // Date range filters for attendance
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        
+        // Parse dates if provided (format: dd/mm/yy - 2 digit year from jQuery datepicker)
+        $startDateParsed = null;
+        $endDateParsed = null;
+        
+        if ($startDate) {
+            try {
+                // Try dd/mm/yy format first (jQuery datepicker format)
+                $startDateParsed = \Carbon\Carbon::createFromFormat('d/m/y', $startDate)->startOfDay();
+            } catch (\Exception $e) {
+                try {
+                    // Fallback to dd/mm/yyyy format
+                    $startDateParsed = \Carbon\Carbon::createFromFormat('d/m/Y', $startDate)->startOfDay();
+                } catch (\Exception $e2) {
+                    $startDateParsed = null;
+                }
+            }
+        }
+        
+        if ($endDate) {
+            try {
+                // Try dd/mm/yy format first (jQuery datepicker format)
+                $endDateParsed = \Carbon\Carbon::createFromFormat('d/m/y', $endDate)->endOfDay();
+            } catch (\Exception $e) {
+                try {
+                    // Fallback to dd/mm/yyyy format
+                    $endDateParsed = \Carbon\Carbon::createFromFormat('d/m/Y', $endDate)->endOfDay();
+                } catch (\Exception $e2) {
+                    $endDateParsed = null;
+                }
+            }
+        }
+        
+        // Default to current month if no date range provided
+        if (!$startDateParsed && !$endDateParsed) {
+            $startDateParsed = now()->startOfMonth();
+            $endDateParsed = now()->endOfMonth();
+        } elseif ($startDateParsed && !$endDateParsed) {
+            $endDateParsed = now()->endOfDay();
+        } elseif (!$startDateParsed && $endDateParsed) {
+            $startDateParsed = $endDateParsed->copy()->startOfMonth();
+        }
 
         $attendances = collect();
-        $attSummary = ['present'=>0,'absent'=>0,'late'=>0,'hours'=>'00:00'];
+        $attSummary = ['present'=>0,'absent'=>0,'late'=>0,'early_exit'=>0,'hours'=>'00:00','overtime'=>'00:00'];
         $payslips = collect();
+        $employees = collect();
         
-        if ($employee) {
-            $attendances = Attendance::where('employee_id', $employee->id)
-                ->whereYear('date', $year)
-                ->whereMonth('date', $month)
-                ->orderBy('date')
-                ->get();
+        // Check if user is super-admin or admin - they see all employees' attendance
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('admin');
+        
+        if ($isAdmin) {
+            // Get all employees for filter dropdown
+            $employees = Employee::where('status', 'active')->orderBy('name')->get();
+            
+            // Build attendance query for all employees or filtered employee
+            $query = Attendance::with('employee');
+            
+            // Filter by employee if selected
+            $selectedEmployeeId = $request->get('employee_id');
+            if ($selectedEmployeeId) {
+                $query->where('employee_id', $selectedEmployeeId);
+            }
+            
+            if ($startDateParsed) {
+                $query->where('date', '>=', $startDateParsed);
+            }
+            if ($endDateParsed) {
+                $query->where('date', '<=', $endDateParsed);
+            }
+            
+            $attendances = $query->orderBy('date', 'desc')->orderBy('employee_id')->get();
+        } elseif ($employee) {
+            // Regular employee - only their own attendance
+            $query = Attendance::where('employee_id', $employee->id);
+            
+            if ($startDateParsed) {
+                $query->where('date', '>=', $startDateParsed);
+            }
+            if ($endDateParsed) {
+                $query->where('date', '<=', $endDateParsed);
+            }
+            
+            $attendances = $query->orderBy('date', 'desc')->get();
+        }
+        
+        // Calculate summary from attendances
+        if ($attendances->isNotEmpty()) {
 
-            $presentDays = $attendances->where('status','present')->count();
+            $presentDays = $attendances->whereIn('status', ['present', 'late', 'half_day'])->count();
             $absentDays  = $attendances->where('status','absent')->count();
-            $lateEntries = 0; // no rule provided
-
+            $lateEntries = 0;
+            $earlyExits = 0;
             $totalMinutes = 0;
+            $totalOvertimeMinutes = 0;
+            
+            // Standard work hours (9 AM to 6 PM = 9 hours = 540 minutes)
+            $standardWorkMinutes = 540;
+            $standardCheckIn = '09:00';
+            $standardCheckOut = '18:00';
+
             foreach ($attendances as $a) {
                 if ($a->check_in && $a->check_out) {
                     $in  = \Carbon\Carbon::parse($a->check_in);
                     $out = \Carbon\Carbon::parse($a->check_out);
-                    $totalMinutes += $in->diffInMinutes($out);
+                    $workedMinutes = $in->diffInMinutes($out);
+                    $totalMinutes += $workedMinutes;
+                    
+                    // Check for late entry (after 9:30 AM)
+                    $checkInTime = $in->format('H:i');
+                    if ($checkInTime > '09:30') {
+                        $lateEntries++;
+                    }
+                    
+                    // Check for early exit (before 6:00 PM)
+                    $checkOutTime = $out->format('H:i');
+                    if ($checkOutTime < '18:00' && $a->status !== 'half_day') {
+                        $earlyExits++;
+                    }
+                    
+                    // Calculate overtime (worked more than 9 hours)
+                    if ($workedMinutes > $standardWorkMinutes) {
+                        $totalOvertimeMinutes += ($workedMinutes - $standardWorkMinutes);
+                    }
                 } elseif (!empty($a->total_working_hours)) {
                     [$h,$m] = array_map('intval', explode(':', substr($a->total_working_hours,0,5)) + [0,0]);
-                    $totalMinutes += ($h * 60) + $m;
+                    $workedMinutes = ($h * 60) + $m;
+                    $totalMinutes += $workedMinutes;
+                    
+                    if ($workedMinutes > $standardWorkMinutes) {
+                        $totalOvertimeMinutes += ($workedMinutes - $standardWorkMinutes);
+                    }
                 }
             }
+            
             $hours = floor($totalMinutes / 60);
             $mins  = $totalMinutes % 60;
+            $overtimeHours = floor($totalOvertimeMinutes / 60);
+            $overtimeMins = $totalOvertimeMinutes % 60;
+            
             $attSummary = [
                 'present' => $presentDays,
                 'absent'  => $absentDays,
                 'late'    => $lateEntries,
-                'hours'   => sprintf('%02d:%02d',$hours,$mins),
+                'early_exit' => $earlyExits,
+                'hours'   => sprintf('%02d:%02d', $hours, $mins),
+                'overtime' => sprintf('%dh %dm', $overtimeHours, $overtimeMins),
             ];
-            
-            // Get payslips for the employee
+        }
+        
+        // Get payslips for the employee (only if employee exists)
+        if ($employee) {
             $payslips = $employee->payrolls()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
         }
         
         return view('profile.edit', [
             'user' => $user,
             'employee' => $employee,
+            'employees' => $employees,
             'attendances' => $attendances,
             'attSummary'  => $attSummary,
             'payslips' => $payslips,
-            'month' => $month,
-            'year'  => $year,
+            'isAdmin' => $isAdmin,
+            'selectedEmployeeId' => $request->get('employee_id'),
+            'start_date' => $startDate,
+            'end_date' => $endDate,
             'active_tab' => session('active_tab'),
         ]);
     }

@@ -343,89 +343,191 @@
 
     <!-- Attendance Tab Content -->
     @if($canViewAttendance)
-    <div id="attendance" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 32px 0">
-        <div style="font-weight:700;color:#1f2937">Attendance Overview</div>
-        <form method="get" action="{{ route('profile.edit') }}" style="display:flex;gap:8px;align-items:center">
-          <select name="month" onchange="this.form.submit()" style="padding:8px 10px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#111827">
-            @for($m=1;$m<=12;$m++)
-              <option value="{{ $m }}" {{ (int)$month === $m ? 'selected' : '' }}>{{ date('F', mktime(0,0,0,$m,1)) }}</option>
-            @endfor
-          </select>
-          <select name="year" onchange="this.form.submit()" style="padding:8px 10px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#111827">
-            @for($y=now()->year-3;$y<=now()->year+1;$y++)
-              <option value="{{ $y }}" {{ (int)$year === $y ? 'selected' : '' }}>{{ $y }}</option>
-            @endfor
-          </select>
-        </form>
+    @php
+      $isEmployee = auth()->user()->hasRole('employee');
+    @endphp
+    <div id="attendance" class="tab-content" style="display:none;background:#f7f4f1;border-radius:0;box-shadow:none;border:0;padding:20px;margin:0">
+      <!-- KPI Cards Row - Same as Employee Dashboard -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:20px">
+        <!-- Present Day Card -->
+        <div style="background:linear-gradient(135deg,#dbeafe 0%,#93c5fd 100%);border-radius:20px;padding:16px 24px 16px 16px">
+          <div style="display:flex;align-items:center;gap:16px">
+            <div style="width:64px;height:64px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.1)">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="#005593"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+            </div>
+            <div>
+              <div style="font-size:36px;font-weight:700;color:#005593;line-height:1;margin-bottom:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">O{{ $attSummary['present'] ?? 0 }}</div>
+              <div style="font-size:14px;font-weight:600;color:#005593">Present Day</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Working Hours Card -->
+        <div style="background:linear-gradient(135deg,#dcfce7 0%,#86efac 100%);border-radius:20px;padding:16px 24px 16px 16px">
+          <div style="display:flex;align-items:center;gap:16px">
+            <div style="width:64px;height:64px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.1)">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="#216D00"><path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/></svg>
+            </div>
+            <div>
+              <div style="font-size:36px;font-weight:700;color:#216D00;line-height:1;margin-bottom:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">{{ $attSummary['hours'] ?? '0' }}</div>
+              <div style="font-size:14px;font-weight:600;color:#216D00">Working Hours</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Late Entries Card -->
+        <div style="background:linear-gradient(135deg,#ffedd5 0%,#fdba74 100%);border-radius:20px;padding:16px 24px 16px 16px">
+          <div style="display:flex;align-items:center;gap:16px">
+            <div style="width:64px;height:64px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.1)">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="#DE5A00"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <div>
+              <div style="font-size:36px;font-weight:700;color:#DE5A00;line-height:1;margin-bottom:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">O{{ $attSummary['late'] ?? 0 }}</div>
+              <div style="font-size:14px;font-weight:600;color:#DE5A00">Late Entries</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Early Exits Card -->
+        <div style="background:linear-gradient(135deg,#fee2e2 0%,#fca5a5 100%);border-radius:20px;padding:16px 24px 16px 16px">
+          <div style="display:flex;align-items:center;gap:16px">
+            <div style="width:64px;height:64px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.1)">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="#DA0000"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            </div>
+            <div>
+              <div style="font-size:36px;font-weight:700;color:#DA0000;line-height:1;margin-bottom:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">O{{ $attSummary['early_exit'] ?? 0 }}</div>
+              <div style="font-size:14px;font-weight:600;color:#DA0000">Early Exits</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin:0 32px 30px">
-        <div style="background:linear-gradient(135deg,#dbeafe 0%,#bfdbfe 100%);padding:20px;border-radius:12px;text-align:center">
-          <div style="width:40px;height:40px;background:#3b82f6;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
-          </div>
-          <div style="font-size:28px;font-weight:700;color:#1e40af;margin-bottom:4px">{{ $attSummary['present'] ?? 0 }}</div>
-          <div style="font-size:20px;color:#1e40af;font-weight:500">Present Days</div>
-        </div>
-        <div style="background:linear-gradient(135deg,#dcfce7 0%,#bbf7d0 100%);padding:20px;border-radius:12px;text-align:center">
-          <div style="width:40px;height:40px;background:#10b981;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/></svg>
-          </div>
-          <div style="font-size:28px;font-weight:700;color:#059669;margin-bottom:4px">{{ $attSummary['hours'] ?? '00:00' }}</div>
-          <div style="font-size:20px;color:#059669;font-weight:500">Working Hours</div>
-        </div>
-        <div style="background:linear-gradient(135deg,#fed7aa 0%,#fdba74 100%);padding:20px;border-radius:12px;text-align:center">
-          <div style="width:40px;height:40px;background:#f97316;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8Z"/></svg>
-          </div>
-          <div style="font-size:28px;font-weight:700;color:#ea580c;margin-bottom:4px">{{ $attSummary['late'] ?? 0 }}</div>
-          <div style="font-size:20px;color:#ea580c;font-weight:500">Late Entries</div>
-        </div>
-        <div style="background:linear-gradient(135deg,#fecaca 0%,#fca5a5 100%);padding:20px;border-radius:12px;text-align:center">
-          <div style="width:40px;height:40px;background:#ef4444;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z"/></svg>
-          </div>
-          <div style="font-size:28px;font-weight:700;color:#dc2626;margin-bottom:4px">{{ $attSummary['absent'] ?? 0 }}</div>
-          <div style="font-size:20px;color:#dc2626;font-weight:500">Absent Days</div>
-        </div>
-      </div>
-      <div class="striped-surface table-wrap pad-attn">
-        <table class="flat-table">
+      
+      <!-- Date Filter Row - Same as Attendance Reports -->
+      <form method="GET" action="{{ route('profile.edit') }}" class="jv-filter" id="attendanceFilterForm">
+        <input type="hidden" name="tab" value="attendance">
+        <input type="text" name="start_date" class="filter-pill date-picker" placeholder="From : dd/mm/yy" value="{{ request('start_date') }}" autocomplete="off" style="min-width: 130px;">
+        <input type="text" name="end_date" class="filter-pill date-picker" placeholder="To : dd/mm/yy" value="{{ request('end_date') }}" autocomplete="off" style="min-width: 130px;">
+        
+        @if($isAdmin ?? false)
+        <select name="employee_id" class="filter-pill" style="min-width: 200px;">
+          <option value="">All Employees</option>
+          @foreach($employees ?? [] as $emp)
+            <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>
+              {{ $emp->name }}
+            </option>
+          @endforeach
+        </select>
+        @endif
+
+        <button type="submit" class="filter-search" aria-label="Search">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+          </svg>
+        </button>
+        
+        <a href="{{ route('profile.edit') }}?tab=attendance" class="filter-search" aria-label="Reset">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+          </svg>
+        </a>
+      </form>
+      
+      <!-- Attendance Table - JV Datatable Style -->
+      <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none" style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.08)">
+        <table>
           <thead>
             <tr>
+              <th>Day</th>
               <th>Date</th>
-              <th>Check IN</th>
-              <th>Check OUT</th>
-              <th>Working Hours</th>
+              @if(!$isEmployee)
+              <th>EMP Code</th>
+              <th>EMPLOYEE</th>
+              @endif
+              <th>Check IN & OUT ⇅</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
             @forelse($attendances as $row)
-            <tr>
-              <td>{{ \Carbon\Carbon::parse($row->date)->format('d M Y') }}</td>
-              <td>{{ $row->check_in ? \Carbon\Carbon::parse($row->check_in)->format('h:i A') : '-' }}</td>
-              <td>{{ $row->check_out ? \Carbon\Carbon::parse($row->check_out)->format('h:i A') : '-' }}</td>
-              <td>
-                @if($row->total_working_hours)
-                  {{ $row->total_working_hours }}
-                @elseif($row->check_in && $row->check_out)
-                  @php
-                    $mins = \Carbon\Carbon::parse($row->check_in)->diffInMinutes(\Carbon\Carbon::parse($row->check_out));
-                    $h = floor($mins/60);
-                    $m = $mins%60;
-                  @endphp
-                  {{ sprintf('%02d:%02d:00',$h,$m) }}
-                @else
-                  -
+              @php
+                $date = \Carbon\Carbon::parse($row->date);
+                $checkIn = $row->check_in ? \Carbon\Carbon::parse($row->check_in) : null;
+                $checkOut = $row->check_out ? \Carbon\Carbon::parse($row->check_out) : null;
+                
+                // Calculate working hours
+                $workedMinutes = 0;
+                if ($checkIn && $checkOut) {
+                    $workedMinutes = $checkIn->diffInMinutes($checkOut);
+                }
+                $workedHours = floor($workedMinutes / 60);
+                $workedMins = $workedMinutes % 60;
+                
+                // Calculate overtime (over 9 hours = 540 minutes)
+                $overtimeMinutes = max(0, $workedMinutes - 540);
+                $overtimeHours = floor($overtimeMinutes / 60);
+                $overtimeMins = $overtimeMinutes % 60;
+                
+                // Status colors - matching reference exactly
+                $status = $row->status ?? 'present';
+                $statusTextColors = [
+                    'present' => '#16a34a',
+                    'absent' => '#dc2626',
+                    'half_day' => '#f59e0b',
+                    'late' => '#ea580c',
+                    'leave' => '#4f46e5',
+                    'paid_leave' => '#db2777',
+                ];
+                $statusColor = $statusTextColors[$status] ?? '#374151';
+              @endphp
+              @php
+                // Get employee data from the attendance row (for admin view) or from the logged-in user's employee
+                $rowEmployee = $row->employee ?? $employee;
+              @endphp
+              <tr style="border-left:3px solid #16a34a">
+                <td style="font-weight:600">{{ $date->format('l') }}</td>
+                <td>{{ $date->format('d M, Y') }}</td>
+                @if(!$isEmployee)
+                <td>{{ $rowEmployee->code ?? 'EMP/' . str_pad($rowEmployee->id ?? 0, 4, '0', STR_PAD_LEFT) }}</td>
+                <td style="font-weight:500">{{ $rowEmployee->name ?? 'N/A' }}</td>
                 @endif
-              </td>
-              <td style="text-transform:capitalize">{{ $row->status ?? '-' }}</td>
-            </tr>
+                <td style="text-align:center">
+                  @if($status === 'paid_leave' || $status === 'leave')
+                    <div style="display:flex;align-items:center;justify-content:center;gap:0">
+                      <span style="color:#dc2626;font-size:6px">●</span>
+                      <span style="display:inline-block;width:60px;height:1px;background:#dc2626;margin:0 4px"></span>
+                      <span style="color:#db2777;font-weight:500;font-size:12px">Paid Leave</span>
+                      <span style="display:inline-block;width:60px;height:1px;background:#dc2626;margin:0 4px"></span>
+                      <span style="color:#dc2626;font-size:6px">●</span>
+                    </div>
+                  @elseif($checkIn || $checkOut)
+                    <div style="display:flex;align-items:center;justify-content:center;gap:0">
+                      <span style="color:#16a34a;font-weight:600;font-size:13px">{{ $checkIn ? $checkIn->format('h:i A') : '--' }}</span>
+                      <span style="display:inline-block;width:30px;height:1px;background:#d1d5db;margin:0 6px"></span>
+                      <span style="color:#9ca3af;font-size:11px">{{ $workedHours }}h {{ str_pad($workedMins, 2, '0', STR_PAD_LEFT) }}m</span>
+                      <span style="display:inline-block;width:30px;height:1px;background:#d1d5db;margin:0 6px"></span>
+                      <span style="color:#16a34a;font-size:12px">→</span>
+                      <span style="color:#dc2626;font-weight:600;font-size:13px;margin-left:6px">{{ $checkOut ? $checkOut->format('h:i A') : '--' }}</span>
+                    </div>
+                  @else
+                    <span style="color:#9ca3af">--</span>
+                  @endif
+                </td>
+                <td style="text-align:center">
+                  <span style="color:{{ $statusColor }};font-weight:600;font-size:13px;text-transform:capitalize">
+                    {{ str_replace('_', ' ', ucfirst($status)) }}
+                  </span>
+                </td>
+              </tr>
             @empty
-            <tr>
-              <td colspan="5" style="text-align:center;padding:40px;color:#6b7280">No attendance records found for this month</td>
-            </tr>
+              <tr>
+                <td colspan="{{ $isEmployee ? 4 : 6 }}" style="text-align:center;padding:60px;color:#9ca3af">
+                  <svg width="48" height="48" fill="currentColor" viewBox="0 0 24 24" style="margin-bottom:12px;opacity:0.5">
+                    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                  </svg>
+                  <p style="font-weight:600;margin:0">No attendance records found</p>
+                  <p style="font-size:14px;margin:8px 0 0 0">No records for {{ date('F', mktime(0,0,0,$month,1)) }} {{ $year }}</p>
+                </td>
+              </tr>
             @endforelse
           </tbody>
         </table>
@@ -608,12 +710,84 @@
         display: block;
       }
 
-      /* Form input focus states */
-      input:focus,
-      select:focus,
+      /* Form input focus states - exclude filter-pill */
+      input:focus:not(.filter-pill),
+      select:focus:not(.filter-pill),
       textarea:focus {
         border-color: #3b82f6 !important;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+      }
+      
+      /* Date picker filter styling - match attendance report */
+      #attendanceFilterForm .filter-pill.date-picker {
+        border: 1px solid #e8e8e8 !important;
+        background: #F5F5F5 !important;
+        color: #0f0f0f !important;
+        outline: none !important;
+        box-shadow: inset 0 2px 3px rgba(0,0,0,.12), 0 1px 0 #fff !important;
+      }
+      #attendanceFilterForm .filter-pill.date-picker:focus {
+        border-color: #000000 !important;
+        box-shadow: none !important;
+        background: #F5F5F5 !important;
+      }
+      #attendanceFilterForm .filter-pill.date-picker::placeholder {
+        color: #99a3ad !important;
+      }
+      /* Search button - green (same as attendance report) */
+      #attendanceFilterForm button.filter-search {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 35px !important;
+        height: 35px !important;
+        min-width: 35px !important;
+        min-height: 35px !important;
+        border-radius: 50% !important;
+        background: #00A65A !important;
+        border: none !important;
+        color: #ffffff !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        flex-shrink: 0 !important;
+      }
+      #attendanceFilterForm button.filter-search svg {
+        width: 16px !important;
+        height: 16px !important;
+        fill: #ffffff !important;
+        flex-shrink: 0 !important;
+      }
+      #attendanceFilterForm button.filter-search:hover {
+        background: #008F4E !important;
+      }
+      /* Reset button - dark (same as attendance report) */
+      #attendanceFilterForm a.filter-search {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 35px !important;
+        height: 35px !important;
+        min-width: 35px !important;
+        min-height: 35px !important;
+        border-radius: 50% !important;
+        background: #111827 !important;
+        border: none !important;
+        color: #ffffff !important;
+        cursor: pointer !important;
+        text-decoration: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        flex-shrink: 0 !important;
+      }
+      #attendanceFilterForm a.filter-search svg {
+        width: 16px !important;
+        height: 16px !important;
+        fill: #ffffff !important;
+        flex-shrink: 0 !important;
+      }
+      #attendanceFilterForm a.filter-search:hover {
+        background: #1f2937 !important;
       }
 
       /* Placeholder styling */
@@ -952,3 +1126,27 @@
       </div>
     </div>
 @endsection
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<script>
+// Initialize jQuery datepicker - Same as Attendance Reports
+$(document).ready(function() {
+    $('#attendanceFilterForm .date-picker').datepicker({
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({ marginTop: '2px', marginLeft: '0px' });
+            }, 0);
+        }
+    });
+});
+</script>
+@endpush

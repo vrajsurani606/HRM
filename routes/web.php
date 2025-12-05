@@ -207,6 +207,8 @@ Route::middleware('auth')->group(function () {
     // Company document viewing route
     Route::get('company-documents/{type}/{filename}', [CompanyController::class, 'viewFile'])
          ->name('company.documents.view');
+    Route::post('companies/{company}/documents', [CompanyController::class, 'uploadDocument'])->name('companies.documents.upload');
+    Route::delete('companies/{company}/documents/{document}', [CompanyController::class, 'deleteDocument'])->name('companies.documents.delete');
     Route::get('companies-export', [CompanyController::class, 'export'])->name('companies.export');
 
     // Project Stages Management (must be before projects resource)

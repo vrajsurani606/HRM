@@ -1,27 +1,27 @@
-@extends('layouts.macos')
-@section('page_title', $company->company_name . ' - Company Details')
+<?php $__env->startSection('page_title', $company->company_name . ' - Company Details'); ?>
 
-@section('breadcrumb')
-  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+<?php $__env->startSection('breadcrumb'); ?>
+  <a class="hrp-bc-home" href="<?php echo e(route('dashboard')); ?>">Dashboard</a>
   <span class="hrp-bc-sep">›</span>
-  <a href="{{ route('companies.index') }}">Company Management</a>
+  <a href="<?php echo e(route('companies.index')); ?>">Company Management</a>
   <span class="hrp-bc-sep">›</span>
-  <span class="hrp-bc-current">{{ $company->company_name }}</span>
-@endsection
+  <span class="hrp-bc-current"><?php echo e($company->company_name); ?></span>
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="inquiry-index-container">
-    @php
+    <?php
       $allowedTabs = ['quotation','template','proforma','invoice','receipt','project','ticket'];
       $reqTab = request()->get('tab');
       $activeTab = in_array($reqTab, $allowedTabs) ? $reqTab : 'quotation';
-    @endphp
+    ?>
 
-    @if(session('success'))
+    <?php if(session('success')): ?>
         <div class="alert alert-success" style="background: #d4edda; color: #155724; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
-            {{ session('success') }}
+            <?php echo e(session('success')); ?>
+
         </div>
-    @endif
+    <?php endif; ?>
     
     <!-- Top two-column details -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-bottom: 30px; background: #d1d5db; border-radius: 8px; overflow: hidden;">
@@ -32,62 +32,62 @@
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Unique Code</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->unique_code ?? '-' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->unique_code ?? '-'); ?></span>
           </div>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Name</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_name ? $company->company_name : '-' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->company_name ? $company->company_name : '-'); ?></span>
           </div>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Address</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_address ? $company->company_address : '-' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->company_address ? $company->company_address : '-'); ?></span>
           </div>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Gst No</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->gst_no ? $company->gst_no : '---' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->gst_no ? $company->gst_no : '---'); ?></span>
           </div>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Pan No</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->pan_no ? $company->pan_no : '---' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->pan_no ? $company->pan_no : '---'); ?></span>
           </div>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Other</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->other_details ? $company->other_details : '---' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->other_details ? $company->other_details : '---'); ?></span>
           </div>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Type</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_type ? $company->company_type : '-' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->company_type ? $company->company_type : '-'); ?></span>
           </div>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Email</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_email ? $company->company_email : '-' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->company_email ? $company->company_email : '-'); ?></span>
           </div>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Password</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_password ? '••••••••' : '-' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->company_password ? '••••••••' : '-'); ?></span>
           </div>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Employee Email</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_employee_email ? $company->company_employee_email : '-' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->company_employee_email ? $company->company_employee_email : '-'); ?></span>
           </div>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Employee Password</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_employee_password ? '••••••••' : '-' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->company_employee_password ? '••••••••' : '-'); ?></span>
           </div>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company City</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->city ? $company->city : '-' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->city ? $company->city : '-'); ?></span>
           </div>
         </div>
         </div>
@@ -96,87 +96,87 @@
         <h3 style="font-weight: 600; font-size: 14px; margin: 0 0 20px 0; color: #000; background: #F0F0F0; padding: 12px 20px; text-align: center; width: 100%;">Person's Details</h3>
         <div style="padding: 0 40px 25px 40px; width: 100%;">
         <div style="display: flex; flex-direction: column; gap: 0px; max-width: 600px; width: 100%;">
-          @if($company->person_name_1 || $company->person_number_1 || $company->person_position_1)
+          <?php if($company->person_name_1 || $company->person_number_1 || $company->person_position_1): ?>
           <!-- Person 1 -->
           <div style="font-weight: 600; color: #374151; font-size: 13px; padding: 8px 0px; border-bottom: 1px solid #e5e7eb; margin-bottom: 5px;">Contact Person 1</div>
-          @if($company->person_name_1)
+          <?php if($company->person_name_1): ?>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Name</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_name_1 }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->person_name_1); ?></span>
           </div>
-          @endif
-          @if($company->person_number_1)
+          <?php endif; ?>
+          <?php if($company->person_number_1): ?>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Number</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_number_1 }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->person_number_1); ?></span>
           </div>
-          @endif
-          @if($company->person_position_1)
+          <?php endif; ?>
+          <?php if($company->person_position_1): ?>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Position</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_position_1 }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->person_position_1); ?></span>
           </div>
-          @endif
-          @endif
+          <?php endif; ?>
+          <?php endif; ?>
 
-          @if($company->person_name_2 || $company->person_number_2 || $company->person_position_2)
+          <?php if($company->person_name_2 || $company->person_number_2 || $company->person_position_2): ?>
           <!-- Person 2 -->
           <div style="font-weight: 600; color: #374151; font-size: 13px; padding: 8px 0px; border-bottom: 1px solid #e5e7eb; margin-bottom: 5px; margin-top: 10px;">Contact Person 2</div>
-          @if($company->person_name_2)
+          <?php if($company->person_name_2): ?>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Name</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_name_2 }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->person_name_2); ?></span>
           </div>
-          @endif
-          @if($company->person_number_2)
+          <?php endif; ?>
+          <?php if($company->person_number_2): ?>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Number</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_number_2 }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->person_number_2); ?></span>
           </div>
-          @endif
-          @if($company->person_position_2)
+          <?php endif; ?>
+          <?php if($company->person_position_2): ?>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Position</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_position_2 }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->person_position_2); ?></span>
           </div>
-          @endif
-          @endif
+          <?php endif; ?>
+          <?php endif; ?>
 
-          @if($company->person_name_3 || $company->person_number_3 || $company->person_position_3)
+          <?php if($company->person_name_3 || $company->person_number_3 || $company->person_position_3): ?>
           <!-- Person 3 -->
           <div style="font-weight: 600; color: #374151; font-size: 13px; padding: 8px 0px; border-bottom: 1px solid #e5e7eb; margin-bottom: 5px; margin-top: 10px;">Contact Person 3</div>
-          @if($company->person_name_3)
+          <?php if($company->person_name_3): ?>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Name</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_name_3 }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->person_name_3); ?></span>
           </div>
-          @endif
-          @if($company->person_number_3)
+          <?php endif; ?>
+          <?php if($company->person_number_3): ?>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Number</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_number_3 }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->person_number_3); ?></span>
           </div>
-          @endif
-          @if($company->person_position_3)
+          <?php endif; ?>
+          <?php if($company->person_position_3): ?>
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Person Position</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->person_position_3 }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;"><?php echo e($company->person_position_3); ?></span>
           </div>
-          @endif
-          @endif
+          <?php endif; ?>
+          <?php endif; ?>
 
-          @if(!$company->person_name_1 && !$company->person_number_1 && !$company->person_position_1 && !$company->person_name_2 && !$company->person_number_2 && !$company->person_position_2 && !$company->person_name_3 && !$company->person_number_3 && !$company->person_position_3)
+          <?php if(!$company->person_name_1 && !$company->person_number_1 && !$company->person_position_1 && !$company->person_name_2 && !$company->person_number_2 && !$company->person_position_2 && !$company->person_name_3 && !$company->person_number_3 && !$company->person_position_3): ?>
           <div style="padding: 20px; text-align: center; color: #6b7280;">No contact persons added.</div>
-          @endif
+          <?php endif; ?>
         </div>
         </div>
       </div>
@@ -190,23 +190,23 @@
         <div style="background: white; border-radius: 8px; padding: 15px; border: 1px solid #e5e7eb;">
           <div style="font-size: 14px; margin-bottom: 10px; color: #666;">Company Logo</div>
           <div style="border: 1px solid #e5e7eb; border-radius: 6px; display: flex; align-items: center; justify-content: center; height: 120px; background: #f9fafb; position: relative;">
-            @if($company->company_logo)
-              <a href="{{ $company->logo_url }}" target="_blank">
-                <img src="{{ $company->logo_url }}" alt="Company Logo" style="max-height: 100px; max-width: 100px; object-fit: contain;">
+            <?php if($company->company_logo): ?>
+              <a href="<?php echo e($company->logo_url); ?>" target="_blank">
+                <img src="<?php echo e($company->logo_url); ?>" alt="Company Logo" style="max-height: 100px; max-width: 100px; object-fit: contain;">
               </a>
-            @else
+            <?php else: ?>
               <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666;">
                 <svg width="40" height="40" fill="currentColor" viewBox="0 0 24 24" style="margin-bottom: 8px;">
                   <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
                 </svg>
                 <span style="font-size: 12px;">No Logo</span>
               </div>
-            @endif
-            @if($company->logo_url)
-            <a href="{{ $company->logo_url }}" target="_blank" style="position: absolute; top: 8px; right: 8px; background: #000; border-radius: 4px; padding: 6px; cursor: pointer;" title="Download">
+            <?php endif; ?>
+            <?php if($company->logo_url): ?>
+            <a href="<?php echo e($company->logo_url); ?>" target="_blank" style="position: absolute; top: 8px; right: 8px; background: #000; border-radius: 4px; padding: 6px; cursor: pointer;" title="Download">
               <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
             </a>
-            @endif
+            <?php endif; ?>
           </div>
         </div>
         
@@ -214,34 +214,34 @@
         <div style="background: white; border-radius: 8px; padding: 15px; border: 1px solid #e5e7eb;">
           <div style="font-size: 14px; margin-bottom: 10px; color: #666;">SOP Upload</div>
           <div style="border: 1px solid #e5e7eb; border-radius: 6px; display: flex; align-items: center; justify-content: center; height: 120px; background: #f9fafb; position: relative;">
-            @if($company->sop_upload)
-              @php
+            <?php if($company->sop_upload): ?>
+              <?php
                 $sopExt = strtolower(pathinfo($company->sop_upload, PATHINFO_EXTENSION));
                 $sopIsImage = in_array($sopExt, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-              @endphp
-              <a href="{{ $company->sop_url }}" target="_blank" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none;">
-                @if($sopIsImage)
-                  <img src="{{ $company->sop_url }}" alt="SOP Document" style="max-height: 100px; max-width: 100px; object-fit: contain;">
-                @else
+              ?>
+              <a href="<?php echo e($company->sop_url); ?>" target="_blank" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none;">
+                <?php if($sopIsImage): ?>
+                  <img src="<?php echo e($company->sop_url); ?>" alt="SOP Document" style="max-height: 100px; max-width: 100px; object-fit: contain;">
+                <?php else: ?>
                   <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666;">
                     <svg width="40" height="40" fill="currentColor" viewBox="0 0 24 24" style="margin-bottom: 8px;">
                       <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
                     </svg>
-                    <span style="font-size: 12px;">{{ strtoupper($sopExt) }}</span>
+                    <span style="font-size: 12px;"><?php echo e(strtoupper($sopExt)); ?></span>
                   </div>
-                @endif
+                <?php endif; ?>
               </a>
-              <a href="{{ $company->sop_url }}" target="_blank" style="position: absolute; top: 8px; right: 8px; background: #000; border-radius: 4px; padding: 6px; cursor: pointer;" title="Download">
+              <a href="<?php echo e($company->sop_url); ?>" target="_blank" style="position: absolute; top: 8px; right: 8px; background: #000; border-radius: 4px; padding: 6px; cursor: pointer;" title="Download">
                 <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
               </a>
-            @else
+            <?php else: ?>
               <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666;">
                 <svg width="40" height="40" fill="currentColor" viewBox="0 0 24 24" style="margin-bottom: 8px;">
                   <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
                 </svg>
                 <span style="font-size: 12px;">No SOP</span>
               </div>
-            @endif
+            <?php endif; ?>
           </div>
         </div>
         
@@ -249,68 +249,68 @@
         <div style="background: white; border-radius: 8px; padding: 15px; border: 1px solid #e5e7eb;">
           <div style="font-size: 14px; margin-bottom: 10px; color: #666;">Quotation Upload</div>
           <div style="border: 1px solid #e5e7eb; border-radius: 6px; display: flex; align-items: center; justify-content: center; height: 120px; background: #f9fafb; position: relative;">
-            @if($company->quotation_upload)
-              @php
+            <?php if($company->quotation_upload): ?>
+              <?php
                 $quotExt = strtolower(pathinfo($company->quotation_upload, PATHINFO_EXTENSION));
                 $quotIsImage = in_array($quotExt, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-              @endphp
-              <a href="{{ $company->quotation_url }}" target="_blank" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none;">
-                @if($quotIsImage)
-                  <img src="{{ $company->quotation_url }}" alt="Quotation Document" style="max-height: 100px; max-width: 100px; object-fit: contain;">
-                @else
+              ?>
+              <a href="<?php echo e($company->quotation_url); ?>" target="_blank" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none;">
+                <?php if($quotIsImage): ?>
+                  <img src="<?php echo e($company->quotation_url); ?>" alt="Quotation Document" style="max-height: 100px; max-width: 100px; object-fit: contain;">
+                <?php else: ?>
                   <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666;">
                     <svg width="40" height="40" fill="currentColor" viewBox="0 0 24 24" style="margin-bottom: 8px;">
                       <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
                     </svg>
-                    <span style="font-size: 12px;">{{ strtoupper($quotExt) }}</span>
+                    <span style="font-size: 12px;"><?php echo e(strtoupper($quotExt)); ?></span>
                   </div>
-                @endif
+                <?php endif; ?>
               </a>
-              <a href="{{ $company->quotation_url }}" target="_blank" style="position: absolute; top: 8px; right: 8px; background: #000; border-radius: 4px; padding: 6px; cursor: pointer;" title="Download">
+              <a href="<?php echo e($company->quotation_url); ?>" target="_blank" style="position: absolute; top: 8px; right: 8px; background: #000; border-radius: 4px; padding: 6px; cursor: pointer;" title="Download">
                 <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
               </a>
-            @else
+            <?php else: ?>
               <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666;">
                 <svg width="40" height="40" fill="currentColor" viewBox="0 0 24 24" style="margin-bottom: 8px;">
                   <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
                 </svg>
                 <span style="font-size: 12px;">No Document</span>
               </div>
-            @endif
+            <?php endif; ?>
           </div>
         </div>
         
         <!-- Additional Uploaded Documents -->
-        @foreach($documents as $document)
-        <div class="document-card" data-document-id="{{ $document->id }}" style="background: white; border-radius: 8px; padding: 15px; border: 1px solid #e5e7eb;">
-          <div style="font-size: 14px; margin-bottom: 10px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $document->document_name }}">{{ Str::limit($document->document_name, 15) }}</div>
+        <?php $__currentLoopData = $documents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $document): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <div class="document-card" data-document-id="<?php echo e($document->id); ?>" style="background: white; border-radius: 8px; padding: 15px; border: 1px solid #e5e7eb;">
+          <div style="font-size: 14px; margin-bottom: 10px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="<?php echo e($document->document_name); ?>"><?php echo e(Str::limit($document->document_name, 15)); ?></div>
           <div style="border: 1px solid #e5e7eb; border-radius: 6px; display: flex; align-items: center; justify-content: center; height: 120px; background: #f9fafb; position: relative;">
-            <a href="{{ $document->file_url }}" target="_blank" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none;">
-              @if($document->isImage())
-                <img src="{{ $document->file_url }}" alt="{{ $document->document_name }}" style="max-height: 100px; max-width: 100px; object-fit: contain;">
-              @else
+            <a href="<?php echo e($document->file_url); ?>" target="_blank" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none;">
+              <?php if($document->isImage()): ?>
+                <img src="<?php echo e($document->file_url); ?>" alt="<?php echo e($document->document_name); ?>" style="max-height: 100px; max-width: 100px; object-fit: contain;">
+              <?php else: ?>
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666;">
                   <svg width="40" height="40" fill="currentColor" viewBox="0 0 24 24" style="margin-bottom: 8px;">
                     <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
                   </svg>
-                  <span style="font-size: 12px;">{{ strtoupper($document->document_type) }}</span>
+                  <span style="font-size: 12px;"><?php echo e(strtoupper($document->document_type)); ?></span>
                 </div>
-              @endif
+              <?php endif; ?>
             </a>
-            <a href="{{ $document->file_url }}" target="_blank" style="position: absolute; top: 8px; right: 36px; background: #000; border-radius: 4px; padding: 6px; cursor: pointer;" title="Download">
+            <a href="<?php echo e($document->file_url); ?>" target="_blank" style="position: absolute; top: 8px; right: 36px; background: #000; border-radius: 4px; padding: 6px; cursor: pointer;" title="Download">
               <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
             </a>
-            @can('Companies Management.edit company')
-            <button type="button" onclick="deleteDocument({{ $document->id }})" style="position: absolute; top: 8px; right: 8px; background: #ef4444; border-radius: 4px; padding: 6px; cursor: pointer; border: none;" title="Delete">
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Companies Management.edit company')): ?>
+            <button type="button" onclick="deleteDocument(<?php echo e($document->id); ?>)" style="position: absolute; top: 8px; right: 8px; background: #ef4444; border-radius: 4px; padding: 6px; cursor: pointer; border: none;" title="Delete">
               <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
             </button>
-            @endcan
+            <?php endif; ?>
           </div>
         </div>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         
         <!-- Upload Button -->
-        @can('Companies Management.edit company')
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Companies Management.edit company')): ?>
         <div style="background: white; border-radius: 8px; padding: 15px; border: 1px solid #e5e7eb;">
           <div style="font-size: 14px; margin-bottom: 10px; color: #666;">Add Document</div>
           <div id="upload-area" style="border: 2px dashed #d1d5db; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 120px; background: #4b5563; cursor: pointer;" onclick="document.getElementById('fileUpload').click()">
@@ -321,11 +321,11 @@
             <span style="color: white; font-size: 14px; font-weight: 600;">Upload</span>
           </div>
           <form id="uploadForm" style="display: none;">
-            @csrf
+            <?php echo csrf_field(); ?>
             <input type="file" id="fileUpload" name="documents[]" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp,.xls,.xlsx">
           </form>
         </div>
-        @endcan
+        <?php endif; ?>
       </div>
     </div>
 
@@ -504,42 +504,42 @@
                 </tr>
               </thead>
               <tbody>
-                @forelse($quotations as $index => $quotation)
+                <?php $__empty_1 = true; $__currentLoopData = $quotations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $quotation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <tr>
                   <td>
-                    @if(in_array($quotation->id, $confirmedQuotationIds))
+                    <?php if(in_array($quotation->id, $confirmedQuotationIds)): ?>
                       <span class="status-badge status-confirmed">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                         Confirmed
                       </span>
-                    @else
+                    <?php else: ?>
                       <span class="status-badge status-pending">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
                         Pending
                       </span>
-                    @endif
+                    <?php endif; ?>
                   </td>
-                  <td style="font-weight: 600; color: #64748b;">{{ $index + 1 }}</td>
+                  <td style="font-weight: 600; color: #64748b;"><?php echo e($index + 1); ?></td>
                   <td>
-                    <a href="{{ route('quotations.show', $quotation->id) }}" class="link-cell">{{ $quotation->unique_code ?? '-' }}</a>
+                    <a href="<?php echo e(route('quotations.show', $quotation->id)); ?>" class="link-cell"><?php echo e($quotation->unique_code ?? '-'); ?></a>
                   </td>
-                  <td class="amount-cell">₹{{ number_format($quotation->service_contract_amount ?? 0, 2) }}</td>
-                  <td>{{ $quotation->amc_start_date ? $quotation->amc_start_date->format('d M, Y') : '-' }}</td>
-                  <td class="amount-cell">₹{{ number_format($quotation->amc_amount ?? 0, 2) }}</td>
+                  <td class="amount-cell">₹<?php echo e(number_format($quotation->service_contract_amount ?? 0, 2)); ?></td>
+                  <td><?php echo e($quotation->amc_start_date ? $quotation->amc_start_date->format('d M, Y') : '-'); ?></td>
+                  <td class="amount-cell">₹<?php echo e(number_format($quotation->amc_amount ?? 0, 2)); ?></td>
                   <td>
                     <div style="display: flex; gap: 6px;">
-                      <a href="{{ route('quotations.show', $quotation->id) }}" class="action-btn" title="View">
-                        <img src="{{ asset('action_icon/show.svg') }}" alt="view">
+                      <a href="<?php echo e(route('quotations.show', $quotation->id)); ?>" class="action-btn" title="View">
+                        <img src="<?php echo e(asset('action_icon/show.svg')); ?>" alt="view">
                       </a>
-                      @can('Quotations Management.edit quotation')
-                      <a href="{{ route('quotations.edit', $quotation->id) }}" class="action-btn" title="Edit">
-                        <img src="{{ asset('action_icon/edit.svg') }}" alt="edit">
+                      <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.edit quotation')): ?>
+                      <a href="<?php echo e(route('quotations.edit', $quotation->id)); ?>" class="action-btn" title="Edit">
+                        <img src="<?php echo e(asset('action_icon/edit.svg')); ?>" alt="edit">
                       </a>
-                      @endcan
+                      <?php endif; ?>
                     </div>
                   </td>
                 </tr>
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <tr>
                   <td colspan="7">
                     <div class="empty-state">
@@ -548,7 +548,7 @@
                     </div>
                   </td>
                 </tr>
-                @endforelse
+                <?php endif; ?>
               </tbody>
             </table>
           </div>
@@ -574,43 +574,43 @@
                 </tr>
               </thead>
               <tbody>
-                @php $templateIndex = 0; @endphp
-                @forelse($quotations as $quotation)
-                  @if(!empty($quotation->terms_description) && is_array($quotation->terms_description))
-                    @foreach($quotation->terms_description as $tIndex => $desc)
-                      @if(!empty($desc))
-                      @php $templateIndex++; @endphp
+                <?php $templateIndex = 0; ?>
+                <?php $__empty_1 = true; $__currentLoopData = $quotations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $quotation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                  <?php if(!empty($quotation->terms_description) && is_array($quotation->terms_description)): ?>
+                    <?php $__currentLoopData = $quotation->terms_description; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tIndex => $desc): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                      <?php if(!empty($desc)): ?>
+                      <?php $templateIndex++; ?>
                       <tr>
                         <td>
-                          @if(in_array($quotation->id, $confirmedQuotationIds))
+                          <?php if(in_array($quotation->id, $confirmedQuotationIds)): ?>
                             <span class="status-badge status-confirmed">✓</span>
-                          @else
+                          <?php else: ?>
                             <span class="status-badge status-pending">○</span>
-                          @endif
+                          <?php endif; ?>
                         </td>
-                        <td style="font-weight: 600; color: #64748b;">{{ $templateIndex }}</td>
-                        <td><a href="{{ route('quotations.template-list', $quotation->id) }}" class="link-cell">{{ $quotation->unique_code ?? '-' }}</a></td>
-                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $desc }}">{{ Str::limit($desc, 35) }}</td>
-                        <td class="amount-cell">₹{{ number_format($quotation->terms_total[$tIndex] ?? 0, 2) }}</td>
+                        <td style="font-weight: 600; color: #64748b;"><?php echo e($templateIndex); ?></td>
+                        <td><a href="<?php echo e(route('quotations.template-list', $quotation->id)); ?>" class="link-cell"><?php echo e($quotation->unique_code ?? '-'); ?></a></td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="<?php echo e($desc); ?>"><?php echo e(Str::limit($desc, 35)); ?></td>
+                        <td class="amount-cell">₹<?php echo e(number_format($quotation->terms_total[$tIndex] ?? 0, 2)); ?></td>
                         <td>
                           <div style="display: flex; align-items: center; gap: 8px;">
                             <div style="width: 50px; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
-                              <div style="width: {{ $quotation->terms_completion[$tIndex] ?? 0 }}%; height: 100%; background: linear-gradient(90deg, #22c55e, #16a34a);"></div>
+                              <div style="width: <?php echo e($quotation->terms_completion[$tIndex] ?? 0); ?>%; height: 100%; background: linear-gradient(90deg, #22c55e, #16a34a);"></div>
                             </div>
-                            <span style="font-size: 12px; font-weight: 600; color: #475569;">{{ $quotation->terms_completion[$tIndex] ?? 0 }}%</span>
+                            <span style="font-size: 12px; font-weight: 600; color: #475569;"><?php echo e($quotation->terms_completion[$tIndex] ?? 0); ?>%</span>
                           </div>
                         </td>
-                        <td>{{ $quotation->completion_terms[$tIndex] ?? '-' }}</td>
+                        <td><?php echo e($quotation->completion_terms[$tIndex] ?? '-'); ?></td>
                         <td>
-                          <a href="{{ route('quotations.template-list', $quotation->id) }}" class="action-btn" title="View Templates">
-                            <img src="{{ asset('action_icon/show.svg') }}" alt="view">
+                          <a href="<?php echo e(route('quotations.template-list', $quotation->id)); ?>" class="action-btn" title="View Templates">
+                            <img src="<?php echo e(asset('action_icon/show.svg')); ?>" alt="view">
                           </a>
                         </td>
                       </tr>
-                      @endif
-                    @endforeach
-                  @endif
-                @empty
+                      <?php endif; ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                  <?php endif; ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <tr>
                   <td colspan="8">
                     <div class="empty-state">
@@ -619,8 +619,8 @@
                     </div>
                   </td>
                 </tr>
-                @endforelse
-                @if($templateIndex == 0 && $quotations->count() > 0)
+                <?php endif; ?>
+                <?php if($templateIndex == 0 && $quotations->count() > 0): ?>
                 <tr>
                   <td colspan="8">
                     <div class="empty-state">
@@ -629,7 +629,7 @@
                     </div>
                   </td>
                 </tr>
-                @endif
+                <?php endif; ?>
               </tbody>
             </table>
           </div>
@@ -655,39 +655,39 @@
                 </tr>
               </thead>
               <tbody>
-                @forelse($proformas as $index => $proforma)
+                <?php $__empty_1 = true; $__currentLoopData = $proformas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $proforma): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <tr>
-                  <td style="font-weight: 600; color: #64748b;">{{ $index + 1 }}</td>
+                  <td style="font-weight: 600; color: #64748b;"><?php echo e($index + 1); ?></td>
                   <td>
-                    @if($proforma->hasInvoice())
+                    <?php if($proforma->hasInvoice()): ?>
                       <span class="status-badge status-completed">✓ Converted</span>
-                    @else
+                    <?php else: ?>
                       <span class="status-badge status-pending">○ Pending</span>
-                    @endif
+                    <?php endif; ?>
                   </td>
-                  <td><a href="{{ route('performas.show', $proforma->id) }}" class="link-cell">{{ $proforma->unique_code ?? '-' }}</a></td>
-                  <td>{{ $proforma->bill_no ?? '-' }}</td>
-                  <td>{{ $proforma->proforma_date ? $proforma->proforma_date->format('d M, Y') : '-' }}</td>
-                  <td><span style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-size: 12px;">{{ $proforma->type_of_billing ?? '-' }}</span></td>
-                  <td class="amount-cell">₹{{ number_format($proforma->sub_total ?? 0, 2) }}</td>
-                  <td class="amount-cell" style="color: #16a34a;">₹{{ number_format($proforma->final_amount ?? 0, 2) }}</td>
+                  <td><a href="<?php echo e(route('performas.show', $proforma->id)); ?>" class="link-cell"><?php echo e($proforma->unique_code ?? '-'); ?></a></td>
+                  <td><?php echo e($proforma->bill_no ?? '-'); ?></td>
+                  <td><?php echo e($proforma->proforma_date ? $proforma->proforma_date->format('d M, Y') : '-'); ?></td>
+                  <td><span style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-size: 12px;"><?php echo e($proforma->type_of_billing ?? '-'); ?></span></td>
+                  <td class="amount-cell">₹<?php echo e(number_format($proforma->sub_total ?? 0, 2)); ?></td>
+                  <td class="amount-cell" style="color: #16a34a;">₹<?php echo e(number_format($proforma->final_amount ?? 0, 2)); ?></td>
                   <td>
                     <div style="display: flex; gap: 6px;">
-                      <a href="{{ route('performas.print', $proforma->id) }}" target="_blank" class="action-btn" title="Print" style="background: #fef3c7;">
-                        <img src="{{ asset('action_icon/generate.svg') }}" alt="print">
+                      <a href="<?php echo e(route('performas.print', $proforma->id)); ?>" target="_blank" class="action-btn" title="Print" style="background: #fef3c7;">
+                        <img src="<?php echo e(asset('action_icon/generate.svg')); ?>" alt="print">
                       </a>
-                      @if($proforma->canConvert())
-                      <a href="{{ route('performas.convert', $proforma->id) }}" class="action-btn" title="Convert" style="background: #dcfce7;">
-                        <img src="{{ asset('action_icon/convert.svg') }}" alt="convert">
+                      <?php if($proforma->canConvert()): ?>
+                      <a href="<?php echo e(route('performas.convert', $proforma->id)); ?>" class="action-btn" title="Convert" style="background: #dcfce7;">
+                        <img src="<?php echo e(asset('action_icon/convert.svg')); ?>" alt="convert">
                       </a>
-                      @endif
-                      <a href="{{ route('performas.show', $proforma->id) }}" class="action-btn" title="View">
-                        <img src="{{ asset('action_icon/show.svg') }}" alt="view">
+                      <?php endif; ?>
+                      <a href="<?php echo e(route('performas.show', $proforma->id)); ?>" class="action-btn" title="View">
+                        <img src="<?php echo e(asset('action_icon/show.svg')); ?>" alt="view">
                       </a>
                     </div>
                   </td>
                 </tr>
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <tr>
                   <td colspan="9">
                     <div class="empty-state">
@@ -696,7 +696,7 @@
                     </div>
                   </td>
                 </tr>
-                @endforelse
+                <?php endif; ?>
               </tbody>
             </table>
           </div>
@@ -722,34 +722,34 @@
                 </tr>
               </thead>
               <tbody>
-                @forelse($invoices as $index => $invoice)
+                <?php $__empty_1 = true; $__currentLoopData = $invoices; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $invoice): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <tr>
-                  <td style="font-weight: 600; color: #64748b;">{{ $index + 1 }}</td>
+                  <td style="font-weight: 600; color: #64748b;"><?php echo e($index + 1); ?></td>
                   <td style="white-space: nowrap;">
-                    @if($invoice->invoice_type == 'gst')
+                    <?php if($invoice->invoice_type == 'gst'): ?>
                       <span style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #166534; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-block;">GST</span>
-                    @else
+                    <?php else: ?>
                       <span style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-block;">Non-GST</span>
-                    @endif
+                    <?php endif; ?>
                   </td>
-                  <td><a href="{{ route('invoices.show', $invoice->id) }}" class="link-cell">{{ $invoice->unique_code ?? '-' }}</a></td>
-                  <td>{{ $invoice->invoice_date ? $invoice->invoice_date->format('d M, Y') : '-' }}</td>
-                  <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ Str::limit($invoice->company_name ?? $company->company_name, 20) }}</td>
-                  <td style="font-family: monospace; font-size: 13px;">{{ $invoice->mobile_no ?? '-' }}</td>
-                  <td class="amount-cell">₹{{ number_format($invoice->sub_total ?? 0, 2) }}</td>
-                  <td class="amount-cell" style="color: #16a34a;">₹{{ number_format($invoice->final_amount ?? 0, 2) }}</td>
+                  <td><a href="<?php echo e(route('invoices.show', $invoice->id)); ?>" class="link-cell"><?php echo e($invoice->unique_code ?? '-'); ?></a></td>
+                  <td><?php echo e($invoice->invoice_date ? $invoice->invoice_date->format('d M, Y') : '-'); ?></td>
+                  <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><?php echo e(Str::limit($invoice->company_name ?? $company->company_name, 20)); ?></td>
+                  <td style="font-family: monospace; font-size: 13px;"><?php echo e($invoice->mobile_no ?? '-'); ?></td>
+                  <td class="amount-cell">₹<?php echo e(number_format($invoice->sub_total ?? 0, 2)); ?></td>
+                  <td class="amount-cell" style="color: #16a34a;">₹<?php echo e(number_format($invoice->final_amount ?? 0, 2)); ?></td>
                   <td>
                     <div style="display: flex; gap: 6px;">
-                      <a href="{{ route('invoices.print', $invoice->id) }}" target="_blank" class="action-btn" title="Print" style="background: #fef3c7;">
-                        <img src="{{ asset('action_icon/generate.svg') }}" alt="print">
+                      <a href="<?php echo e(route('invoices.print', $invoice->id)); ?>" target="_blank" class="action-btn" title="Print" style="background: #fef3c7;">
+                        <img src="<?php echo e(asset('action_icon/generate.svg')); ?>" alt="print">
                       </a>
-                      <a href="{{ route('invoices.show', $invoice->id) }}" class="action-btn" title="View">
-                        <img src="{{ asset('action_icon/show.svg') }}" alt="view">
+                      <a href="<?php echo e(route('invoices.show', $invoice->id)); ?>" class="action-btn" title="View">
+                        <img src="<?php echo e(asset('action_icon/show.svg')); ?>" alt="view">
                       </a>
                     </div>
                   </td>
                 </tr>
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <tr>
                   <td colspan="9">
                     <div class="empty-state">
@@ -758,7 +758,7 @@
                     </div>
                   </td>
                 </tr>
-                @endforelse
+                <?php endif; ?>
               </tbody>
             </table>
           </div>
@@ -783,42 +783,43 @@
               </tr>
             </thead>
             <tbody>
-              @forelse($receipts as $index => $receipt)
+              <?php $__empty_1 = true; $__currentLoopData = $receipts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $receipt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
               <tr style="border-bottom: 1px solid #f3f4f6;">
-                <td style="padding: 12px; color: #374151;">{{ $index + 1 }}</td>
+                <td style="padding: 12px; color: #374151;"><?php echo e($index + 1); ?></td>
                 <td style="padding: 12px; color: #374151;">
-                  <a href="{{ route('receipts.show', $receipt->id) }}" style="color: #3b82f6; text-decoration: none;">
-                    {{ $receipt->unique_code ?? '-' }}
+                  <a href="<?php echo e(route('receipts.show', $receipt->id)); ?>" style="color: #3b82f6; text-decoration: none;">
+                    <?php echo e($receipt->unique_code ?? '-'); ?>
+
                   </a>
                 </td>
-                <td style="padding: 12px; color: #374151;">{{ $receipt->receipt_date ? $receipt->receipt_date->format('d/m/Y') : '-' }}</td>
-                <td style="padding: 12px; color: #374151;">{{ Str::limit($receipt->company_name ?? $company->company_name, 25) }}</td>
+                <td style="padding: 12px; color: #374151;"><?php echo e($receipt->receipt_date ? $receipt->receipt_date->format('d/m/Y') : '-'); ?></td>
+                <td style="padding: 12px; color: #374151;"><?php echo e(Str::limit($receipt->company_name ?? $company->company_name, 25)); ?></td>
                 <td style="padding: 12px; color: #374151; white-space: nowrap;">
-                  @if($receipt->invoice_type == 'gst')
+                  <?php if($receipt->invoice_type == 'gst'): ?>
                     <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap; display: inline-block;">GST</span>
-                  @else
+                  <?php else: ?>
                     <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap; display: inline-block;">Non-GST</span>
-                  @endif
+                  <?php endif; ?>
                 </td>
-                <td style="padding: 12px; color: #374151;">{{ number_format($receipt->received_amount ?? 0, 2) }}</td>
-                <td style="padding: 12px; color: #374151;">{{ ucfirst($receipt->payment_type ?? '-') }}</td>
-                <td style="padding: 12px; color: #374151;">{{ $receipt->trans_code ?? '-' }}</td>
+                <td style="padding: 12px; color: #374151;"><?php echo e(number_format($receipt->received_amount ?? 0, 2)); ?></td>
+                <td style="padding: 12px; color: #374151;"><?php echo e(ucfirst($receipt->payment_type ?? '-')); ?></td>
+                <td style="padding: 12px; color: #374151;"><?php echo e($receipt->trans_code ?? '-'); ?></td>
                 <td style="padding: 12px;">
                   <div style="display: flex; gap: 8px; align-items: center;">
-                    <a href="{{ route('receipts.print', $receipt->id) }}" target="_blank" style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;" title="Print">
-                      <img src="{{ asset('action_icon/generate.svg') }}" alt="print" style="width: 14px; height: 14px;">
+                    <a href="<?php echo e(route('receipts.print', $receipt->id)); ?>" target="_blank" style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;" title="Print">
+                      <img src="<?php echo e(asset('action_icon/generate.svg')); ?>" alt="print" style="width: 14px; height: 14px;">
                     </a>
-                    <a href="{{ route('receipts.show', $receipt->id) }}" style="width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;" title="View">
-                      <img src="{{ asset('action_icon/show.svg') }}" alt="view" style="width: 14px; height: 14px;">
+                    <a href="<?php echo e(route('receipts.show', $receipt->id)); ?>" style="width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;" title="View">
+                      <img src="<?php echo e(asset('action_icon/show.svg')); ?>" alt="view" style="width: 14px; height: 14px;">
                     </a>
                   </div>
                 </td>
               </tr>
-              @empty
+              <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
               <tr>
                 <td colspan="9" style="padding: 20px; text-align: center; color: #6b7280;">No receipts found for this company.</td>
               </tr>
-              @endforelse
+              <?php endif; ?>
             </tbody>
           </table>
         </div>
@@ -842,16 +843,17 @@
               </tr>
             </thead>
             <tbody>
-              @forelse($projects as $index => $project)
+              <?php $__empty_1 = true; $__currentLoopData = $projects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $project): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
               <tr style="border-bottom: 1px solid #f3f4f6;">
-                <td style="padding: 12px; color: #374151;">{{ $index + 1 }}</td>
+                <td style="padding: 12px; color: #374151;"><?php echo e($index + 1); ?></td>
                 <td style="padding: 12px; color: #374151;">
-                  <a href="{{ route('projects.show', $project->id) }}" style="color: #3b82f6; text-decoration: none;">
-                    {{ Str::limit($project->name, 30) }}
+                  <a href="<?php echo e(route('projects.show', $project->id)); ?>" style="color: #3b82f6; text-decoration: none;">
+                    <?php echo e(Str::limit($project->name, 30)); ?>
+
                   </a>
                 </td>
                 <td style="padding: 12px; color: #374151;">
-                  @php
+                  <?php
                     $statusColors = [
                       'pending' => 'background: #fef3c7; color: #92400e;',
                       'in_progress' => 'background: #dbeafe; color: #1e40af;',
@@ -859,44 +861,44 @@
                       'on_hold' => 'background: #fee2e2; color: #991b1b;',
                     ];
                     $statusColor = $statusColors[$project->status] ?? 'background: #f3f4f6; color: #374151;';
-                  @endphp
-                  <span style="{{ $statusColor }} padding: 2px 8px; border-radius: 4px; font-size: 12px;">{{ ucfirst(str_replace('_', ' ', $project->status ?? 'N/A')) }}</span>
+                  ?>
+                  <span style="<?php echo e($statusColor); ?> padding: 2px 8px; border-radius: 4px; font-size: 12px;"><?php echo e(ucfirst(str_replace('_', ' ', $project->status ?? 'N/A'))); ?></span>
                 </td>
                 <td style="padding: 12px; color: #374151;">
-                  @php
+                  <?php
                     $priorityColors = [
                       'low' => 'background: #dcfce7; color: #166534;',
                       'medium' => 'background: #fef3c7; color: #92400e;',
                       'high' => 'background: #fee2e2; color: #991b1b;',
                     ];
                     $priorityColor = $priorityColors[$project->priority] ?? 'background: #f3f4f6; color: #374151;';
-                  @endphp
-                  <span style="{{ $priorityColor }} padding: 2px 8px; border-radius: 4px; font-size: 12px;">{{ ucfirst($project->priority ?? 'N/A') }}</span>
+                  ?>
+                  <span style="<?php echo e($priorityColor); ?> padding: 2px 8px; border-radius: 4px; font-size: 12px;"><?php echo e(ucfirst($project->priority ?? 'N/A')); ?></span>
                 </td>
-                <td style="padding: 12px; color: #374151;">{{ $project->start_date ? $project->start_date->format('d/m/Y') : '-' }}</td>
-                <td style="padding: 12px; color: #374151;">{{ $project->due_date ? $project->due_date->format('d/m/Y') : '-' }}</td>
+                <td style="padding: 12px; color: #374151;"><?php echo e($project->start_date ? $project->start_date->format('d/m/Y') : '-'); ?></td>
+                <td style="padding: 12px; color: #374151;"><?php echo e($project->due_date ? $project->due_date->format('d/m/Y') : '-'); ?></td>
                 <td style="padding: 12px; color: #374151;">
                   <div style="display: flex; align-items: center; gap: 8px;">
                     <div style="width: 60px; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden;">
-                      <div style="width: {{ $project->progress }}%; height: 100%; background: #22c55e;"></div>
+                      <div style="width: <?php echo e($project->progress); ?>%; height: 100%; background: #22c55e;"></div>
                     </div>
-                    <span style="font-size: 12px;">{{ $project->progress }}%</span>
+                    <span style="font-size: 12px;"><?php echo e($project->progress); ?>%</span>
                   </div>
                 </td>
-                <td style="padding: 12px; color: #374151;">{{ $project->budget ? number_format($project->budget, 2) : '-' }}</td>
+                <td style="padding: 12px; color: #374151;"><?php echo e($project->budget ? number_format($project->budget, 2) : '-'); ?></td>
                 <td style="padding: 12px;">
                   <div style="display: flex; gap: 8px; align-items: center;">
-                    <a href="{{ route('projects.show', $project->id) }}" style="width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;" title="View">
-                      <img src="{{ asset('action_icon/show.svg') }}" alt="view" style="width: 14px; height: 14px;">
+                    <a href="<?php echo e(route('projects.show', $project->id)); ?>" style="width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;" title="View">
+                      <img src="<?php echo e(asset('action_icon/show.svg')); ?>" alt="view" style="width: 14px; height: 14px;">
                     </a>
                   </div>
                 </td>
               </tr>
-              @empty
+              <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
               <tr>
                 <td colspan="9" style="padding: 20px; text-align: center; color: #6b7280;">No projects found for this company.</td>
               </tr>
-              @endforelse
+              <?php endif; ?>
             </tbody>
           </table>
         </div>
@@ -919,16 +921,17 @@
               </tr>
             </thead>
             <tbody>
-              @forelse($tickets as $index => $ticket)
+              <?php $__empty_1 = true; $__currentLoopData = $tickets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $ticket): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
               <tr style="border-bottom: 1px solid #f3f4f6;">
-                <td style="padding: 12px; color: #374151;">{{ $index + 1 }}</td>
+                <td style="padding: 12px; color: #374151;"><?php echo e($index + 1); ?></td>
                 <td style="padding: 12px; color: #374151;">
-                  <a href="{{ route('tickets.show', $ticket->id) }}" style="color: #3b82f6; text-decoration: none;">
-                    {{ $ticket->ticket_no ?? '-' }}
+                  <a href="<?php echo e(route('tickets.show', $ticket->id)); ?>" style="color: #3b82f6; text-decoration: none;">
+                    <?php echo e($ticket->ticket_no ?? '-'); ?>
+
                   </a>
                 </td>
                 <td style="padding: 12px;">
-                  @php
+                  <?php
                     $ticketStatusColors = [
                       'open' => 'color: #3b82f6;',
                       'pending' => 'color: #ef4444;',
@@ -937,11 +940,11 @@
                       'resolved' => 'color: #22c55e;',
                     ];
                     $ticketStatusColor = $ticketStatusColors[strtolower($ticket->status ?? '')] ?? 'color: #374151;';
-                  @endphp
-                  <span style="{{ $ticketStatusColor }} font-weight: 600;">{{ ucfirst(str_replace('_', ' ', $ticket->status ?? 'N/A')) }}</span>
+                  ?>
+                  <span style="<?php echo e($ticketStatusColor); ?> font-weight: 600;"><?php echo e(ucfirst(str_replace('_', ' ', $ticket->status ?? 'N/A'))); ?></span>
                 </td>
                 <td style="padding: 12px;">
-                  @php
+                  <?php
                     $workStatusColors = [
                       'completed' => 'color: #22c55e;',
                       'in_progress' => 'color: #3b82f6;',
@@ -949,12 +952,12 @@
                       'not_started' => 'color: #f59e0b;',
                     ];
                     $workStatusColor = $workStatusColors[strtolower($ticket->work_status ?? '')] ?? 'color: #374151;';
-                  @endphp
-                  <span style="{{ $workStatusColor }}">{{ ucfirst(str_replace('_', ' ', $ticket->work_status ?? 'N/A')) }}</span>
+                  ?>
+                  <span style="<?php echo e($workStatusColor); ?>"><?php echo e(ucfirst(str_replace('_', ' ', $ticket->work_status ?? 'N/A'))); ?></span>
                 </td>
-                <td style="padding: 12px; color: #374151;">{{ $ticket->category ?? '-' }}</td>
+                <td style="padding: 12px; color: #374151;"><?php echo e($ticket->category ?? '-'); ?></td>
                 <td style="padding: 12px; color: #374151;">
-                  @php
+                  <?php
                     $ticketPriorityColors = [
                       'low' => 'background: #dcfce7; color: #166534;',
                       'medium' => 'background: #fef3c7; color: #92400e;',
@@ -962,23 +965,23 @@
                       'urgent' => 'background: #fee2e2; color: #991b1b;',
                     ];
                     $ticketPriorityColor = $ticketPriorityColors[strtolower($ticket->priority ?? '')] ?? 'background: #f3f4f6; color: #374151;';
-                  @endphp
-                  <span style="{{ $ticketPriorityColor }} padding: 2px 8px; border-radius: 4px; font-size: 12px;">{{ ucfirst($ticket->priority ?? 'N/A') }}</span>
+                  ?>
+                  <span style="<?php echo e($ticketPriorityColor); ?> padding: 2px 8px; border-radius: 4px; font-size: 12px;"><?php echo e(ucfirst($ticket->priority ?? 'N/A')); ?></span>
                 </td>
-                <td style="padding: 12px; color: #374151;">{{ Str::limit($ticket->title ?? $ticket->subject, 25) }}</td>
+                <td style="padding: 12px; color: #374151;"><?php echo e(Str::limit($ticket->title ?? $ticket->subject, 25)); ?></td>
                 <td style="padding: 12px;">
                   <div style="display: flex; gap: 4px; align-items: center;">
-                    <a href="{{ route('tickets.show', $ticket->id) }}" style="width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;" title="View">
-                      <img src="{{ asset('action_icon/show.svg') }}" alt="view" style="width: 14px; height: 14px;">
+                    <a href="<?php echo e(route('tickets.show', $ticket->id)); ?>" style="width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;" title="View">
+                      <img src="<?php echo e(asset('action_icon/show.svg')); ?>" alt="view" style="width: 14px; height: 14px;">
                     </a>
                   </div>
                 </td>
               </tr>
-              @empty
+              <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
               <tr>
                 <td colspan="8" style="padding: 20px; text-align: center; color: #6b7280;">No tickets found for this company.</td>
               </tr>
-              @endforelse
+              <?php endif; ?>
             </tbody>
           </table>
         </div>
@@ -1072,7 +1075,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Upload documents function
 function uploadDocuments(files) {
   var formData = new FormData();
-  formData.append('_token', '{{ csrf_token() }}');
+  formData.append('_token', '<?php echo e(csrf_token()); ?>');
   
   for (var i = 0; i < files.length; i++) {
     formData.append('documents[]', files[i]);
@@ -1083,7 +1086,7 @@ function uploadDocuments(files) {
     uploadArea.innerHTML = '<span style="color: white; font-size: 14px;">Uploading...</span>';
   }
   
-  fetch('{{ route("companies.documents.upload", $company->id) }}', {
+  fetch('<?php echo e(route("companies.documents.upload", $company->id)); ?>', {
     method: 'POST',
     body: formData,
     headers: {
@@ -1127,10 +1130,10 @@ function deleteDocument(documentId) {
     return;
   }
   
-  fetch('{{ url("companies/" . $company->id . "/documents") }}/' + documentId, {
+  fetch('<?php echo e(url("companies/" . $company->id . "/documents")); ?>/' + documentId, {
     method: 'DELETE',
     headers: {
-      'X-CSRF-TOKEN': '{{ csrf_token() }}',
+      'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
       'X-Requested-With': 'XMLHttpRequest',
       'Content-Type': 'application/json'
     }
@@ -1154,4 +1157,6 @@ function deleteDocument(documentId) {
 }
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.macos', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\GitVraj\HrPortal\resources\views/companies/show.blade.php ENDPATH**/ ?>
