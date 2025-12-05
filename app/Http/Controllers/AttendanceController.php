@@ -14,8 +14,9 @@ class AttendanceController extends Controller
     {
         $today = now()->toDateString();
         $employee = Employee::where('user_id', Auth::id())->first();
+        // Get the latest attendance entry for today
         $attendance = $employee
-            ? Attendance::where('employee_id', $employee->id)->whereDate('date', $today)->first()
+            ? Attendance::where('employee_id', $employee->id)->whereDate('date', $today)->latest('created_at')->first()
             : null;
 
         return view('attendance.index', [
@@ -26,10 +27,18 @@ class AttendanceController extends Controller
 
     public function checkPage()
     {
+        // Check permission
+        if (!auth()->user()->can('Attendance Management.check in') && 
+            !auth()->user()->can('Attendance Management.check out') &&
+            !auth()->user()->can('Attendance Management.view own attendance')) {
+            abort(403, 'Unauthorized to access attendance check-in/out.');
+        }
+        
         $today = now()->toDateString();
         $employee = Employee::where('user_id', Auth::id())->first();
+        // Get the latest attendance entry for today
         $attendance = $employee
-            ? Attendance::where('employee_id', $employee->id)->whereDate('date', $today)->first()
+            ? Attendance::where('employee_id', $employee->id)->whereDate('date', $today)->latest('created_at')->first()
             : null;
 
         return view('attendance.check', [
@@ -39,6 +48,90 @@ class AttendanceController extends Controller
         ]);
     }
     /**
+     * Get current attendance status for the day
+     */
+    public function getCurrentStatus()
+    {
+        $today = now()->format('Y-m-d');
+        $employee = Employee::where('user_id', auth()->id())->first();
+        
+        if (!$employee) {
+            return response()->json([
+                'has_checked_in' => false,
+                'has_checked_out' => false,
+                'can_check_in' => true,
+                'message' => 'Employee profile not found'
+            ]);
+        }
+
+        // Get the latest attendance record for today
+        $attendance = Attendance::where('employee_id', $employee->id)
+            ->whereDate('date', $today)
+            ->latest('created_at')
+            ->first();
+
+        if (!$attendance) {
+            return response()->json([
+                'has_checked_in' => false,
+                'has_checked_out' => false,
+                'can_check_in' => true,
+                'message' => 'Ready to check in'
+            ]);
+        }
+
+        $canCheckIn = true;
+        $message = '';
+
+        // If checked in but not checked out - currently working
+        if ($attendance->check_in && !$attendance->check_out) {
+            $canCheckIn = false;
+            $message = 'Already checked in. Please check out first.';
+        }
+        // If checked out - check 5-minute cooldown
+        elseif ($attendance->check_out) {
+            $lastCheckOut = Carbon::parse($attendance->check_out);
+            $now = now();
+            $secondsSinceCheckOut = abs($now->diffInSeconds($lastCheckOut));
+            
+            if ($secondsSinceCheckOut < 300) { // 300 seconds = 5 minutes
+                $canCheckIn = false;
+                $remainingSeconds = 300 - $secondsSinceCheckOut;
+                $remainingMinutes = ceil($remainingSeconds / 60);
+                $message = "Please wait {$remainingMinutes} minute(s) before checking in again.";
+            } else {
+                // Cooldown expired - can check in again
+                $canCheckIn = true;
+                $message = 'Ready to check in again';
+            }
+        }
+
+        // Get all attendance entries for today to calculate total hours
+        $allAttendances = Attendance::where('employee_id', $employee->id)
+            ->whereDate('date', $today)
+            ->get();
+        
+        $totalMinutes = 0;
+        foreach ($allAttendances as $att) {
+            if ($att->check_in && $att->check_out) {
+                $totalMinutes += Carbon::parse($att->check_in)->diffInMinutes(Carbon::parse($att->check_out));
+            }
+        }
+        
+        $hours = floor($totalMinutes / 60);
+        $minutes = $totalMinutes % 60;
+        $totalHours = sprintf('%02d:%02d', $hours, $minutes);
+
+        return response()->json([
+            'has_checked_in' => (bool) $attendance->check_in,
+            'has_checked_out' => (bool) $attendance->check_out,
+            'can_check_in' => $canCheckIn,
+            'message' => $message,
+            'total_hours' => $totalHours,
+            'entries_count' => $allAttendances->count()
+        ]);
+    }
+
+    /**
      * Check if user has already checked in today
      */
     public function checkStatus()
@@ -46,7 +139,7 @@ class AttendanceController extends Controller
         $today = now()->format('Y-m-d');
         $employee = Employee::where('user_id', auth()->id())->first();
         $attendance = $employee
-            ? Attendance::where('employee_id', $employee->id)->whereDate('date', $today)->first()
+            ? Attendance::where('employee_id', $employee->id)->whereDate('date', $today)->latest('created_at')->first()
             : null;
 
         return response()->json([
@@ -62,50 +155,107 @@ class AttendanceController extends Controller
      */
     public function checkIn(Request $request)
     {
+        // Check permission
+        if (!auth()->user()->can('Attendance Management.check in') && 
+            !auth()->user()->can('Attendance Management.create attendance')) {
+            return $request->expectsJson()
+                ? response()->json(['success' => false, 'message' => 'Unauthorized to check in'], 403)
+                : back()->with('error', 'Unauthorized to check in');
+        }
+        
         $today = now()->format('Y-m-d');
         
         // Resolve current employee
         $employee = Employee::where('user_id', auth()->id())->first();
         
-        // Check if already checked in today for this employee
-        $existing = $employee ? Attendance::where('employee_id', $employee->id)
-            ->whereDate('date', $today)
-            ->first() : null;
-
-        if ($existing && $existing->check_in) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You have already checked in today.'
-                ], 400);
-            }
-            return back()->with('error', 'You have already checked in today.');
-        }
-
         if (!$employee) {
             return $request->expectsJson()
                 ? response()->json(['success' => false, 'message' => 'Employee profile not found'], 400)
                 : back()->with('error', 'Employee profile not found');
         }
 
-        $attendance = $existing ?? new Attendance();
-        $attendance->employee_id = $employee->id;
-        $attendance->date = $today;
-        $attendance->check_in = Carbon::now(); // Use Carbon::now() for current timestamp
-        $attendance->status = 'present';
-        $attendance->check_in_ip = $request->ip();
-        try { $attendance->check_in_location = $this->getLocation($request->ip()); } catch (\Throwable $e) { $attendance->check_in_location = 'Location not available'; }
-        $attendance->save();
+        // Get the latest attendance record for today
+        $attendance = Attendance::where('employee_id', $employee->id)
+            ->whereDate('date', $today)
+            ->latest('created_at')
+            ->first();
 
-        // If the client is AJAX (API), return JSON; otherwise redirect with flash
+        // If no attendance record exists, create new one
+        if (!$attendance) {
+            $attendance = new Attendance();
+            $attendance->employee_id = $employee->id;
+            $attendance->date = $today;
+            $attendance->check_in = Carbon::now();
+            $attendance->status = 'present';
+            $attendance->check_in_ip = $request->ip();
+            try { $attendance->check_in_location = $this->getLocation($request->ip()); } catch (\Throwable $e) { $attendance->check_in_location = 'Location not available'; }
+            $attendance->save();
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Successfully checked in at ' . now()->format('h:i A'),
+                    'attendance' => $attendance
+                ]);
+            }
+            return back()->with('success', 'Successfully checked in at ' . now()->format('h:i A'));
+        }
+
+        // If already checked in and not checked out, prevent re-check-in
+        if ($attendance->check_in && !$attendance->check_out) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are already checked in. Please check out first.'
+                ], 400);
+            }
+            return back()->with('error', 'You are already checked in. Please check out first.');
+        }
+
+        // If already checked out, check 5-minute cooldown before re-check-in
+        if ($attendance->check_out) {
+            $lastCheckOut = Carbon::parse($attendance->check_out);
+            $secondsSinceCheckOut = abs(now()->diffInSeconds($lastCheckOut));
+            
+            if ($secondsSinceCheckOut < 300) { // 300 seconds = 5 minutes
+                $remainingSeconds = 300 - $secondsSinceCheckOut;
+                $remainingMinutes = ceil($remainingSeconds / 60);
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Please wait {$remainingMinutes} minute(s) before checking in again."
+                    ], 400);
+                }
+                return back()->with('error', "Please wait {$remainingMinutes} minute(s) before checking in again.");
+            }
+
+            // Re-check-in after checkout: create a new attendance entry for the new cycle
+            $newAttendance = new Attendance();
+            $newAttendance->employee_id = $employee->id;
+            $newAttendance->date = $today;
+            $newAttendance->check_in = Carbon::now();
+            $newAttendance->status = 'present';
+            $newAttendance->check_in_ip = $request->ip();
+            try { $newAttendance->check_in_location = $this->getLocation($request->ip()); } catch (\Throwable $e) { $newAttendance->check_in_location = 'Location not available'; }
+            $newAttendance->save();
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Successfully checked in at ' . now()->format('h:i A'),
+                    'attendance' => $newAttendance
+                ]);
+            }
+            return back()->with('success', 'Successfully checked in at ' . now()->format('h:i A'));
+        }
+
         if ($request->ajax()) {
             return response()->json([
-                'success' => true,
-                'message' => 'Successfully checked in at ' . now()->format('h:i A'),
-                'attendance' => $attendance
-            ]);
+                'success' => false,
+                'message' => 'Invalid attendance state.'
+            ], 400);
         }
-        return back()->with('success', 'Successfully checked in at ' . now()->format('h:i A'));
+        return back()->with('error', 'Invalid attendance state.');
     }
 
     /**
@@ -113,13 +263,33 @@ class AttendanceController extends Controller
      */
     public function checkOut(Request $request)
     {
+        // Check permission
+        if (!auth()->user()->can('Attendance Management.check out') && 
+            !auth()->user()->can('Attendance Management.edit attendance')) {
+            return $request->expectsJson()
+                ? response()->json(['success' => false, 'message' => 'Unauthorized to check out'], 403)
+                : back()->with('error', 'Unauthorized to check out');
+        }
+        
         $today = now()->format('Y-m-d');
         $employee = Employee::where('user_id', auth()->id())->first();
+        // Get the latest attendance entry for today (the active one)
         $attendance = $employee ? Attendance::where('employee_id', $employee->id)
             ->whereDate('date', $today)
+            ->latest('created_at')
             ->first() : null;
 
         if (!$attendance) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You need to check in first.'
+                ], 400);
+            }
+            return back()->with('error', 'You need to check in first.');
+        }
+
+        if (!$attendance->check_in) {
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
@@ -133,18 +303,37 @@ class AttendanceController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'You have already checked out today.'
+                    'message' => 'You have already checked out. Please check in again if needed.'
                 ], 400);
             }
-            return back()->with('error', 'You have already checked out today.');
+            return back()->with('error', 'You have already checked out. Please check in again if needed.');
         }
 
-        $checkOut = Carbon::now(); // Use Carbon::now() for current timestamp
+        $checkOut = Carbon::now();
         $attendance->check_out = $checkOut;
-        // compute and store formatted total working hours
-        $attendance->total_working_hours = $attendance->calculateWorkingHours();
-        // Auto-calculate status based on check-in/out times
-        $attendance->status = $attendance->autoCalculateStatus();
+        
+        // Calculate total working hours from all entries for today
+        $allAttendances = Attendance::where('employee_id', $employee->id)
+            ->whereDate('date', $today)
+            ->get();
+        
+        $totalMinutes = 0;
+        foreach ($allAttendances as $att) {
+            if ($att->id === $attendance->id) {
+                // For current entry, use the new check_out time
+                $totalMinutes += Carbon::parse($att->check_in)->diffInMinutes($checkOut);
+            } elseif ($att->check_in && $att->check_out) {
+                // For other entries, use their stored times
+                $totalMinutes += Carbon::parse($att->check_in)->diffInMinutes(Carbon::parse($att->check_out));
+            }
+        }
+        
+        // Convert to hours:minutes format
+        $hours = floor($totalMinutes / 60);
+        $minutes = $totalMinutes % 60;
+        $attendance->total_working_hours = sprintf('%02d:%02d', $hours, $minutes);
+        
+        $attendance->status = 'present';
         $attendance->check_out_ip = $request->ip();
         try { $attendance->check_out_location = $this->getLocation($request->ip()); } catch (\Throwable $e) { $attendance->check_out_location = 'Location not available'; }
         $attendance->save();
@@ -158,6 +347,20 @@ class AttendanceController extends Controller
             ]);
         }
         return back()->with('success', 'Successfully checked out at ' . $checkOut->format('h:i A'));
+    }
+
+    /**
+     * Calculate duration between two times in minutes
+     */
+    private function calculateDuration($checkIn, $checkOut)
+    {
+        try {
+            $in = Carbon::parse($checkIn);
+            $out = Carbon::parse($checkOut);
+            return $in->diffInMinutes($out);
+        } catch (\Exception $e) {
+            return 0;
+        }
     }
 
     /**
@@ -235,5 +438,33 @@ class AttendanceController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    /**
+     * Print attendance record
+     */
+    public function print($id)
+    {
+        // Check permission - allow if user has any of these permissions
+        if (!auth()->check() || !(
+            auth()->user()->hasRole('super-admin') || 
+            auth()->user()->can('Attendance Management.view attendance') ||
+            auth()->user()->can('Attendance Management.print attendance report') ||
+            auth()->user()->can('Attendance Management.view own attendance')
+        )) {
+            abort(403, 'Unauthorized to print attendance.');
+        }
+
+        $attendance = Attendance::with('employee.user')->findOrFail($id);
+
+        // Check access: employees can only print their own attendance
+        if (auth()->user()->hasRole('employee')) {
+            $employee = Employee::where('user_id', auth()->id())->first();
+            if (!$employee || $attendance->employee_id != $employee->id) {
+                abort(403, 'Unauthorized to print this attendance record.');
+            }
+        }
+
+        return view('attendance.print', compact('attendance'));
     }
 }

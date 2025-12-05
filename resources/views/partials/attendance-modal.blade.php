@@ -13,6 +13,9 @@
                 <div id="attendanceStatus" class="mb-4">
                     <div id="timeDisplay" class="display-4 mb-3">00:00:00</div>
                     <div id="statusMessage" class="h5">Ready to start tracking</div>
+                    <div id="totalHours" class="text-muted mt-2" style="display: none;">
+                        <small>Total Hours Today: <strong id="totalHoursValue">00:00</strong></small>
+                    </div>
                 </div>
                 
                 <div class="d-flex justify-content-center gap-3 mb-4">
@@ -22,6 +25,12 @@
                     <button id="stopBtn" class="btn btn-danger btn-lg px-4" disabled>
                         <i class="fas fa-sign-out-alt me-2"></i> Check Out
                     </button>
+                </div>
+
+                <!-- Cycles Display -->
+                <div id="cyclesContainer" style="display: none; margin-top: 20px; text-align: left;">
+                    <h6 class="mb-3">Today's Check-In/Out Cycles:</h6>
+                    <div id="cyclesList" class="list-group list-group-sm"></div>
                 </div>
                 
                 <div class="form-group text-left">
@@ -49,19 +58,57 @@ document.addEventListener('DOMContentLoaded', function() {
     let timer = null;
     let isTracking = false;
     
-    // Check if user has an active session
+    // Attendance Button Click Handler
+    const attendanceBtn = document.getElementById('attendanceBtn');
+    if (attendanceBtn) {
+        attendanceBtn.addEventListener('click', function() {
+            // Check status when modal is opened
+            checkAttendanceStatus();
+            
+            // Show modal
+            const modal = document.getElementById('attendanceModal');
+            modal.style.display = 'flex';
+            const backdrop = modal.querySelector('.modal-backdrop');
+            backdrop.style.display = 'block';
+            
+            // Add body class
+            document.body.classList.add('modal-open');
+            
+            // Set focus to modal
+            modal.focus();
+        });
+    }
+    
+    // Start button click handler
+    startBtn.addEventListener('click', function() {
+        startTracking();
+    });
+    
+    // Stop button click handler
+    stopBtn.addEventListener('click', function() {
+        stopTracking();
+    });
+    
+    // Check initial status on page load
     checkAttendanceStatus();
     
-    // Attendance Button Click Handler
-    document.getElementById('attendanceBtn').addEventListener('click', function() {
-      showAttendanceModal();
-        
-        // Add body class
-        document.body.classList.add('modal-open');
-        
-        // Set focus to modal
-        modal.focus();
-    }
+    // Refresh status every 10 seconds if modal is open
+    // Also refresh every 1 second if in cooldown state to catch when cooldown expires
+    setInterval(function() {
+        const modal = document.getElementById('attendanceModal');
+        if (modal && modal.style.display === 'flex') {
+            checkAttendanceStatus();
+        }
+    }, 10000);
+    
+    // Aggressive refresh every 1 second when modal is open to catch cooldown expiry
+    setInterval(function() {
+        const modal = document.getElementById('attendanceModal');
+        const startBtn = document.getElementById('startBtn');
+        if (modal && modal.style.display === 'flex' && startBtn.disabled) {
+            checkAttendanceStatus();
+        }
+    }, 1000);
     
     // Hide modal function
     function hideAttendanceModal() {
@@ -135,12 +182,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Get the notes before resetting
         const notes = notesInput.value;
         
+        // Send check-out request to server with notes
+        saveAttendance('check-out', notes);
+        
         // Reset after a short delay
         setTimeout(() => {
             resetTimer();
-            
-            // Send check-out request to server with notes
-            saveAttendance('check-out', notes);
             
             // Close the modal after a short delay
             $('#attendanceModal').modal('hide');
@@ -179,21 +226,81 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function checkAttendanceStatus() {
-        const savedTime = localStorage.getItem('attendanceStartTime');
-        if (savedTime) {
-            startTime = new Date(parseInt(savedTime));
-            isTracking = true;
+        // Check server status
+        fetch('{{ route("attendance.current-status") }}', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Attendance Status:', data);
             
-            // Update UI
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-            statusMessage.textContent = 'Tracking time...';
-            statusMessage.className = 'h5 text-success';
-            
-            // Start timer
-            updateTimer();
-            timer = setInterval(updateTimer, 1000);
-        }
+            // Update UI based on server status
+            if (data.has_checked_in && !data.has_checked_out) {
+                // Currently checked in
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                statusMessage.textContent = 'You are checked in. Click Check Out to end your session.';
+                statusMessage.className = 'h5 text-info';
+                isTracking = true;
+            } else if (data.has_checked_out && !data.can_check_in) {
+                // Checked out but within 5-minute cooldown
+                startBtn.disabled = true;
+                stopBtn.disabled = true;
+                statusMessage.textContent = data.message;
+                statusMessage.className = 'h5 text-warning';
+                isTracking = false;
+            } else if (data.can_check_in) {
+                // Can check in
+                console.log('Enabling check-in button');
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                statusMessage.textContent = data.message || 'Ready to start tracking';
+                statusMessage.className = 'h5';
+                isTracking = false;
+            } else {
+                // Default state
+                console.log('Default state - enabling check-in');
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                statusMessage.textContent = 'Ready to start tracking';
+                statusMessage.className = 'h5';
+                isTracking = false;
+            }
+
+            // Display total hours if available
+            if (data.total_hours) {
+                document.getElementById('totalHoursValue').textContent = data.total_hours;
+                document.getElementById('totalHours').style.display = 'block';
+            }
+
+            // Display cycles if available
+            if (data.cycles && data.cycles.length > 0) {
+                updateCyclesDisplay({ cycles: JSON.stringify(data.cycles) });
+            }
+        })
+        .catch(error => {
+            console.error('Error checking attendance status:', error);
+            // Fallback to localStorage
+            const savedTime = localStorage.getItem('attendanceStartTime');
+            if (savedTime) {
+                startTime = new Date(parseInt(savedTime));
+                isTracking = true;
+                
+                // Update UI
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                statusMessage.textContent = 'Tracking time...';
+                statusMessage.className = 'h5 text-success';
+                
+                // Start timer
+                updateTimer();
+                timer = setInterval(updateTimer, 1000);
+            }
+        });
     }
     
     function saveAttendance(type, notes = '') {
@@ -229,7 +336,24 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.error) {
                 throw new Error(data.error);
             }
-            // Success - button state will be updated by the calling function
+            console.log('Attendance saved successfully:', data);
+            
+            // Update cycles display if available
+            if (data.attendance && data.attendance.cycles) {
+                updateCyclesDisplay(data.attendance);
+            }
+            if (data.total_hours) {
+                document.getElementById('totalHoursValue').textContent = data.total_hours;
+                document.getElementById('totalHours').style.display = 'block';
+            }
+            
+            // Restore button HTML
+            button.innerHTML = originalHtml;
+            
+            // Refresh status after successful save
+            setTimeout(() => {
+                checkAttendanceStatus();
+            }, 500);
         })
         .catch(error => {
             console.error('Error:', error);
@@ -247,13 +371,48 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 5000);
             
             // Reset button state
-            if (type === 'check-in') {
-                resetTimer();
-            } else {
-                button.disabled = false;
-                button.innerHTML = originalHtml;
-            }
+            button.disabled = false;
+            button.innerHTML = originalHtml;
+            
+            // Refresh status
+            checkAttendanceStatus();
         });
+    }
+
+    function updateCyclesDisplay(attendance) {
+        const cyclesContainer = document.getElementById('cyclesContainer');
+        const cyclesList = document.getElementById('cyclesList');
+        
+        if (!attendance.cycles || attendance.cycles.length === 0) {
+            cyclesContainer.style.display = 'none';
+            return;
+        }
+
+        cyclesList.innerHTML = '';
+        const cycles = JSON.parse(attendance.cycles);
+        
+        cycles.forEach((cycle, index) => {
+            const checkIn = new Date(cycle.check_in);
+            const checkOut = new Date(cycle.check_out);
+            const duration = cycle.duration || 0;
+            const hours = Math.floor(duration / 60);
+            const minutes = duration % 60;
+            
+            const cycleItem = document.createElement('div');
+            cycleItem.className = 'list-group-item';
+            cycleItem.innerHTML = `
+                <div class="d-flex justify-content-between">
+                    <span><strong>Cycle ${index + 1}:</strong></span>
+                    <span>${hours}h ${minutes}m</span>
+                </div>
+                <small class="text-muted">
+                    ${checkIn.toLocaleTimeString()} - ${checkOut.toLocaleTimeString()}
+                </small>
+            `;
+            cyclesList.appendChild(cycleItem);
+        });
+        
+        cyclesContainer.style.display = 'block';
     }
 });
 </script>

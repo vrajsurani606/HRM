@@ -17,7 +17,16 @@ class InvoiceController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $query = Invoice::with('proforma');
+        
+        // Filter by role: customers see only their company's invoices
+        if ($user->hasRole('customer') && $user->company_id) {
+            $company = $user->company;
+            if ($company) {
+                $query->where('company_name', $company->company_name);
+            }
+        }
         
         // Handle sorting
         $sortBy = $request->get('sort', 'created_at');
@@ -71,7 +80,16 @@ class InvoiceController extends Controller
         }
         
         try {
+            $user = auth()->user();
             $query = Invoice::with('proforma')->orderBy('created_at', 'desc');
+            
+            // Filter by role: customers see only their company's invoices
+            if ($user->hasRole('customer') && $user->company_id) {
+                $company = $user->company;
+                if ($company) {
+                    $query->where('company_name', $company->company_name);
+                }
+            }
             
             // Apply filters if provided
             if ($request->filled('search')) {
@@ -112,7 +130,16 @@ class InvoiceController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $query = Invoice::with('proforma')->latest();
+
+        // Filter by role: customers see only their company's invoices
+        if ($user->hasRole('customer') && $user->company_id) {
+            $company = $user->company;
+            if ($company) {
+                $query->where('company_name', $company->company_name);
+            }
+        }
 
         if ($request->filled('from_date')) {
             $query->whereDate('invoice_date', '>=', $request->input('from_date'));

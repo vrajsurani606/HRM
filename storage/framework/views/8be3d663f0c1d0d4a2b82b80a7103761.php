@@ -1,0 +1,698 @@
+<?php $__env->startSection('page_title', 'Quotation List'); ?>
+
+<?php $__env->startPush('head'); ?>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<?php $__env->stopPush(); ?>
+
+<?php $__env->startPush('styles'); ?>
+<style>
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-draft {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-confirmed {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-completed {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-cancelled {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+</style>
+<?php $__env->stopPush(); ?>
+
+<?php $__env->startSection('content'); ?>
+<div class="inquiry-index-container">
+  <!-- JV Filter -->
+  <form method="GET" action="<?php echo e(route('quotations.index')); ?>" class="jv-filter" id="filterForm">
+    <input type="text" placeholder="Quotation No" class="filter-pill" name="quotation_no" value="<?php echo e(request('quotation_no')); ?>">
+    <input type="text" placeholder="From : dd/mm/yyyy" class="filter-pill date-picker" name="from_date" value="<?php echo e(request('from_date')); ?>" autocomplete="off">
+    <input type="text" placeholder="To : dd/mm/yyyy" class="filter-pill date-picker" name="to_date" value="<?php echo e(request('to_date')); ?>" autocomplete="off">
+    <button type="submit" class="filter-search" aria-label="Search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
+        <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" />
+      </svg>
+    </button>
+
+    <div class="filter-right">
+      <div class="view-toggle-group" style="margin-right:8px;">
+        <button class="view-toggle-btn" data-view="grid" title="Grid View" aria-label="Grid View">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+          </svg>
+        </button>
+        <button class="view-toggle-btn active" data-view="list" title="List View" aria-label="List View">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <input type="text" id="globalSearch" placeholder="Search here.." class="filter-pill" name="search" value="<?php echo e(request('search')); ?>">
+      <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.export quotation')): ?>
+        <a href="<?php echo e(route('quotations.export.csv', request()->only(['quotation_no','from_date','to_date','search']))); ?>" class="pill-btn pill-success">Excel</a>
+      <?php endif; ?>
+      <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.create quotation')): ?>
+        <a href="<?php echo e(route('quotations.create')); ?>" class="pill-btn pill-success">+ Add</a>
+      <?php endif; ?>
+    </div>
+  </form>
+
+  <!-- Grid View -->
+  <div class="quotations-grid-view">
+    <?php $__empty_1 = true; $__currentLoopData = $quotations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $quotation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+      <?php
+        $isConfirmed = in_array($quotation->id, $confirmedQuotationIds ?? []);
+      ?>
+      <div class="quotation-grid-card" onclick="window.location.href='<?php echo e(route('quotations.show', $quotation->id)); ?>'" title="View quotation">
+        <div class="quotation-grid-header">
+          <h3 class="quotation-grid-title"><?php echo e($quotation->company_name ?? 'N/A'); ?></h3>
+          <span class="quotation-grid-badge"><?php echo e(ucfirst($quotation->status ?? 'Draft')); ?></span>
+        </div>
+        <p class="quotation-grid-sub">Code: <?php echo e($quotation->unique_code ?? 'N/A'); ?> • Updated: <?php echo e($quotation->updated_at ? $quotation->updated_at->format('d M, Y') : 'N/A'); ?></p>
+        <div class="quotation-grid-meta">
+          <div class="quotation-grid-left">
+            <div class="meta-row"><span class="meta-label">Mobile</span><span class="meta-value">
+              <?php
+                if($quotation->contact_number_1) {
+                  $mobile = $quotation->contact_number_1;
+                  $mobile = preg_replace('/^\+91/', '', $mobile);
+                  echo $mobile;
+                } else {
+                  echo 'N/A';
+                }
+              ?>
+            </span></div>
+            <div class="meta-row"><span class="meta-label">Next</span><span class="meta-value"><?php echo e($quotation->tentative_complete_date ? $quotation->tentative_complete_date->format('d M, Y') : '-'); ?></span></div>
+            <div class="meta-row">
+              <span class="meta-label">Confirm</span>
+              <span class="meta-value">
+                <?php if(in_array($quotation->id, $confirmedQuotationIds ?? [])): ?>
+                  <span style="color: #10b981; font-weight: 600;">✓ Yes</span>
+                <?php else: ?>
+                  <span style="color: #ef4444; font-weight: 600;">✗ No</span>
+                <?php endif; ?>
+              </span>
+            </div>
+          </div>
+          <div class="quotation-grid-actions" onclick="event.stopPropagation()">
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.view quotation')): ?>
+              <a class="quotation-grid-action-btn btn-view" href="<?php echo e(route('quotations.show', $quotation->id)); ?>" title="View" aria-label="View">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </a>
+            <?php endif; ?>
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.edit quotation')): ?>
+              <a class="quotation-grid-action-btn btn-edit" href="<?php echo e(route('quotations.edit', $quotation->id)); ?>" title="Edit" aria-label="Edit">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </a>
+            <?php endif; ?>
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.download quotation')): ?>
+              <a class="quotation-grid-action-btn btn-print" href="<?php echo e(route('quotations.download', $quotation->id)); ?>" target="_blank" title="Print" aria-label="Print">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+              </a>
+            <?php endif; ?>
+            <?php if($isConfirmed): ?>
+              <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.template list')): ?>
+                <a class="quotation-grid-action-btn btn-template" href="<?php echo e(route('quotations.template-list', $quotation->id)); ?>" title="View Template List" aria-label="View Template List">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </a>
+              <?php endif; ?>
+            <?php elseif(!$isConfirmed): ?>
+              <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.follow up')): ?>
+                <a class="quotation-grid-action-btn btn-followup" href="<?php echo e(route('quotation.follow-up', $quotation->id)); ?>" title="Follow Up" aria-label="Follow Up">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </a>
+              <?php endif; ?>
+            <?php endif; ?>
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.delete quotation')): ?>
+              <button type="button" onclick="confirmDelete(<?php echo e($quotation->id); ?>); event.stopPropagation();" class="quotation-grid-action-btn btn-delete" title="Delete" aria-label="Delete">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            <?php endif; ?>
+            <?php if($quotation->customer_type === 'new' && !$quotation->customer_id && $quotation->company_email && !in_array(strtolower(trim($quotation->company_email)), $existingCompanyEmails)): ?>
+              <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.convert to company')): ?>
+                <button type="button" class="quotation-grid-action-btn btn-convert" onclick="confirmConvertToCompany(<?php echo e($quotation->id); ?>, '<?php echo e(addslashes($quotation->company_name)); ?>', '<?php echo e(addslashes($quotation->company_email)); ?>', '<?php echo e(addslashes($quotation->company_password ?? '')); ?>'); event.stopPropagation();" title="Convert to Company" aria-label="Convert to Company">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                </button>
+              <?php endif; ?>
+            <?php endif; ?>
+          </div>
+        </div>
+      </div>
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+      <div class="text-center py-3">No quotations found</div>
+    <?php endif; ?>
+  </div>
+
+  <!-- List View -->
+  <div class="quotations-list-view active">
+    <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
+      <table style="table-layout: auto; width: 100%;">
+        <thead>
+          <tr>
+            <th style="text-align: center; width: 180px;">Action</th>
+            <th style="width: 70px;">Sr.No.</th>
+            <th style="width: 140px;">Code</th>
+            <th style="min-width: 200px;">Company Name</th>
+            <th style="width: 120px;">Mobile</th>
+            <th style="width: 110px;">Update</th>
+            <th style="width: 110px;">Next Update</th>
+            <th style="width: 80px; text-align: center;">Confirm</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php $__empty_1 = true; $__currentLoopData = $quotations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $quotation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+          <?php
+            $isConfirmed = in_array($quotation->id, $confirmedQuotationIds ?? []);
+          ?>
+          <tr>
+            <td style="text-align: center; vertical-align: middle;">
+              <div class="action-icons">
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.view quotation')): ?>
+                  <a href="<?php echo e(route('quotations.show', $quotation->id)); ?>" title="View Quotation" aria-label="View Quotation">
+                    <img class="action-icon" src="<?php echo e(asset('action_icon/view.svg')); ?>" alt="View">
+                  </a>
+                <?php endif; ?>
+
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.edit quotation')): ?>
+                  <a href="<?php echo e(route('quotations.edit', $quotation->id)); ?>" title="Edit Quotation" aria-label="Edit Quotation">
+                    <img class="action-icon" src="<?php echo e(asset('action_icon/edit.svg')); ?>" alt="Edit">
+                  </a>
+                <?php endif; ?>
+
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.download quotation')): ?>
+                  <a href="<?php echo e(route('quotations.download', $quotation->id)); ?>" title="Print Quotation" aria-label="Print Quotation" target="_blank">
+                    <img class="action-icon" src="<?php echo e(asset('action_icon/print.svg')); ?>" alt="Print">
+                  </a>
+                <?php endif; ?>
+
+                <?php if($isConfirmed): ?>
+                  <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.template list')): ?>
+                    <a href="<?php echo e(route('quotations.template-list', $quotation->id)); ?>" title="View Template List" aria-label="View Template List">
+                      <img class="action-icon" src="<?php echo e(asset('action_icon/view_temp_list.svg')); ?>" alt="Template List">
+                    </a>
+                  <?php endif; ?>
+                <?php else: ?>
+                  <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.follow up')): ?>
+                    <a href="<?php echo e(route('quotation.follow-up', $quotation->id)); ?>" title="Follow Up" aria-label="Follow Up">
+                      <img class="action-icon" src="<?php echo e(asset('action_icon/follow-up.svg')); ?>" alt="Follow Up">
+                    </a>
+                  <?php endif; ?>
+                <?php endif; ?>
+                
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.delete quotation')): ?>
+                  <button type="button" onclick="confirmDelete(<?php echo e($quotation->id); ?>)" title="Delete Quotation" aria-label="Delete Quotation" >
+                    <img class="action-icon" src="<?php echo e(asset('action_icon/delete.svg')); ?>" alt="Delete">
+                  </button>
+                <?php endif; ?>
+
+                <?php if($quotation->customer_type === 'new' && !$quotation->customer_id && $quotation->company_email && !in_array(strtolower(trim($quotation->company_email)), $existingCompanyEmails)): ?>
+                  <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Quotations Management.convert to company')): ?>
+                    <button type="button" onclick="confirmConvertToCompany(<?php echo e($quotation->id); ?>, '<?php echo e(addslashes($quotation->company_name)); ?>', '<?php echo e(addslashes($quotation->company_email)); ?>', '<?php echo e(addslashes($quotation->company_password ?? '')); ?>')" title="Convert to Company" aria-label="Convert to Company">
+                      <img src="<?php echo e(asset('action_icon/convert.svg')); ?>" alt="Convert to Company" class="action-icon">
+                    </button>
+                  <?php endif; ?>
+                <?php endif; ?>
+              </div>
+            </td>
+            <td><?php echo e($quotations->firstItem() + $index); ?></td>
+            <td><?php echo e($quotation->unique_code ?? 'N/A'); ?></td> 
+            <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="<?php echo e($quotation->company_name ?? 'N/A'); ?>"><?php echo e($quotation->company_name ?? 'N/A'); ?></td>
+            <td>
+              <?php if($quotation->contact_number_1): ?>
+                <?php
+                  $mobile = $quotation->contact_number_1;
+                  // Remove +91 prefix if present
+                  $mobile = preg_replace('/^\+91/', '', $mobile);
+                  echo $mobile;
+                ?>
+              <?php else: ?>
+                N/A
+              <?php endif; ?>
+            </td>
+            <td><?php echo e($quotation->updated_at ? $quotation->updated_at->format('d/m/Y') : 'N/A'); ?></td>
+            <td><?php echo e($quotation->tentative_complete_date ? $quotation->tentative_complete_date->format('d/m/Y') : 'N/A'); ?></td>
+            <td style="text-align: center;">
+              <?php if($isConfirmed): ?>
+                <div style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;" title="Confirmed - ID: <?php echo e($quotation->id); ?>">
+                  <span style="color: white; font-size: 14px; font-weight: bold;">✓</span>
+                </div>
+              <?php else: ?>
+                <div style="width: 24px; height: 24px; background: #ef4444; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;" title="Not Confirmed - ID: <?php echo e($quotation->id); ?>">
+                  <span style="color: white; font-size: 14px; font-weight: bold;">✗</span>
+                </div>
+              <?php endif; ?>
+            </td>
+          </tr>
+          <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 20px;">No quotations found</td>
+          </tr>
+          <?php endif; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('footer_pagination'); ?>
+  <?php if(isset($quotations) && method_exists($quotations,'links')): ?>
+  <form method="GET" class="hrp-entries-form" action="<?php echo e(route('quotations.index')); ?>">
+    <span>Entries</span>
+    <?php ($currentPerPage = (int) request()->get('per_page', 10)); ?>
+    <select name="per_page" onchange="console.log('Selected:', this.value); console.log('Form action:', this.form.action); this.form.submit()">
+      <?php $__currentLoopData = [10,25,50,100]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $size): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+      <option value="<?php echo e($size); ?>" <?php echo e($currentPerPage === $size ? 'selected' : ''); ?>><?php echo e($size); ?></option>
+      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+    </select>
+    <?php $__currentLoopData = request()->except(['per_page','page']); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $k => $v): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+    <input type="hidden" name="<?php echo e($k); ?>" value="<?php echo e($v); ?>">
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+  </form>
+  <?php echo e($quotations->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv')); ?>
+
+  <?php endif; ?>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('breadcrumb'); ?>
+  <a class="hrp-bc-home" href="<?php echo e(route('dashboard')); ?>">Dashboard</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">Quotation List</span>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('scripts'); ?>
+<script>
+// Check for success message with credentials
+document.addEventListener('DOMContentLoaded', function() {
+  <?php if(session('success')): ?>
+    const successMessage = "<?php echo e(session('success')); ?>";
+    
+    // Check if message contains company credentials
+    if (successMessage.includes('|||COMPANY_CREATED|||')) {
+      const parts = successMessage.split('|||');
+      const message = parts[0];
+      const companyEmail = parts[2];
+      const companyPassword = parts[3];
+      
+      let employeeEmail = '';
+      let employeePassword = '';
+      let hasEmployeeCredentials = false;
+      
+      if (parts.length > 4 && parts[4] === 'EMPLOYEE_CREATED') {
+        employeeEmail = parts[5];
+        employeePassword = parts[6];
+        hasEmployeeCredentials = true;
+      }
+      
+      let credentialsHtml = `
+        <div style="text-align: left; padding: 10px;">
+          <p style="margin-bottom: 15px; color: #1f2937;">${message}</p>
+          
+          <!-- Company Credentials -->
+          <div style="background: #eff6ff; border: 2px solid #3b82f6; padding: 15px; border-radius: 8px; margin-top: 15px;">
+            <p style="margin: 0 0 10px 0; font-weight: 700; color: #1e40af; font-size: 15px;">🏢 Company Login Credentials</p>
+            <div style="background: white; padding: 12px; border-radius: 6px; margin-top: 10px;">
+              <p style="margin: 8px 0; color: #374151; font-size: 14px;">
+                <strong>Email:</strong> <span style="color: #3b82f6; font-family: monospace;">${companyEmail}</span>
+              </p>
+              <p style="margin: 8px 0; color: #374151; font-size: 14px;">
+                <strong>Password:</strong> <span style="color: #3b82f6; font-family: monospace;">${companyPassword}</span>
+              </p>
+            </div>
+          </div>`;
+      
+      if (hasEmployeeCredentials) {
+        credentialsHtml += `
+          <!-- Employee Credentials -->
+          <div style="background: #f0fdf4; border: 2px solid #10b981; padding: 15px; border-radius: 8px; margin-top: 15px;">
+            <p style="margin: 0 0 10px 0; font-weight: 700; color: #065f46; font-size: 15px;">👤 Employee Login Credentials</p>
+            <div style="background: white; padding: 12px; border-radius: 6px; margin-top: 10px;">
+              <p style="margin: 8px 0; color: #374151; font-size: 14px;">
+                <strong>Email:</strong> <span style="color: #10b981; font-family: monospace;">${employeeEmail}</span>
+              </p>
+              <p style="margin: 8px 0; color: #374151; font-size: 14px;">
+                <strong>Password:</strong> <span style="color: #10b981; font-family: monospace;">${employeePassword}</span>
+              </p>
+            </div>
+          </div>`;
+      }
+      
+      credentialsHtml += `
+          <p style="margin: 15px 0 0 0; color: #6b7280; font-size: 12px; text-align: center;">
+            ⚠️ Please save these credentials securely. They can be used to login to the portal.
+          </p>
+        </div>`;
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Company Created Successfully!',
+        html: credentialsHtml,
+        confirmButtonColor: '#10b981',
+        confirmButtonText: 'Got it!',
+        width: '600px',
+        customClass: {
+          popup: 'perfect-swal-popup'
+        }
+      }).then(() => {
+        // Reload page to update the convert button visibility
+        window.location.reload();
+      });
+    } else {
+      // Regular success message
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: successMessage,
+        confirmButtonColor: '#10b981',
+        width: '400px',
+        customClass: {
+          popup: 'perfect-swal-popup'
+        }
+      }).then(() => {
+        // Reload page to update the list
+        window.location.reload();
+      });
+    }
+  <?php endif; ?>
+  
+  <?php if(session('status')): ?>
+    // Show status message (from follow-up confirmation, etc.)
+    Swal.fire({
+      icon: 'success',
+      title: 'Success!',
+      text: "<?php echo e(session('status')); ?>",
+      confirmButtonColor: '#10b981',
+      width: '400px',
+      timer: 2000,
+      showConfirmButton: true
+    });
+  <?php endif; ?>
+});
+
+function confirmDelete(id) {
+  Swal.fire({
+    title: 'Delete this quotation?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel',
+    width: '400px',
+    customClass: {
+      popup: 'perfect-swal-popup'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: 'Deleting...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/GitVraj/HrPortal/quotations/${id}`;
+      form.innerHTML = `
+        <input type="hidden" name="_token" value="<?php echo e(csrf_token()); ?>">
+        <input type="hidden" name="_method" value="DELETE">
+      `;
+      document.body.appendChild(form);
+      form.submit();
+    }
+  });
+}
+
+function confirmConvertToCompany(id, companyName, companyEmail, companyPassword) {
+  // Build the HTML content for the confirmation
+  let htmlContent = `
+    <div style="text-align: left; padding: 10px;">
+      <p style="margin-bottom: 15px; font-weight: 600; color: #1f2937;">This will:</p>
+      <ul style="list-style: none; padding-left: 0; margin-bottom: 15px;">
+        <li style="padding: 5px 0; color: #4b5563;">✓ Create a new company record</li>
+        <li style="padding: 5px 0; color: #4b5563;">✓ ${companyPassword ? 'Create a user account' : 'No user account (password not provided)'}</li>
+        <li style="padding: 5px 0; color: #4b5563;">✓ Link the quotation to the new company</li>
+        <li style="padding: 5px 0; color: #4b5563;">✓ Change customer type from "New" to "Existing"</li>
+      </ul>
+      <div style="background: #f3f4f6; padding: 12px; border-radius: 8px; margin-top: 15px;">
+        <p style="margin: 0 0 8px 0; font-weight: 600; color: #374151; font-size: 14px;">Company Details:</p>
+        <p style="margin: 5px 0; color: #6b7280; font-size: 13px;"><strong>Email:</strong> ${companyEmail}</p>
+        ${companyPassword ? `<p style="margin: 5px 0; color: #6b7280; font-size: 13px;"><strong>Password:</strong> ${companyPassword}</p>` : '<p style="margin: 5px 0; color: #ef4444; font-size: 13px;"><strong>Password:</strong> Not provided</p>'}
+      </div>
+    </div>
+  `;
+  
+  Swal.fire({
+    title: `Convert "${companyName}" to Company?`,
+    html: htmlContent,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3b82f6',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, Convert',
+    cancelButtonText: 'Cancel',
+    width: '500px',
+    customClass: {
+      popup: 'perfect-swal-popup'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Show loading state
+      const button = event.target.closest('button');
+      if (button) {
+        const originalContent = button.innerHTML;
+        button.innerHTML = '<span style="color: #ffa500;">Converting...</span>';
+        button.disabled = true;
+      }
+      
+      // Show loading alert
+      Swal.fire({
+        title: 'Converting...',
+        text: 'Please wait while we create the company',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/GitVraj/HrPortal/quotations/${id}/convert-to-company`;
+      form.innerHTML = `
+        <input type="hidden" name="_token" value="<?php echo e(csrf_token()); ?>">
+      `;
+      document.body.appendChild(form);
+      form.submit();
+    }
+  });
+}
+
+// Auto-submit on search input
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('globalSearch');
+  const filterForm = document.getElementById('filterForm');
+  
+  if (searchInput && filterForm) {
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        filterForm.submit();
+      }, 500);
+    });
+  }
+  
+  // Auto-submit on filter changes
+  const filterInputs = document.querySelectorAll('.filter-pill');
+  filterInputs.forEach(input => {
+    if (input.type === 'date' || input.name === 'quotation_no') {
+      input.addEventListener('change', function() {
+        filterForm.submit();
+      });
+    }
+  });
+  
+  // Prevent form submission when clicking sortable headers
+  const sortableHeaders = document.querySelectorAll('th a[href*="sort="]');
+  sortableHeaders.forEach(header => {
+    header.addEventListener('click', function(e) {
+      e.stopPropagation();
+      // Let the link work normally
+    });
+  });
+  // View toggle persistence
+  const buttons = document.querySelectorAll('.view-toggle-btn');
+  const grid = document.querySelector('.quotations-grid-view');
+  const list = document.querySelector('.quotations-list-view');
+  function applyView(view){
+    if (!grid || !list) return;
+    if(view==='grid'){ grid.classList.add('active'); list.classList.remove('active'); }
+    else { list.classList.add('active'); grid.classList.remove('active'); }
+    buttons.forEach(b=>b.classList.toggle('active', b.getAttribute('data-view')===view));
+  }
+  const saved = localStorage.getItem('quotations_view') || 'list';
+  applyView(saved);
+  buttons.forEach(btn=>btn.addEventListener('click', function(){
+    const v = this.getAttribute('data-view');
+    localStorage.setItem('quotations_view', v);
+    applyView(v);
+  }));
+});
+</script>
+<?php $__env->stopPush(); ?>
+
+<?php $__env->startPush('styles'); ?>
+<style>
+  /* Toggle */
+  .view-toggle-group { display:flex; gap:4px; background:#f3f4f6; padding:4px; border-radius:8px; }
+  .view-toggle-btn { padding:8px 12px; background:transparent; border:none; border-radius:6px; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; }
+  .view-toggle-btn:hover { background:#e5e7eb; }
+  .view-toggle-btn.active { background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); }
+  .view-toggle-btn svg { color:#6b7280; }
+  .view-toggle-btn.active svg { color:#3b82f6; }
+
+  /* Grid */
+  .quotations-grid-view { display:none; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:16px; padding:12px; }
+  .quotations-grid-view.active { display:grid; }
+  .quotations-list-view { display:none; padding: 0 12px 12px; }
+  .quotations-list-view.active { display:block; }
+
+  .quotation-grid-card { background:#fff; border-radius:12px; padding:16px 18px; box-shadow:0 1px 6px rgba(0,0,0,0.06); transition:transform .25s, box-shadow .25s; cursor:pointer; margin-top:4px; min-height:fit-content; }
+  .quotation-grid-card:hover { transform: translateY(-4px); box-shadow:0 4px 16px rgba(0,0,0,0.12); }
+  .quotation-grid-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:10px; }
+  .quotation-grid-title { font-size:16px; font-weight:700; color:#0f172a; margin:0; line-height:1.2; max-width:72%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .quotation-grid-badge { font-size:11px; padding:4px 8px; border-radius:12px; font-weight:500; background:#eef2ff; color:#3730a3; }
+  .quotation-grid-sub { font-size:12px; color:#6b7280; margin:0 0 12px; }
+  .quotation-grid-meta { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding-top:12px; border-top:1px solid #f3f4f6; }
+  .quotation-grid-left { flex:1; display:flex; flex-direction:column; gap:6px; }
+  .meta-row { display:flex; gap:8px; align-items:center; }
+  .meta-label { font-size:12px; color:#6b7280; min-width:56px; }
+  .meta-value { font-size:13px; color:#111827; }
+  .quotation-grid-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:flex-start; }
+  .quotation-grid-action-btn { padding:8px; border:1px solid #e5e7eb; background:#fff; border-radius:6px; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; width:32px; height:32px; }
+  .quotation-grid-action-btn.btn-view { border-color:#3b82f6; background:#eff6ff; }
+  .quotation-grid-action-btn.btn-view svg { color:#3b82f6; }
+  .quotation-grid-action-btn.btn-view:hover { background:#3b82f6; }
+  .quotation-grid-action-btn.btn-view:hover svg { color:#fff; }
+  .quotation-grid-action-btn.btn-edit { border-color:#f59e0b; background:#fffbeb; }
+  .quotation-grid-action-btn.btn-edit svg { color:#f59e0b; }
+  .quotation-grid-action-btn.btn-edit:hover { background:#f59e0b; }
+  .quotation-grid-action-btn.btn-edit:hover svg { color:#fff; }
+  .quotation-grid-action-btn.btn-print { border-color:#6366f1; background:#eef2ff; }
+  .quotation-grid-action-btn.btn-print svg { color:#6366f1; }
+  .quotation-grid-action-btn.btn-print:hover { background:#6366f1; }
+  .quotation-grid-action-btn.btn-print:hover svg { color:#fff; }
+  .quotation-grid-action-btn.btn-convert { border-color:#10b981; background:#d1fae5; }
+  .quotation-grid-action-btn.btn-convert svg { color:#10b981; }
+  .quotation-grid-action-btn.btn-convert:hover { background:#10b981; }
+  .quotation-grid-action-btn.btn-convert:hover svg { color:#fff; }
+  
+  /* Delete button - Red */
+  .quotation-grid-action-btn.btn-delete { 
+    border: 1px solid #ef4444 !important; 
+    background: #fef2f2 !important; 
+    padding: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 6px !important;
+  }
+  .quotation-grid-action-btn.btn-delete svg { color:#ef4444; }
+  .quotation-grid-action-btn.btn-delete:hover { background:#ef4444 !important; }
+  .quotation-grid-action-btn.btn-delete:hover svg { color:#fff; }
+  
+  /* Follow Up button - Purple */
+  .quotation-grid-action-btn.btn-followup { border-color:#8b5cf6; background:#f5f3ff; }
+  .quotation-grid-action-btn.btn-followup svg { color:#8b5cf6; }
+  .quotation-grid-action-btn.btn-followup:hover { background:#8b5cf6; }
+  .quotation-grid-action-btn.btn-followup:hover svg { color:#fff; }
+  
+  /* Template List button - Teal */
+  .quotation-grid-action-btn.btn-template { border-color:#14b8a6; background:#f0fdfa; }
+  .quotation-grid-action-btn.btn-template svg { color:#14b8a6; }
+  .quotation-grid-action-btn.btn-template:hover { background:#14b8a6; }
+  .quotation-grid-action-btn.btn-template:hover svg { color:#fff; }
+</style>
+<?php $__env->stopPush(); ?>
+<?php $__env->startPush('scripts'); ?>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<script>
+// Initialize jQuery datepicker
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({ marginTop: '2px', marginLeft: '0px' });
+            }, 0);
+        }
+    });
+});
+
+// Convert dates before form submission
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.querySelector('.jv-filter, #filterForm');
+    if(form){
+        form.addEventListener('submit', function(e){
+            var dateInputs = form.querySelectorAll('.date-picker');
+            dateInputs.forEach(function(input){
+                if(input.value){
+                    var parts = input.value.split('/');
+                    if(parts.length === 3) input.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+                }
+            });
+        });
+    }
+});
+</script>
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.macos', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\GitVraj\HrPortal\resources\views/quotations/index.blade.php ENDPATH**/ ?>

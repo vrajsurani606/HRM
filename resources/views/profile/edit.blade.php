@@ -76,36 +76,50 @@
     </div>
     
     <!-- Tab Navigation -->
+    @php
+      $canViewPayroll = auth()->user()->can('Profile Management.view own payroll') || auth()->user()->can('Payroll Management.view payroll');
+      $canViewAttendance = auth()->user()->can('Profile Management.view own attendance') || auth()->user()->can('Attendance Management.view own attendance');
+      $canViewDocuments = auth()->user()->can('Profile Management.view own documents');
+      $canViewBank = auth()->user()->can('Profile Management.view own bank details') || auth()->user()->can('Profile Management.update bank details');
+    @endphp
     <div class="tabbar" style="display:flex;border-bottom:1px solid #e5e7eb;padding:0 32px;background:white;align-items:center;margin-bottom:0">
       <button class="tab-btn active" onclick="switchTab('personal')"
         style="display:flex;align-items:center;gap:10px;padding:16px 20px;border:none;background:none;color:#0ea5e9;border-bottom:2px solid #0ea5e9;font-weight:700;cursor:pointer">
         <span class="tab-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span>
         Personal Information
       </button>
+      @if($canViewPayroll)
       <div class="tab-sep"></div>
       <button class="tab-btn" onclick="switchTab('payroll')"
         style="display:flex;align-items:center;gap:10px;padding:16px 20px;border:none;background:none;color:#718096;border-bottom:2px solid transparent;font-weight:700;cursor:pointer">
         <span class="tab-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></span>
         Payroll
       </button>
+      @endif
+      @if($canViewAttendance)
       <div class="tab-sep"></div>
       <button class="tab-btn" onclick="switchTab('attendance')"
         style="display:flex;align-items:center;gap:10px;padding:16px 20px;border:none;background:none;color:#718096;border-bottom:2px solid transparent;font-weight:700;cursor:pointer">
         <span class="tab-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg></span>
         Attendance Management
       </button>
+      @endif
+      @if($canViewDocuments)
       <div class="tab-sep"></div>
       <button class="tab-btn" onclick="switchTab('documents')"
         style="display:flex;align-items:center;gap:10px;padding:16px 20px;border:none;background:none;color:#718096;border-bottom:2px solid transparent;font-weight:700;cursor:pointer">
         <span class="tab-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg></span>
         Documents
       </button>
+      @endif
+      @if($canViewBank)
       <div class="tab-sep"></div>
       <button class="tab-btn" onclick="switchTab('bank')"
         style="display:flex;align-items:center;gap:10px;padding:16px 20px;border:none;background:none;color:#718096;border-bottom:2px solid transparent;font-weight:700;cursor:pointer">
         <span class="tab-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11.5,1L2,6V8H21V6M16,10V17H19V19H5V17H8V10H10V17H14V10"/></svg></span>
         Bank Details
       </button>
+      @endif
     </div>
 
     <!-- Tab Content -->
@@ -125,18 +139,23 @@
         <!-- Right Column - Form -->
         <div style="flex:1">
           <div class="hrp-compact">
+            @php
+              $canEdit = auth()->user()->can('Profile Management.edit own profile') || auth()->user()->can('Profile Management.edit profile');
+            @endphp
             <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px 24px;align-items:start">
               <!-- Profile Photo Upload -->
+              @if($canEdit)
               <div style="grid-column:1/-1">
                 <label class="hrp-label">Profile Photo</label>
                 <input type="file" name="photo" accept="image/*" class="hrp-input Rectangle-29" onchange="previewPhoto(this)">
                 <small style="color:#6b7280;font-size:12px">Upload a new profile photo (JPG, PNG, max 2MB)</small>
               </div>
+              @endif
               
               <!-- Full Name -->
               <div>
                 <label class="hrp-label">Full Name</label>
-                <input type="text" name="name" value="{{ old('name', $employee->name ?? $user->name) }}" class="hrp-input Rectangle-29" required>
+                <input type="text" name="name" value="{{ old('name', $employee->name ?? $user->name) }}" class="hrp-input Rectangle-29" {{ $canEdit ? 'required' : 'readonly' }}>
               </div>
 
               <!-- Gender -->
@@ -145,12 +164,12 @@
                 <div style="margin-top:8px; display:flex; align-items:center; justify-content:center;">
                   <div class="gender-toggle Rectangle-29">
                     <label class="gender-option">
-                      <input class="gender-radio" type="radio" name="gender" value="male" {{ old('gender', $employee->gender ?? 'male') === 'male' ? 'checked' : '' }}>
+                      <input class="gender-radio" type="radio" name="gender" value="male" {{ old('gender', $employee->gender ?? 'male') === 'male' ? 'checked' : '' }} {{ $canEdit ? '' : 'disabled' }}>
                       <span class="gender-text">Male</span>
                       <span class="gender-dot"></span>
                     </label>
                     <label class="gender-option">
-                      <input class="gender-radio" type="radio" name="gender" value="female" {{ old('gender', $employee->gender) === 'female' ? 'checked' : '' }}>
+                      <input class="gender-radio" type="radio" name="gender" value="female" {{ old('gender', $employee->gender ?? null) === 'female' ? 'checked' : '' }} {{ $canEdit ? '' : 'disabled' }}>
                       <span class="gender-text">Female</span>
                       <span class="gender-dot"></span>
                     </label>
@@ -163,50 +182,50 @@
                 <x-date-input 
                   name="date_of_birth" 
                   label="Date of Birth" 
-                  :value="old('date_of_birth', $employee->date_of_birth)" 
+                  :value="old('date_of_birth', $employee->date_of_birth ?? null)" 
                 />
               </div>
 
               <!-- Mobile No -->
               <div>
                 <label class="hrp-label">Mobile No:</label>
-                <input type="text" name="mobile_no" value="{{ old('mobile_no', $employee->mobile_no ?? $user->mobile_no) }}" class="hrp-input Rectangle-29">
+                <input type="text" name="mobile_no" value="{{ old('mobile_no', $employee->mobile_no ?? $user->mobile_no) }}" class="hrp-input Rectangle-29" {{ $canEdit ? '' : 'readonly' }}>
               </div>
 
               <!-- Marital Status -->
               <div>
                 <label class="hrp-label">Marital Status :</label>
-                <select name="marital_status" class="Rectangle-29 Rectangle-29-select">
+                <select name="marital_status" class="Rectangle-29 Rectangle-29-select" {{ $canEdit ? '' : 'disabled' }}>
                   <option value="">Select Status</option>
-                  <option value="single" {{ old('marital_status', $employee->marital_status) === 'single' ? 'selected' : '' }}>Single</option>
-                  <option value="married" {{ old('marital_status', $employee->marital_status) === 'married' ? 'selected' : '' }}>Married</option>
-                  <option value="divorced" {{ old('marital_status', $employee->marital_status) === 'divorced' ? 'selected' : '' }}>Divorced</option>
-                  <option value="widowed" {{ old('marital_status', $employee->marital_status) === 'widowed' ? 'selected' : '' }}>Widowed</option>
+                  <option value="single" {{ old('marital_status', $employee->marital_status ?? null) === 'single' ? 'selected' : '' }}>Single</option>
+                  <option value="married" {{ old('marital_status', $employee->marital_status ?? null) === 'married' ? 'selected' : '' }}>Married</option>
+                  <option value="divorced" {{ old('marital_status', $employee->marital_status ?? null) === 'divorced' ? 'selected' : '' }}>Divorced</option>
+                  <option value="widowed" {{ old('marital_status', $employee->marital_status ?? null) === 'widowed' ? 'selected' : '' }}>Widowed</option>
                 </select>
               </div>
 
               <!-- Email ID -->
               <div>
                 <label class="hrp-label">Email ID :</label>
-                <input type="email" name="email" value="{{ old('email', $user->email) }}" class="hrp-input Rectangle-29" required>
+                <input type="email" name="email" value="{{ old('email', $user->email) }}" class="hrp-input Rectangle-29" {{ $canEdit ? 'required' : 'readonly' }}>
               </div>
 
               <!-- Address -->
               <div style="grid-column:1/-1">
                 <label class="hrp-label">Address:</label>
-                <textarea name="address" placeholder="Enter Your Address" class="Rectangle-29-textarea">{{ old('address', $employee->address ?? $user->address) }}</textarea>
+                <textarea name="address" placeholder="Enter Your Address" class="Rectangle-29-textarea" {{ $canEdit ? '' : 'readonly' }}>{{ old('address', $employee->address ?? $user->address) }}</textarea>
               </div>
 
               <!-- Aadhaar Card Number -->
               <div>
                 <label class="hrp-label">Aadhaar Card Number :</label>
-                <input type="text" name="aadhaar_no" value="{{ old('aadhaar_no', $employee->aadhaar_no) }}" placeholder="XXXX XXXX XXXX" class="hrp-input Rectangle-29" maxlength="12">
+                <input type="text" name="aadhaar_no" value="{{ old('aadhaar_no', $employee->aadhaar_no ?? null) }}" placeholder="XXXX XXXX XXXX" class="hrp-input Rectangle-29" maxlength="12" {{ $canEdit ? '' : 'readonly' }}>
               </div>
 
               <!-- PAN Number -->
               <div>
                 <label class="hrp-label">PAN Number :</label>
-                <input type="text" name="pan_no" value="{{ old('pan_no', $employee->pan_no) }}" placeholder="XXXXX0000X" class="hrp-input Rectangle-29" style="text-transform: uppercase;" maxlength="10">
+                <input type="text" name="pan_no" value="{{ old('pan_no', $employee->pan_no ?? null) }}" placeholder="XXXXX0000X" class="hrp-input Rectangle-29" style="text-transform: uppercase;" maxlength="10" {{ $canEdit ? '' : 'readonly' }}>
               </div>
 
               <!-- Highest Qualification (long) + Previous Designation stacked left, Year of Passing short right -->
@@ -214,13 +233,13 @@
                 <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px 24px;align-items:start">
                   <div>
                     <label class="hrp-label">Highest Qualification</label>
-                    <input type="text" name="highest_qualification" value="{{ old('highest_qualification', $employee->highest_qualification) }}" placeholder="Enter your Highest Qualification" class="hrp-input Rectangle-29" style="margin-bottom:14px">
+                    <input type="text" name="highest_qualification" value="{{ old('highest_qualification', $employee->highest_qualification ?? null) }}" placeholder="Enter your Highest Qualification" class="hrp-input Rectangle-29" style="margin-bottom:14px" {{ $canEdit ? '' : 'readonly' }}>
                     <label class="hrp-label">Previous Designation</label>
-                    <input type="text" name="previous_designation" value="{{ old('previous_designation', $employee->previous_designation) }}" placeholder="Enter your Last Designation" class="hrp-input Rectangle-29">
+                    <input type="text" name="previous_designation" value="{{ old('previous_designation', $employee->previous_designation ?? null) }}" placeholder="Enter your Last Designation" class="hrp-input Rectangle-29" {{ $canEdit ? '' : 'readonly' }}>
                   </div>
                   <div>
                     <label class="hrp-label">Year of Passing</label>
-                    <input type="text" name="year_of_passing" value="{{ old('year_of_passing', $employee->year_of_passing) }}" placeholder="Passing Year" class="hrp-input Rectangle-29" maxlength="4">
+                    <input type="text" name="year_of_passing" value="{{ old('year_of_passing', $employee->year_of_passing ?? null) }}" placeholder="Passing Year" class="hrp-input Rectangle-29" maxlength="4" {{ $canEdit ? '' : 'readonly' }}>
                   </div>
                 </div>
               </div>
@@ -228,22 +247,23 @@
               <!-- Previous Company Name -->
               <div>
                 <label class="hrp-label">Previous Company Name :</label>
-                <input type="text" name="previous_company_name" value="{{ old('previous_company_name', $employee->previous_company_name) }}" placeholder="Enter your Last Company Name" class="hrp-input Rectangle-29">
+                <input type="text" name="previous_company_name" value="{{ old('previous_company_name', $employee->previous_company_name ?? null) }}" placeholder="Enter your Last Company Name" class="hrp-input Rectangle-29" {{ $canEdit ? '' : 'readonly' }}>
               </div>
 
               <!-- Duration + Reason for Leaving on same row -->
               <div style="grid-column:1/-1; display:grid; grid-template-columns:1fr 2fr; gap:20px 24px; align-items:start">
                 <div>
                   <label class="hrp-label">Duration :</label>
-                  <input type="text" name="duration" value="{{ old('duration', $employee->duration) }}" placeholder="Add Time Duration" class="hrp-input Rectangle-29">
+                  <input type="text" name="duration" value="{{ old('duration', $employee->duration ?? null) }}" placeholder="Add Time Duration" class="hrp-input Rectangle-29" {{ $canEdit ? '' : 'readonly' }}>
                 </div>
                 <div>
                   <label class="hrp-label">Reason for Leaving</label>
-                  <textarea name="reason_for_leaving" placeholder="Enter Reason for Leaving" class="Rectangle-29-textarea">{{ old('reason_for_leaving', $employee->reason_for_leaving) }}</textarea>
+                  <textarea name="reason_for_leaving" placeholder="Enter Reason for Leaving" class="Rectangle-29-textarea" {{ $canEdit ? '' : 'readonly' }}>{{ old('reason_for_leaving', $employee->reason_for_leaving ?? null) }}</textarea>
                 </div>
               </div>
 
               <!-- Save Button -->
+              @if($canEdit)
               <div style="grid-column:1/-1;margin-top:20px">
                 @csrf
                 @method('PATCH')
@@ -252,6 +272,13 @@
                   💾 SAVE CHANGES
                 </button>
               </div>
+              @else
+              <div style="grid-column:1/-1;margin-top:20px">
+                <div style="background:#f59e0b;color:white;padding:12px 24px;border-radius:8px;font-weight:600;text-align:center">
+                  ⚠️ You don't have permission to edit your profile. Contact your administrator.
+                </div>
+              </div>
+              @endif
             </form>
           </div>
         </div>
@@ -259,6 +286,7 @@
     </div>
 
     <!-- Payroll Tab Content -->
+    @if($canViewPayroll)
     <div id="payroll" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
       <div class="JV-datatble JV-datatble--zoom striped-surface striped-surface--full table-wrap pad-none">
         <table>
@@ -311,8 +339,10 @@
         </table>
       </div>
     </div>
+    @endif
 
     <!-- Attendance Tab Content -->
+    @if($canViewAttendance)
     <div id="attendance" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 32px 0">
         <div style="font-weight:700;color:#1f2937">Attendance Overview</div>
@@ -401,7 +431,9 @@
         </table>
       </div>
     </div>
+    @endif
 
+    @if($canViewDocuments)
     <div id="documents" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;padding:24px 32px">
         @php
@@ -454,12 +486,15 @@
         @endif
       </div>
     </div>
+    @endif
 
+    @if($canViewBank)
     <div id="bank" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:10px;margin:0">
       <div style="margin:0 32px 24px">
         @include('profile.partials.bank-details')
       </div>
     </div>
+    @endif
   </div>
 
   @section('footer_pagination')

@@ -115,9 +115,9 @@ select.Rectangle-29-select:focus{
 .chart-card .chart-legend{ flex:0 0 auto; overflow:auto }
 
 /* Notes card (no notes-card class now): fix height and scroll inside body */
-.hrp-col-7 > .hrp-card.card-p-0{ height:400px }
+.hrp-col-7 > .hrp-card.card-p-0{ height:450px }
 .hrp-card .tabbar{ min-height:36px }
-.hrp-card-body-note{ height:calc(100% - 36px); overflow:auto }
+.hrp-card-body-note{ height:calc(100% - 36px); overflow:auto; padding-bottom: 12px !important; }
 body{overflow:hidden} /* lock outer scroll */
 html, body { overflow-x: hidden; }
 

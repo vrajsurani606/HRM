@@ -21,6 +21,12 @@ class HiringController extends Controller
         
         $query = HiringLead::query();
 
+        // Exclude converted leads (only show active leads)
+        $query->where(function($q) {
+            $q->whereNull('status')
+              ->orWhere('status', '!=', 'converted');
+        });
+
         // Apply date filters if they exist
         if ($request->filled('from_date')) {
             $query->whereDate('created_at', '>=', $request->from_date);

@@ -11,7 +11,24 @@ class TicketController extends Controller
 {
     public function index(Request $request)
     {
+        $user = auth()->user();
         $query = Ticket::query();
+
+        // Filter by role: customers see only their company's tickets
+        if ($user->hasRole('customer') && $user->company_id) {
+            $company = $user->company;
+            if ($company) {
+                $query->where(function($q) use ($company) {
+                    $q->where('company', $company->company_name)
+                      ->orWhere('customer', $company->name ?? auth()->user()->name);
+                });
+            }
+        }
+        
+        // Filter by role: employees see only their assigned tickets
+        if ($user->hasRole('employee')) {
+            $query->where('assigned_to', $user->id);
+        }
 
         if ($request->filled('company')) {
             $query->where('company', $request->string('company'));
@@ -33,7 +50,19 @@ class TicketController extends Controller
         $perPage = (int) $request->get('per_page', 25);
         $tickets = $query->orderByDesc('id')->paginate($perPage)->appends($request->query());
 
-        $companies = Ticket::query()->whereNotNull('company')->distinct()->pluck('company');
+        // Filter companies list based on role
+        $companiesQuery = Ticket::query()->whereNotNull('company')->distinct();
+        if ($user->hasRole('customer') && $user->company_id) {
+            $company = $user->company;
+            if ($company) {
+                $companiesQuery->where(function($q) use ($company) {
+                    $q->where('company', $company->company_name)
+                      ->orWhere('customer', $company->name ?? auth()->user()->name);
+                });
+            }
+        }
+        $companies = $companiesQuery->pluck('company');
+        
         $types = Ticket::query()->whereNotNull('ticket_type')->distinct()->pluck('ticket_type');
 
         return view('tickets.index', [
@@ -43,8 +72,125 @@ class TicketController extends Controller
         ]);
     }
 
+    public function show(Ticket $ticket)
+    {
+        $user = auth()->user();
+        
+        // Check access: customers can only view their company's tickets, employees can only view assigned tickets
+        if ($user->hasRole('customer') && $user->company_id) {
+            $company = $user->company;
+            if ($company && $ticket->company != $company->company_name && $ticket->customer != ($company->name ?? $user->name)) {
+                abort(403, 'Unauthorized access to this ticket.');
+            }
+        } elseif ($user->hasRole('employee')) {
+            if ($ticket->assigned_to != $user->id) {
+                abort(403, 'Unauthorized access to this ticket.');
+            }
+        }
+        
+        return view('tickets.show', compact('ticket'));
+    }
+
+    public function create()
+    {
+        return view('tickets.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'priority' => 'nullable|in:low,normal,high,urgent',
+            'status' => 'nullable|in:open,pending,in_progress,resolved,closed',
+            'ticket_type' => 'nullable|string|max:100',
+            'company' => 'nullable|string|max:255',
+            'customer' => 'nullable|string|max:255',
+        ]);
+
+        $user = auth()->user();
+        
+        // Auto-set company_id for customers
+        if ($user->hasRole('customer') && $user->company_id) {
+            $validated['company_id'] = $user->company_id;
+        }
+
+        $ticket = Ticket::create($validated);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'ticket' => $ticket]);
+        }
+
+        return redirect()->route('tickets.index')->with('success', 'Ticket created successfully');
+    }
+
+    public function edit(Ticket $ticket)
+    {
+        $user = auth()->user();
+        
+        // Check access
+        if ($user->hasRole('customer') && $user->company_id) {
+            if ($ticket->company_id != $user->company_id) {
+                abort(403, 'Unauthorized access to this ticket.');
+            }
+        } elseif ($user->hasRole('employee')) {
+            if ($ticket->assigned_to != $user->id) {
+                abort(403, 'Unauthorized access to this ticket.');
+            }
+        }
+        
+        return view('tickets.edit', compact('ticket'));
+    }
+
+    public function update(Request $request, Ticket $ticket)
+    {
+        $user = auth()->user();
+        
+        // Check access
+        if ($user->hasRole('customer') && $user->company_id) {
+            if ($ticket->company_id != $user->company_id) {
+                abort(403, 'Unauthorized access to this ticket.');
+            }
+        } elseif ($user->hasRole('employee')) {
+            if ($ticket->assigned_to != $user->id) {
+                abort(403, 'Unauthorized access to this ticket.');
+            }
+        }
+
+        $validated = $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'description' => 'nullable|string',
+            'priority' => 'nullable|in:low,normal,high,urgent',
+            'status' => 'nullable|in:open,pending,in_progress,resolved,closed',
+            'ticket_type' => 'nullable|string|max:100',
+            'company' => 'nullable|string|max:255',
+            'customer' => 'nullable|string|max:255',
+        ]);
+
+        $ticket->update($validated);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'ticket' => $ticket]);
+        }
+
+        return redirect()->route('tickets.index')->with('success', 'Ticket updated successfully');
+    }
+
     public function destroy(Ticket $ticket): RedirectResponse|JsonResponse
     {
+        $user = auth()->user();
+        
+        // Check access
+        if ($user->hasRole('customer') && $user->company_id) {
+            if ($ticket->company_id != $user->company_id) {
+                abort(403, 'Unauthorized access to this ticket.');
+            }
+        } elseif ($user->hasRole('employee')) {
+            if ($ticket->assigned_to != $user->id) {
+                abort(403, 'Unauthorized access to this ticket.');
+            }
+        }
+        
         $ticket->delete();
         if (request()->wantsJson()) {
             return response()->json(['success' => true]);

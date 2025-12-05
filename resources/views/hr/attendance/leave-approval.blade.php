@@ -10,7 +10,7 @@
     
     <select name="employee_id" class="filter-pill">
       <option value="">All Employee</option>
-      @foreach(\App\Models\Employee::orderBy('name')->get() as $emp)
+      @foreach($employees as $emp)
         <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>{{ $emp->name }}</option>
       @endforeach
     </select>
@@ -169,10 +169,10 @@
     <form id="addLeaveForm" onsubmit="submitLeave(event)">
       <div style="margin-bottom: 15px;">
         <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Employee</label>
-        <select name="employee_id" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+        <select name="employee_id" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" {{ $employees->count() == 1 ? 'readonly' : '' }}>
           <option value="">Select Employee</option>
-          @foreach(\App\Models\Employee::orderBy('name')->get() as $emp)
-            <option value="{{ $emp->id }}">{{ $emp->name }}</option>
+          @foreach($employees as $emp)
+            <option value="{{ $emp->id }}" {{ $employees->count() == 1 ? 'selected' : '' }}>{{ $emp->name }}</option>
           @endforeach
         </select>
       </div>

@@ -30,19 +30,69 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+// Employee Calendar Data API
+Route::get('/employee/calendar-data', [DashboardController::class, 'getCalendarData'])
+    ->middleware(['auth'])
+    ->name('employee.calendar.data');
+
 // Employee Notes Routes
 Route::post('/employee/notes', [DashboardController::class, 'storeNote'])
     ->middleware(['auth'])
     ->name('employee.notes.store');
+Route::delete('/employee/notes/{id}', [DashboardController::class, 'deleteNote'])
+    ->middleware(['auth'])
+    ->name('employee.notes.delete');
+Route::get('/employee/notes', [DashboardController::class, 'getNotes'])
+    ->middleware(['auth'])
+    ->name('employee.notes.get');
+
+// Notes Routes (Admin & Employee Communication)
+Route::middleware(['auth'])->prefix('api/notes')->group(function () {
+    // Admin notes
+    Route::get('/admin', [App\Http\Controllers\NoteController::class, 'adminIndex'])->name('notes.admin.index');
+    Route::get('/admin/stats', [App\Http\Controllers\NoteController::class, 'adminStats'])->name('notes.admin.stats');
+    
+    // Employee notes
+    Route::get('/employee', [App\Http\Controllers\NoteController::class, 'employeeIndex'])->name('notes.employee.index');
+    Route::get('/employee/stats', [App\Http\Controllers\NoteController::class, 'employeeStats'])->name('notes.employee.stats');
+    
+    // CRUD operations
+    Route::post('/', [App\Http\Controllers\NoteController::class, 'store'])->name('notes.store');
+    Route::get('/{id}', [App\Http\Controllers\NoteController::class, 'show'])->name('notes.show');
+    Route::put('/{id}', [App\Http\Controllers\NoteController::class, 'update'])->name('notes.update');
+    Route::delete('/{id}', [App\Http\Controllers\NoteController::class, 'destroy'])->name('notes.destroy');
+    
+    // Replies
+    Route::post('/{id}/replies', [App\Http\Controllers\NoteController::class, 'addReply'])->name('notes.reply');
+    
+    // Actions
+    Route::post('/{id}/acknowledge', [App\Http\Controllers\NoteController::class, 'acknowledge'])->name('notes.acknowledge');
+});
+
+// Legacy Admin Notes Routes (for backward compatibility with dashboard)
+Route::post('/api/admin-notes', [DashboardController::class, 'storeAdminNote'])
+    ->middleware(['auth'])
+    ->name('admin.notes.store');
+Route::put('/api/admin-notes/{id}', [DashboardController::class, 'updateAdminNote'])
+    ->middleware(['auth'])
+    ->name('admin.notes.update');
+Route::put('/api/admin-notes/{id}/employees', [DashboardController::class, 'updateNoteEmployees'])
+    ->middleware(['auth'])
+    ->name('admin.notes.update-employees');
+Route::delete('/api/admin-notes/{id}', [DashboardController::class, 'deleteAdminNote'])
+    ->middleware(['auth'])
+    ->name('admin.notes.delete');
 
 // Attendance Routes
 Route::prefix('attendance')->middleware('auth')->group(function () {
     Route::get('/', [App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.index');
     Route::get('/check', [App\Http\Controllers\AttendanceController::class, 'checkPage'])->name('attendance.check');
     Route::get('/status', [App\Http\Controllers\AttendanceController::class, 'checkStatus'])->name('attendance.status');
+    Route::get('/current-status', [App\Http\Controllers\AttendanceController::class, 'getCurrentStatus'])->name('attendance.current-status');
     Route::post('/check-in', [App\Http\Controllers\AttendanceController::class, 'checkIn'])->name('attendance.check-in');
     Route::post('/check-out', [App\Http\Controllers\AttendanceController::class, 'checkOut'])->name('attendance.check-out');
     Route::get('/history', [App\Http\Controllers\AttendanceController::class, 'history'])->name('attendance.history');
+    Route::get('/{id}/print', [App\Http\Controllers\AttendanceController::class, 'print'])->name('attendance.print');
     
     // Attendance Reports
     Route::get('/reports', [App\Http\Controllers\AttendanceReportController::class, 'index'])->name('attendance.reports');

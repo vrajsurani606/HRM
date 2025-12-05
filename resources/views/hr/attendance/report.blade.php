@@ -5,8 +5,8 @@
 <div class="hrp-content">
   <!-- Filter Row -->
   <form method="GET" action="{{ route('attendance.report') }}" class="jv-filter" id="filterForm">
-    <input type="text" name="start_date" class="filter-pill date-picker" placeholder="From : dd/mm/yyyy" value="{{ request('start_date') }}" autocomplete="off">
-    <input type="text" name="end_date" class="filter-pill date-picker" placeholder="To : dd/mm/yyyy" value="{{ request('end_date') }}" autocomplete="off">
+    <input type="text" name="start_date" class="filter-pill date-picker" placeholder="From : dd/mm/yy" value="{{ request('start_date') }}" autocomplete="off" style="min-width: 130px;">
+    <input type="text" name="end_date" class="filter-pill date-picker" placeholder="To : dd/mm/yy" value="{{ request('end_date') }}" autocomplete="off" style="min-width: 130px;">
     
     <select name="employee_id" class="filter-pill" style="min-width: 200px;">
       <option value="">All Employees</option>
@@ -31,7 +31,7 @@
       </svg>
     </button>
     
-    <a href="{{ route('attendance.report') }}" class="filter-search" aria-label="Refresh">
+    <a href="{{ route('attendance.report') }}" class="filter-search" aria-label="Reset">
       <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
         <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
       </svg>
@@ -59,117 +59,142 @@
     <table>
       <thead>
         <tr>
-          <th style="width: 140px; text-align: center;">Action</th>
-          <th style="width: 150px;">EMP Code</th>
-          <th style="width: 250px;">EMPLOYEE</th>
-          <th style="width: 380px;">Check IN & OUT</th>
-          <th style="width: 100px; text-align: center;">Overtime</th>
-          <th style="width: 120px; text-align: center;">Status</th>
+          <th style="width: 100px; text-align: center;">Action</th>
+          <th style="width: 120px;">Date</th>
+          <th style="width: 100px;">EMP Code</th>
+          <th style="width: 180px;">EMPLOYEE</th>
+          <th style="width: 60px; text-align: center;">Entry</th>
+          <th style="width: 280px;">Check IN & OUT</th>
+          <th style="width: 80px; text-align: center;">Duration</th>
+          <th style="width: 80px; text-align: center;">Total</th>
+          <th style="width: 100px; text-align: center;">Status</th>
         </tr>
       </thead>
       <tbody>
-        @forelse($attendances as $attendance)
-        <tr>
-          <td style="vertical-align: middle; padding: 14px;">
-            <div>
-              @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.edit attendance'))
-                <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" style="cursor: pointer; width: 18px; height: 18px;" onclick="editAttendance({{ $attendance->id }})">
-              @endif
-              @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.delete attendance'))
-                <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 18px; height: 18px;" onclick="deleteAttendance({{ $attendance->id }})">
-              @endif
-              @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.print attendance report'))
-                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" style="cursor: pointer; width: 18px; height: 18px;" onclick="printAttendance({{ $attendance->id }})">
-              @endif
-            </div>
-          </td>
-          <td style="vertical-align: middle;">{{ $attendance->employee->code ?? 'EMP/' . str_pad($attendance->employee->id ?? '000', 4, '0', STR_PAD_LEFT) }}</td>
-          <td style="vertical-align: middle;">{{ $attendance->employee->name ?? 'N/A' }}</td>
-          <td style="vertical-align: middle; padding: 12px 16px;">
-            @php
-              $checkIn = $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in) : null;
-              $checkOut = $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out) : null;
-              $standardCheckIn = \Carbon\Carbon::parse($attendance->date)->setTime(9, 30);
-              $yellowThreshold = \Carbon\Carbon::parse($attendance->date)->setTime(9, 30); // After 9:30 = Yellow
-              $redThreshold = \Carbon\Carbon::parse($attendance->date)->setTime(10, 0); // After 10:00 = Red
-              $standardCheckOut = \Carbon\Carbon::parse($attendance->date)->setTime(18, 30);
-              
-              // Determine check-in color
-              $checkInColor = '#10b981'; // Default green
-              if ($checkIn) {
-                  if ($checkIn->greaterThan($redThreshold)) {
-                      $checkInColor = '#ef4444'; // Red - Very late (after 10:00)
-                  } elseif ($checkIn->greaterThan($yellowThreshold)) {
-                      $checkInColor = '#f59e0b'; // Yellow/Orange - Late (after 9:30)
-                  }
-              }
-              
-              // Determine check-out color - Green if after 6:30 PM
-              $checkOutColor = '#10b981'; // Default green (on time or overtime)
-              $overtimeText = '';
-              if ($checkOut) {
-                  if ($checkOut->greaterThan($standardCheckOut)) {
-                      // Calculate overtime
-                      $overtimeMinutes = $checkOut->diffInMinutes($standardCheckOut);
-                      $overtimeHours = floor($overtimeMinutes / 60);
-                      $overtimeMins = $overtimeMinutes % 60;
-                      if ($overtimeHours > 0 || $overtimeMins > 0) {
-                          $overtimeText = sprintf('%dh %dm', $overtimeHours, $overtimeMins);
-                      }
-                  }
-              }
-            @endphp
+        @php
+          // Group attendances by employee and date
+          $grouped = $attendances->groupBy(function($item) {
+            return $item->employee_id . '_' . $item->date->format('Y-m-d');
+          });
+        @endphp
+        
+        @forelse($grouped as $key => $dayEntries)
+          @php
+            $firstEntry = $dayEntries->first();
+            $dayTotalSeconds = 0;
+            $dayStatus = 'absent';
+            $entrySecondsArr = [];
             
-            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-              @if($overtimeText)
-                <div style="color:#10b981; font-size:10px; font-weight:600; margin-bottom:3px; line-height:1;">{{ $overtimeText }}</div>
-              @endif
-              <div style="display: flex; justify-content: center; align-items: center; white-space: nowrap;">
+            foreach($dayEntries as $idx => $entry) {
+              $secs = 0;
+              if ($entry->check_in && $entry->check_out) {
+                $inT = $entry->check_in instanceof \Carbon\Carbon ? $entry->check_in : \Carbon\Carbon::parse($entry->check_in);
+                $outT = $entry->check_out instanceof \Carbon\Carbon ? $entry->check_out : \Carbon\Carbon::parse($entry->check_out);
+                // Use timestamp difference for accurate calculation
+                $secs = abs($outT->timestamp - $inT->timestamp);
+              }
+              $entrySecondsArr[$idx] = $secs;
+              $dayTotalSeconds += $secs;
+              if($entry->status) $dayStatus = $entry->status;
+            }
+            
+            // Format total time as HH:MM:SS
+            $totalH = floor($dayTotalSeconds / 3600);
+            $totalM = floor(($dayTotalSeconds % 3600) / 60);
+            $totalS = $dayTotalSeconds % 60;
+            $dayTotalFormatted = sprintf('%02d:%02d:%02d', $totalH, $totalM, $totalS);
+            
+            $statusColors = [
+              'present' => ['bg' => '#dcfce7', 'text' => '#166534'],
+              'absent' => ['bg' => '#fee2e2', 'text' => '#991b1b'],
+              'half_day' => ['bg' => '#fef3c7', 'text' => '#92400e'],
+              'late' => ['bg' => '#ffedd5', 'text' => '#9a3412'],
+              'leave' => ['bg' => '#e0e7ff', 'text' => '#3730a3'],
+              'early_leave' => ['bg' => '#fef3c7', 'text' => '#92400e'],
+            ];
+            $statusStyle = $statusColors[$dayStatus] ?? ['bg' => '#f3f4f6', 'text' => '#374151'];
+          @endphp
+          
+          @foreach($dayEntries as $index => $attendance)
+          <tr>
+            <td style="vertical-align: middle; padding: 10px; text-align: center;">
+              <div style="display: inline-flex; gap: 8px; align-items: center;">
+                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.edit attendance'))
+                  <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" style="cursor: pointer; width: 16px; height: 16px;" onclick="editAttendance({{ $attendance->id }})">
+                @endif
+                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.delete attendance'))
+                  <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 16px; height: 16px;" onclick="deleteAttendance({{ $attendance->id }})">
+                @endif
+                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.print attendance report'))
+                  <img src="{{ asset('action_icon/print.svg') }}" alt="Print" style="cursor: pointer; width: 16px; height: 16px;" onclick="printAttendance({{ $attendance->id }})">
+                @endif
+              </div>
+            </td>
+            <td style="vertical-align: middle; font-weight: 600;">
+              {{ $attendance->date->format('d M Y') }}
+            </td>
+            <td style="vertical-align: middle; font-size: 12px;">
+              {{ $attendance->employee->code ?? 'EMP/' . str_pad($attendance->employee->id ?? '000', 4, '0', STR_PAD_LEFT) }}
+            </td>
+            <td style="vertical-align: middle;">{{ $attendance->employee->name ?? 'N/A' }}</td>
+            <td style="vertical-align: middle; text-align: center;">
+              <span style="display:inline-block;background:#e5e7eb;color:#374151;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">
+                #{{ $index + 1 }}
+              </span>
+            </td>
+            <td style="vertical-align: middle; padding: 10px;">
+              @php
+                $checkIn = $attendance->check_in ? ($attendance->check_in instanceof \Carbon\Carbon ? $attendance->check_in : \Carbon\Carbon::parse($attendance->check_in)) : null;
+                $checkOut = $attendance->check_out ? ($attendance->check_out instanceof \Carbon\Carbon ? $attendance->check_out : \Carbon\Carbon::parse($attendance->check_out)) : null;
+              @endphp
+              
+              <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
                 @if($checkIn)
-                  <span style="color:{{ $checkInColor }}; font-weight:600; font-size:14px;">{{ $checkIn->format('h:i A') }}</span>
+                  <span style="color:#059669; font-weight:600; font-size:13px;">{{ $checkIn->format('h:i A') }}</span>
                 @else
                   <span style="color:#9ca3af;">--</span>
                 @endif
                 
-                @if($checkIn && $checkOut)
-                  <span style="color:#d1d5db; margin:0 8px; font-weight:300; font-size:14px;">———</span>
-                  @php
-                    $diff = $checkIn->diff($checkOut);
-                    $totalHours = $diff->h + ($diff->days * 24);
-                    $minutes = $diff->i;
-                  @endphp
-                  <span style="color:#9ca3af; font-size:12px; font-weight:500;">{{ sprintf('%02dh %02dm', $totalHours, $minutes) }}</span>
-                  <span style="color:#d1d5db; margin:0 8px; font-weight:300; font-size:14px;">———</span>
-                @endif
+                <span style="color:#d1d5db; font-size:12px;">→</span>
                 
                 @if($checkOut)
-                  <span style="color:{{ $checkOutColor }}; font-weight:600; font-size:14px;">{{ $checkOut->format('h:i A') }}</span>
+                  <span style="color:#dc2626; font-weight:600; font-size:13px;">{{ $checkOut->format('h:i A') }}</span>
                 @else
                   <span style="color:#9ca3af;">--</span>
                 @endif
               </div>
-            </div>
-          </td>
-          <td style="vertical-align: middle; text-align: center;">
-            <span style="font-weight:600;color:#6b7280">{{ $attendance->calculateOvertime() }}</span>
-          </td>
-          <td style="vertical-align: middle; text-align: center; padding: 12px;">
-            @php
-              $statusColor = match($attendance->status) {
-                'present' => '#10b981',
-                'absent' => '#ef4444',
-                'half_day' => '#f59e0b',
-                'late' => '#f59e0b',
-                'early_leave' => '#f59e0b',
-                default => '#6b7280',
-              };
-            @endphp
-            <span style="color: {{ $statusColor }}; font-weight: 600; font-size: 14px;">{{ $attendance->getStatusText() }}</span>
-          </td>
-        </tr>
+            </td>
+            <td style="vertical-align: middle; text-align: center;">
+              @if($checkIn && $checkOut)
+                @php
+                  $entrySecs = $entrySecondsArr[$index] ?? 0;
+                  $entryH = floor($entrySecs / 3600);
+                  $entryM = floor(($entrySecs % 3600) / 60);
+                  $entryS = $entrySecs % 60;
+                  $entryFormatted = sprintf('%02d:%02d:%02d', $entryH, $entryM, $entryS);
+                @endphp
+                <span style="font-weight:600; color:#374151; font-size:13px;">
+                  {{ $entryFormatted }}
+                </span>
+              @else
+                <span style="color:#9ca3af;">-</span>
+              @endif
+            </td>
+            <td style="vertical-align: middle; text-align: center;">
+              <span style="display:inline-block;background:#dbeafe;color:#1e40af;padding:3px 10px;border-radius:6px;font-weight:700;font-size:12px">
+                {{ $dayTotalFormatted }}
+              </span>
+            </td>
+            <td style="vertical-align: middle; text-align: center;">
+              <span style="display:inline-block;background:{{ $statusStyle['bg'] }};color:{{ $statusStyle['text'] }};padding:3px 10px;border-radius:6px;font-weight:600;font-size:11px;text-transform:capitalize">
+                {{ str_replace('_', ' ', $dayStatus) }}
+              </span>
+            </td>
+          </tr>
+          @endforeach
         @empty
         <tr>
-          <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
+          <td colspan="9" style="text-align: center; padding: 40px; color: #9ca3af;">
             <svg width="48" height="48" fill="currentColor" viewBox="0 0 24 24" style="margin-bottom: 12px; opacity: 0.5;">
               <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
             </svg>
@@ -193,12 +218,12 @@
 <script>
 function editAttendance(id) {
   // Redirect to edit page or open modal
-  window.location.href = '/attendance/' + id + '/edit';
+  window.location.href = '{{ url("attendance") }}/' + id + '/edit';
 }
 
 function deleteAttendance(id) {
   if (confirm('Are you sure you want to delete this attendance record?')) {
-    fetch('/attendance/' + id, {
+    fetch('{{ url("attendance") }}/' + id, {
       method: 'DELETE',
       headers: {
         'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -224,7 +249,7 @@ function deleteAttendance(id) {
 
 function printAttendance(id) {
   // Open print view in new window
-  window.open('/attendance/' + id + '/print', '_blank');
+  window.open('{{ url("attendance") }}/' + id + '/print', '_blank');
 }
 </script>
 @endsection
@@ -251,21 +276,6 @@ $(document).ready(function() {
         }
     });
 });
-
-// Convert dates before form submission
-document.addEventListener('DOMContentLoaded', function() {
-    var form = document.querySelector('.jv-filter, #filterForm');
-    if(form){
-        form.addEventListener('submit', function(e){
-            var dateInputs = form.querySelectorAll('.date-picker');
-            dateInputs.forEach(function(input){
-                if(input.value){
-                    var parts = input.value.split('/');
-                    if(parts.length === 3) input.value = parts[2] + '-' + parts[1] + '-' + parts[0];
-                }
-            });
-        });
-    }
-});
+// Date format dd/mm/yy is sent directly to server - controller handles parsing
 </script>
 @endpush
