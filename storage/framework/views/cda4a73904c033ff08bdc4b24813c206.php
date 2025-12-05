@@ -43,10 +43,29 @@ unset($__errorArgs, $__bag); ?>
       }
       if(expSel){ expSel.addEventListener('change', toggleExpReq); toggleExpReq(); }
 
+      // Handle "Other" position
+      var posSel = document.getElementById('positionSelect');
+      var otherWrap = document.getElementById('otherPositionWrap');
+      var otherInput = document.getElementById('otherPositionInput');
+      function toggleOtherPosition(){
+        var isOther = posSel && posSel.value === 'Other';
+        if(otherWrap){ otherWrap.style.display = isOther ? '' : 'none'; }
+        if(otherInput){ 
+          otherInput.required = isOther; 
+          otherInput.disabled = !isOther;
+          if(!isOther){ otherInput.value = ''; }
+        }
+      }
+      if(posSel){ posSel.addEventListener('change', toggleOtherPosition); toggleOtherPosition(); }
+
       var form = document.getElementById('hiringForm');
       if(form){
         form.addEventListener('submit', function(e){
-          // leverage HTML5 validation; only custom tweak could be added here if needed
+          // If "Other" is selected, use the custom position value
+          if(posSel && posSel.value === 'Other' && otherInput && otherInput.value.trim()){
+            posSel.value = otherInput.value.trim();
+          }
+          
           if(!form.checkValidity()){
             e.preventDefault();
             form.reportValidity();
@@ -95,15 +114,63 @@ unset($__errorArgs, $__bag); ?>
         </div>
         <div>
           <label class="hrp-label">Position:</label>
-          <select name="position" class="Rectangle-29 Rectangle-29-select" required>
+          <select name="position" id="positionSelect" class="Rectangle-29 Rectangle-29-select" required>
             <option value="">Select Position</option>
-            <?php if(isset($positions)): ?>
-              <?php $__currentLoopData = $positions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pos): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <option value="<?php echo e($pos); ?>" <?php echo e(old('position') === $pos ? 'selected' : ''); ?>><?php echo e($pos); ?></option>
-              <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-            <?php endif; ?>
+            <optgroup label="Development">
+              <option value="Full Stack Developer" <?php echo e(old('position') === 'Full Stack Developer' ? 'selected' : ''); ?>>Full Stack Developer</option>
+              <option value="Frontend Developer" <?php echo e(old('position') === 'Frontend Developer' ? 'selected' : ''); ?>>Frontend Developer</option>
+              <option value="Backend Developer" <?php echo e(old('position') === 'Backend Developer' ? 'selected' : ''); ?>>Backend Developer</option>
+              <option value="Mobile App Developer" <?php echo e(old('position') === 'Mobile App Developer' ? 'selected' : ''); ?>>Mobile App Developer</option>
+              <option value="DevOps Engineer" <?php echo e(old('position') === 'DevOps Engineer' ? 'selected' : ''); ?>>DevOps Engineer</option>
+              <option value="Quality Assurance Engineer" <?php echo e(old('position') === 'Quality Assurance Engineer' ? 'selected' : ''); ?>>Quality Assurance Engineer</option>
+            </optgroup>
+            <optgroup label="Design">
+              <option value="UI/UX Designer" <?php echo e(old('position') === 'UI/UX Designer' ? 'selected' : ''); ?>>UI/UX Designer</option>
+              <option value="Graphic Designer" <?php echo e(old('position') === 'Graphic Designer' ? 'selected' : ''); ?>>Graphic Designer</option>
+            </optgroup>
+            <optgroup label="Management">
+              <option value="Project Manager" <?php echo e(old('position') === 'Project Manager' ? 'selected' : ''); ?>>Project Manager</option>
+              <option value="Team Lead" <?php echo e(old('position') === 'Team Lead' ? 'selected' : ''); ?>>Team Lead</option>
+              <option value="Operations Manager" <?php echo e(old('position') === 'Operations Manager' ? 'selected' : ''); ?>>Operations Manager</option>
+            </optgroup>
+            <optgroup label="Human Resources">
+              <option value="HR Executive" <?php echo e(old('position') === 'HR Executive' ? 'selected' : ''); ?>>HR Executive</option>
+              <option value="HR Manager" <?php echo e(old('position') === 'HR Manager' ? 'selected' : ''); ?>>HR Manager</option>
+            </optgroup>
+            <optgroup label="Sales & Marketing">
+              <option value="Sales Executive" <?php echo e(old('position') === 'Sales Executive' ? 'selected' : ''); ?>>Sales Executive</option>
+              <option value="Sales Manager" <?php echo e(old('position') === 'Sales Manager' ? 'selected' : ''); ?>>Sales Manager</option>
+              <option value="Marketing Executive" <?php echo e(old('position') === 'Marketing Executive' ? 'selected' : ''); ?>>Marketing Executive</option>
+              <option value="Digital Marketing Specialist" <?php echo e(old('position') === 'Digital Marketing Specialist' ? 'selected' : ''); ?>>Digital Marketing Specialist</option>
+              <option value="Content Writer" <?php echo e(old('position') === 'Content Writer' ? 'selected' : ''); ?>>Content Writer</option>
+              <option value="SEO Specialist" <?php echo e(old('position') === 'SEO Specialist' ? 'selected' : ''); ?>>SEO Specialist</option>
+            </optgroup>
+            <optgroup label="Finance & Accounting">
+              <option value="Accountant" <?php echo e(old('position') === 'Accountant' ? 'selected' : ''); ?>>Accountant</option>
+              <option value="Finance Manager" <?php echo e(old('position') === 'Finance Manager' ? 'selected' : ''); ?>>Finance Manager</option>
+            </optgroup>
+            <optgroup label="Other Roles">
+              <option value="Business Analyst" <?php echo e(old('position') === 'Business Analyst' ? 'selected' : ''); ?>>Business Analyst</option>
+              <option value="System Administrator" <?php echo e(old('position') === 'System Administrator' ? 'selected' : ''); ?>>System Administrator</option>
+              <option value="Customer Support Executive" <?php echo e(old('position') === 'Customer Support Executive' ? 'selected' : ''); ?>>Customer Support Executive</option>
+              <option value="Receptionist" <?php echo e(old('position') === 'Receptionist' ? 'selected' : ''); ?>>Receptionist</option>
+              <option value="Intern" <?php echo e(old('position') === 'Intern' ? 'selected' : ''); ?>>Intern</option>
+              <option value="Other" <?php echo e(old('position') === 'Other' ? 'selected' : ''); ?>>Other</option>
+            </optgroup>
           </select>
           <?php $__errorArgs = ['position'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+        </div>
+        <div id="otherPositionWrap" style="display:none">
+          <label class="hrp-label">Specify Position:</label>
+          <input name="other_position" id="otherPositionInput" value="<?php echo e(old('other_position')); ?>" placeholder="Enter position name" class="hrp-input Rectangle-29">
+          <?php $__errorArgs = ['other_position'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -144,8 +211,8 @@ endif;
 unset($__errorArgs, $__bag); ?>
             </div>
             <div>
-              <label class="hrp-label">Experience previous Company:</label>
-              <input name="experience_previous_company" id="experience_previous_company" value="<?php echo e(old('experience_previous_company')); ?>" placeholder="Enter Experience Previous Company Name" class="hrp-input Rectangle-29">
+              <label class="hrp-label">Previous Company:</label>
+              <input name="experience_previous_company" id="experience_previous_company" value="<?php echo e(old('experience_previous_company')); ?>" placeholder="Enter Previous Company Name" class="hrp-input Rectangle-29">
               <?php $__errorArgs = ['experience_previous_company'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :

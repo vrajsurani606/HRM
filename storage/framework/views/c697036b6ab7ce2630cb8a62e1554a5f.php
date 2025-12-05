@@ -698,6 +698,9 @@
 })();
 </script>
 
+<!-- Password Toggle Script -->
+<script src="<?php echo e(asset('js/password-toggle.js')); ?>"></script>
+
 <?php echo $__env->yieldPushContent('scripts'); ?>
 <!-- Toastr initialization is handled in partials/flash.blade.php -->
 </body>

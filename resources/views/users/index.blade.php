@@ -3,7 +3,7 @@
 
 @section('content')
   <div class="employee-container">
-    <div class="hrp-actions" style="justify-content: space-between; padding: 0 4px 8px;">
+    <div class="hrp-actions" style="justify-content: flex-end; padding: 0 4px 8px;">
       @can('Users Management.create user')
         <a class="hrp-btn hrp-btn-primary" href="{{ route('users.create') }}">Create User</a>
       @endcan

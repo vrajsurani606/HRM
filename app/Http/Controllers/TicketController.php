@@ -14,22 +14,49 @@ class TicketController extends Controller
         $user = auth()->user();
         $query = Ticket::query();
 
-        // Filter by role: customers see only their company's tickets
-        if ($user->hasRole('customer') && $user->company_id) {
-            $company = $user->company;
-            if ($company) {
-                $query->where(function($q) use ($company) {
-                    $q->where('company', $company->company_name)
-                      ->orWhere('customer', $company->name ?? auth()->user()->name);
-                });
-            }
+        // Super-admin and HR can see all tickets
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        
+        // Check if user is a customer first
+        $isCustomer = $user->hasRole('customer') && $user->company_id;
+        
+        // Check if user is an employee - MUST match user_id first, then fallback to email
+        $employeeRecord = \App\Models\Employee::where('user_id', $user->id)->first();
+        if (!$employeeRecord) {
+            // Fallback: try to find by email only if user_id not found
+            $employeeRecord = \App\Models\Employee::where('email', $user->email)->first();
         }
         
-        // Filter by role: employees see only their assigned tickets
-        if ($user->hasRole('employee')) {
-            $query->where('assigned_to', $user->id);
+        $isEmployee = $user->hasRole('employee') || $user->hasRole('Employee');
+        
+        if (!$isAdmin) {
+            // Filter by role: customers see only their company's tickets
+            if ($isCustomer) {
+                $company = $user->company;
+                if ($company) {
+                    $query->where(function($q) use ($company) {
+                        $q->where('company', $company->company_name)
+                          ->orWhere('customer', $company->name ?? auth()->user()->name);
+                    });
+                }
+            }
+            // Filter by role: employees see only their assigned tickets
+            elseif ($isEmployee && $employeeRecord) {
+                // Employee can ONLY see tickets assigned to them
+                $query->where('assigned_to', $employeeRecord->id);
+            }
+            // Any other role that's not admin - show no tickets by default
+            else {
+                $query->whereRaw('1 = 0'); // Show nothing
+            }
         }
 
+        if ($request->filled('status')) {
+            $query->where('status', $request->string('status'));
+        }
+        if ($request->filled('priority')) {
+            $query->where('priority', $request->string('priority'));
+        }
         if ($request->filled('company')) {
             $query->where('company', $request->string('company'));
         }
@@ -52,13 +79,19 @@ class TicketController extends Controller
 
         // Filter companies list based on role
         $companiesQuery = Ticket::query()->whereNotNull('company')->distinct();
-        if ($user->hasRole('customer') && $user->company_id) {
-            $company = $user->company;
-            if ($company) {
-                $companiesQuery->where(function($q) use ($company) {
-                    $q->where('company', $company->company_name)
-                      ->orWhere('customer', $company->name ?? auth()->user()->name);
-                });
+        if (!$isAdmin) {
+            if ($isCustomer) {
+                $company = $user->company;
+                if ($company) {
+                    $companiesQuery->where(function($q) use ($company) {
+                        $q->where('company', $company->company_name)
+                          ->orWhere('customer', $company->name ?? auth()->user()->name);
+                    });
+                }
+            } elseif ($isEmployee && $employeeRecord) {
+                $companiesQuery->where('assigned_to', $employeeRecord->id);
+            } else {
+                $companiesQuery->whereRaw('1 = 0'); // Show nothing
             }
         }
         $companies = $companiesQuery->pluck('company');
@@ -75,15 +108,25 @@ class TicketController extends Controller
     public function show(Ticket $ticket)
     {
         $user = auth()->user();
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
         
-        // Check access: customers can only view their company's tickets, employees can only view assigned tickets
-        if ($user->hasRole('customer') && $user->company_id) {
-            $company = $user->company;
-            if ($company && $ticket->company != $company->company_name && $ticket->customer != ($company->name ?? $user->name)) {
-                abort(403, 'Unauthorized access to this ticket.');
-            }
-        } elseif ($user->hasRole('employee')) {
-            if ($ticket->assigned_to != $user->id) {
+        if (!$isAdmin) {
+            // Check access: customers can only view their company's tickets
+            if ($user->hasRole('customer') && $user->company_id) {
+                $company = $user->company;
+                if ($company && $ticket->company != $company->company_name && $ticket->customer != ($company->name ?? $user->name)) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
+                // Employees can only view assigned tickets
+                $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+                if (!$employee) {
+                    $employee = \App\Models\Employee::where('email', $user->email)->first();
+                }
+                if (!$employee || $ticket->assigned_to != $employee->id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } else {
                 abort(403, 'Unauthorized access to this ticket.');
             }
         }
@@ -127,14 +170,23 @@ class TicketController extends Controller
     public function edit(Ticket $ticket)
     {
         $user = auth()->user();
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
         
-        // Check access
-        if ($user->hasRole('customer') && $user->company_id) {
-            if ($ticket->company_id != $user->company_id) {
-                abort(403, 'Unauthorized access to this ticket.');
-            }
-        } elseif ($user->hasRole('employee')) {
-            if ($ticket->assigned_to != $user->id) {
+        if (!$isAdmin) {
+            // Check access
+            if ($user->hasRole('customer') && $user->company_id) {
+                if ($ticket->company_id != $user->company_id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
+                $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+                if (!$employee) {
+                    $employee = \App\Models\Employee::where('email', $user->email)->first();
+                }
+                if (!$employee || $ticket->assigned_to != $employee->id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } else {
                 abort(403, 'Unauthorized access to this ticket.');
             }
         }
@@ -145,14 +197,23 @@ class TicketController extends Controller
     public function update(Request $request, Ticket $ticket)
     {
         $user = auth()->user();
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
         
-        // Check access
-        if ($user->hasRole('customer') && $user->company_id) {
-            if ($ticket->company_id != $user->company_id) {
-                abort(403, 'Unauthorized access to this ticket.');
-            }
-        } elseif ($user->hasRole('employee')) {
-            if ($ticket->assigned_to != $user->id) {
+        if (!$isAdmin) {
+            // Check access
+            if ($user->hasRole('customer') && $user->company_id) {
+                if ($ticket->company_id != $user->company_id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
+                $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+                if (!$employee) {
+                    $employee = \App\Models\Employee::where('email', $user->email)->first();
+                }
+                if (!$employee || $ticket->assigned_to != $employee->id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } else {
                 abort(403, 'Unauthorized access to this ticket.');
             }
         }
@@ -179,14 +240,23 @@ class TicketController extends Controller
     public function destroy(Ticket $ticket): RedirectResponse|JsonResponse
     {
         $user = auth()->user();
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
         
-        // Check access
-        if ($user->hasRole('customer') && $user->company_id) {
-            if ($ticket->company_id != $user->company_id) {
-                abort(403, 'Unauthorized access to this ticket.');
-            }
-        } elseif ($user->hasRole('employee')) {
-            if ($ticket->assigned_to != $user->id) {
+        if (!$isAdmin) {
+            // Check access
+            if ($user->hasRole('customer') && $user->company_id) {
+                if ($ticket->company_id != $user->company_id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
+                $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+                if (!$employee) {
+                    $employee = \App\Models\Employee::where('email', $user->email)->first();
+                }
+                if (!$employee || $ticket->assigned_to != $employee->id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } else {
                 abort(403, 'Unauthorized access to this ticket.');
             }
         }

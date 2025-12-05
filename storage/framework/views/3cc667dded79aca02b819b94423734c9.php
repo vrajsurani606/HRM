@@ -101,7 +101,9 @@ unset($__errorArgs, $__bag); ?>
         <!-- Employee Password -->
         <div>
           <label class="hrp-label">Employee Password:</label>
-          <input name="password" type="password" placeholder="Enter Password" class="hrp-input Rectangle-29">
+          <div class="password-wrapper">
+            <input name="password" type="password" placeholder="Enter Password" class="hrp-input Rectangle-29">
+          </div>
           <?php $__errorArgs = ['password'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -176,6 +178,14 @@ unset($__errorArgs, $__bag); ?>
             <div class="filename" id="aadhaarFrontFileName"><?php echo e($employee->aadhaar_photo_front ? 'Current file selected' : 'No file chosen'); ?></div>
             <input id="aadhaarFrontInput" name="aadhaar_photo_front" type="file" accept="image/*">
           </div>
+          <?php if($employee->aadhaar_photo_front): ?>
+            <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+              <img src="<?php echo e(storage_asset($employee->aadhaar_photo_front)); ?>" alt="Aadhaar Front" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e5e7eb; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <a href="<?php echo e(storage_asset($employee->aadhaar_photo_front)); ?>" target="_blank" class="hrp-link" style="font-size: 13px; color: #ef4444; text-decoration: none; font-weight: 600;">
+                <i class="fa fa-eye"></i> View Full Image
+              </a>
+            </div>
+          <?php endif; ?>
           <?php $__errorArgs = ['aadhaar_photo_front'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -194,6 +204,14 @@ unset($__errorArgs, $__bag); ?>
             <div class="filename" id="aadhaarBackFileName"><?php echo e($employee->aadhaar_photo_back ? 'Current file selected' : 'No file chosen'); ?></div>
             <input id="aadhaarBackInput" name="aadhaar_photo_back" type="file" accept="image/*">
           </div>
+          <?php if($employee->aadhaar_photo_back): ?>
+            <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+              <img src="<?php echo e(storage_asset($employee->aadhaar_photo_back)); ?>" alt="Aadhaar Back" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e5e7eb; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <a href="<?php echo e(storage_asset($employee->aadhaar_photo_back)); ?>" target="_blank" class="hrp-link" style="font-size: 13px; color: #ef4444; text-decoration: none; font-weight: 600;">
+                <i class="fa fa-eye"></i> View Full Image
+              </a>
+            </div>
+          <?php endif; ?>
           <?php $__errorArgs = ['aadhaar_photo_back'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -212,6 +230,14 @@ unset($__errorArgs, $__bag); ?>
             <div class="filename" id="panPhotoFileName"><?php echo e($employee->pan_photo ? 'Current file selected' : 'No file chosen'); ?></div>
             <input id="panPhotoInput" name="pan_photo" type="file" accept="image/*">
           </div>
+          <?php if($employee->pan_photo): ?>
+            <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+              <img src="<?php echo e(storage_asset($employee->pan_photo)); ?>" alt="PAN Photo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e5e7eb; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <a href="<?php echo e(storage_asset($employee->pan_photo)); ?>" target="_blank" class="hrp-link" style="font-size: 13px; color: #ef4444; text-decoration: none; font-weight: 600;">
+                <i class="fa fa-eye"></i> View Full Image
+              </a>
+            </div>
+          <?php endif; ?>
           <?php $__errorArgs = ['pan_photo'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -272,6 +298,14 @@ unset($__errorArgs, $__bag); ?>
             <div class="filename" id="chequePhotoFileName"><?php echo e($employee->cheque_photo ? 'Current file selected' : 'No file chosen'); ?></div>
             <input id="chequePhotoInput" name="cheque_photo" type="file" accept="image/*">
           </div>
+          <?php if($employee->cheque_photo): ?>
+            <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+              <img src="<?php echo e(storage_asset($employee->cheque_photo)); ?>" alt="Cheque Photo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e5e7eb; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <a href="<?php echo e(storage_asset($employee->cheque_photo)); ?>" target="_blank" class="hrp-link" style="font-size: 13px; color: #ef4444; text-decoration: none; font-weight: 600;">
+                <i class="fa fa-eye"></i> View Full Image
+              </a>
+            </div>
+          <?php endif; ?>
           <?php $__errorArgs = ['cheque_photo'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -290,6 +324,14 @@ unset($__errorArgs, $__bag); ?>
             <div class="filename" id="marksheetFileName"><?php echo e($employee->marksheet_photo ? 'Current file selected' : 'No file chosen'); ?></div>
             <input id="marksheetInput" name="marksheet_photo" type="file" accept="image/*">
           </div>
+          <?php if($employee->marksheet_photo): ?>
+            <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+              <img src="<?php echo e(storage_asset($employee->marksheet_photo)); ?>" alt="Marksheet" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e5e7eb; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <a href="<?php echo e(storage_asset($employee->marksheet_photo)); ?>" target="_blank" class="hrp-link" style="font-size: 13px; color: #ef4444; text-decoration: none; font-weight: 600;">
+                <i class="fa fa-eye"></i> View Full Image
+              </a>
+            </div>
+          <?php endif; ?>
           <?php $__errorArgs = ['marksheet_photo'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -308,6 +350,14 @@ unset($__errorArgs, $__bag); ?>
             <div class="filename" id="photoFileName"><?php echo e($employee->photo_path ? 'Current photo selected' : 'No file chosen'); ?></div>
             <input id="photoInput" name="photo" type="file" accept="image/*">
           </div>
+          <?php if($employee->photo_path): ?>
+            <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+              <img src="<?php echo e(storage_asset($employee->photo_path)); ?>" alt="Employee Photo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e5e7eb; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <a href="<?php echo e(storage_asset($employee->photo_path)); ?>" target="_blank" class="hrp-link" style="font-size: 13px; color: #ef4444; text-decoration: none; font-weight: 600;">
+                <i class="fa fa-eye"></i> View Full Image
+              </a>
+            </div>
+          <?php endif; ?>
           <?php $__errorArgs = ['photo'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -322,7 +372,7 @@ unset($__errorArgs, $__bag); ?>
         <div>
           <label class="hrp-label">Employee Experience Type:</label>
           <?php ($et = old('experience_type', $employee->experience_type)); ?>
-          <select name="experience_type" class="Rectangle-29 Rectangle-29-select">
+          <select name="experience_type" id="experience_type" class="Rectangle-29 Rectangle-29-select">
             <option value="">Select Experience Type</option>
             <option value="YES" <?php echo e($et==='YES'?'selected':''); ?>>YES</option>
             <option value="NO" <?php echo e($et==='NO'?'selected':''); ?>>NO</option>
@@ -337,11 +387,13 @@ endif;
 unset($__errorArgs, $__bag); ?>
         </div>
         
-        <!-- Employee Previous Company Name -->
-        <div>
-          <label class="hrp-label">Employee Previous Company Name:</label>
-          <input name="previous_company_name" value="<?php echo e(old('previous_company_name', $employee->previous_company_name)); ?>" placeholder="Enter Previous Company Name" class="hrp-input Rectangle-29">
-          <?php $__errorArgs = ['previous_company_name'];
+        <div id="experienceFieldsWrap" style="display:none" class="md:col-span-2">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
+            <!-- Employee Previous Company Name -->
+            <div>
+              <label class="hrp-label">Employee Previous Company Name:</label>
+              <input name="previous_company_name" id="previous_company_name" value="<?php echo e(old('previous_company_name', $employee->previous_company_name)); ?>" placeholder="Enter Previous Company Name" class="hrp-input Rectangle-29">
+              <?php $__errorArgs = ['previous_company_name'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -349,13 +401,13 @@ $message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-        </div>
-        
-        <!-- Employee Previous Salary -->
-        <div>
-          <label class="hrp-label">Employee Previous Salary:</label>
-          <input name="previous_salary" type="number" step="0.01" min="0" value="<?php echo e(old('previous_salary', $employee->previous_salary)); ?>" placeholder="Enter Previous Salary" class="hrp-input Rectangle-29">
-          <?php $__errorArgs = ['previous_salary'];
+            </div>
+            
+            <!-- Employee Previous Salary -->
+            <div>
+              <label class="hrp-label">Employee Previous Salary:</label>
+              <input name="previous_salary" id="previous_salary" type="number" step="0.01" min="0" value="<?php echo e(old('previous_salary', $employee->previous_salary)); ?>" placeholder="Enter Previous Salary" class="hrp-input Rectangle-29">
+              <?php $__errorArgs = ['previous_salary'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -363,6 +415,8 @@ $message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
+            </div>
+          </div>
         </div>
         
         <!-- Employee Current Offer Amount -->
@@ -383,7 +437,7 @@ unset($__errorArgs, $__bag); ?>
         <div>
           <label class="hrp-label">Employee Incentive:</label>
           <?php ($hi = old('has_incentive', $employee->has_incentive ? 'YES' : 'NO')); ?>
-          <select name="has_incentive" class="Rectangle-29 Rectangle-29-select">
+          <select name="has_incentive" id="has_incentive" class="Rectangle-29 Rectangle-29-select">
             <option value="">Select Incentive</option>
             <option value="YES" <?php echo e($hi==='YES'?'selected':''); ?>>YES</option>
             <option value="NO" <?php echo e($hi==='NO'?'selected':''); ?>>NO</option>
@@ -399,9 +453,9 @@ unset($__errorArgs, $__bag); ?>
         </div>
         
         <!-- Employee Incentive Amount -->
-        <div>
+        <div id="incentiveAmountWrap" style="display:none">
           <label class="hrp-label">Employee Incentive Amount:</label>
-          <input name="incentive_amount" type="number" step="0.01" min="0" value="<?php echo e(old('incentive_amount', $employee->incentive_amount)); ?>" placeholder="Enter Employee Incentive Amount" class="hrp-input Rectangle-29">
+          <input name="incentive_amount" id="incentive_amount" type="number" step="0.01" min="0" value="<?php echo e(old('incentive_amount', $employee->incentive_amount)); ?>" placeholder="Enter Employee Incentive Amount" class="hrp-input Rectangle-29">
           <?php $__errorArgs = ['incentive_amount'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -457,6 +511,62 @@ unset($__errorArgs, $__bag); ?>
             <option value="other" <?php echo e($ms==='other'?'selected':''); ?>>Other</option>
           </select>
           <?php $__errorArgs = ['marital_status'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+        </div>
+        
+        <!-- Father Name -->
+        <div>
+          <label class="hrp-label">Father Name:</label>
+          <input name="father_name" value="<?php echo e(old('father_name', $employee->father_name ?? '')); ?>" placeholder="Enter Father Name" class="hrp-input Rectangle-29">
+          <?php $__errorArgs = ['father_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+        </div>
+        
+        <!-- Father Mobile Number -->
+        <div>
+          <label class="hrp-label">Father Mobile Number:</label>
+          <input name="father_mobile" value="<?php echo e(old('father_mobile', $employee->father_mobile ?? '')); ?>" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10">
+          <?php $__errorArgs = ['father_mobile'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+        </div>
+        
+        <!-- Mother Name -->
+        <div>
+          <label class="hrp-label">Mother Name:</label>
+          <input name="mother_name" value="<?php echo e(old('mother_name', $employee->mother_name ?? '')); ?>" placeholder="Enter Mother Name" class="hrp-input Rectangle-29">
+          <?php $__errorArgs = ['mother_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><small class="hrp-error"><?php echo e($message); ?></small><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+        </div>
+        
+        <!-- Mother Mobile Number -->
+        <div>
+          <label class="hrp-label">Mother Mobile Number:</label>
+          <input name="mother_mobile" value="<?php echo e(old('mother_mobile', $employee->mother_mobile ?? '')); ?>" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10">
+          <?php $__errorArgs = ['mother_mobile'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -539,6 +649,32 @@ $(document).ready(function() {
       });
     }
   });
+  
+  // Handle Experience Type show/hide
+  var expTypeSel = document.getElementById('experience_type');
+  var expFieldsWrap = document.getElementById('experienceFieldsWrap');
+  var prevCompany = document.getElementById('previous_company_name');
+  var prevSalary = document.getElementById('previous_salary');
+  
+  function toggleExperienceFields(){
+    var hasExp = expTypeSel && expTypeSel.value === 'YES';
+    if(expFieldsWrap){ expFieldsWrap.style.display = hasExp ? '' : 'none'; }
+    if(prevCompany){ prevCompany.disabled = !hasExp; if(!hasExp){ prevCompany.value = ''; } }
+    if(prevSalary){ prevSalary.disabled = !hasExp; if(!hasExp){ prevSalary.value = ''; } }
+  }
+  if(expTypeSel){ expTypeSel.addEventListener('change', toggleExperienceFields); toggleExperienceFields(); }
+  
+  // Handle Incentive show/hide
+  var incentiveSel = document.getElementById('has_incentive');
+  var incentiveAmountWrap = document.getElementById('incentiveAmountWrap');
+  var incentiveAmount = document.getElementById('incentive_amount');
+  
+  function toggleIncentiveAmount(){
+    var hasIncentive = incentiveSel && incentiveSel.value === 'YES';
+    if(incentiveAmountWrap){ incentiveAmountWrap.style.display = hasIncentive ? '' : 'none'; }
+    if(incentiveAmount){ incentiveAmount.disabled = !hasIncentive; if(!hasIncentive){ incentiveAmount.value = ''; } }
+  }
+  if(incentiveSel){ incentiveSel.addEventListener('change', toggleIncentiveAmount); toggleIncentiveAmount(); }
   
   // Convert date format before form submission
   var form = document.getElementById('employeeForm');

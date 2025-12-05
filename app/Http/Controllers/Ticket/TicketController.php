@@ -13,7 +13,42 @@ class TicketController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $query = Ticket::with('assignedEmployee');
+        
+        // Check user roles
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        $isCustomer = $user->hasRole('customer') && $user->company_id;
+        $isEmployee = $user->hasRole('employee') || $user->hasRole('Employee');
+        
+        // Get employee record for filtering
+        $employeeRecord = null;
+        if ($isEmployee) {
+            $employeeRecord = \App\Models\Employee::where('user_id', $user->id)->first();
+            if (!$employeeRecord) {
+                $employeeRecord = \App\Models\Employee::where('email', $user->email)->first();
+            }
+        }
+        
+        // Apply role-based filtering
+        if (!$isAdmin) {
+            if ($isCustomer) {
+                // Customers see only their company's tickets
+                $company = $user->company;
+                if ($company) {
+                    $query->where(function($q) use ($company, $user) {
+                        $q->where('company', $company->company_name)
+                          ->orWhere('customer', $company->name ?? $user->name);
+                    });
+                }
+            } elseif ($isEmployee && $employeeRecord) {
+                // Employees see ONLY tickets assigned to them
+                $query->where('assigned_to', $employeeRecord->id);
+            } else {
+                // Other roles - show nothing
+                $query->whereRaw('1 = 0');
+            }
+        }
 
         // Filter by status
         if ($request->filled('status')) {
@@ -45,7 +80,24 @@ class TicketController extends Controller
         $perPage = (int) $request->get('per_page', 25);
         $tickets = $query->orderByDesc('created_at')->paginate($perPage)->appends($request->query());
 
-        $companies = Ticket::whereNotNull('company')->distinct()->pluck('company');
+        // Filter companies list based on role
+        $companiesQuery = Ticket::whereNotNull('company')->distinct();
+        if (!$isAdmin) {
+            if ($isCustomer) {
+                $company = $user->company;
+                if ($company) {
+                    $companiesQuery->where(function($q) use ($company, $user) {
+                        $q->where('company', $company->company_name)
+                          ->orWhere('customer', $company->name ?? $user->name);
+                    });
+                }
+            } elseif ($isEmployee && $employeeRecord) {
+                $companiesQuery->where('assigned_to', $employeeRecord->id);
+            } else {
+                $companiesQuery->whereRaw('1 = 0');
+            }
+        }
+        $companies = $companiesQuery->pluck('company');
 
         return view('tickets.index', [
             'tickets' => $tickets,
@@ -114,7 +166,31 @@ class TicketController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $ticket = Ticket::with('assignedEmployee')->findOrFail($id);
+        
+        // Check access based on role
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        
+        if (!$isAdmin) {
+            if ($user->hasRole('customer') && $user->company_id) {
+                $company = $user->company;
+                if ($company && $ticket->company != $company->company_name && $ticket->customer != ($company->name ?? $user->name)) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
+                $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+                if (!$employee) {
+                    $employee = \App\Models\Employee::where('email', $user->email)->first();
+                }
+                if (!$employee || $ticket->assigned_to != $employee->id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } else {
+                abort(403, 'Unauthorized access to this ticket.');
+            }
+        }
+        
         return view('tickets.show', compact('ticket'));
     }
 
@@ -127,7 +203,29 @@ class TicketController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $ticket = Ticket::findOrFail($id);
+        
+        // Check access based on role
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        
+        if (!$isAdmin) {
+            if ($user->hasRole('customer') && $user->company_id) {
+                if ($ticket->company_id != $user->company_id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
+                $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+                if (!$employee) {
+                    $employee = \App\Models\Employee::where('email', $user->email)->first();
+                }
+                if (!$employee || $ticket->assigned_to != $employee->id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } else {
+                abort(403, 'Unauthorized access to this ticket.');
+            }
+        }
 
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json([
@@ -148,7 +246,29 @@ class TicketController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $ticket = Ticket::findOrFail($id);
+        
+        // Check access based on role
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        
+        if (!$isAdmin) {
+            if ($user->hasRole('customer') && $user->company_id) {
+                if ($ticket->company_id != $user->company_id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
+                $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+                if (!$employee) {
+                    $employee = \App\Models\Employee::where('email', $user->email)->first();
+                }
+                if (!$employee || $ticket->assigned_to != $employee->id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } else {
+                abort(403, 'Unauthorized access to this ticket.');
+            }
+        }
 
         $request->validate([
             'title' => 'sometimes|required|string|max:255',
@@ -190,6 +310,29 @@ class TicketController extends Controller
                 return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
             }
             return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
+        $user = auth()->user();
+        
+        // Check access based on role
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        
+        if (!$isAdmin) {
+            if ($user->hasRole('customer') && $user->company_id) {
+                if ($ticket->company_id != $user->company_id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
+                $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+                if (!$employee) {
+                    $employee = \App\Models\Employee::where('email', $user->email)->first();
+                }
+                if (!$employee || $ticket->assigned_to != $employee->id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } else {
+                abort(403, 'Unauthorized access to this ticket.');
+            }
         }
         
         $ticket->delete();

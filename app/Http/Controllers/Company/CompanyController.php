@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company as CompanyModel;
+use App\Models\CompanyDocument;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -282,10 +283,63 @@ class CompanyController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
-        // Load quotations with the company
-        $company->load('quotations');
+        // Load quotations with follow-ups for status
+        $company->load(['quotations.followUps']);
         
-        return view('companies.show', compact('company'));
+        // Get quotations for this company
+        $quotations = $company->quotations()->with('followUps')->orderBy('created_at', 'desc')->get();
+        
+        // Get quotation IDs with confirmed follow-ups
+        $confirmedQuotationIds = \App\Models\QuotationFollowUp::whereIn('quotation_id', $quotations->pluck('id'))
+            ->where('is_confirm', true)
+            ->pluck('quotation_id')
+            ->unique()
+            ->values()
+            ->toArray();
+        
+        // Get proformas for this company's quotations
+        $proformas = \App\Models\Proforma::whereIn('quotation_id', $quotations->pluck('id'))
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Get invoices for this company's proformas
+        $invoices = \App\Models\Invoice::whereIn('proforma_id', $proformas->pluck('id'))
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Get receipts for this company's invoices
+        $receipts = collect();
+        if ($invoices->count() > 0) {
+            $receipts = \App\Models\Receipt::where(function($query) use ($invoices) {
+                foreach ($invoices->pluck('id') as $invoiceId) {
+                    $query->orWhereJsonContains('invoice_ids', $invoiceId);
+                }
+            })->orderBy('created_at', 'desc')->get();
+        }
+        
+        // Get projects for this company
+        $projects = $company->projects()->orderBy('created_at', 'desc')->get();
+        
+        // Get tickets for this company
+        $tickets = \App\Models\Ticket::where('company', $company->company_name)
+            ->orWhere('customer', $company->company_name)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Get additional documents for this company
+        $documents = $company->documents()->orderBy('created_at', 'desc')->get();
+        
+        return view('companies.show', compact(
+            'company', 
+            'quotations', 
+            'confirmedQuotationIds',
+            'proformas', 
+            'invoices', 
+            'receipts', 
+            'projects', 
+            'tickets',
+            'documents'
+        ));
     }
 
     public function edit(CompanyModel $company): View
@@ -740,5 +794,78 @@ class CompanyController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Upload documents for a company
+     */
+    public function uploadDocument(Request $request, CompanyModel $company)
+    {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.edit company'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+
+        $request->validate([
+            'documents' => 'required|array',
+            'documents.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp,xls,xlsx|max:10240',
+        ]);
+
+        $uploadedDocs = [];
+
+        foreach ($request->file('documents') as $file) {
+            $originalName = $file->getClientOriginalName();
+            $extension = strtolower($file->getClientOriginalExtension());
+            $filename = uniqid() . '_' . Str::slug(pathinfo($originalName, PATHINFO_FILENAME)) . '.' . $extension;
+            $path = $file->storeAs('company-documents/' . $company->id, $filename, 'public');
+
+            $document = CompanyDocument::create([
+                'company_id' => $company->id,
+                'document_name' => pathinfo($originalName, PATHINFO_FILENAME),
+                'document_type' => $extension,
+                'file_path' => $path,
+                'original_name' => $originalName,
+                'file_size' => $file->getSize(),
+            ]);
+
+            $uploadedDocs[] = [
+                'id' => $document->id,
+                'name' => $document->document_name,
+                'type' => $document->document_type,
+                'url' => $document->file_url,
+                'is_image' => $document->isImage(),
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => count($uploadedDocs) . ' document(s) uploaded successfully.',
+            'documents' => $uploadedDocs,
+        ]);
+    }
+
+    /**
+     * Delete a company document
+     */
+    public function deleteDocument(CompanyModel $company, CompanyDocument $document)
+    {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.edit company'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+
+        if ($document->company_id !== $company->id) {
+            return response()->json(['success' => false, 'message' => 'Document not found.'], 404);
+        }
+
+        // Delete file from storage
+        if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
+            Storage::disk('public')->delete($document->file_path);
+        }
+
+        $document->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Document deleted successfully.',
+        ]);
     }
 }

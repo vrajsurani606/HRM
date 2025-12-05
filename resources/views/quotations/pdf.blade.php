@@ -291,7 +291,7 @@
                 <tr>
                     <td>
                         <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #1a1a1a; letter-spacing: -0.01em;">&#10020; Greetings from {{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }}</div>
-                        <div style="font-size: 17px; margin-left: 0; margin-bottom: 28px; color: #4a5568; line-height: 1.6;">We develop {{ $quotation->quotation_title ?? 'Software' }} so you don't have to</div>
+                        <div style="font-size: 17px; margin-left: 0; margin-bottom: 28px; color: #4a5568; line-height: 1.6;">We develop LIMS so you don't have to</div>
                         
                         <div style="font-size: 24px; font-weight: 700; margin-bottom: 12px; margin-top: 32px; color: #1a1a1a; letter-spacing: -0.01em;">&#10020; What to Expect</div>
                         <ul style="font-size: 17px; margin-left: 24px; margin-bottom: 28px; list-style-type: disc; line-height: 1.8; color: #2d3748;">
@@ -343,15 +343,15 @@
         <div style="position: relative;">
             <tr>
                 <td>                        
-                    <div style="font-size: 26px; font-weight: 700; margin-bottom: 16px; color: #1a1a1a; letter-spacing: -0.01em;">We develop {{ $quotation->quotation_title ?? 'Software' }} so you don't have to</div>
+                    <div style="font-size: 26px; font-weight: 700; margin-bottom: 16px; color: #1a1a1a; letter-spacing: -0.01em;">We develop LIMS so you don't have to</div>
                     <div style="margin-bottom: 24px;"></div>
-                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">We are living in the age of connectivity, and that means more things than ever before are right at your fingertips — literally. With one press of the button, one swipe left or right, you can open up new worlds in seconds. We're talking about {{ $quotation->quotation_title ?? 'Software' }}.</div>
-                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">But at {{ $quotation->own_company_name ?? 'Enlargesoft' }}, we don't just talk about {{ $quotation->quotation_title ?? 'Software' }}; we live and breathe {{ $quotation->quotation_title ?? 'Software' }}. We have assembled a team of the best and brightest minds in {{ $quotation->quotation_title ?? 'Software' }} development, marketing, and leadership, giving our clients access to the most cutting-edge technology. You can rest assured you're in good hands, as we have years of experience in {{ $quotation->quotation_title ?? 'Software' }} development.</div>
-                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">Our goal is to create something you're proud of and that helps your business. {{ $quotation->quotation_title ?? 'Software' }} can be transcendent, and they can also be colossal failures. That's why {{ $quotation->own_company_name ?? 'Enlargesoft' }} has developed a comprehensive approach to {{ $quotation->quotation_title ?? 'Software' }} development that takes the guessing out of the game. We're ecstatic that you're considering doing business with us, so let's get started.</div>
+                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">We are living in the age of connectivity, and that means more things than ever before are right at your fingertips — literally. With one press of the button, one swipe left or right, you can open up new worlds in seconds. We're talking about LIMS.</div>
+                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">But at {{ $quotation->own_company_name ?? 'Enlargesoft' }}, we don't just talk about LIMS, we live and breathe LIMS. We have assembled a team of the best and brightest minds in LIMS development, marketing, and leadership, giving our clients access to the most cutting-edge technology. You can rest assured you're in good hands, as we have years of experience in LIMS development.</div>
+                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">Our goal is to create something you're proud of and that helps your business. LIMS can be transcendent, and they can also be colossal failures. That's why {{ $quotation->own_company_name ?? 'Enlargesoft' }} has developed a comprehensive approach to LIMS development that takes the guessing out of the game. We're ecstatic that you're considering doing business with us, so let's get started.</div>
                     <div style="font-size: 26px; font-weight: 700; margin-bottom: 16px; margin-top: 32px; color: #1a1a1a; letter-spacing: -0.01em;">What to Expect</div>
-                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">{{ $quotation->quotation_title ?? 'Software' }} development is serious business. It takes time and patience to create something that works for you and is free of bugs and other issues. Updates are required, but it's important to start with a sound foundation. At {{ $quotation->own_company_name ?? 'Enlargesoft' }}, we believe in a thorough approach that provides our clients with as much engagement as they request. While our entire team will be developing your {{ $quotation->quotation_title ?? 'Software' }}, we will assign a project lead who will be your main point of contact.</div>
+                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">LIMS development is serious business. It takes time and patience to create something that works for you and is free of bugs and other issues. Updates are required, but it's important to start with a sound foundation. At {{ $quotation->own_company_name ?? 'Enlargesoft' }}, we believe in a thorough approach that provides our clients with as much engagement as they request. While our entire team will be developing your LIMS, we will assign a project lead who will be your main point of contact.</div>
                     <div style="font-size: 26px; font-weight: 700; margin-bottom: 16px; margin-top: 32px; color: #1a1a1a; letter-spacing: -0.01em;">Research and outreach</div>
-                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">A large part of the work {{ $quotation->own_company_name ?? 'Enlargesoft' }} does is behind the scenes. There will be times when we don't communicate with {{ $quotation->own_company_name ?? 'Enlargesoft' }} for weeks, but that's only because we're intimately involved in the development phase. However, before any of that begins, we need to make a checklist of everything you want in your new {{ $quotation->quotation_title ?? 'Software' }}.</div>
+                    <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">A large part of the work {{ $quotation->own_company_name ?? 'Enlargesoft' }} does is behind the scenes. There will be times when we don't communicate with {{ $quotation->own_company_name ?? 'Enlargesoft' }} for weeks, but that's only because we're intimately involved in the development phase. However, before any of that begins, we need to make a checklist of everything you want in your new LIMS.</div>
                 </td>                
             </tr>        
         </div>
@@ -377,13 +377,13 @@
                 <tr>
                     <td style="vertical-align: top;">
                         <div style="font-size: 17px; line-height: 1.8; margin-bottom: 32px; text-align: justify; color: #2d3748;">
-                            We will gather information about your company and how it works. We will figure out who your customers are and how we can attract more through your new {{ $quotation->quotation_title ?? 'Software' }}. Audience engagement, research, and branding are key in {{ $quotation->quotation_title ?? 'Software' }} development, and we will conduct focus groups to find out why people choose <strong style="font-weight: 600; color: #1a1a1a;">{{ $quotation->company_name }}</strong>.
+                            We will gather information about your company and how it works. We will figure out who your customers are and how we can attract more through your new LIMS. Audience engagement, research, and branding are key in LIMS development, and we will conduct focus groups to find out why people choose <strong style="font-weight: 600; color: #1a1a1a;">{{ $quotation->company_name }}</strong>.
                         </div>
 
                         <div style="font-size: 26px; font-weight: 700; margin-bottom: 16px; margin-top: 32px; color: #1a1a1a; letter-spacing: -0.01em;">Framework</div>
 
                         <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">
-                            Like a {{ $quotation->quotation_title ?? 'Software' }}, {{ $quotation->quotation_title ?? 'Software' }} needs a sitemap and wireframes. Think of this as the structural integrity of a skyscraper. Will have an important role in the design process, as it's important that you are getting what you want. Plus, it's better workable issues in this stage than later down the road. Here are some highlights of this process:
+                            Like a LIMS, LIMS needs a sitemap and wireframes. Think of this as the structural integrity of a skyscraper. Will have an important role in the design process, as it's important that you are getting what you want. Plus, it's better workable issues in this stage than later down the road. Here are some highlights of this process:
                         </div>
 
                         <div style="font-size: 17px; line-height: 1.8; margin-left: 24px; margin-bottom: 32px; color: #2d3748;">
@@ -396,7 +396,7 @@
                         <div style="font-size: 26px; font-weight: 700; margin-bottom: 16px; margin-top: 32px; color: #1a1a1a; letter-spacing: -0.01em;">Testing and launch</div>
 
                         <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">
-                            We're almost there. Your new {{ $quotation->quotation_title ?? 'Software' }} is built and ready to launch. But before that happens, {{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }} and {{ $quotation->company_name }} need to collaborate on a marketing strategy. After all, just because you invested all this time and money into your {{ $quotation->quotation_title ?? 'Software' }}, it doesn't mean anyone will know it exists unless we tell them.
+                            We're almost there. Your new LIMS is built and ready to launch. But before that happens, {{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }} and {{ $quotation->company_name }} need to collaborate on a marketing strategy. After all, just because you invested all this time and money into your LIMS, it doesn't mean anyone will know it exists unless we tell them.
                         </div>
                     </td>
                 </tr>
@@ -418,20 +418,20 @@
                 <td style="vertical-align: top;">                                        
                     <table class="inner-table" cellspacing="0" style="width:100%; border-collapse:separate; margin:20px 0; border-radius:8px; overflow:hidden;">                                                
                         <tr>                                                        
-                            <td colspan="4" style="font-size:17px; color:#2d3748; line-height:1.8; background:#fff; border-radius:8px 8px 0 0; text-align: justify;">{{ $quotation->own_company_name ?? 'Enlargesoft' }} estimates that it will take {{ $quotation->completion_time ?? '90 Days' }} to complete your new {{ $quotation->quotation_title ?? 'Software' }}. Upon signing this agreement, we can begin immediately. Here's what to expect:</td>                                                                            
+                            <td colspan="4" style="font-size:17px; color:#2d3748; line-height:1.8; background:#fff; border-radius:8px 8px 0 0; text-align: justify;">{{ $quotation->own_company_name ?? 'Enlargesoft' }} estimates that it will take {{ $quotation->completion_time ?? '90 Days' }} to complete your new LIMS. Upon signing this agreement, we can begin immediately. Here's what to expect:</td>                                                                            
                         </tr>                                                
                         <tr>
                             <td colspan="4" style="height:32px;"></td>
                         </tr>                                                
                         <tr>                                                        
-                            <td colspan="4" style="background:#3B86B3 !important; color:#ffffff !important; text-align:center; font-size:18px; font-weight:700; padding:16px; border-radius:8px 8px 0 0; letter-spacing:0.01em; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">Timeline for {{ $quotation->quotation_title ?? 'Software' }} Development</td>                                                    
+                            <td colspan="4" style="background:#3B86B3 !important; color:#ffffff !important; text-align:center; font-size:18px; font-weight:700; padding:16px; border-radius:8px 8px 0 0; letter-spacing:0.01em; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">Timeline for LIMS Development</td>                                                    
                         </tr>                                                
                         <tr>                                                        
                             <td colspan="2" style="background:#f7fafc !important; color:#1a1a1a; padding:14px 16px; font-size:16px; font-weight:700; border:1px solid #e2e8f0; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">Process</td>                                                        
                             <td colspan="2" style="background:#f7fafc !important; color:#1a1a1a; padding:14px 16px; font-size:16px; font-weight:700; border:1px solid #e2e8f0; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">Delivery</td>                                                    
                         </tr>                                                
                         <tr>                                                        
-                            <td colspan="2" style="padding:14px 16px; border:1px solid #e2e8f0; border-radius:0 0 0 8px; font-weight:600; font-size:15px; color:#2d3748;">Development For {{ $quotation->quotation_title ?? 'Software' }}</td>                                                        
+                            <td colspan="2" style="padding:14px 16px; border:1px solid #e2e8f0; border-radius:0 0 0 8px; font-weight:600; font-size:15px; color:#2d3748;">Development For LIMS</td>                                                        
                             <td colspan="2" style="padding:14px 16px; border:1px solid #e2e8f0; border-radius:0 0 8px 0; font-weight:600; font-size:15px; color:#2d3748;">{{ $quotation->completion_time ?? '90 Days' }}</td>                                                    
                         </tr>                                            
                     </table>
@@ -447,7 +447,7 @@
                             <td colspan="4" style="height:16px;"></td>
                         </tr>                                                
                         <tr>                                                        
-                            <td colspan="4" style="font-size:17px; color:#2d3748; line-height:1.8; text-align:justify;">We want to receive the utmost value from your investment in new {{ $quotation->quotation_title ?? 'Software' }}. This budget breakdown is based on the project outline described above. Please contact your project lead with any issues or questions before signing.</td>                                                    
+                            <td colspan="4" style="font-size:17px; color:#2d3748; line-height:1.8; text-align:justify;">We want to receive the utmost value from your investment in new LIMS. This budget breakdown is based on the project outline described above. Please contact your project lead with any issues or questions before signing.</td>                                                    
                         </tr>                                                
                         <tr>
                             <td colspan="4" style="height:32px;"></td>
@@ -567,17 +567,7 @@
                                 $termNumber = 1;
                                 $customTerms = is_array($quotation->custom_terms_and_conditions) ? $quotation->custom_terms_and_conditions : json_decode($quotation->custom_terms_and_conditions ?? '[]', true);
                             @endphp
-                            
-                            {{-- Display Custom Terms First --}}
-                            @if(!empty($customTerms) && is_array($customTerms))
-                                @foreach($customTerms as $customTerm)
-                                    @if(!empty(trim($customTerm)))
-                                        <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> {{ trim($customTerm) }}</div>
-                                        @php $termNumber++; @endphp
-                                    @endif
-                                @endforeach
-                            @endif
-                            
+                                    
                             {{-- Default Terms --}}
                             <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> Quotation is valid till one week from send date. After the expiration of this period, the Quotation may be subject to changes.</div>
                             @php $termNumber++; @endphp
@@ -594,6 +584,17 @@
                             <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> Accommodation charges will be in your scope.</div>
                             @php $termNumber++; @endphp
                             <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> Payments made are strictly non-refundable. By completing transaction, you agree to these terms without exception.</div>
+                            @php $termNumber++; @endphp
+
+                            {{-- Display Custom Terms Last --}}
+                            @if(!empty($customTerms) && is_array($customTerms))
+                                @foreach($customTerms as $customTerm)
+                                    @if(!empty(trim($customTerm)))
+                                        <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> {{ trim($customTerm) }}</div>
+                                        @php $termNumber++; @endphp
+                                    @endif
+                                @endforeach
+                            @endif
                         </div>
                     </td>
                 </tr>

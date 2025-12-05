@@ -32,7 +32,9 @@ unset($__errorArgs, $__bag); ?>
         </div>
         <div>
           <label class="hrp-label">Password <small style="color:#6b7280">(leave blank to keep current)</small></label>
-          <input type="password" name="password" class="hrp-input Rectangle-29">
+          <div class="password-wrapper">
+            <input type="password" name="password" class="hrp-input Rectangle-29">
+          </div>
           <?php $__errorArgs = ['password'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :

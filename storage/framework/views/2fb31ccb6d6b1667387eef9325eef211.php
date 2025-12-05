@@ -274,8 +274,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                    placeholder="Enter email" style="margin-bottom: 15px; color: #000;">
 
                             <label class="hrp-label">Password:</label>
-                            <input type="password" id="convert-password" class="hrp-input Rectangle-29"
-                                   placeholder="Enter password" style="color: #000;">
+                            <div class="password-wrapper">
+                                <input type="password" id="convert-password" class="hrp-input Rectangle-29"
+                                       placeholder="Enter password" style="color: #000;">
+                            </div>
                         </div>
                     `,
                     showCancelButton: true,

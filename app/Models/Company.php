@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 
 class Company extends Model
 {
@@ -39,10 +38,7 @@ class Company extends Model
             return $this->company_logo;
         }
         
-        $path = 'public/' . ltrim($this->company_logo, '/');
-        return Storage::disk('public')->exists($path) 
-            ? asset('storage/' . ltrim($this->company_logo, '/'))
-            : null;
+        return storage_asset($this->company_logo);
     }
     
     /**
@@ -59,10 +55,7 @@ class Company extends Model
             return $this->sop_upload;
         }
         
-        $path = 'public/' . ltrim($this->sop_upload, '/');
-        return Storage::disk('public')->exists($path)
-            ? route('company.documents.view', ['type' => 'sop', 'filename' => basename($this->sop_upload)])
-            : null;
+        return storage_asset($this->sop_upload);
     }
     
     /**
@@ -79,10 +72,7 @@ class Company extends Model
             return $this->quotation_upload;
         }
         
-        $path = 'public/' . ltrim($this->quotation_upload, '/');
-        return Storage::disk('public')->exists($path)
-            ? route('company.documents.view', ['type' => 'quotation', 'filename' => basename($this->quotation_upload)])
-            : null;
+        return storage_asset($this->quotation_upload);
     }
 
     protected static function boot()
@@ -149,5 +139,13 @@ class Company extends Model
     public function projects()
     {
         return $this->hasMany(Project::class);
+    }
+
+    /**
+     * Get all documents for this company
+     */
+    public function documents()
+    {
+        return $this->hasMany(CompanyDocument::class);
     }
 }
