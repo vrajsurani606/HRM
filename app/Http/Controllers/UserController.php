@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('roles')->paginate(10);
+        // Get per_page from request, default to 12
+        $perPage = $request->get('per_page', 12);
+        $users = User::with('roles')->paginate($perPage)->withQueryString();
         return view('users.index', compact('users'));
     }
 

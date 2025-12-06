@@ -99,7 +99,13 @@
               </form>
             @endcan
             @can('Leads Management.convert lead')
-              <a href="{{ route('hiring.convert', $lead->id) }}" class="hiring-grid-action-btn btn-convert" title="Convert to Employee" aria-label="Convert to Employee">
+              <a href="{{ route('hiring.convert', $lead->id) }}" 
+                 class="hiring-grid-action-btn btn-convert convert-btn" 
+                 data-id="{{ $lead->id }}"
+                 data-url="{{ route('hiring.convert', $lead->id) }}"
+                 data-name="{{ $lead->person_name }}"
+                 title="Convert to Employee" 
+                 aria-label="Convert to Employee">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,11 12,14 15,11"></polyline><line x1="12" y1="2" x2="12" y2="14"></line></svg>
               </a>
             @endcan
