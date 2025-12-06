@@ -546,7 +546,7 @@
                     <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
                   </svg>
                   <p style="font-weight:600;margin:0">No attendance records found</p>
-                  <p style="font-size:14px;margin:8px 0 0 0">No records for <?php echo e(date('F', mktime(0,0,0,$month,1))); ?> <?php echo e($year); ?></p>
+                  <p style="font-size:14px;margin:8px 0 0 0">No records for the selected period</p>
                 </td>
               </tr>
             <?php endif; ?>
@@ -558,6 +558,16 @@
 
     <?php if($canViewDocuments): ?>
     <div id="documents" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
+      <div style="padding: 24px 32px 16px 32px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb;">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 800; color: #111; margin: 0 0 4px 0;">My Documents</h3>
+          <p style="font-size: 14px; color: #6b7280; margin: 0;">Upload and manage your documents</p>
+        </div>
+        <button type="button" onclick="openUploadModal()" class="hrp-btn hrp-btn-primary" style="display: flex !important; align-items: center; gap: 8px; white-space: nowrap; cursor: pointer;">
+          <i class="fa fa-plus"></i> Add Document
+        </button>
+      </div>
+      
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;padding:24px 32px">
         <?php
           $hasAny = false;
@@ -604,8 +614,57 @@
             </div>
           <?php endif; ?>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        
+        
+        <?php if($employee && $employee->documents): ?>
+          <?php $__currentLoopData = $employee->documents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customDoc): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php
+              $hasAny = true;
+              $url = storage_asset($customDoc->file_path);
+              $ext = strtolower($customDoc->file_type ?? 'file');
+              $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp','bmp']);
+            ?>
+            <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.1);position:relative">
+              <div style="height:180px;background:#f8fafc;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;position:relative">
+                <?php if($isImage): ?>
+                  <img src="<?php echo e($url); ?>" alt="<?php echo e($customDoc->document_name); ?>" style="max-width:100%;max-height:100%;object-fit:contain" />
+                <?php else: ?>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="#94a3b8"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                <?php endif; ?>
+                <?php if($customDoc->document_type): ?>
+                  <span style="position:absolute;top:8px;right:8px;background:#0ea5e9;color:white;padding:4px 8px;border-radius:4px;font-size:10px;font-weight:700"><?php echo e($customDoc->document_type); ?></span>
+                <?php endif; ?>
+              </div>
+              <div style="padding:14px">
+                <div style="font-weight:800;color:#0f172a;margin-bottom:4px"><?php echo e($customDoc->document_name); ?></div>
+                <?php if($customDoc->description): ?>
+                  <div style="font-size:11px;color:#64748b;margin-bottom:6px;line-height:1.4"><?php echo e(Str::limit($customDoc->description, 60)); ?></div>
+                <?php endif; ?>
+                <div style="font-size:12px;color:#64748b;margin-bottom:10px"><?php echo e(strtoupper($ext)); ?> • <?php echo e($customDoc->file_size_human); ?></div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <a href="<?php echo e($url); ?>" download style="flex:1;text-align:center;background:#0ea5e9 !important;color:white !important;border:none;border-radius:8px;padding:8px 12px;font-weight:700;text-decoration:none;font-size:13px;display:inline-block">Download</a>
+                  <button type="button" onclick="window.open('<?php echo e($url); ?>','_blank')" style="width:36px !important;height:36px !important;min-width:36px;background:#6b7280 !important;border:none !important;border-radius:6px;cursor:pointer;display:flex !important;align-items:center;justify-content:center;padding:0 !important;flex-shrink:0">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 5C5 5 1 12 1 12s4 7 11 7 11-7 11-7-4-7-11-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"></path></svg>
+                  </button>
+                  <form method="POST" action="<?php echo e(route('profile.documents.delete', $customDoc->id)); ?>" style="margin:0 !important;padding:0 !important;display:inline-block" onsubmit="return confirm('Are you sure you want to delete this document?')">
+                    <?php echo csrf_field(); ?>
+                    <?php echo method_field('DELETE'); ?>
+                    <button type="submit" class="doc-delete-btn" style="width:36px !important;height:36px !important;min-width:36px;background:#ef4444 !important;border:none !important;border-radius:6px !important;cursor:pointer !important;display:flex !important;align-items:center !important;justify-content:center !important;padding:0 !important;flex-shrink:0 !important;transition:all 0.2s !important;box-shadow:0 1px 3px rgba(0,0,0,0.1) !important" onmouseover="this.style.setProperty('background', '#dc2626', 'important');this.style.setProperty('transform', 'scale(1.05)', 'important')" onmouseout="this.style.setProperty('background', '#ef4444', 'important');this.style.setProperty('transform', 'scale(1)', 'important')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="white" style="pointer-events:none"><path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/></svg>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        <?php endif; ?>
+        
         <?php if(!$hasAny): ?>
-          <div style="grid-column:1/-1;text-align:center;color:#6b7280;padding:40px">No documents found</div>
+          <div style="grid-column:1/-1;text-align:center;color:#6b7280;padding:40px">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="#d1d5db" style="margin:0 auto 16px"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+            <p style="font-size:16px;font-weight:600;color:#6b7280;margin:0 0 8px 0">No documents uploaded yet</p>
+            <p style="font-size:14px;color:#9ca3af;margin:0">Click "Add Document" to upload your first document</p>
+          </div>
         <?php endif; ?>
       </div>
     </div>
@@ -940,6 +999,26 @@
       .action-icon:hover {
         transform: scale(1.2);
       }
+      
+      /* Document delete button - force red color */
+      .doc-delete-btn,
+      .doc-delete-btn:hover,
+      .doc-delete-btn:focus,
+      .doc-delete-btn:active,
+      .doc-delete-btn:visited {
+        background: #ef4444 !important;
+        color: white !important;
+      }
+      
+      .doc-delete-btn:hover {
+        background: #dc2626 !important;
+        transform: scale(1.05) !important;
+      }
+      
+      .doc-delete-btn:active {
+        background: #b91c1c !important;
+        transform: scale(0.98) !important;
+      }
     </style>
 
     <script>
@@ -994,15 +1073,80 @@
         }
       }
       
-      // Check URL for tab parameter and switch to that tab
-      document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const tab = urlParams.get('tab');
-        if (tab) {
-          switchTab(tab);
+      // Upload Document Modal Functions
+      function openUploadModal() {
+        document.getElementById('uploadModal').style.display = 'flex';
+      }
+
+      function closeUploadModal() {
+        document.getElementById('uploadModal').style.display = 'none';
+        document.getElementById('uploadDocumentForm').reset();
+      }
+
+      // Close modal when clicking outside
+      document.getElementById('uploadModal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeUploadModal();
         }
       });
     </script>
+
+    <!-- Upload Document Modal -->
+    <div id="uploadModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+      <div style="background: white; border-radius: 12px; padding: 32px; max-width: 500px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h3 style="font-size: 20px; font-weight: 700; color: #111; margin: 0; font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+            <i class="fa fa-upload"></i> Upload Document
+          </h3>
+          <button onclick="closeUploadModal()" style="background: none; border: none; font-size: 24px; color: #9ca3af; cursor: pointer; padding: 0; line-height: 1;">
+            &times;
+          </button>
+        </div>
+        
+        <form id="uploadDocumentForm" method="POST" action="<?php echo e(route('profile.documents.upload')); ?>" enctype="multipart/form-data">
+          <?php echo csrf_field(); ?>
+          
+          <div style="margin-bottom: 16px;">
+            <label class="hrp-label" style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Document Name <span style="color: #ef4444;">*</span></label>
+            <input type="text" name="document_name" id="documentName" class="hrp-input Rectangle-29" required style="width: 100%;" placeholder="e.g., Passport, Driving License, Certificate">
+            <small style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">Give your document a name</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label class="hrp-label" style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Category (Optional)</label>
+            <select name="document_type" id="documentType" class="Rectangle-29 Rectangle-29-select" style="width: 100%;">
+              <option value="">Select Category</option>
+              <option value="Identity">Identity Document</option>
+              <option value="Education">Education Certificate</option>
+              <option value="Experience">Experience Letter</option>
+              <option value="Financial">Financial Document</option>
+              <option value="Medical">Medical Certificate</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label class="hrp-label" style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Description (Optional)</label>
+            <textarea name="description" id="documentDescription" class="Rectangle-29-textarea" style="width: 100%; min-height: 60px;" placeholder="Add any notes about this document"></textarea>
+          </div>
+          
+          <div style="margin-bottom: 24px;">
+            <label class="hrp-label" style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Select File <span style="color: #ef4444;">*</span></label>
+            <input type="file" name="document" id="documentFile" accept="image/*,application/pdf,.doc,.docx" required class="hrp-input Rectangle-29" style="width: 100%; padding: 8px;">
+            <small style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">Accepted: JPG, PNG, PDF, DOC, DOCX (Max: 10MB)</small>
+          </div>
+          
+          <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button type="button" onclick="closeUploadModal()" class="hrp-btn" style="background: #f3f4f6; color: #374151;">
+              Cancel
+            </button>
+            <button type="submit" class="hrp-btn hrp-btn-primary">
+              <i class="fa fa-upload"></i> Upload
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startPush('scripts'); ?>

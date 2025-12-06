@@ -4,6 +4,139 @@
 
 @push('styles')
 <style>
+  /* Note Popup Modal */
+  .note-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  .note-popup-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  .note-popup-content {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 560px;
+    max-height: 80vh;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .note-popup-overlay.active .note-popup-content {
+    transform: translateY(0) scale(1);
+  }
+  .note-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: white;
+  }
+  .note-popup-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white !important;
+  }
+  .note-popup-header h3 span {
+    color: white !important;
+  }
+  .note-popup-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  .note-popup-close:hover {
+    background: rgba(255,255,255,0.25);
+    transform: scale(1.1);
+  }
+  .note-popup-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .note-popup-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #374151;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .note-popup-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    font-size: 13px;
+    color: #64748b;
+  }
+  .note-popup-assignees {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+  }
+  .note-popup-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  }
+  .read-more-link {
+    color: #3b82f6;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+  }
+  .read-more-link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+  }
+
   .hrp-content {
     overflow-y: auto !important;
     scroll-behavior: smooth;
@@ -160,6 +293,7 @@
     padding: 18px;
     min-width: 280px;
     max-width: 320px;
+    width: 320px;
     min-height: 140px;
     display: flex;
     flex-direction: column;
@@ -167,11 +301,27 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     transition: all 0.2s ease;
     flex-shrink: 0;
+    overflow: hidden;
   }
   
   .note-card:hover {
     box-shadow: 0 4px 16px rgba(0,0,0,0.12);
     transform: translateY(-2px);
+  }
+  
+  /* Note card text styling */
+  .note-card-text {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 8px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
   }
   
   /* Blue Note Card for EMP. NOTES */
@@ -182,6 +332,7 @@
     padding: 18px;
     min-width: 300px;
     max-width: 360px;
+    width: 360px;
     min-height: 160px;
     display: flex;
     flex-direction: column;
@@ -189,11 +340,27 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     transition: all 0.2s ease;
     flex-shrink: 0;
+    overflow: hidden;
   }
   
   .note-card-blue:hover {
     box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
     transform: translateY(-2px);
+  }
+  
+  /* Blue note card text styling */
+  .note-card-blue-text {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 8px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
   }
   
   /* Emp Notes Horizontal Scroll (hidden by default, gray on hover) */
@@ -421,9 +588,21 @@
       <div class="notes-scroll-container">
         <div id="systemNotesContainer" class="notes-grid">
           @forelse($systemNotes ?? [] as $note)
+            @php
+              $noteText = $note['text'] ?? '';
+              $maxLength = 100;
+              $isTruncated = strlen($noteText) > $maxLength;
+              $displayText = $isTruncated ? substr($noteText, 0, $maxLength) . '...' : $noteText;
+            @endphp
             <div class="note-card">
-              <div style="font-size: 14px; color: #374151; line-height: 1.7; margin-bottom: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;">{{ $note['text'] }}</div>
-              <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div class="note-card-text">{{ $displayText }}</div>
+              @if($isTruncated)
+                <span class="read-more-link" data-full-text="{{ urlencode($noteText) }}" data-date="{{ $note['date'] }}" data-assignees="" onclick="openNoteFromData(this)">
+                  Read More 
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </span>
+              @endif
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
                 <span style="font-size: 12px; color: #9ca3af; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">{{ $note['date'] }}</span>
                 <form action="{{ route('employee.notes.delete', $note['id']) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to delete this note?');">
                   @csrf
@@ -482,11 +661,24 @@
       <div id="empNotesContainer" class="emp-notes-scroll-container">
         <div style="display: flex; gap: 16px; min-width: max-content; padding: 4px;">
           @forelse($empNotes ?? [] as $note)
+            @php
+              $empNoteText = $note['text'] ?? 'No content';
+              $empMaxLength = 100;
+              $empIsTruncated = strlen($empNoteText) > $empMaxLength;
+              $empDisplayText = $empIsTruncated ? substr($empNoteText, 0, $empMaxLength) . '...' : $empNoteText;
+              $assigneesList = isset($note['assignees']) && is_array($note['assignees']) ? $note['assignees'] : [];
+            @endphp
             <div class="note-card-blue">
-              <div style="font-size: 14px; color: #374151; line-height: 1.7; margin-bottom: 12px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;">{{ $note['text'] ?? 'No content' }}</div>
-              <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
-                @if(isset($note['assignees']) && is_array($note['assignees']))
-                  @foreach($note['assignees'] as $assignee)
+              <div class="note-card-blue-text">{{ $empDisplayText }}</div>
+              @if($empIsTruncated)
+                <span class="read-more-link" data-full-text="{{ urlencode($empNoteText) }}" data-date="{{ $note['date'] ?? now()->format('M d, Y') }}" data-assignees="{{ urlencode(json_encode($assigneesList)) }}" onclick="openNoteFromData(this)">
+                  Read More 
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </span>
+              @endif
+              <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; margin-top: 8px;">
+                @if(count($assigneesList) > 0)
+                  @foreach($assigneesList as $assignee)
                     <span style="padding: 5px 12px; background: #dbeafe; color: #1e40af; border-radius: 6px; font-size: 12px; font-weight: 600;">{{ $assignee }}</span>
                   @endforeach
                 @else
@@ -621,6 +813,100 @@
     </div>
   </div>
 </div>
+
+<!-- Note Popup Modal -->
+<div id="notePopupModal" class="note-popup-overlay" onclick="if(event.target === this) closeNotePopup()">
+  <div class="note-popup-content">
+    <div class="note-popup-header">
+      <h3>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        <span id="notePopupTitle">Note Details</span>
+      </h3>
+      <button type="button" class="note-popup-close" onclick="closeNotePopup()">&times;</button>
+    </div>
+    <div class="note-popup-body">
+      <div id="notePopupText" class="note-popup-text"></div>
+      <div id="notePopupAssignees" class="note-popup-assignees" style="display: none;"></div>
+    </div>
+    <div class="note-popup-meta">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span id="notePopupDate">-</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// Note popup functions
+function escapeHtml(text) {
+  var div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function openNotePopup(text, date, assignees) {
+  var modal = document.getElementById('notePopupModal');
+  var textEl = document.getElementById('notePopupText');
+  var dateEl = document.getElementById('notePopupDate');
+  var assigneesEl = document.getElementById('notePopupAssignees');
+  var titleEl = document.getElementById('notePopupTitle');
+  
+  // Handle escaped newlines
+  var displayText = text.replace(/\\n/g, '\n');
+  textEl.textContent = displayText;
+  dateEl.textContent = date || '-';
+  titleEl.textContent = assignees && assignees.length > 0 ? 'Employee Note Details' : 'Note Details';
+  
+  // Handle assignees
+  if (assignees && assignees.length > 0) {
+    var chipsHtml = '';
+    assignees.forEach(function(name) {
+      chipsHtml += '<span class="note-popup-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>' + escapeHtml(name) + '</span>';
+    });
+    assigneesEl.innerHTML = '<div style="font-size: 11px; color: #64748b; margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">👥 Assigned to:</div>' + chipsHtml;
+    assigneesEl.style.display = 'block';
+  } else {
+    assigneesEl.style.display = 'none';
+  }
+  
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeNotePopup() {
+  var modal = document.getElementById('notePopupModal');
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Close popup on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeNotePopup();
+  }
+});
+
+// Helper function to open note popup from data attributes (safer for special characters)
+function openNoteFromData(element) {
+  try {
+    var fullText = decodeURIComponent(element.getAttribute('data-full-text') || '');
+    var date = element.getAttribute('data-date') || '-';
+    var assigneesStr = element.getAttribute('data-assignees');
+    var assignees = null;
+    
+    if (assigneesStr) {
+      try {
+        assignees = JSON.parse(decodeURIComponent(assigneesStr));
+      } catch(e) {
+        assignees = null;
+      }
+    }
+    
+    openNotePopup(fullText, date, assignees);
+  } catch(e) {
+    console.error('Error opening note popup:', e);
+  }
+}
+</script>
 
 <script>
 function switchTab(tab) {
@@ -1049,9 +1335,23 @@ function loadNotes(type, page = 1) {
   });
 }
 
+// Helper function to truncate text
+function truncateNoteText(text, maxLength) {
+  if (!text || text.length <= maxLength) return { text: text, truncated: false };
+  return { text: text.substring(0, maxLength).trim() + '...', truncated: true };
+}
+
+// Helper function to escape HTML
+function escapeHtmlText(text) {
+  var div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 // Render Notes in UI
 function renderNotes(type, notes, currentPage, totalPages) {
   const containerId = type === 'system' ? 'systemNotesContainer' : 'empNotesContainer';
+  const maxLength = 100; // Max characters before truncation
   
   let container = document.getElementById(containerId);
   if (!container) {
@@ -1068,17 +1368,23 @@ function renderNotes(type, notes, currentPage, totalPages) {
         <div>No notes yet. Add your first note above!</div>
       </div>`;
     } else {
-      container.innerHTML = notes.map(note => `
+      container.innerHTML = notes.map(note => {
+        const truncated = truncateNoteText(note.text, maxLength);
+        const readMoreHtml = truncated.truncated ? 
+          `<span class="read-more-link" data-full-text="${encodeURIComponent(note.text)}" data-date="${note.date}" data-assignees="" onclick="openNoteFromData(this)">Read More <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>` : '';
+        
+        return `
         <div class="note-card">
-          <div style="font-size: 12px; color: #374151; line-height: 1.6; margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">${note.text}</div>
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 10px; color: #9ca3af;">${note.date}</span>
+          <div class="note-card-text">${escapeHtmlText(truncated.text)}</div>
+          ${readMoreHtml}
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+            <span style="font-size: 12px; color: #9ca3af;">${note.date}</span>
             <button onclick="deleteNote(${note.id}, 'system')" style="width: 24px; height: 24px; border-radius: 50%; background: #fee2e2; border: none; color: #dc2626; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='white';" onmouseout="this.style.background='#fee2e2'; this.style.color='#dc2626';">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             </button>
           </div>
         </div>
-      `).join('');
+      `}).join('');
     }
   } else {
     // Employee notes use horizontal scroll layout
@@ -1091,25 +1397,27 @@ function renderNotes(type, notes, currentPage, totalPages) {
       </div>`;
     } else {
       container.innerHTML = `<div style="display: flex; gap: 14px; min-width: max-content; padding: 4px;">
-        ${notes.map(note => `
-          <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.2s; min-width: 280px; max-width: 320px; flex-shrink: 0;">
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
-              <div style="font-size: 13px; color: #374151; line-height: 1.6; flex: 1; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">${note.text}</div>
-              <button onclick="deleteNote(${note.id}, 'employee')" style="width: 24px; height: 24px; border-radius: 50%; background: #fee2e2; border: none; color: #dc2626; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; margin-left: 12px;">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        ${notes.map(note => {
+          const truncated = truncateNoteText(note.text, maxLength);
+          const assigneesList = note.assignees || ['Employee'];
+          const readMoreHtml = truncated.truncated ? 
+            `<span class="read-more-link" data-full-text="${encodeURIComponent(note.text)}" data-date="${note.date}" data-assignees="${encodeURIComponent(JSON.stringify(assigneesList))}" onclick="openNoteFromData(this)">Read More <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>` : '';
+          
+          return `
+          <div class="note-card-blue">
+            <div class="note-card-blue-text">${escapeHtmlText(truncated.text)}</div>
+            ${readMoreHtml}
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; margin-top: 8px;">
+              ${assigneesList.map(assignee => `<span style="display: inline-flex; align-items: center; padding: 5px 12px; background: #dbeafe; color: #1e40af; border-radius: 6px; font-size: 12px; font-weight: 600;">${escapeHtmlText(assignee)}</span>`).join('')}
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 12px; color: #9ca3af;">${note.date}</span>
+              <button onclick="deleteNote(${note.id}, 'employee')" style="width: 22px; height: 22px; border-radius: 50%; background: #fee2e2; border: none; color: #dc2626; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
               </button>
             </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
-              ${(note.assignees || ['Employee']).map(assignee => `<span style="display: inline-flex; align-items: center; padding: 5px 12px; background: #3b82f6; color: white; border-radius: 6px; font-size: 11px; font-weight: 600;">${assignee}</span>`).join('')}
-            </div>
-            <div style="display: flex; align-items: center; gap: 14px; font-size: 11px; color: #9ca3af;">
-              <span style="display: flex; align-items: center; gap: 4px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                ${note.date}
-              </span>
-            </div>
           </div>
-        `).join('')}
+        `}).join('')}
       </div>`;
     }
   }

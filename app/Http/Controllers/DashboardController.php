@@ -924,7 +924,7 @@ class DashboardController extends Controller
     public function storeNote(Request $request)
     {
         $request->validate([
-            'note_text' => 'required|string|max:1000',
+            'note_text' => 'required|string|max:10000',
             'note_type' => 'required|in:notes,empNotes',
             'employee_id' => 'nullable|exists:employees,id'
         ]);
@@ -1064,11 +1064,22 @@ class DashboardController extends Controller
                 ->get();
 
             $formattedNotes = $notes->map(function($note) {
+                // Get sender name from user_id
+                $senderName = 'Unknown';
+                if ($note->user_id) {
+                    $sender = User::find($note->user_id);
+                    if ($sender) {
+                        $senderName = $sender->name;
+                    }
+                }
+                
                 return [
                     'id' => $note->id,
                     'text' => $note->content,
                     'date' => Carbon::parse($note->created_at)->format('M d, Y g:i A'),
-                    'assignees' => json_decode($note->assignees, true) ?? []
+                    'assignees' => json_decode($note->assignees, true) ?? [],
+                    'sender' => $senderName,
+                    'sender_id' => $note->user_id
                 ];
             })->toArray();
 
@@ -1134,7 +1145,7 @@ class DashboardController extends Controller
     {
         try {
             $request->validate([
-                'text' => 'required|string|max:1000',
+                'text' => 'required|string|max:10000',
                 'assignees' => 'required|array|min:1',
                 'assignees.*' => 'exists:employees,id'
             ]);
@@ -1209,7 +1220,7 @@ class DashboardController extends Controller
     public function updateAdminNote(Request $request, $id)
     {
         $request->validate([
-            'text' => 'required|string|max:1000'
+            'text' => 'required|string|max:10000'
         ]);
 
         try {
@@ -1335,8 +1346,9 @@ class DashboardController extends Controller
     {
         $currentMonth = now()->month;
         $currentYear = now()->year;
+        $today = now()->toDateString();
 
-        // HR KPIs
+        // ========== CORE HR KPIs ==========
         $totalEmployees = Employee::count();
         $activeEmployees = Employee::where('status', 'active')->count();
         $onLeaveToday = Leave::whereDate('start_date', '<=', now())
@@ -1347,17 +1359,60 @@ class DashboardController extends Controller
         $pendingLeaves = Leave::where('status', 'pending')->count();
         
         // Attendance today
-        $today = now()->toDateString();
         $presentToday = Attendance::whereDate('date', $today)
             ->whereIn('status', ['present', 'late', 'early_leave'])
             ->count();
-        $absentToday = $totalEmployees - $presentToday - $onLeaveToday;
+        $absentToday = max(0, $totalEmployees - $presentToday - $onLeaveToday);
         $attendanceRate = $totalEmployees > 0 ? round(($presentToday / $totalEmployees) * 100) : 0;
 
         // New hires this month
         $newHires = Employee::whereYear('joining_date', $currentYear)
             ->whereMonth('joining_date', $currentMonth)
             ->count();
+
+        // ========== ADDITIONAL HR METRICS ==========
+        
+        // Open Tickets count
+        $openTickets = Ticket::whereIn('status', ['open', 'pending', 'in_progress'])->count();
+        
+        // Total Projects
+        $totalProjects = 0;
+        $activeProjects = 0;
+        try {
+            if (DB::getSchemaBuilder()->hasTable('projects')) {
+                $totalProjects = DB::table('projects')->count();
+                $activeProjects = DB::table('projects')->whereIn('status', ['active', 'in_progress'])->count();
+            }
+        } catch (\Exception $e) {}
+
+        // Payroll this month
+        $monthlyPayroll = 0;
+        $paidEmployees = 0;
+        try {
+            if (DB::getSchemaBuilder()->hasTable('payrolls')) {
+                $payrollData = DB::table('payrolls')
+                    ->where('month', $currentMonth)
+                    ->where('year', $currentYear)
+                    ->selectRaw('SUM(net_salary) as total, COUNT(*) as count')
+                    ->first();
+                $monthlyPayroll = $payrollData->total ?? 0;
+                $paidEmployees = $payrollData->count ?? 0;
+            }
+        } catch (\Exception $e) {}
+
+        // Late arrivals today
+        $lateToday = Attendance::whereDate('date', $today)->where('status', 'late')->count();
+
+        // Inquiries this month
+        $monthlyInquiries = 0;
+        try {
+            if (DB::getSchemaBuilder()->hasTable('inquiries')) {
+                $monthlyInquiries = DB::table('inquiries')
+                    ->whereYear('created_at', $currentYear)
+                    ->whereMonth('created_at', $currentMonth)
+                    ->count();
+            }
+        } catch (\Exception $e) {}
 
         $stats = [
             'total_employees' => $totalEmployees,
@@ -1368,10 +1423,18 @@ class DashboardController extends Controller
             'absent_today' => $absentToday,
             'attendance_rate' => $attendanceRate,
             'new_hires' => $newHires,
+            'open_tickets' => $openTickets,
+            'total_projects' => $totalProjects,
+            'active_projects' => $activeProjects,
+            'monthly_payroll' => $monthlyPayroll,
+            'paid_employees' => $paidEmployees,
+            'late_today' => $lateToday,
+            'monthly_inquiries' => $monthlyInquiries,
         ];
 
-        // Recent leave requests
-        $recentLeaves = Leave::with('employee')
+        // ========== PENDING LEAVE REQUESTS (for approval) ==========
+        $pendingLeaveRequests = Leave::with('employee')
+            ->where('status', 'pending')
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
@@ -1379,6 +1442,35 @@ class DashboardController extends Controller
                 return [
                     'id' => $leave->id,
                     'employee' => $leave->employee->name ?? 'Unknown',
+                    'employee_id' => $leave->employee_id,
+                    'photo' => $leave->employee && $leave->employee->photo_path 
+                        ? asset('storage/' . $leave->employee->photo_path) 
+                        : asset('new_theme/dist/img/avatar.png'),
+                    'type' => ucfirst($leave->leave_type ?? 'Leave'),
+                    'from' => Carbon::parse($leave->start_date)->format('M d'),
+                    'to' => Carbon::parse($leave->end_date)->format('M d'),
+                    'from_full' => Carbon::parse($leave->start_date)->format('M d, Y'),
+                    'to_full' => Carbon::parse($leave->end_date)->format('M d, Y'),
+                    'days' => Carbon::parse($leave->start_date)->diffInDays(Carbon::parse($leave->end_date)) + 1,
+                    'status' => $leave->status,
+                    'reason' => $leave->reason ?? 'No reason provided',
+                    'created_at' => Carbon::parse($leave->created_at)->diffForHumans()
+                ];
+            });
+        
+        // ========== RECENT LEAVE HISTORY (approved/rejected) ==========
+        $recentLeaves = Leave::with('employee')
+            ->whereIn('status', ['approved', 'rejected'])
+            ->orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function($leave) {
+                return [
+                    'id' => $leave->id,
+                    'employee' => $leave->employee->name ?? 'Unknown',
+                    'photo' => $leave->employee && $leave->employee->photo_path 
+                        ? asset('storage/' . $leave->employee->photo_path) 
+                        : asset('new_theme/dist/img/avatar.png'),
                     'type' => ucfirst($leave->leave_type ?? 'Leave'),
                     'from' => Carbon::parse($leave->start_date)->format('M d'),
                     'to' => Carbon::parse($leave->end_date)->format('M d'),
@@ -1388,7 +1480,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Upcoming birthdays (next 30 days)
+        // ========== UPCOMING BIRTHDAYS (next 30 days) ==========
         $upcomingBirthdays = Employee::whereRaw('DATE_ADD(date_of_birth, INTERVAL YEAR(CURDATE())-YEAR(date_of_birth) + IF(DAYOFYEAR(CURDATE()) > DAYOFYEAR(date_of_birth),1,0) YEAR) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)')
             ->orderByRaw('DAYOFYEAR(date_of_birth)')
             ->limit(5)
@@ -1400,16 +1492,35 @@ class DashboardController extends Controller
                 }
                 return [
                     'name' => $emp->name,
+                    'position' => $emp->position ?? 'Employee',
                     'date' => $nextBirthday->format('M d'),
                     'days_until' => now()->diffInDays($nextBirthday),
                     'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png')
                 ];
             });
 
-        // Department-wise employee count
+        // ========== WORK ANNIVERSARIES THIS MONTH ==========
+        $workAnniversaries = Employee::whereMonth('joining_date', $currentMonth)
+            ->whereNotNull('joining_date')
+            ->where('joining_date', '<', now())
+            ->get()
+            ->map(function($emp) {
+                $joiningDate = Carbon::parse($emp->joining_date);
+                $yearsWorked = $joiningDate->diffInYears(now());
+                return [
+                    'name' => $emp->name,
+                    'position' => $emp->position ?? 'Employee',
+                    'years' => $yearsWorked,
+                    'date' => $joiningDate->format('M d'),
+                    'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png')
+                ];
+            })
+            ->filter(fn($emp) => $emp['years'] >= 1)
+            ->take(5);
+
+        // ========== DEPARTMENT STATS ==========
         $departmentStats = collect([]);
         try {
-            // Check if department column exists
             if (DB::getSchemaBuilder()->hasColumn('employees', 'department')) {
                 $departmentStats = Employee::select('department', DB::raw('count(*) as count'))
                     ->whereNotNull('department')
@@ -1418,12 +1529,19 @@ class DashboardController extends Controller
                     ->limit(5)
                     ->get();
             }
-        } catch (\Exception $e) {
-            // If department column doesn't exist, return empty collection
-            $departmentStats = collect([]);
+        } catch (\Exception $e) {}
+
+        // If no department data, use position-based stats
+        if ($departmentStats->isEmpty()) {
+            $departmentStats = Employee::select('position as department', DB::raw('count(*) as count'))
+                ->whereNotNull('position')
+                ->groupBy('position')
+                ->orderByDesc('count')
+                ->limit(5)
+                ->get();
         }
 
-        // Attendance trends (last 7 days)
+        // ========== ATTENDANCE TRENDS (last 7 days) ==========
         $attendanceTrends = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i);
@@ -1432,12 +1550,150 @@ class DashboardController extends Controller
                 ->count();
             $attendanceTrends[] = [
                 'date' => $date->format('D'),
+                'full_date' => $date->format('M d'),
                 'count' => $present,
                 'percentage' => $totalEmployees > 0 ? round(($present / $totalEmployees) * 100) : 0
             ];
         }
 
-        return view('dashboard-hr', compact('stats', 'recentLeaves', 'upcomingBirthdays', 'departmentStats', 'attendanceTrends'));
+        // ========== RECENT TICKETS ==========
+        $recentTickets = Ticket::with('assignedEmployee')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function($ticket) {
+                return [
+                    'id' => $ticket->id,
+                    'ticket_no' => $ticket->ticket_no ?? '#' . $ticket->id,
+                    'subject' => $ticket->subject ?? $ticket->title ?? 'No Subject',
+                    'customer' => $ticket->customer ?? 'N/A',
+                    'status' => $ticket->status ?? 'open',
+                    'priority' => $ticket->priority ?? 'normal',
+                    'assigned_to' => $ticket->assignedEmployee->name ?? 'Unassigned',
+                    'created_at' => Carbon::parse($ticket->created_at)->diffForHumans()
+                ];
+            });
+
+        // ========== ACTIVE PROJECTS ==========
+        $projectsList = collect([]);
+        try {
+            if (DB::getSchemaBuilder()->hasTable('projects')) {
+                $projectsList = DB::table('projects')
+                    ->leftJoin('companies', 'projects.company_id', '=', 'companies.id')
+                    ->select('projects.*', 'companies.name as company_name')
+                    ->whereIn('projects.status', ['active', 'in_progress'])
+                    ->orderBy('projects.due_date', 'asc')
+                    ->limit(5)
+                    ->get()
+                    ->map(function($project) {
+                        $progress = $project->total_tasks > 0 
+                            ? round(($project->completed_tasks / $project->total_tasks) * 100) 
+                            : 0;
+                        return [
+                            'id' => $project->id,
+                            'name' => $project->name,
+                            'company' => $project->company_name ?? 'N/A',
+                            'status' => $project->status,
+                            'priority' => $project->priority ?? 'normal',
+                            'progress' => $progress,
+                            'due_date' => $project->due_date ? Carbon::parse($project->due_date)->format('M d, Y') : 'No deadline',
+                            'is_overdue' => $project->due_date && Carbon::parse($project->due_date)->isPast()
+                        ];
+                    });
+            }
+        } catch (\Exception $e) {}
+
+        // ========== MONTHLY HIRING TREND (last 6 months) ==========
+        $hiringTrend = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $count = Employee::whereYear('joining_date', $month->year)
+                ->whereMonth('joining_date', $month->month)
+                ->count();
+            $hiringTrend[] = [
+                'month' => $month->format('M'),
+                'year' => $month->format('Y'),
+                'count' => $count
+            ];
+        }
+
+        // ========== TODAY'S ATTENDANCE BREAKDOWN ==========
+        $attendanceBreakdown = [
+            'present' => Attendance::whereDate('date', $today)->where('status', 'present')->count(),
+            'late' => Attendance::whereDate('date', $today)->where('status', 'late')->count(),
+            'early_leave' => Attendance::whereDate('date', $today)->where('status', 'early_leave')->count(),
+            'half_day' => Attendance::whereDate('date', $today)->where('status', 'half_day')->count(),
+            'on_leave' => $onLeaveToday,
+            'absent' => $absentToday
+        ];
+
+        // ========== LEAVE TYPE DISTRIBUTION ==========
+        $leaveTypeStats = Leave::select('leave_type', DB::raw('count(*) as count'))
+            ->whereYear('created_at', $currentYear)
+            ->groupBy('leave_type')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'type' => ucfirst($item->leave_type ?? 'Other'),
+                    'count' => $item->count
+                ];
+            });
+
+        // ========== RECENT ACTIVITIES ==========
+        $recentActivities = collect([]);
+        
+        // Get recent leaves
+        $recentLeaveActivities = Leave::with('employee')
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get()
+            ->map(function($leave) {
+                return [
+                    'type' => 'leave',
+                    'icon' => '🏖️',
+                    'title' => ($leave->employee->name ?? 'Employee') . ' requested ' . ucfirst($leave->leave_type ?? 'leave'),
+                    'time' => Carbon::parse($leave->created_at)->diffForHumans(),
+                    'timestamp' => $leave->created_at
+                ];
+            });
+
+        // Get recent attendance
+        $recentAttendanceActivities = Attendance::with('employee')
+            ->whereDate('date', $today)
+            ->orderBy('check_in', 'desc')
+            ->limit(3)
+            ->get()
+            ->map(function($att) {
+                return [
+                    'type' => 'attendance',
+                    'icon' => '✅',
+                    'title' => ($att->employee->name ?? 'Employee') . ' checked in',
+                    'time' => $att->check_in ? Carbon::parse($att->check_in)->format('h:i A') : 'N/A',
+                    'timestamp' => $att->check_in ?? $att->created_at
+                ];
+            });
+
+        // Merge and sort activities
+        $recentActivities = $recentLeaveActivities->concat($recentAttendanceActivities)
+            ->sortByDesc('timestamp')
+            ->take(5)
+            ->values();
+
+        return view('dashboard-hr', compact(
+            'stats', 
+            'pendingLeaveRequests',
+            'recentLeaves', 
+            'upcomingBirthdays', 
+            'workAnniversaries',
+            'departmentStats', 
+            'attendanceTrends',
+            'recentTickets',
+            'projectsList',
+            'hiringTrend',
+            'attendanceBreakdown',
+            'leaveTypeStats',
+            'recentActivities'
+        ));
     }
 
     /**

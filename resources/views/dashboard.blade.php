@@ -18,6 +18,173 @@
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
   }
+  
+  /* Note Popup Modal */
+  .note-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  .note-popup-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  .note-popup-content {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 560px;
+    max-height: 80vh;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .note-popup-overlay.active .note-popup-content {
+    transform: translateY(0) scale(1);
+  }
+  .note-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: white;
+  }
+  .note-popup-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white !important;
+  }
+  .note-popup-header h3 span {
+    color: white !important;
+  }
+  .note-popup-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  .note-popup-close:hover {
+    background: rgba(255,255,255,0.25);
+    transform: scale(1.1);
+  }
+  .note-popup-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .note-popup-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #374151;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .note-popup-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    font-size: 13px;
+    color: #64748b;
+  }
+  .note-popup-meta svg {
+    opacity: 0.7;
+  }
+  .note-popup-assignees {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+  }
+  .note-popup-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  }
+  .read-more-link {
+    color: #3b82f6;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+  }
+  .read-more-link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+  }
+  
+  /* Note card text styling for proper word wrapping */
+  .note-card-text {
+    font-size: 14px;
+    color: #1e293b;
+    line-height: 1.6;
+    font-weight: 500;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+  
+  .emp-note-text-wrap {
+    font-size: 15px;
+    color: #1e293b;
+    line-height: 1.7;
+    font-weight: 500;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    margin-bottom: 8px;
+  }
+  
   .notify-item:hover { background: #f8fafc !important; }
   #readAllBtn:hover { background: rgba(255,255,255,0.25) !important; }
   .search-wrap{ max-width:420px; border: none !important; }
@@ -985,6 +1152,28 @@
       </div>
     </div>
   </div>
+
+  <!-- Note Popup Modal -->
+  <div id="notePopupModal" class="note-popup-overlay" onclick="if(event.target === this) closeNotePopup()">
+    <div class="note-popup-content">
+      <div class="note-popup-header">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          <span id="notePopupTitle">Note Details</span>
+        </h3>
+        <button type="button" class="note-popup-close" onclick="closeNotePopup()">&times;</button>
+      </div>
+      <div class="note-popup-body">
+        <div id="notePopupSender" style="display: none;"></div>
+        <div id="notePopupText" class="note-popup-text"></div>
+        <div id="notePopupAssignees" class="note-popup-assignees" style="display: none;"></div>
+      </div>
+      <div class="note-popup-meta">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <span id="notePopupDate">-</span>
+      </div>
+    </div>
+  </div>
 @endsection
 
 @push('scripts')
@@ -1253,6 +1442,109 @@
     });
   }
 
+  // Note popup functions
+  function openNotePopup(text, date, assignees, sender) {
+    var modal = document.getElementById('notePopupModal');
+    var textEl = document.getElementById('notePopupText');
+    var dateEl = document.getElementById('notePopupDate');
+    var assigneesEl = document.getElementById('notePopupAssignees');
+    var titleEl = document.getElementById('notePopupTitle');
+    var senderEl = document.getElementById('notePopupSender');
+    
+    textEl.textContent = text;
+    dateEl.textContent = date || '-';
+    
+    // Set title based on sender or assignees
+    if (sender) {
+      titleEl.textContent = 'Message from ' + sender;
+    } else if (assignees && assignees.length > 0) {
+      titleEl.textContent = 'Employee Note Details';
+    } else {
+      titleEl.textContent = 'Note Details';
+    }
+    
+    // Handle sender display in popup
+    if (senderEl) {
+      if (sender) {
+        senderEl.innerHTML = '<div style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 10px; margin-bottom: 16px;">' +
+          '<div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">' +
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>' +
+          '</div>' +
+          '<div>' +
+            '<div style="font-size: 15px; font-weight: 700; color: #065f46;">' + escapeHtml(sender) + '</div>' +
+            '<div style="font-size: 12px; color: #047857;">Sent this message</div>' +
+          '</div>' +
+        '</div>';
+        senderEl.style.display = 'block';
+      } else {
+        senderEl.style.display = 'none';
+      }
+    }
+    
+    // Handle assignees
+    if (assignees && assignees.length > 0) {
+      var chipsHtml = '';
+      assignees.forEach(function(name) {
+        chipsHtml += '<span class="note-popup-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>' + escapeHtml(name) + '</span>';
+      });
+      assigneesEl.innerHTML = '<div style="font-size: 11px; color: #64748b; margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">👥 Assigned to:</div>' + chipsHtml;
+      assigneesEl.style.display = 'block';
+    } else {
+      assigneesEl.style.display = 'none';
+    }
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  
+  function closeNotePopup() {
+    var modal = document.getElementById('notePopupModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  
+  // Close popup on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeNotePopup();
+    }
+  });
+  
+  // Helper function to open note popup from data attributes (safer for special characters)
+  function openNoteFromData(element) {
+    try {
+      var fullText = decodeURIComponent(element.getAttribute('data-full-text') || '');
+      var date = element.getAttribute('data-date') || '-';
+      var assigneesStr = element.getAttribute('data-assignees');
+      var assignees = null;
+      
+      // Get sender from parent card if available
+      var parentCard = element.closest('.emp-note-card') || element.closest('.note-card');
+      var sender = null;
+      if (parentCard && parentCard.getAttribute('data-sender')) {
+        sender = decodeURIComponent(parentCard.getAttribute('data-sender'));
+      }
+      
+      if (assigneesStr) {
+        try {
+          assignees = JSON.parse(decodeURIComponent(assigneesStr));
+        } catch(e) {
+          assignees = null;
+        }
+      }
+      
+      openNotePopup(fullText, date, assignees, sender);
+    } catch(e) {
+      console.error('Error opening note popup:', e);
+    }
+  }
+  
+  // Truncate text helper
+  function truncateText(text, maxLength) {
+    if (!text || text.length <= maxLength) return { text: text, truncated: false };
+    return { text: text.substring(0, maxLength).trim() + '...', truncated: true };
+  }
+
   // Display system notes in the grid with beautiful design
   function displaySystemNotes(notes) {
     var container = document.getElementById('systemNotesGrid');
@@ -1263,13 +1555,19 @@
       return;
     }
     
+    var maxLength = 120; // Max characters before truncation
     var html = '';
     notes.forEach(function(note) {
+      var truncated = truncateText(note.text, maxLength);
+      var readMoreHtml = truncated.truncated ? 
+        '<span class="read-more-link" data-full-text="' + encodeURIComponent(note.text) + '" data-date="' + note.date + '" data-assignees="" onclick="openNoteFromData(this)">Read More <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>' : '';
+      
       html += 
-        '<div class="note-card" data-note-id="' + note.id + '" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.2s ease;">' +
+        '<div class="note-card" data-note-id="' + note.id + '" data-full-text="' + encodeURIComponent(note.text) + '" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.2s ease;">' +
           '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">' +
-            '<div style="flex: 1;">' +
-              '<div style="font-size: 14px; color: #1e293b; line-height: 1.6; font-weight: 500;">' + escapeHtml(note.text) + '</div>' +
+            '<div style="flex: 1; overflow: hidden;">' +
+              '<div class="note-card-text">' + escapeHtml(truncated.text) + '</div>' +
+              readMoreHtml +
               '<div style="display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 11px; color: #94a3b8;">' +
                 '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' +
                 '<span>' + note.date + '</span>' +
@@ -1717,6 +2015,8 @@
       return;
     }
     
+    var maxLength = 120; // Max characters before truncation
+    
     // Display notes with beautiful design
     notes.forEach(function(note) {
       // Build assignees chips with gradient background
@@ -1741,13 +2041,35 @@
       }
       
       var noteDate = note.date || 'No date';
+      var fullText = note.text || '';
+      var truncated = truncateText(fullText, maxLength);
+      
+      // Build read more link for long notes - use data attributes for safety
+      var readMoreHtml = '';
+      if (truncated.truncated) {
+        readMoreHtml = '<span class="read-more-link" data-note-id="' + note.id + '" data-full-text="' + encodeURIComponent(fullText) + '" data-date="' + noteDate + '" data-assignees="' + encodeURIComponent(JSON.stringify(assigneesList)) + '" onclick="openNoteFromData(this)">Read More <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>';
+      }
+      
+      // Get sender name
+      var senderName = note.sender || 'Unknown';
+      var senderHtml = '<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;">' +
+        '<div style="width: 36px; height: 36px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>' +
+        '</div>' +
+        '<div>' +
+          '<div style="font-size: 14px; font-weight: 700; color: #1e293b;">' + escapeHtml(senderName) + '</div>' +
+          '<div style="font-size: 11px; color: #64748b;">Sent a message</div>' +
+        '</div>' +
+      '</div>';
       
       var noteHtml = 
-        '<div class="emp-note-card" data-note-id="' + note.id + '" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; border-left: 4px solid #3b82f6; border-radius: 12px; padding: 18px 18px 18px 20px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); transition: all 0.25s ease;">' +
+        '<div class="emp-note-card" data-note-id="' + note.id + '" data-full-text="' + encodeURIComponent(fullText) + '" data-date="' + noteDate + '" data-assignees="' + encodeURIComponent(JSON.stringify(assigneesList)) + '" data-sender="' + encodeURIComponent(senderName) + '" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; border-left: 4px solid #10b981; border-radius: 12px; padding: 18px 18px 18px 20px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); transition: all 0.25s ease;">' +
           '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">' +
-            '<div style="flex: 1; min-width: 0;">' +
-              '<div style="font-size: 15px; color: #1e293b; line-height: 1.7; font-weight: 500; margin-bottom: 14px; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;">' + escapeHtml(note.text || '') + '</div>' +
-              '<div style="margin-bottom: 14px;">' +
+            '<div style="flex: 1; min-width: 0; overflow: hidden;">' +
+              senderHtml +
+              '<div class="emp-note-text-wrap">' + escapeHtml(truncated.text) + '</div>' +
+              readMoreHtml +
+              '<div style="margin-bottom: 14px; margin-top: 10px;">' +
                 '<div style="font-size: 11px; color: #64748b; margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">👥 Assigned to:</div>' +
                 '<div style="display: flex; flex-wrap: wrap; gap: 6px;">' + assigneesHtml + '</div>' +
               '</div>' +

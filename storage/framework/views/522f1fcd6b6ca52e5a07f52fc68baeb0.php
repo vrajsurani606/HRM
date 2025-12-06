@@ -40,7 +40,7 @@
     </a>
 
     <div class="filter-right">
-      <input name="q" class="filter-pill" placeholder="Search tickets..." value="<?php echo e(request('q')); ?>">
+      <input name="q" class="filter-pill live-search" placeholder="Search tickets..." value="<?php echo e(request('q')); ?>">
       <?php if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.create ticket')): ?>
         <button type="button" class="pill-btn pill-success" onclick="openAddTicketModal()" style="display: flex; align-items: center; gap: 8px;">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
@@ -176,12 +176,6 @@
     </table>
   </div>
 
-  <?php if($tickets->hasPages()): ?>
-  <div style="margin-top: 20px; display: flex; justify-content: center;">
-    <?php echo e($tickets->links()); ?>
-
-  </div>
-  <?php endif; ?>
 </div>
 
 <!-- Add/Edit Ticket Modal -->
@@ -520,6 +514,33 @@ function submitAssignment(event) {
   });
 }
 </script>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('footer_pagination'); ?>
+  <?php if(isset($tickets) && method_exists($tickets,'links')): ?>
+  <form method="GET" class="hrp-entries-form">
+    <span>Entries</span>
+    <?php ($currentPerPage = (int) request()->get('per_page', 10)); ?>
+    <select name="per_page" onchange="this.form.submit()">
+      <?php $__currentLoopData = [10,25,50,100]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $size): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+      <option value="<?php echo e($size); ?>" <?php echo e($currentPerPage === $size ? 'selected' : ''); ?>><?php echo e($size); ?></option>
+      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+    </select>
+    <?php $__currentLoopData = request()->except(['per_page','page']); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $k => $v): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+    <input type="hidden" name="<?php echo e($k); ?>" value="<?php echo e($v); ?>">
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+  </form>
+  <?php echo e($tickets->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv')); ?>
+
+  <?php endif; ?>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('breadcrumb'); ?>
+  <a class="hrp-bc-home" href="<?php echo e(route('dashboard')); ?>">Dashboard</a>
+  <span class="hrp-bc-sep">›</span>
+  <a href="<?php echo e(route('tickets.index')); ?>" style="font-weight:800;color:#0f0f0f;text-decoration:none">Ticket Support</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">Tickets List</span>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.macos', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\GitVraj\HrPortal\resources\views/tickets/index.blade.php ENDPATH**/ ?>
