@@ -94,8 +94,20 @@
 @endsection
 
 @section('footer_pagination')
-  @if($users->hasPages())
-    {{ $users->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
+  @if(isset($users) && method_exists($users,'links'))
+  <form method="GET" class="hrp-entries-form">
+    <span>Entries</span>
+    @php($currentPerPage = (int) request()->get('per_page', 12))
+    <select name="per_page" onchange="this.form.submit()">
+      @foreach([12,24,48,100] as $size)
+      <option value="{{ $size }}" {{ $currentPerPage === $size ? 'selected' : '' }}>{{ $size }}</option>
+      @endforeach
+    </select>
+    @foreach(request()->except(['per_page','page']) as $k => $v)
+    <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+    @endforeach
+  </form>
+  {{ $users->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
   @endif
 @endsection
 
