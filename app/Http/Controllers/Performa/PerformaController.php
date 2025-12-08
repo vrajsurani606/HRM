@@ -19,8 +19,9 @@ class PerformaController extends Controller
         $user = auth()->user();
         $query = Proforma::with('quotation');
         
-        // Filter by role: customers see only their company's proformas
-        if ($user->hasRole('customer') && $user->company_id) {
+        // Filter by role: customers/clients see only their company's proformas
+        $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+        if ($isCustomer && $user->company_id) {
             $company = $user->company;
             if ($company) {
                 $query->where('company_name', $company->company_name);
@@ -90,8 +91,9 @@ class PerformaController extends Controller
             $user = auth()->user();
             $query = Proforma::query()->orderBy('created_at', 'desc');
             
-            // Filter by role: customers see only their company's proformas
-            if ($user->hasRole('customer') && $user->company_id) {
+            // Filter by role: customers/clients see only their company's proformas
+            $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+            if ($isCustomer && $user->company_id) {
                 $company = $user->company;
                 if ($company) {
                     $query->where('company_name', $company->company_name);
@@ -149,8 +151,9 @@ class PerformaController extends Controller
         $user = auth()->user();
         $query = Proforma::query()->latest();
 
-        // Filter by role: customers see only their company's proformas
-        if ($user->hasRole('customer') && $user->company_id) {
+        // Filter by role: customers/clients see only their company's proformas
+        $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+        if ($isCustomer && $user->company_id) {
             $company = $user->company;
             if ($company) {
                 $query->where('company_name', $company->company_name);

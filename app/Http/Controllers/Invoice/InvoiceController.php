@@ -20,11 +20,14 @@ class InvoiceController extends Controller
         $user = auth()->user();
         $query = Invoice::with('proforma');
         
-        // Filter by role: customers see only their company's invoices
-        if ($user->hasRole('customer') && $user->company_id) {
+        // Filter by role: customers/clients see only their company's invoices
+        $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+        if ($isCustomer && $user->company_id) {
             $company = $user->company;
             if ($company) {
                 $query->where('company_name', $company->company_name);
+                // Customers see only GST invoices
+                $query->where('invoice_type', 'gst');
             }
         }
         
@@ -83,11 +86,14 @@ class InvoiceController extends Controller
             $user = auth()->user();
             $query = Invoice::with('proforma')->orderBy('created_at', 'desc');
             
-            // Filter by role: customers see only their company's invoices
-            if ($user->hasRole('customer') && $user->company_id) {
+            // Filter by role: customers/clients see only their company's invoices
+            $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+            if ($isCustomer && $user->company_id) {
                 $company = $user->company;
                 if ($company) {
                     $query->where('company_name', $company->company_name);
+                    // Customers see only GST invoices
+                    $query->where('invoice_type', 'gst');
                 }
             }
             
@@ -133,11 +139,14 @@ class InvoiceController extends Controller
         $user = auth()->user();
         $query = Invoice::with('proforma')->latest();
 
-        // Filter by role: customers see only their company's invoices
-        if ($user->hasRole('customer') && $user->company_id) {
+        // Filter by role: customers/clients see only their company's invoices
+        $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+        if ($isCustomer && $user->company_id) {
             $company = $user->company;
             if ($company) {
                 $query->where('company_name', $company->company_name);
+                // Customers see only GST invoices
+                $query->where('invoice_type', 'gst');
             }
         }
 

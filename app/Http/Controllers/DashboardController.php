@@ -324,7 +324,62 @@ class DashboardController extends Controller
             'emp' => $empNotes,
         ];
 
-        return view('dashboard', compact('stats', 'notifications', 'recentInquiries', 'recentTickets', 'users', 'notes', 'companyData'));
+        // ========== AMC RENEWAL WARNINGS - FOR ADMIN DASHBOARD ==========
+        $amcWarnings = [];
+        try {
+            if (DB::getSchemaBuilder()->hasTable('quotations')) {
+                // Get all quotations with AMC that are expiring or expired within 15 days
+                $quotationsWithAMC = DB::table('quotations')
+                    ->whereNotNull('amc_start_date')
+                    ->select('id', 'unique_code', 'company_name', 'amc_start_date', 'amc_amount')
+                    ->get();
+                
+                foreach ($quotationsWithAMC as $quot) {
+                    $amcStartDate = Carbon::parse($quot->amc_start_date);
+                    $amcEndDate = $amcStartDate->copy()->addDays(365);
+                    $daysUntilExpiry = now()->diffInDays($amcEndDate, false);
+                    
+                    // Only show if expiring within 15 days or already expired
+                    if ($daysUntilExpiry <= 15) {
+                        $amcWarnings[] = [
+                            'id' => $quot->id,
+                            'quotation_number' => $quot->unique_code ?? 'Q-' . $quot->id,
+                            'company_name' => $quot->company_name,
+                            'amc_start' => $amcStartDate->format('M d, Y'),
+                            'amc_end' => $amcEndDate->format('M d, Y'),
+                            'amc_amount' => $quot->amc_amount ?? 0,
+                            'days_until_expiry' => (int)$daysUntilExpiry,
+                            'is_expired' => $daysUntilExpiry < 0,
+                            'status' => $daysUntilExpiry < 0 ? 'expired' : 'expiring'
+                        ];
+                    }
+                }
+                
+                // Sort: EXPIRING first (by urgency), then EXPIRED
+                usort($amcWarnings, function($a, $b) {
+                    // If one is expiring and other is expired, expiring comes first
+                    if (!$a['is_expired'] && $b['is_expired']) {
+                        return -1; // a (expiring) comes before b (expired)
+                    }
+                    if ($a['is_expired'] && !$b['is_expired']) {
+                        return 1; // b (expiring) comes before a (expired)
+                    }
+                    
+                    // If both are same type, sort by days (most urgent first)
+                    if (!$a['is_expired'] && !$b['is_expired']) {
+                        // Both expiring: smaller days first (more urgent)
+                        return $a['days_until_expiry'] - $b['days_until_expiry'];
+                    } else {
+                        // Both expired: more recently expired first (less negative)
+                        return $b['days_until_expiry'] - $a['days_until_expiry'];
+                    }
+                });
+            }
+        } catch (\Exception $e) {
+            \Log::error('Admin AMC Warnings Error: ' . $e->getMessage());
+        }
+
+        return view('dashboard', compact('stats', 'notifications', 'recentInquiries', 'recentTickets', 'users', 'notes', 'companyData', 'amcWarnings'));
     }
 
     /**
@@ -1944,22 +1999,38 @@ class DashboardController extends Controller
             }
         } catch (\Exception $e) {}
 
-        // Invoices (using company_name as text match)
+        // Invoices - Only GST invoices for customers (using company_name as text match)
+        $totalOutstanding = 0;
         try {
             if (DB::getSchemaBuilder()->hasTable('invoices') && $company) {
+                // Count only GST invoices for customers
                 $totalInvoices = DB::table('invoices')
                     ->where('company_name', $company->company_name)
+                    ->where('invoice_type', 'gst')
                     ->count();
                 
-                // Note: invoices table doesn't have status column, so we count all
+                // Count GST invoices with pending payments
                 $pendingPayments = DB::table('invoices')
                     ->where('company_name', $company->company_name)
+                    ->where('invoice_type', 'gst')
                     ->whereRaw('paid_amount < final_amount')
                     ->count();
                 
-                $totalSpent = DB::table('invoices')
+                // Calculate total outstanding amount from GST invoices only
+                $invoices = DB::table('invoices')
                     ->where('company_name', $company->company_name)
-                    ->sum('paid_amount');
+                    ->where('invoice_type', 'gst')
+                    ->select('final_amount', 'paid_amount')
+                    ->get();
+                
+                foreach ($invoices as $invoice) {
+                    $finalAmount = $invoice->final_amount ?? 0;
+                    $paidAmount = $invoice->paid_amount ?? 0;
+                    $outstanding = $finalAmount - $paidAmount;
+                    if ($outstanding > 0) {
+                        $totalOutstanding += $outstanding;
+                    }
+                }
             }
         } catch (\Exception $e) {}
 
@@ -1985,56 +2056,71 @@ class DashboardController extends Controller
             ->whereIn('status', ['open', 'pending', 'in_progress'])
             ->count();
 
+        // SIMPLIFIED: Only 4 essential KPIs for clients (no payment info)
         $stats = [
             'total_quotations' => $totalQuotations,
-            'pending_quotations' => $pendingQuotations,
             'total_invoices' => $totalInvoices,
-            'pending_payments' => $pendingPayments,
-            'total_projects' => $totalProjects,
             'active_projects' => $activeProjects,
             'open_tickets' => $openTickets,
-            'total_spent' => number_format($totalSpent, 2),
         ];
 
-        // Recent Quotations
+        // Recent Quotations (filtered by company_name)
         $recentQuotations = collect([]);
         try {
-            if (DB::getSchemaBuilder()->hasTable('quotations') && $companyId) {
+            if (DB::getSchemaBuilder()->hasTable('quotations') && $company) {
                 $recentQuotations = DB::table('quotations')
-                    ->where('customer_id', $companyId)
+                    ->where('company_name', $company->company_name)
                     ->orderBy('created_at', 'desc')
                     ->limit(5)
                     ->get()
                     ->map(function($quot) {
+                        // Get the actual amount from service_contract_amount
+                        $amount = $quot->service_contract_amount ?? 0;
+                        
+                        // Determine status based on follow-ups or default to pending
+                        $status = 'pending';
+                        if (isset($quot->id)) {
+                            $hasConfirmedFollowUp = DB::table('quotation_follow_ups')
+                                ->where('quotation_id', $quot->id)
+                                ->where('is_confirm', true)
+                                ->exists();
+                            $status = $hasConfirmedFollowUp ? 'confirmed' : 'pending';
+                        }
+                        
                         return [
                             'id' => $quot->id,
-                            'number' => $quot->quotation_number ?? 'Q-' . $quot->id,
-                            'amount' => number_format($quot->total_amount ?? 0, 2),
-                            'status' => $quot->status ?? 'pending',
-                            'date' => isset($quot->created_at) ? Carbon::parse($quot->created_at)->format('M d, Y') : 'N/A',
-                            'valid_until' => isset($quot->valid_until) ? Carbon::parse($quot->valid_until)->format('M d, Y') : 'N/A'
+                            'number' => $quot->unique_code ?? 'Q-' . $quot->id,
+                            'amount' => number_format($amount, 2),
+                            'status' => $status,
+                            'date' => isset($quot->quotation_date) ? Carbon::parse($quot->quotation_date)->format('M d, Y') : (isset($quot->created_at) ? Carbon::parse($quot->created_at)->format('M d, Y') : 'N/A'),
+                            'company' => $quot->company_name ?? 'N/A'
                         ];
                     });
             }
         } catch (\Exception $e) {}
 
-        // Recent Invoices (using company_name)
+        // Recent GST Invoices only (customers see only GST invoices)
         $recentInvoices = collect([]);
         try {
             if (DB::getSchemaBuilder()->hasTable('invoices') && $company) {
                 $recentInvoices = DB::table('invoices')
                     ->where('company_name', $company->company_name)
+                    ->where('invoice_type', 'gst') // Only GST invoices for customers
                     ->orderBy('created_at', 'desc')
                     ->limit(5)
                     ->get()
                     ->map(function($inv) {
-                        $isPaid = isset($inv->paid_amount) && isset($inv->final_amount) && $inv->paid_amount >= $inv->final_amount;
+                        $finalAmount = $inv->final_amount ?? 0;
+                        $paidAmount = $inv->paid_amount ?? 0;
+                        $isPaid = $paidAmount >= $finalAmount;
                         $status = $isPaid ? 'paid' : 'pending';
                         
                         return [
                             'id' => $inv->id,
                             'number' => $inv->unique_code ?? 'INV-' . $inv->id,
-                            'amount' => number_format($inv->final_amount ?? 0, 2),
+                            'amount' => number_format($finalAmount, 2),
+                            'paid_amount' => number_format($paidAmount, 2),
+                            'outstanding' => number_format(max(0, $finalAmount - $paidAmount), 2),
                             'status' => $status,
                             'date' => isset($inv->created_at) ? Carbon::parse($inv->created_at)->format('M d, Y') : 'N/A',
                             'due_date' => isset($inv->invoice_date) ? Carbon::parse($inv->invoice_date)->format('M d, Y') : 'N/A'
@@ -2042,6 +2128,40 @@ class DashboardController extends Controller
                     });
             }
         } catch (\Exception $e) {}
+        
+        // AMC Renewal Warning - Check for quotations with AMC start date
+        $amcRenewalWarning = null;
+        try {
+            if (DB::getSchemaBuilder()->hasTable('quotations') && $company) {
+                // Find the latest quotation with AMC start date for this company
+                $latestQuotation = DB::table('quotations')
+                    ->where('company_name', $company->company_name)
+                    ->whereNotNull('amc_start_date')
+                    ->orderBy('amc_start_date', 'desc')
+                    ->first();
+                
+                if ($latestQuotation && $latestQuotation->amc_start_date) {
+                    $amcStartDate = Carbon::parse($latestQuotation->amc_start_date);
+                    $amcEndDate = $amcStartDate->copy()->addDays(365); // 1 year AMC (365 days)
+                    $daysUntilExpiry = now()->diffInDays($amcEndDate, false);
+                    
+                    // Show RED warning if AMC expired or expiring within 15 days
+                    if ($daysUntilExpiry <= 15) {
+                        $amcRenewalWarning = [
+                            'quotation_number' => $latestQuotation->unique_code ?? 'Q-' . $latestQuotation->id,
+                            'company_name' => $latestQuotation->company_name,
+                            'amc_start' => $amcStartDate->format('M d, Y'),
+                            'amc_end' => $amcEndDate->format('M d, Y'),
+                            'days_until_expiry' => (int)$daysUntilExpiry,
+                            'is_expired' => $daysUntilExpiry < 0,
+                            'status' => 'critical' // Always red/critical
+                        ];
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('AMC Renewal Warning Error: ' . $e->getMessage());
+        }
 
         // Active Projects
         $activeProjectsList = collect([]);
@@ -2117,6 +2237,6 @@ class DashboardController extends Controller
                 ];
             });
 
-        return view('dashboard-customer', compact('stats', 'recentQuotations', 'recentInvoices', 'activeProjectsList', 'recentTickets', 'company'));
+        return view('dashboard-customer', compact('stats', 'recentQuotations', 'recentInvoices', 'activeProjectsList', 'recentTickets', 'company', 'amcRenewalWarning'));
     }
 }

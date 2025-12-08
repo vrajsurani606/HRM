@@ -269,12 +269,13 @@
     border: 1px solid #e2e8f0;
   }
   .card-table .table-header {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    background: #414141;
     color: white;
     padding: 16px 20px;
     font-size: 14px;
     font-weight: 700;
     letter-spacing: 0.5px;
+    border-radius: 12px 12px 0 0;
   }
   .hrp-table th {
     background: #f8fafc;
@@ -662,6 +663,50 @@
     cursor: not-allowed;
     transform: none;
   }
+  
+  /* Dark Header Styling for Company List and Notes */
+  .tabbar {
+    background: #414141 !important;
+    border-radius: 12px 12px 0 0 !important;
+    min-height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+  }
+  .tabbar .tab {
+    color: rgba(255,255,255,0.7) !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease;
+    padding: 12px 20px !important;
+    height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  .tabbar .tab:hover {
+    color: white !important;
+    background: transparent !important;
+  }
+  .tabbar .tab.active {
+    color: white !important;
+    background: transparent !important;
+  }
+  .tabbar-chart {
+    background: #414141 !important;
+    min-height: 48px !important;
+  }
+  
+  /* Chart and Notes Equal Height */
+  .chart-card, .chart-card + .hrp-card {
+    min-height: 500px;
+  }
+  .chart-card .chart-body {
+    height: 450px;
+    overflow: auto;
+  }
+  .hrp-card-body-note {
+    height: 450px;
+    overflow: auto;
+  }
 </style>
 @endpush
 
@@ -842,6 +887,7 @@
       </div>
     </div>
 
+
     <div class="hrp-col-12">
       <div class="card-table" style="margin-top:12px">
         <div class="table-header">TICKET LIST</div>
@@ -894,19 +940,80 @@
         </div>
       </div>
     </div>
-
-    <div class="hrp-col-5">
+    <!-- AMC RENEWAL WARNINGS -->
+    @if(isset($amcWarnings) && count($amcWarnings) > 0)
+    <div class="hrp-col-12">
+      <div class="card-table" style="margin-top:12px">
+        <div class="table-header">AMC RENEWAL WARNINGS ({{ count($amcWarnings) }})</div>
+        <div class="table-body">
+          <div class="hrp-table-wrap">
+            <table class="hrp-table">
+              <thead>
+              <tr>
+                <th>Action</th>
+                <th>Status</th>
+                <th>Quotation</th>
+                <th>Company</th>
+                <th>AMC Period</th>
+                <th>AMC Amount</th>
+                <th>Days Left</th>
+              </tr>
+              </thead>
+              <tbody>
+              @foreach($amcWarnings as $amc)
+                <tr>
+                  <td class="action-icons" style="display: flex; gap: 6px;">
+                    <a href="{{ route('quotations.show', $amc['id']) }}" class="action-icon view" title="View Quotation" style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #eff6ff; border-radius: 6px; border: none;">
+                      <img src="{{ asset('action_icon/view.svg') }}" alt="view" style="width: 16px; height: 16px;">
+                    </a>
+                  </td>
+                  <td>
+                    @if($amc['is_expired'])
+                      <span class="chip" style="background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase;">
+                        EXPIRED
+                      </span>
+                    @else
+                      <span class="chip" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase;">
+                        EXPIRING
+                      </span>
+                    @endif
+                  </td>
+                  <td style="font-weight: 600;">{{ $amc['quotation_number'] }}</td>
+                  <td style="font-weight: 500;">{{ $amc['company_name'] }}</td>
+                  <td style="font-size: 13px; color: #64748b;">
+                    <div>{{ $amc['amc_start'] }} → {{ $amc['amc_end'] }}</div>
+                  </td>
+                  <td style="font-weight: 600; color: #059669;">₹{{ number_format($amc['amc_amount'], 2) }}</td>
+                  <td>
+                    @if($amc['is_expired'])
+                      <span style="color: #dc2626; font-weight: 700;">{{ abs($amc['days_until_expiry']) }} days ago</span>
+                    @else
+                      <span style="color: #ea580c; font-weight: 700;">{{ $amc['days_until_expiry'] }} days</span>
+                    @endif
+                  </td>
+                </tr>
+              @endforeach
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    @endif
+    <div class="hrp-col-6">
       <div class="hrp-card card-p-0 chart-card">
         <div class="tabbar tabbar-chart">
           <div class="tab active" data-tab="company"><span class="ico">🏢</span> COMPANY LIST</div>
         </div>
-        <div class="hrp-card-body chart-body">
-          <div class="chart-wrap"><canvas id="chartCompany"></canvas></div>
-          <div id="chartCompanyLegend" class="chart-legend"></div>
+        <div class="hrp-card-body chart-body" style="padding: 24px;">
+          <div class="chart-wrap" style="position: relative; height: 280px; width: 100%; max-width: 280px; margin: 0 auto;">
+            <canvas id="chartCompany" style="max-height: 280px;"></canvas>
+          </div>
+          <div id="chartCompanyLegend" class="chart-legend" style="margin-top: 20px;"></div>
         </div>
       </div>
     </div>
-    <div class="hrp-col-7">
+    <div class="hrp-col-6">
       <div class="hrp-card card-p-0">
         <div class="tabbar">
           <div class="tab active" data-tab="notes"><span class="ico">📑</span> NOTES</div>
@@ -1324,6 +1431,7 @@
               });
               var optsV1 = {
                 responsive: true,
+                maintainAspectRatio: true,
                 animationSteps: 60,
                 animationEasing: 'easeOutQuart',
                 animateRotate: true,

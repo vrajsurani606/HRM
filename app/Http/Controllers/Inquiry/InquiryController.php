@@ -17,9 +17,19 @@ class InquiryController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $query = Inquiry::query()->with(['followUps' => function ($q) {
             $q->latest();
         }]);
+        
+        // Filter by role: customers/clients see only their company's inquiries
+        $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+        if ($isCustomer && $user->company_id) {
+            $company = $user->company;
+            if ($company) {
+                $query->where('company_name', $company->company_name);
+            }
+        }
         
         // Handle sorting
         $sortBy = $request->get('sort', 'created_at');
@@ -221,7 +231,17 @@ class InquiryController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
         $query = Inquiry::query()->latest();
+
+        // Filter by role: customers/clients see only their company's inquiries
+        $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+        if ($isCustomer && $user->company_id) {
+            $company = $user->company;
+            if ($company) {
+                $query->where('company_name', $company->company_name);
+            }
+        }
 
         if ($request->filled('from_date')) {
             $query->whereDate('inquiry_date', '>=', $request->input('from_date'));
