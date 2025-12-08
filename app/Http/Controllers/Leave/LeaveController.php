@@ -32,6 +32,89 @@ class LeaveController extends Controller
     }
 
     /**
+     * Show the form for creating a new leave
+     */
+    public function create()
+    {
+        $user = Auth::user();
+        $employee = Employee::where('user_id', $user->id)->first();
+        
+        if (!$employee) {
+            return redirect()->back()->with('error', 'Employee profile not found.');
+        }
+
+        // Define leave types with paid/unpaid status
+        $leaveTypes = [
+            'casual' => [
+                'name' => 'Casual Leave',
+                'is_paid' => true,
+                'description' => 'Paid leave for personal matters'
+            ],
+            'medical' => [
+                'name' => 'Medical Leave',
+                'is_paid' => true,
+                'description' => 'Paid leave for health issues'
+            ],
+            'company_holiday' => [
+                'name' => 'Company Holiday',
+                'is_paid' => true,
+                'description' => 'Paid company holidays'
+            ],
+            'personal' => [
+                'name' => 'Personal Leave',
+                'is_paid' => false,
+                'description' => 'Unpaid leave for personal reasons'
+            ]
+        ];
+
+        // Calculate leave balance
+        $currentYear = now()->year;
+        
+        // Paid leave calculations (Casual + Medical)
+        $casualUsed = Leave::where('employee_id', $employee->id)
+            ->where('leave_type', 'casual')
+            ->whereYear('start_date', $currentYear)
+            ->where('status', '!=', 'rejected')
+            ->sum('total_days');
+            
+        $medicalUsed = Leave::where('employee_id', $employee->id)
+            ->where('leave_type', 'medical')
+            ->whereYear('start_date', $currentYear)
+            ->where('status', '!=', 'rejected')
+            ->sum('total_days');
+            
+        $companyHolidayUsed = Leave::where('employee_id', $employee->id)
+            ->where('leave_type', 'company_holiday')
+            ->whereYear('start_date', $currentYear)
+            ->where('status', '!=', 'rejected')
+            ->sum('total_days');
+        
+        // Unpaid leave calculations
+        $personalUsed = Leave::where('employee_id', $employee->id)
+            ->where('leave_type', 'personal')
+            ->whereYear('start_date', $currentYear)
+            ->where('status', '!=', 'rejected')
+            ->sum('total_days');
+        
+        $paidLeaveTotal = 12; // Total paid leave per year
+        $paidLeaveUsed = $casualUsed + $medicalUsed;
+        $paidLeaveBalance = $paidLeaveTotal - $paidLeaveUsed;
+        
+        $leaveBalance = (object) [
+            'paid_leave_total' => $paidLeaveTotal,
+            'paid_leave_used' => $paidLeaveUsed,
+            'paid_leave_balance' => $paidLeaveBalance,
+            'casual_leave_used' => $casualUsed,
+            'medical_leave_used' => $medicalUsed,
+            'company_holiday_used' => $companyHolidayUsed,
+            'personal_leave_used' => $personalUsed,
+            'holiday_leave_used' => $companyHolidayUsed
+        ];
+
+        return view('leaves.create', compact('leaveTypes', 'leaveBalance'));
+    }
+
+    /**
      * Store a newly created leave
      */
     public function store(Request $request)
@@ -41,10 +124,9 @@ class LeaveController extends Controller
         // Validate request
         $validated = $request->validate([
             'leave_type' => 'required|in:casual,medical,personal,company_holiday',
-            'is_paid' => 'required|boolean',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'total_days' => 'required|numeric|min:0.5',
+            'is_half_day' => 'nullable|boolean',
             'reason' => 'required|string|max:500',
             'employee_id' => 'nullable|exists:employees,id'
         ]);
@@ -55,22 +137,43 @@ class LeaveController extends Controller
         } else {
             $employee = Employee::where('user_id', $user->id)->first();
             if (!$employee) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Employee profile not found'
-                ], 404);
+                return redirect()->back()->with('error', 'Employee profile not found.');
             }
             $employeeId = $employee->id;
+        }
+
+        // Automatically determine if leave is paid based on leave type
+        $paidLeaveTypes = ['casual', 'medical', 'company_holiday'];
+        $isPaid = in_array($validated['leave_type'], $paidLeaveTypes);
+
+        // Calculate total days
+        $startDate = new \DateTime($validated['start_date']);
+        $endDate = new \DateTime($validated['end_date']);
+        
+        if ($request->is_half_day) {
+            $totalDays = 0.5;
+        } else {
+            // Calculate business days (excluding weekends)
+            $totalDays = 0;
+            $interval = new \DateInterval('P1D');
+            $dateRange = new \DatePeriod($startDate, $interval, $endDate->modify('+1 day'));
+            
+            foreach ($dateRange as $date) {
+                // Skip weekends (Saturday = 6, Sunday = 0)
+                if ($date->format('N') < 6) {
+                    $totalDays++;
+                }
+            }
         }
 
         // Create leave
         $leave = Leave::create([
             'employee_id' => $employeeId,
             'leave_type' => $validated['leave_type'],
-            'is_paid' => $validated['is_paid'],
+            'is_paid' => $isPaid,
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
-            'total_days' => (float) $validated['total_days'], // Cast to float to preserve decimals
+            'total_days' => $totalDays,
             'reason' => $validated['reason'],
             'status' => 'pending'
         ]);

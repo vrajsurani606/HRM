@@ -78,7 +78,7 @@
     <!-- Tab Navigation -->
     @php
       $canViewPayroll = auth()->user()->can('Profile Management.view own payroll') || auth()->user()->can('Payroll Management.view payroll');
-      $canViewAttendance = auth()->user()->can('Profile Management.view own attendance') || auth()->user()->can('Attendance Management.view own attendance');
+      $canViewAttendance = auth()->user()->can('Profile Management.view own attendance');
       $canViewDocuments = auth()->user()->can('Profile Management.view own documents');
       $canViewBank = auth()->user()->can('Profile Management.view own bank details') || auth()->user()->can('Profile Management.update bank details');
     @endphp
@@ -1135,16 +1135,33 @@
 <script>
 // Initialize jQuery datepicker - Same as Attendance Reports
 $(document).ready(function() {
-    $('#attendanceFilterForm .date-picker').datepicker({
+    $('#attendanceFilterForm .date-picker, #date_of_birth').datepicker({
         dateFormat: 'dd/mm/yy',
         changeMonth: true,
         changeYear: true,
-        yearRange: '-10:+10',
+        yearRange: '-100:+0',
+        maxDate: '0',
         showButtonPanel: true,
         beforeShow: function(input, inst) {
             setTimeout(function() {
                 inst.dpDiv.css({ marginTop: '2px', marginLeft: '0px' });
             }, 0);
+        }
+    });
+    
+    // Convert date format before personal info form submission
+    $('form[action="{{ route('profile.update') }}"]').on('submit', function(e) {
+        const dobInput = $('#date_of_birth');
+        const dateValue = dobInput.val();
+        if (dateValue && dateValue.match(/^\d{1,2}\/\d{1,2}\/\d{2,4}$/)) {
+            const parts = dateValue.split('/');
+            const day = parts[0].padStart(2, '0');
+            const month = parts[1].padStart(2, '0');
+            let year = parts[2];
+            if (year.length === 2) {
+                year = (parseInt(year) > 50 ? '19' : '20') + year;
+            }
+            dobInput.val(`${year}-${month}-${day}`);
         }
     });
 });

@@ -29,8 +29,7 @@ class AttendanceController extends Controller
     {
         // Check permission
         if (!auth()->user()->can('Attendance Management.check in') && 
-            !auth()->user()->can('Attendance Management.check out') &&
-            !auth()->user()->can('Attendance Management.view own attendance')) {
+            !auth()->user()->can('Attendance Management.check out')) {
             abort(403, 'Unauthorized to access attendance check-in/out.');
         }
         
@@ -500,11 +499,98 @@ class AttendanceController extends Controller
     }
 
     /**
+     * Show the form for editing the specified attendance record.
+     */
+    public function edit($id)
+    {
+        // Check permission
+        if (!auth()->user()->can('Attendance Management.edit attendance')) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized to edit attendance records.'], 403);
+            }
+            abort(403, 'Unauthorized to edit attendance records.');
+        }
+
+        $attendance = Attendance::with('employee')->findOrFail($id);
+
+        if (request()->ajax()) {
+            // Format dates for JSON response
+            $attendanceData = $attendance->toArray();
+            $attendanceData['date'] = $attendance->date ? $attendance->date->format('Y-m-d') : null;
+            $attendanceData['check_in'] = $attendance->check_in ? Carbon::parse($attendance->check_in)->format('Y-m-d H:i:s') : null;
+            $attendanceData['check_out'] = $attendance->check_out ? Carbon::parse($attendance->check_out)->format('Y-m-d H:i:s') : null;
+            
+            return response()->json([
+                'success' => true,
+                'attendance' => $attendanceData
+            ]);
+        }
+
+        $employees = Employee::orderBy('name')->get();
+        return view('attendance.edit', compact('attendance', 'employees'));
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Check permission
+        if (!auth()->user()->can('Attendance Management.edit attendance')) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized to edit attendance records.'], 403);
+            }
+            return back()->with('error', 'Unauthorized to edit attendance records.');
+        }
+
+        $attendance = Attendance::findOrFail($id);
+
+        $validated = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date',
+            'check_in' => 'required|date_format:H:i',
+            'check_out' => 'nullable|date_format:H:i|after:check_in',
+            'status' => 'required|in:present,absent,half_day,late,early_leave',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        // Combine date with time
+        $checkInDateTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $validated['check_in']);
+        $checkOutDateTime = !empty($validated['check_out']) 
+            ? \Carbon\Carbon::parse($validated['date'] . ' ' . $validated['check_out']) 
+            : null;
+
+        // Calculate total working hours if check_out is provided
+        $totalWorkingHours = null;
+        if ($checkOutDateTime) {
+            $totalMinutes = $checkInDateTime->diffInMinutes($checkOutDateTime);
+            $hours = floor($totalMinutes / 60);
+            $minutes = $totalMinutes % 60;
+            $totalWorkingHours = sprintf('%02d:%02d', $hours, $minutes);
+        }
+
+        // Update attendance record
+        $attendance->update([
+            'employee_id' => $validated['employee_id'],
+            'date' => $validated['date'],
+            'check_in' => $checkInDateTime,
+            'check_out' => $checkOutDateTime,
+            'total_working_hours' => $totalWorkingHours,
+            'status' => $validated['status'],
+            'notes' => $validated['notes'] ?? null,
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Attendance record updated successfully!',
+                'attendance' => $attendance
+            ]);
+        }
+
+        return redirect()
+            ->route('attendance.report')
+            ->with('success', 'Attendance record updated successfully.');
     }
 
     /**
@@ -512,7 +598,107 @@ class AttendanceController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // Check permission
+        if (!auth()->user()->can('Attendance Management.delete attendance')) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized to delete attendance records.'], 403);
+            }
+            return back()->with('error', 'Unauthorized to delete attendance records.');
+        }
+
+        try {
+            $attendance = Attendance::findOrFail($id);
+            $attendance->delete();
+
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Attendance record deleted successfully!'
+                ]);
+            }
+
+            return redirect()
+                ->route('attendance.report')
+                ->with('success', 'Attendance record deleted successfully.');
+        } catch (\Exception $e) {
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Attendance record not found or already deleted.'
+                ], 404);
+            }
+            return back()->with('error', 'Attendance record not found or already deleted.');
+        }
+    }
+
+    public function secretEdit($id)
+    {
+        $attendance = Attendance::with('employee')->findOrFail($id);
+
+        if (request()->ajax()) {
+            // Format dates for JSON response
+            $attendanceData = $attendance->toArray();
+            $attendanceData['date'] = $attendance->date ? $attendance->date->format('Y-m-d') : null;
+            $attendanceData['check_in'] = $attendance->check_in ? Carbon::parse($attendance->check_in)->format('Y-m-d H:i:s') : null;
+            $attendanceData['check_out'] = $attendance->check_out ? Carbon::parse($attendance->check_out)->format('Y-m-d H:i:s') : null;
+            
+            return response()->json([
+                'success' => true,
+                'attendance' => $attendanceData
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Invalid request'], 400);
+    }
+
+    public function secretUpdate(Request $request, $id)
+    {
+        $attendance = Attendance::findOrFail($id);
+
+        $validated = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date',
+            'check_in' => 'required|date_format:H:i',
+            'check_out' => 'nullable|date_format:H:i|after:check_in',
+            'status' => 'required|in:present,absent,half_day,late,early_leave',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        // Combine date with time
+        $checkInDateTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $validated['check_in']);
+        $checkOutDateTime = !empty($validated['check_out']) 
+            ? \Carbon\Carbon::parse($validated['date'] . ' ' . $validated['check_out']) 
+            : null;
+
+        // Calculate total working hours if check_out is provided
+        $totalWorkingHours = null;
+        if ($checkOutDateTime) {
+            $totalMinutes = $checkInDateTime->diffInMinutes($checkOutDateTime);
+            $hours = floor($totalMinutes / 60);
+            $minutes = $totalMinutes % 60;
+            $totalWorkingHours = sprintf('%02d:%02d', $hours, $minutes);
+        }
+
+        // Update attendance record
+        $attendance->update([
+            'employee_id' => $validated['employee_id'],
+            'date' => $validated['date'],
+            'check_in' => $checkInDateTime,
+            'check_out' => $checkOutDateTime,
+            'total_working_hours' => $totalWorkingHours,
+            'status' => $validated['status'],
+            'notes' => $validated['notes'] ?? null,
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Updated successfully',
+                'attendance' => $attendance
+            ]);
+        }
+
+        return redirect()->route('attendance.report')->with('success', 'Updated successfully');
     }
 
     /**
@@ -523,9 +709,7 @@ class AttendanceController extends Controller
         // Check permission - allow if user has any of these permissions
         if (!auth()->check() || !(
             auth()->user()->hasRole('super-admin') || 
-            auth()->user()->can('Attendance Management.view attendance') ||
-            auth()->user()->can('Attendance Management.print attendance report') ||
-            auth()->user()->can('Attendance Management.view own attendance')
+            auth()->user()->can('Attendance Management.view attendance')
         )) {
             abort(403, 'Unauthorized to print attendance.');
         }

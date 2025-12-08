@@ -17,17 +17,20 @@ class DatabaseSeeder extends Seeder
     {
 
         $this->call([
-            EmployeeSeeder::class,
-            ProjectStageSeeder::class,
-            TicketSeeder::class,
+            // First: Create permissions and roles
             PermissionSeeder::class,
             RoleSeeder::class,
-            UserSeeder::class,
-            MaterialSeeder::class,
-            ProjectSeeder::class,
-            ProjectStageSeeder::class,
-            CompanyHolidaySeeder::class,
-
+            
+            // Then: Create users and employees
+            // EmployeeSeeder::class,
+            // UserSeeder::class,
+            
+            // Finally: Create other data
+            // ProjectStageSeeder::class,
+            // TicketSeeder::class,
+            // MaterialSeeder::class,
+            // ProjectSeeder::class,
+            // CompanyHolidaySeeder::class,
         ]);
     }
 }

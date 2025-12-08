@@ -144,11 +144,11 @@
           <td style="vertical-align: middle; padding: 14px 16px;">{{ $leave->created_at->format('d M, Y, h:i A') }}</td>
         </tr>
         @empty
-        <tr>
-          <td colspan="9" style="text-align: center; padding: 40px; color: #9ca3af;">
-            <p style="font-weight: 600; margin: 0;">No leave requests found</p>
-          </td>
-        </tr>
+          <x-empty-state 
+              colspan="9" 
+              title="No leave requests found" 
+              message="Try adjusting your filters or add a new leave request"
+          />
         @endforelse
       </tbody>
     </table>
@@ -159,6 +159,97 @@
     {{ $leaves->links() }}
   </div>
   @endif
+</div>
+
+<!-- Edit Leave Modal -->
+<div id="editLeaveModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+  <div style="background: white; border-radius: 15px; padding: 30px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;">
+    <h3 style="margin: 0 0 20px 0; font-size: 22px; font-weight: 700;">Edit Leave Request</h3>
+    
+    <form id="editLeaveForm" onsubmit="submitEditLeave(event)">
+      <input type="hidden" name="leave_id" id="edit_leave_id">
+      
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Employee</label>
+        <select name="employee_id" id="edit_employee_id" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+          <option value="">Select Employee</option>
+          @foreach($employees as $emp)
+            <option value="{{ $emp->id }}">{{ $emp->name }}</option>
+          @endforeach
+        </select>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Leave Type</label>
+        <select name="leave_type" id="edit_leave_type" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" onchange="updateEditLeaveInfo()">
+          <option value="">Select Leave Type</option>
+          <option value="casual" data-is-paid="1">Casual Leave (Paid)</option>
+          <option value="medical" data-is-paid="1">Medical Leave (Paid)</option>
+          <option value="company_holiday" data-is-paid="1">Company Holiday (Paid)</option>
+          <option value="personal" data-is-paid="0">Personal Leave (Unpaid)</option>
+        </select>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        <div>
+          <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Start Date</label>
+          <input type="date" name="start_date" id="edit_start_date" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" onchange="calculateEditModalDays()">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">End Date</label>
+          <input type="date" name="end_date" id="edit_end_date" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" onchange="calculateEditModalDays()">
+        </div>
+      </div>
+
+      <!-- Calculated Days Display -->
+      <div id="edit_calculatedDays" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 16px; margin-bottom: 15px; display: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+        <div style="display: flex; align-items: center; justify-content: space-between; color: white;">
+          <div>
+            <div style="font-size: 12px; opacity: 0.9; margin-bottom: 4px;">
+              <i class="fa fa-calendar"></i> Calculated Leave Days
+            </div>
+            <div style="font-size: 28px; font-weight: 800; line-height: 1;">
+              <span id="edit_daysCount">0</span> <span style="font-size: 16px; font-weight: 600;">days</span>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 10px; opacity: 0.8; margin-bottom: 4px;">Auto-Calculated</div>
+            <div style="font-size: 12px; font-weight: 600;">
+              <i class="fa fa-check-circle"></i> Sundays Excluded
+            </div>
+          </div>
+        </div>
+        <div id="edit_dateRangeDisplay" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 11px; color: rgba(255,255,255,0.9);">
+          <i class="fa fa-arrow-right"></i> <span id="edit_dateRangeText"></span>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Total Days</label>
+        <input type="number" name="total_days" id="edit_total_days" step="0.5" min="0.5" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" placeholder="Auto-calculated or enter manually (e.g., 0.5, 1, 3.5)">
+        <small style="color: #6b7280; font-size: 12px;">Auto-calculated from dates (editable for half-days like 0.5, 1.5, 3.5)</small>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Reason</label>
+        <textarea name="reason" id="edit_reason" rows="3" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: vertical;" placeholder="Please provide a reason for the leave request..."></textarea>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Status</label>
+        <select name="status" id="edit_status" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button type="button" onclick="closeEditLeaveModal()" style="padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 8px; cursor: pointer; font-weight: 600;">Cancel</button>
+        <button type="submit" style="padding: 10px 20px; border: none; background: #3b82f6; color: white; border-radius: 8px; cursor: pointer; font-weight: 600;">Update Leave</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- Add Leave Modal -->
@@ -178,39 +269,58 @@
       </div>
 
       <div style="margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Leave Category</label>
-        <select name="is_paid" id="add_leave_category" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" onchange="updateLeaveTypes()">
-          <option value="">Select Category</option>
-          <option value="1">Paid Leave</option>
-          <option value="0">Unpaid Leave</option>
+        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Leave Type</label>
+        <select name="leave_type" id="add_leave_type" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" onchange="updateLeaveInfo()">
+          <option value="">Select Leave Type</option>
+          <option value="casual" data-is-paid="1">Casual Leave (Paid)</option>
+          <option value="medical" data-is-paid="1">Medical Leave (Paid)</option>
+          <option value="company_holiday" data-is-paid="1">Company Holiday (Paid)</option>
+          <option value="personal" data-is-paid="0">Personal Leave (Unpaid)</option>
         </select>
+        <small id="leaveTypeInfo" style="display: block; margin-top: 6px; font-size: 12px; color: #6b7280;"></small>
         <div id="paid_leave_info" style="display: none; margin-top: 8px; padding: 8px; background: #f0f9ff; border-radius: 6px; font-size: 12px; color: #0c4a6e;">
           <strong>Paid Leave Balance:</strong> <span id="paid_leave_count">-</span>
         </div>
       </div>
 
-      <div style="margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Leave Type</label>
-        <select name="leave_type" id="add_leave_type" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
-          <option value="">Select Leave Type</option>
-        </select>
-      </div>
-
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
         <div>
           <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Start Date</label>
-          <input type="date" name="start_date" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+          <input type="date" name="start_date" id="modal_start_date" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" onchange="calculateModalDays()">
         </div>
         <div>
           <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">End Date</label>
-          <input type="date" name="end_date" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+          <input type="date" name="end_date" id="modal_end_date" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" onchange="calculateModalDays()">
+        </div>
+      </div>
+
+      <!-- Calculated Days Display -->
+      <div id="modal_calculatedDays" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 16px; margin-bottom: 15px; display: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+        <div style="display: flex; align-items: center; justify-content: space-between; color: white;">
+          <div>
+            <div style="font-size: 12px; opacity: 0.9; margin-bottom: 4px;">
+              <i class="fa fa-calendar"></i> Calculated Leave Days
+            </div>
+            <div style="font-size: 28px; font-weight: 800; line-height: 1;">
+              <span id="modal_daysCount">0</span> <span style="font-size: 16px; font-weight: 600;">days</span>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 10px; opacity: 0.8; margin-bottom: 4px;">Auto-Calculated</div>
+            <div style="font-size: 12px; font-weight: 600;">
+              <i class="fa fa-check-circle"></i> Sundays Excluded
+            </div>
+          </div>
+        </div>
+        <div id="modal_dateRangeDisplay" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 11px; color: rgba(255,255,255,0.9);">
+          <i class="fa fa-arrow-right"></i> <span id="modal_dateRangeText"></span>
         </div>
       </div>
 
       <div style="margin-bottom: 15px;">
         <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Total Days</label>
-        <input type="number" name="total_days" step="0.1" min="0.1" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" placeholder="Enter days (e.g., 1, 1.5, 0.5)">
-        <small style="color: #6b7280; font-size: 12px;">Enter 0.5 for half day, 1 for full day, 1.5 for one and half days, etc.</small>
+        <input type="number" name="total_days" id="modal_total_days" step="0.5" min="0.5" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" placeholder="Auto-calculated or enter manually (e.g., 0.5, 1, 3.5)">
+        <small style="color: #6b7280; font-size: 12px;">Auto-calculated from dates (editable for half-days like 0.5, 1.5, 3.5)</small>
       </div>
 
       <div style="margin-bottom: 20px;">
@@ -234,32 +344,341 @@ function openAddLeaveModal() {
 function closeAddLeaveModal() {
   document.getElementById('addLeaveModal').style.display = 'none';
   document.getElementById('addLeaveForm').reset();
+  document.getElementById('modal_calculatedDays').style.display = 'none';
 }
 
-function updateLeaveTypes() {
-  const category = document.getElementById('add_leave_category').value;
-  const leaveType = document.getElementById('add_leave_type');
+function closeEditLeaveModal() {
+  document.getElementById('editLeaveModal').style.display = 'none';
+  document.getElementById('editLeaveForm').reset();
+  document.getElementById('edit_calculatedDays').style.display = 'none';
+}
+
+function calculateEditModalDays() {
+  const startDateInput = document.getElementById('edit_start_date');
+  const endDateInput = document.getElementById('edit_end_date');
+  const calculatedDays = document.getElementById('edit_calculatedDays');
+  const daysCount = document.getElementById('edit_daysCount');
+  const totalDaysInput = document.getElementById('edit_total_days');
+  const dateRangeText = document.getElementById('edit_dateRangeText');
+  
+  if (!startDateInput || !endDateInput) {
+    return;
+  }
+  
+  if (!startDateInput.value || !endDateInput.value) {
+    if (calculatedDays) calculatedDays.style.display = 'none';
+    return;
+  }
+
+  // Set end date minimum to start date
+  endDateInput.min = startDateInput.value;
+  if (endDateInput.value < startDateInput.value) {
+    endDateInput.value = startDateInput.value;
+  }
+
+  try {
+    // Parse dates - handle both formats: yyyy-mm-dd and dd/mm/yyyy
+    let start, end;
+    
+    if (startDateInput.value.includes('/')) {
+      // Format: dd/mm/yyyy
+      const startParts = startDateInput.value.split('/');
+      const endParts = endDateInput.value.split('/');
+      start = new Date(parseInt(startParts[2]), parseInt(startParts[1]) - 1, parseInt(startParts[0]));
+      end = new Date(parseInt(endParts[2]), parseInt(endParts[1]) - 1, parseInt(endParts[0]));
+    } else {
+      // Format: yyyy-mm-dd
+      const startParts = startDateInput.value.split('-');
+      const endParts = endDateInput.value.split('-');
+      start = new Date(parseInt(startParts[0]), parseInt(startParts[1]) - 1, parseInt(startParts[2]));
+      end = new Date(parseInt(endParts[0]), parseInt(endParts[1]) - 1, parseInt(endParts[2]));
+    }
+    
+    // Validate dates
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      if (calculatedDays) calculatedDays.style.display = 'none';
+      return;
+    }
+    
+    // Format dates for display
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const startFormatted = `${months[start.getMonth()]} ${start.getDate()}, ${start.getFullYear()}`;
+    const endFormatted = `${months[end.getMonth()]} ${end.getDate()}, ${end.getFullYear()}`;
+    
+    // Calculate business days (excluding only Sunday)
+    let totalDays = 0;
+    let weekendDays = 0;
+    
+    const currentDate = new Date(start);
+    while (currentDate <= end) {
+      const dayOfWeek = currentDate.getDay();
+      // Skip only Sunday (0 = Sunday)
+      if (dayOfWeek !== 0) {
+        totalDays++;
+      } else {
+        weekendDays++;
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    // Update display
+    if (daysCount) daysCount.textContent = totalDays;
+    if (totalDaysInput) totalDaysInput.value = totalDays;
+    
+    // Show date range with Sunday info
+    let rangeText = `${startFormatted} → ${endFormatted}`;
+    if (weekendDays > 0) {
+      rangeText += ` (${weekendDays} Sunday${weekendDays > 1 ? 's' : ''} excluded)`;
+    }
+    if (dateRangeText) dateRangeText.textContent = rangeText;
+    
+    if (calculatedDays) {
+      calculatedDays.style.display = 'block';
+      
+      // Add animation
+      calculatedDays.style.animation = 'none';
+      setTimeout(() => {
+        calculatedDays.style.animation = 'slideInModal 0.3s ease-out';
+      }, 10);
+    }
+  } catch (error) {
+    console.error('Date calculation error:', error);
+    if (calculatedDays) calculatedDays.style.display = 'none';
+  }
+}
+
+function updateEditLeaveInfo() {
+  const leaveTypeSelect = document.getElementById('edit_leave_type');
+  const selectedOption = leaveTypeSelect.options[leaveTypeSelect.selectedIndex];
+  
+  if (leaveTypeSelect.value) {
+    const isPaid = selectedOption.getAttribute('data-is-paid') === '1';
+    // You can add additional info display here if needed
+  }
+}
+
+function submitEditLeave(event) {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+  const leaveId = document.getElementById('edit_leave_id').value;
+  
+  // Convert dates from dd/mm/yyyy to yyyy-mm-dd format if needed
+  const startDate = formData.get('start_date');
+  const endDate = formData.get('end_date');
+  
+  if (startDate && startDate.includes('/')) {
+    const parts = startDate.split('/');
+    formData.set('start_date', `${parts[2]}-${parts[1]}-${parts[0]}`);
+  }
+  
+  if (endDate && endDate.includes('/')) {
+    const parts = endDate.split('/');
+    formData.set('end_date', `${parts[2]}-${parts[1]}-${parts[0]}`);
+  }
+  
+  // Automatically set is_paid based on leave_type
+  const leaveType = formData.get('leave_type');
+  const paidTypes = ['casual', 'medical', 'company_holiday'];
+  const isPaid = paidTypes.includes(leaveType) ? '1' : '0';
+  formData.append('is_paid', isPaid);
+  
+  // Ensure total_days is sent as decimal
+  const totalDays = parseFloat(formData.get('total_days'));
+  formData.set('total_days', totalDays);
+  
+  // Add _method for PUT request
+  formData.append('_method', 'PUT');
+  
+  fetch(`{{ url('leave-approval') }}/${leaveId}`, {
+    method: 'POST',
+    headers: {
+      'X-CSRF-TOKEN': '{{ csrf_token() }}',
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      if (typeof toastr !== 'undefined') {
+        toastr.success(data.message || 'Leave updated successfully!');
+      } else {
+        alert(data.message || 'Leave updated successfully!');
+      }
+      closeEditLeaveModal();
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      if (typeof toastr !== 'undefined') {
+        toastr.error(data.message || 'Error updating leave');
+      } else {
+        alert(data.message || 'Error updating leave');
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    if (typeof toastr !== 'undefined') {
+      toastr.error('Error updating leave');
+    } else {
+      alert('Error updating leave');
+    }
+  });
+}
+
+function calculateModalDays() {
+  console.log('calculateModalDays called'); // Debug
+  
+  const startDateInput = document.getElementById('modal_start_date');
+  const endDateInput = document.getElementById('modal_end_date');
+  const calculatedDays = document.getElementById('modal_calculatedDays');
+  const daysCount = document.getElementById('modal_daysCount');
+  const totalDaysInput = document.getElementById('modal_total_days');
+  const dateRangeText = document.getElementById('modal_dateRangeText');
+  
+  console.log('Start date:', startDateInput?.value, 'End date:', endDateInput?.value); // Debug
+  
+  if (!startDateInput || !endDateInput) {
+    console.log('Date inputs not found');
+    return;
+  }
+  
+  if (!startDateInput.value || !endDateInput.value) {
+    console.log('Date values empty');
+    if (calculatedDays) calculatedDays.style.display = 'none';
+    return;
+  }
+
+  // Set end date minimum to start date
+  endDateInput.min = startDateInput.value;
+  if (endDateInput.value < startDateInput.value) {
+    endDateInput.value = startDateInput.value;
+  }
+
+  try {
+    // Parse dates - handle both formats: yyyy-mm-dd and dd/mm/yyyy
+    let start, end;
+    
+    if (startDateInput.value.includes('/')) {
+      // Format: dd/mm/yyyy
+      const startParts = startDateInput.value.split('/');
+      const endParts = endDateInput.value.split('/');
+      start = new Date(parseInt(startParts[2]), parseInt(startParts[1]) - 1, parseInt(startParts[0]));
+      end = new Date(parseInt(endParts[2]), parseInt(endParts[1]) - 1, parseInt(endParts[0]));
+    } else {
+      // Format: yyyy-mm-dd
+      const startParts = startDateInput.value.split('-');
+      const endParts = endDateInput.value.split('-');
+      start = new Date(parseInt(startParts[0]), parseInt(startParts[1]) - 1, parseInt(startParts[2]));
+      end = new Date(parseInt(endParts[0]), parseInt(endParts[1]) - 1, parseInt(endParts[2]));
+    }
+    
+    console.log('Parsed dates:', start, end); // Debug
+    
+    // Validate dates
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      console.log('Invalid dates');
+      if (calculatedDays) calculatedDays.style.display = 'none';
+      return;
+    }
+    
+    // Format dates for display
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const startFormatted = `${months[start.getMonth()]} ${start.getDate()}, ${start.getFullYear()}`;
+    const endFormatted = `${months[end.getMonth()]} ${end.getDate()}, ${end.getFullYear()}`;
+    
+    // Calculate business days (excluding only Sunday)
+    let totalDays = 0;
+    let weekendDays = 0;
+    
+    const currentDate = new Date(start);
+    while (currentDate <= end) {
+      const dayOfWeek = currentDate.getDay();
+      // Skip only Sunday (0 = Sunday)
+      if (dayOfWeek !== 0) {
+        totalDays++;
+      } else {
+        weekendDays++;
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    console.log('Calculated days:', totalDays, 'Weekend days:', weekendDays); // Debug
+    
+    // Update display
+    if (daysCount) daysCount.textContent = totalDays;
+    if (totalDaysInput) totalDaysInput.value = totalDays;
+    
+    // Show date range with Sunday info
+    let rangeText = `${startFormatted} → ${endFormatted}`;
+    if (weekendDays > 0) {
+      rangeText += ` (${weekendDays} Sunday${weekendDays > 1 ? 's' : ''} excluded)`;
+    }
+    if (dateRangeText) dateRangeText.textContent = rangeText;
+    
+    if (calculatedDays) {
+      calculatedDays.style.display = 'block';
+      
+      // Add animation
+      calculatedDays.style.animation = 'none';
+      setTimeout(() => {
+        calculatedDays.style.animation = 'slideInModal 0.3s ease-out';
+      }, 10);
+    }
+  } catch (error) {
+    console.error('Date calculation error:', error);
+    if (calculatedDays) calculatedDays.style.display = 'none';
+  }
+}
+
+// Add CSS animation for modal
+if (!document.getElementById('modalAnimationStyle')) {
+  const style = document.createElement('style');
+  style.id = 'modalAnimationStyle';
+  style.textContent = `
+    @keyframes slideInModal {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function updateLeaveInfo() {
+  const leaveTypeSelect = document.getElementById('add_leave_type');
+  const selectedOption = leaveTypeSelect.options[leaveTypeSelect.selectedIndex];
+  const leaveTypeInfo = document.getElementById('leaveTypeInfo');
   const paidLeaveInfo = document.getElementById('paid_leave_info');
   const employeeId = document.querySelector('select[name="employee_id"]').value;
   
-  leaveType.innerHTML = '<option value="">Select Leave Type</option>';
-  
-  if (category === '1') {
-    leaveType.innerHTML += '<option value="casual">Casual Leave</option>';
-    leaveType.innerHTML += '<option value="medical">Medical Leave</option>';
+  if (leaveTypeSelect.value) {
+    const isPaid = selectedOption.getAttribute('data-is-paid') === '1';
     
-    // Show paid leave info and fetch balance
-    if (employeeId) {
-      paidLeaveInfo.style.display = 'block';
-      fetchPaidLeaveBalance(employeeId);
+    if (isPaid) {
+      leaveTypeInfo.innerHTML = '<i class="fa fa-check-circle" style="color: #10b981;"></i> This is a <strong>Paid Leave</strong>';
+      leaveTypeInfo.style.color = '#10b981';
+      
+      // Show paid leave info and fetch balance
+      if (employeeId) {
+        paidLeaveInfo.style.display = 'block';
+        fetchPaidLeaveBalance(employeeId);
+      } else {
+        paidLeaveInfo.style.display = 'none';
+        leaveTypeInfo.innerHTML += '<br><span style="color: #ef4444; font-size: 11px;">Please select an employee first to see balance</span>';
+      }
     } else {
+      leaveTypeInfo.innerHTML = '<i class="fa fa-info-circle" style="color: #6b7280;"></i> This is an <strong>Unpaid Leave</strong> - No limit';
+      leaveTypeInfo.style.color = '#6b7280';
       paidLeaveInfo.style.display = 'none';
     }
-  } else if (category === '0') {
-    leaveType.innerHTML += '<option value="personal">Personal Leave</option>';
-    leaveType.innerHTML += '<option value="company_holiday">Company Holiday</option>';
-    paidLeaveInfo.style.display = 'none';
   } else {
+    leaveTypeInfo.innerHTML = '';
     paidLeaveInfo.style.display = 'none';
   }
 }
@@ -304,6 +723,26 @@ function fetchPaidLeaveBalance(employeeId) {
 function submitLeave(event) {
   event.preventDefault();
   const formData = new FormData(event.target);
+  
+  // Convert dates from dd/mm/yyyy to yyyy-mm-dd format
+  const startDate = formData.get('start_date');
+  const endDate = formData.get('end_date');
+  
+  if (startDate && startDate.includes('/')) {
+    const parts = startDate.split('/');
+    formData.set('start_date', `${parts[2]}-${parts[1]}-${parts[0]}`);
+  }
+  
+  if (endDate && endDate.includes('/')) {
+    const parts = endDate.split('/');
+    formData.set('end_date', `${parts[2]}-${parts[1]}-${parts[0]}`);
+  }
+  
+  // Automatically set is_paid based on leave_type
+  const leaveType = formData.get('leave_type');
+  const paidTypes = ['casual', 'medical', 'company_holiday'];
+  const isPaid = paidTypes.includes(leaveType) ? '1' : '0';
+  formData.append('is_paid', isPaid);
   
   // Ensure total_days is sent as decimal
   const totalDays = parseFloat(formData.get('total_days'));
@@ -400,7 +839,51 @@ function updateLeaveStatus(id, status) {
 }
 
 function editLeave(id) {
-  alert('Edit functionality coming soon');
+  // Fetch leave data
+  fetch(`{{ url('leave-approval') }}/${id}/edit`, {
+    method: 'GET',
+    headers: {
+      'X-CSRF-TOKEN': '{{ csrf_token() }}',
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      const leave = data.leave;
+      
+      // Populate edit modal
+      document.getElementById('edit_leave_id').value = leave.id;
+      document.getElementById('edit_employee_id').value = leave.employee_id;
+      document.getElementById('edit_leave_type').value = leave.leave_type;
+      document.getElementById('edit_start_date').value = leave.start_date;
+      document.getElementById('edit_end_date').value = leave.end_date;
+      document.getElementById('edit_total_days').value = leave.total_days;
+      document.getElementById('edit_reason').value = leave.reason;
+      document.getElementById('edit_status').value = leave.status;
+      
+      // Show edit modal
+      document.getElementById('editLeaveModal').style.display = 'flex';
+      
+      // Calculate days for edit modal
+      calculateEditModalDays();
+    } else {
+      if (typeof toastr !== 'undefined') {
+        toastr.error(data.message || 'Error loading leave data');
+      } else {
+        alert(data.message || 'Error loading leave data');
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    if (typeof toastr !== 'undefined') {
+      toastr.error('Error loading leave data');
+    } else {
+      alert('Error loading leave data');
+    }
+  });
 }
 
 function deleteLeave(id) {

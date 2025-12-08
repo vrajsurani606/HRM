@@ -213,11 +213,11 @@
             <td style="padding: 14px 16px;">{{ Str::limit($ticket->description ?? 'Ok', 50) }}</td>
           </tr>
         @empty
-          <tr>
-            <td colspan="{{ auth()->user()->hasRole('customer') ? '6' : '9' }}" style="text-align: center; padding: 40px; color: #9ca3af;">
-              <p style="font-weight: 600; margin: 0;">No tickets found</p>
-            </td>
-          </tr>
+            <x-empty-state 
+                colspan="8" 
+                title="No tickets found" 
+                message="Try adjusting your filters or create a new ticket"
+            />
         @endforelse
       </tbody>
     </table>

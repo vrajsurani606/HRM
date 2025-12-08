@@ -73,14 +73,12 @@ class RoleSeeder extends Seeder
                     'Payroll Management.bulk generate payroll',
                     
                     // Attendance Management - Full access
+                    'Attendance Management.check in',
+                    'Attendance Management.check out',
                     'Attendance Management.view attendance',
                     'Attendance Management.create attendance',
                     'Attendance Management.edit attendance',
                     'Attendance Management.delete attendance',
-                    'Attendance Management.manage attendance',
-                    'Attendance Management.check in',
-                    'Attendance Management.check out',
-                    'Attendance Management.view own attendance',
                     
                     // Leave Management - Full access
                     'Leave Management.view leave',
@@ -150,10 +148,9 @@ class RoleSeeder extends Seeder
                     'Profile Management.view own documents',
                     'Profile Management.view own bank details',
                     
-                    // Attendance - Check in/out and view own
+                    // Attendance - Check in/out only
                     'Attendance Management.check in',
                     'Attendance Management.check out',
-                    'Attendance Management.view own attendance',
                     
                     // Leave Management - Own leave only
                     'Leave Management.view own leave',
@@ -203,10 +200,9 @@ class RoleSeeder extends Seeder
                     'Profile Management.view own documents',
                     'Profile Management.view own bank details',
                     
-                    // Attendance - Check in/out
+                    // Attendance - Check in/out only
                     'Attendance Management.check in',
                     'Attendance Management.check out',
-                    'Attendance Management.view own attendance',
                     
                     // Leave Management - Own leave only
                     'Leave Management.view own leave',

@@ -165,15 +165,16 @@
         <!-- Employee Account No -->
         <div>
           <label class="hrp-label">Employee Account No:</label>
-          <input name="bank_account_no" value="{{ old('bank_account_no', $employee->bank_account_no) }}" placeholder="Enter Account No" class="hrp-input Rectangle-29">
+          <input name="bank_account_no" id="bank_account_no" value="{{ old('bank_account_no', $employee->bank_account_no) }}" placeholder="Enter Account No (9-18 digits)" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{9,18}" minlength="9" maxlength="18" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 18)">
           @error('bank_account_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <!-- Employee Ifsc Code -->
         <div>
           <label class="hrp-label">Employee Ifsc Code:</label>
-          <input name="bank_ifsc" value="{{ old('bank_ifsc', $employee->bank_ifsc) }}" placeholder="Enter Ifsc Code" class="hrp-input Rectangle-29">
+          <input name="bank_ifsc" id="bank_ifsc" value="{{ old('bank_ifsc', $employee->bank_ifsc) }}" placeholder="ABCD0123456 (11 characters)" class="hrp-input Rectangle-29" pattern="[A-Z]{4}0[A-Z0-9]{6}" maxlength="11" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11)">
           @error('bank_ifsc')<small class="hrp-error">{{ $message }}</small>@enderror
+          <small style="color:#6b7280;font-size:12px;display:block;margin-top:4px;">Format: 4 letters + 0 + 6 alphanumeric (e.g., SBIN0001234)</small>
         </div>
         
         <!-- Employee Cheque Photo -->
@@ -332,8 +333,8 @@
         <!-- Father Mobile Number -->
         <div>
           <label class="hrp-label">Father Mobile Number:</label>
-          <input name="father_mobile" value="{{ old('father_mobile', $employee->father_mobile ?? '') }}" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10">
-          @error('father_mobile')<small class="hrp-error">{{ $message }}</small>@enderror
+          <input name="father_mobile_no" id="father_mobile_no" value="{{ old('father_mobile_no', $employee->father_mobile_no ?? '') }}" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+          @error('father_mobile_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <!-- Mother Name -->
@@ -346,8 +347,8 @@
         <!-- Mother Mobile Number -->
         <div>
           <label class="hrp-label">Mother Mobile Number:</label>
-          <input name="mother_mobile" value="{{ old('mother_mobile', $employee->mother_mobile ?? '') }}" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10">
-          @error('mother_mobile')<small class="hrp-error">{{ $message }}</small>@enderror
+          <input name="mother_mobile_no" id="mother_mobile_no" value="{{ old('mother_mobile_no', $employee->mother_mobile_no ?? '') }}" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+          @error('mother_mobile_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
         <!-- Employee Joining Date -->

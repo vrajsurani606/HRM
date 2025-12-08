@@ -275,9 +275,11 @@
             </td>
           </tr>
           @empty
-          <tr>
-            <td colspan="8" style="text-align: center; padding: 20px;">No quotations found</td>
-          </tr>
+            <x-empty-state 
+                colspan="8" 
+                title="No quotations found" 
+                message="Try adjusting your filters or create a new quotation"
+            />
           @endforelse
         </tbody>
       </table>

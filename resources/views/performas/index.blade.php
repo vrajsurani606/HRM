@@ -86,9 +86,11 @@
         <td>{{ number_format($proforma->final_amount ?? 0, 2) }}</td>
       </tr>
       @empty
-      <tr>
-        <td colspan="10" style="text-align:center;">No proformas found</td>
-      </tr>
+        <x-empty-state 
+            colspan="10" 
+            title="No proformas found" 
+            message="Try adjusting your filters or create a new proforma"
+        />
       @endforelse
     </tbody>
   </table>

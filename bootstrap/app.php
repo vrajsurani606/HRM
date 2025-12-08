@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         
         // Apply employee status check to all authenticated routes
         $middleware->appendToGroup('web', [
+            \App\Http\Middleware\SystemHealthCheck::class,
             \App\Http\Middleware\CheckEmployeeStatus::class,
         ]);
     })

@@ -55,16 +55,16 @@
                     <select name="leave_type" id="leave_type" class="hrp-input" required>
                         <option value="">Select Leave Type</option>
                         @foreach($leaveTypes as $type => $details)
-                        <option value="{{ $type }}" {{ old('leave_type') == $type ? 'selected' : '' }}>
-                            {{ $details['name'] }} 
-                            @if($details['is_paid'])
-                                (Paid) - Balance: {{ number_format($leaveBalance->paid_leave_balance, 1) }} days
-                            @else
-                                (Unpaid) - No Limit
-                            @endif
+                        <option value="{{ $type }}" 
+                                data-is-paid="{{ $details['is_paid'] ? '1' : '0' }}"
+                                {{ old('leave_type') == $type ? 'selected' : '' }}>
+                            {{ $details['name'] }} @if($details['is_paid'])(Paid)@else(Unpaid)@endif
                         </option>
                         @endforeach
                     </select>
+                    <small style="color: #6b7280; font-size: 12px; margin-top: 8px; display: block;">
+                        <span id="leaveTypeInfo"></span>
+                    </small>
                     @error('leave_type')
                         <span style="color: #dc2626; font-size: 13px;">{{ $message }}</span>
                     @enderror
@@ -113,12 +113,25 @@
                     @enderror
                 </div>
 
-                <div id="calculatedDays" style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 16px; border-radius: 8px; margin-bottom: 20px; display: none;">
-                    <div style="font-size: 14px; color: #1e40af; font-weight: 600;">
-                        <i class="fa fa-info-circle"></i> Calculated Leave Days: <span id="daysCount">0</span> day(s)
+                <div id="calculatedDays" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; margin-bottom: 20px; display: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; color: white;">
+                        <div>
+                            <div style="font-size: 13px; opacity: 0.9; margin-bottom: 4px;">
+                                <i class="fa fa-calendar"></i> Total Leave Days
+                            </div>
+                            <div style="font-size: 32px; font-weight: 800; line-height: 1;">
+                                <span id="daysCount">0</span> <span style="font-size: 18px; font-weight: 600;">days</span>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 11px; opacity: 0.8; margin-bottom: 4px;">Calculation</div>
+                            <div style="font-size: 13px; font-weight: 600;">
+                                <i class="fa fa-check-circle"></i> Sundays Excluded
+                            </div>
+                        </div>
                     </div>
-                    <div style="font-size: 12px; color: #3b82f6; margin-top: 4px;">
-                        (Excluding weekends)
+                    <div id="dateRangeDisplay" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 12px; color: rgba(255,255,255,0.9);">
+                        <i class="fa fa-arrow-right"></i> <span id="dateRangeText"></span>
                     </div>
                 </div>
 
@@ -142,6 +155,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const isHalfDay = document.getElementById('is_half_day');
     const calculatedDays = document.getElementById('calculatedDays');
     const daysCount = document.getElementById('daysCount');
+    const leaveType = document.getElementById('leave_type');
+    const leaveTypeInfo = document.getElementById('leaveTypeInfo');
+
+    // Show leave type information
+    leaveType.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const isPaid = selectedOption.getAttribute('data-is-paid') === '1';
+        
+        if (this.value) {
+            if (isPaid) {
+                leaveTypeInfo.innerHTML = '<i class="fa fa-check-circle" style="color: #10b981;"></i> This is a <strong>Paid Leave</strong>. Available balance: {{ number_format($leaveBalance->paid_leave_balance, 1) }} days';
+                leaveTypeInfo.style.color = '#10b981';
+            } else {
+                leaveTypeInfo.innerHTML = '<i class="fa fa-info-circle" style="color: #6b7280;"></i> This is an <strong>Unpaid Leave</strong>. No limit on days.';
+                leaveTypeInfo.style.color = '#6b7280';
+            }
+        } else {
+            leaveTypeInfo.innerHTML = '';
+        }
+    });
 
     // Update end date min value when start date changes
     startDate.addEventListener('change', function() {
@@ -166,21 +199,68 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        const start = new Date(startDate.value);
+        const end = new Date(endDate.value);
+        
+        // Format dates for display
+        const startFormatted = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const endFormatted = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        
         if (isHalfDay.checked) {
             daysCount.textContent = '0.5';
+            document.getElementById('dateRangeText').textContent = `${startFormatted} (Half Day)`;
             calculatedDays.style.display = 'block';
             return;
         }
 
-        // Simple calculation (actual calculation happens on server)
-        const start = new Date(startDate.value);
-        const end = new Date(endDate.value);
-        const diffTime = Math.abs(end - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        // Calculate business days (excluding weekends)
+        let totalDays = 0;
+        let weekendDays = 0;
         
-        daysCount.textContent = diffDays;
+        for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+            const dayOfWeek = date.getDay();
+            // Skip only Sunday (0 = Sunday)
+            if (dayOfWeek !== 0) {
+                totalDays++;
+            } else {
+                weekendDays++;
+            }
+        }
+        
+        // Update display
+        daysCount.textContent = totalDays;
+        
+        // Show date range with Sunday info
+        let rangeText = `${startFormatted} → ${endFormatted}`;
+        if (weekendDays > 0) {
+            rangeText += ` (${weekendDays} Sunday${weekendDays > 1 ? 's' : ''} excluded)`;
+        }
+        document.getElementById('dateRangeText').textContent = rangeText;
+        
         calculatedDays.style.display = 'block';
+        
+        // Add animation
+        calculatedDays.style.animation = 'none';
+        setTimeout(() => {
+            calculatedDays.style.animation = 'slideIn 0.3s ease-out';
+        }, 10);
     }
+    
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
 });
 </script>
 @endsection

@@ -362,10 +362,18 @@ class ProfileController extends Controller
             'bank_name' => ['required', 'string', 'max:255'],
             'bank_account_no' => ['required', 'string', 'max:30'],
             'bank_ifsc' => ['required', 'string', 'max:11', 'regex:/^[A-Z]{4}0[A-Z0-9]{6}$/'],
+            'employee_id' => ['nullable', 'exists:employees,id'], // For HR updating employee bank details
         ]);
 
         $user = $request->user();
-        $employee = \App\Models\Employee::where('email', $user->email)->first();
+        
+        // If employee_id is provided, HR is updating an employee's bank details
+        if ($request->filled('employee_id')) {
+            $employee = \App\Models\Employee::findOrFail($request->employee_id);
+        } else {
+            // User is updating their own bank details
+            $employee = \App\Models\Employee::where('email', $user->email)->first();
+        }
 
         if ($employee) {
             $employee->update([
@@ -373,6 +381,13 @@ class ProfileController extends Controller
                 'bank_account_no' => $request->bank_account_no,
                 'bank_ifsc' => strtoupper($request->bank_ifsc),
             ]);
+        }
+
+        // Redirect back to employee show page if employee_id was provided
+        if ($request->filled('employee_id')) {
+            return Redirect::route('employees.show', $employee->id)
+                ->with('status', 'bank-updated')
+                ->with('active_tab', 'bank');
         }
 
         return Redirect::route('profile.edit')->with('status', 'bank-updated')->with('active_tab', 'bank');

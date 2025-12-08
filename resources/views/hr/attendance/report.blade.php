@@ -41,8 +41,8 @@
       @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.create attendance'))
         <a href="{{ route('attendance.create') }}" class="pill-btn pill-primary">+ Create Attendance</a>
       @endif
-      @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.export attendance report'))
-        <a href="{{ route('attendance.reports.export', request()->all()) }}" class="pill-btn pill-success">Export to Excel</a>
+      @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.view attendance'))
+        <a href="{{ route('attendance.report.export', request()->all()) }}" class="pill-btn pill-success">Export to Excel</a>
       @endif
     </div>
   </form>
@@ -128,7 +128,7 @@
                 @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.delete attendance'))
                   <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 16px; height: 16px;" onclick="deleteAttendance({{ $attendance->id }})">
                 @endif
-                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.print attendance report'))
+                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.view attendance'))
                   <img src="{{ asset('action_icon/print.svg') }}" alt="Print" style="cursor: pointer; width: 16px; height: 16px;" onclick="printAttendance({{ $attendance->id }})">
                 @endif
               </div>
@@ -145,15 +145,19 @@
                 #{{ $index + 1 }}
               </span>
             </td>
-            <td style="vertical-align: middle; padding: 10px;">
-              @php
-                $checkIn = $attendance->check_in ? ($attendance->check_in instanceof \Carbon\Carbon ? $attendance->check_in : \Carbon\Carbon::parse($attendance->check_in)) : null;
-                $checkOut = $attendance->check_out ? ($attendance->check_out instanceof \Carbon\Carbon ? $attendance->check_out : \Carbon\Carbon::parse($attendance->check_out)) : null;
-              @endphp
+            @php
+              $checkIn = $attendance->check_in ? ($attendance->check_in instanceof \Carbon\Carbon ? $attendance->check_in : \Carbon\Carbon::parse($attendance->check_in)) : null;
+              $checkOut = $attendance->check_out ? ($attendance->check_out instanceof \Carbon\Carbon ? $attendance->check_out : \Carbon\Carbon::parse($attendance->check_out)) : null;
+            @endphp
+            <td style="vertical-align: middle; padding: 10px;" 
+                data-attendance-id="{{ $attendance->id }}"
+                data-check-in="{{ $checkIn ? $checkIn->format('H:i') : '' }}"
+                data-check-out="{{ $checkOut ? $checkOut->format('H:i') : '' }}"
+                class="time-cell">
               
               <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
                 @if($checkIn)
-                  <span style="color:#059669; font-weight:600; font-size:13px;">{{ $checkIn->format('h:i A') }}</span>
+                  <span style="color:#059669; font-weight:600; font-size:13px;" class="check-in-time">{{ $checkIn->format('h:i A') }}</span>
                 @else
                   <span style="color:#9ca3af;">--</span>
                 @endif
@@ -161,7 +165,7 @@
                 <span style="color:#d1d5db; font-size:12px;">→</span>
                 
                 @if($checkOut)
-                  <span style="color:#dc2626; font-weight:600; font-size:13px;">{{ $checkOut->format('h:i A') }}</span>
+                  <span style="color:#dc2626; font-weight:600; font-size:13px;" class="check-out-time">{{ $checkOut->format('h:i A') }}</span>
                 @else
                   <span style="color:#9ca3af;">--</span>
                 @endif
@@ -196,15 +200,11 @@
           </tr>
           @endforeach
         @empty
-        <tr>
-          <td colspan="9" style="text-align: center; padding: 40px; color: #9ca3af;">
-            <svg width="48" height="48" fill="currentColor" viewBox="0 0 24 24" style="margin-bottom: 12px; opacity: 0.5;">
-              <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
-            </svg>
-            <p style="font-weight: 600; margin: 0;">No attendance records found</p>
-            <p style="font-size: 14px; margin: 8px 0 0 0;">Try adjusting your filters</p>
-          </td>
-        </tr>
+          <x-empty-state 
+              colspan="9" 
+              title="No attendance records found" 
+              message="Try adjusting your filters or create a new attendance record"
+          />
         @endforelse
       </tbody>
     </table>
@@ -218,34 +218,516 @@
   @endif
 </div>
 
+<div id="secretTimeEditModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99999; align-items: center; justify-content: center;">
+  <div style="background: #1f2937; border-radius: 8px; padding: 20px; max-width: 320px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid #374151;">
+    <h3 style="margin: 0 0 15px 0; font-size: 16px; font-weight: 600; color: #f3f4f6;">Edit Time</h3>
+    
+    <form id="secretTimeEditForm" onsubmit="submitSecretTimeEdit(event)">
+      <input type="hidden" name="attendance_id" id="secret_attendance_id">
+      
+      <div style="margin-bottom: 12px;">
+        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px; color: #d1d5db;">Check In</label>
+        <input type="time" name="check_in" id="secret_check_in" required style="width: 100%; padding: 8px; border: 1px solid #4b5563; border-radius: 6px; font-size: 13px; background: #374151; color: #f3f4f6;">
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px; color: #d1d5db;">Check Out</label>
+        <input type="time" name="check_out" id="secret_check_out" style="width: 100%; padding: 8px; border: 1px solid #4b5563; border-radius: 6px; font-size: 13px; background: #374151; color: #f3f4f6;">
+      </div>
+
+      <div style="display: flex; gap: 8px; justify-content: flex-end;">
+        <button type="button" onclick="closeSecretTimeEditModal()" style="padding: 6px 14px; border: 1px solid #4b5563; background: #374151; color: #d1d5db; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 13px;">Cancel</button>
+        <button type="submit" style="padding: 6px 14px; border: none; background: #3b82f6; color: white; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 13px;">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Quick Edit Time Modal -->
+<div id="quickEditTimeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+  <div style="background: white; border-radius: 12px; padding: 25px; max-width: 350px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+    <h3 style="margin: 0 0 15px 0; font-size: 18px; font-weight: 700; color: #1f2937;">Quick Edit Time</h3>
+    
+    <form id="quickEditTimeForm" onsubmit="submitQuickEditTime(event)">
+      <input type="hidden" name="attendance_id" id="quick_attendance_id">
+      <input type="hidden" name="field_type" id="quick_field_type">
+      
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; color: #374151;" id="quick_time_label">Time</label>
+        <input type="time" name="time_value" id="quick_time_value" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+        <small style="color: #6b7280; font-size: 12px; display: block; margin-top: 4px;">Enter the corrected time</small>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button type="button" onclick="closeQuickEditTimeModal()" style="padding: 8px 16px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">Cancel</button>
+        <button type="submit" style="padding: 8px 16px; border: none; background: #3b82f6; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Attendance Modal -->
+<div id="editAttendanceModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+  <div style="background: white; border-radius: 15px; padding: 30px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;">
+    <h3 style="margin: 0 0 20px 0; font-size: 22px; font-weight: 700;">Edit Attendance Record</h3>
+    
+    <form id="editAttendanceForm" onsubmit="submitEditAttendance(event)">
+      <input type="hidden" name="attendance_id" id="edit_attendance_id">
+      
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Employee</label>
+        <select name="employee_id" id="edit_employee_id" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+          <option value="">Select Employee</option>
+          @foreach($employees as $emp)
+            <option value="{{ $emp->id }}">{{ $emp->name }}</option>
+          @endforeach
+        </select>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Date</label>
+        <input type="date" name="date" id="edit_date" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        <div>
+          <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Check In</label>
+          <input type="time" name="check_in" id="edit_check_in" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Check Out</label>
+          <input type="time" name="check_out" id="edit_check_out" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Status</label>
+        <select name="status" id="edit_status" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+          <option value="present">Present</option>
+          <option value="absent">Absent</option>
+          <option value="half_day">Half Day</option>
+          <option value="late">Late</option>
+          <option value="early_leave">Early Leave</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Notes</label>
+        <textarea name="notes" id="edit_notes" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: vertical;" placeholder="Optional notes..."></textarea>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button type="button" onclick="closeEditAttendanceModal()" style="padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 8px; cursor: pointer; font-weight: 600;">Cancel</button>
+        <button type="submit" style="padding: 10px 20px; border: none; background: #3b82f6; color: white; border-radius: 8px; cursor: pointer; font-weight: 600;">Update Attendance</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
+// Secret keyboard shortcut feature - Ctrl+Shift+E on time cell
+let selectedTimeCell = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Add click listener to time cells to select them
+  document.querySelectorAll('.time-cell').forEach(cell => {
+    cell.addEventListener('click', function() {
+      // Remove previous selection
+      if (selectedTimeCell) {
+        selectedTimeCell.style.outline = '';
+      }
+      // Select this cell (invisible to others)
+      selectedTimeCell = this;
+    });
+  });
+  
+  // Secret keyboard shortcut: Ctrl+Shift+E
+  document.addEventListener('keydown', function(e) {
+    // Ctrl+Shift+E
+    if (e.ctrlKey && e.shiftKey && e.key === 'E') {
+      e.preventDefault();
+      
+      if (selectedTimeCell) {
+        const attendanceId = selectedTimeCell.getAttribute('data-attendance-id');
+        const checkIn = selectedTimeCell.getAttribute('data-check-in');
+        const checkOut = selectedTimeCell.getAttribute('data-check-out');
+        
+        // Open secret edit modal
+        openSecretTimeEdit(attendanceId, checkIn, checkOut);
+      }
+    }
+  });
+});
+
+function openSecretTimeEdit(attendanceId, checkIn, checkOut) {
+  document.getElementById('secret_attendance_id').value = attendanceId;
+  document.getElementById('secret_check_in').value = checkIn;
+  document.getElementById('secret_check_out').value = checkOut || '';
+  
+  // Show modal
+  document.getElementById('secretTimeEditModal').style.display = 'flex';
+  
+  // Focus on check-in input
+  setTimeout(() => {
+    document.getElementById('secret_check_in').focus();
+  }, 100);
+}
+
+function closeSecretTimeEditModal() {
+  document.getElementById('secretTimeEditModal').style.display = 'none';
+  document.getElementById('secretTimeEditForm').reset();
+  selectedTimeCell = null;
+}
+
+function submitSecretTimeEdit(event) {
+  event.preventDefault();
+  
+  const attendanceId = document.getElementById('secret_attendance_id').value;
+  const checkIn = document.getElementById('secret_check_in').value;
+  const checkOut = document.getElementById('secret_check_out').value;
+  
+  fetch(`{{ url('attendance') }}/${attendanceId}/quick-edit`, {
+    method: 'GET',
+    headers: {
+      'X-CSRF-TOKEN': '{{ csrf_token() }}',
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      const attendance = data.attendance;
+      
+      // Prepare form data
+      const formData = new FormData();
+      formData.append('_method', 'PUT');
+      formData.append('employee_id', attendance.employee_id);
+      formData.append('date', attendance.date);
+      formData.append('status', attendance.status);
+      formData.append('notes', attendance.notes || '');
+      formData.append('check_in', checkIn);
+      if (checkOut) {
+        formData.append('check_out', checkOut);
+      }
+      
+      fetch(`{{ url('attendance') }}/${attendanceId}/quick-update`, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': '{{ csrf_token() }}',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          closeSecretTimeEditModal();
+          // Silent reload - no notification
+          setTimeout(() => location.reload(), 500);
+        } else {
+          alert('Update failed');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Update failed');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to load data');
+  });
+}
+
+// Quick Edit Time Functions
+function quickEditTime(attendanceId, fieldType, currentTime) {
+  document.getElementById('quick_attendance_id').value = attendanceId;
+  document.getElementById('quick_field_type').value = fieldType;
+  document.getElementById('quick_time_value').value = currentTime;
+  
+  // Update label based on field type
+  const label = fieldType === 'check_in' ? 'Check In Time' : 'Check Out Time';
+  document.getElementById('quick_time_label').textContent = label;
+  
+  // Show modal
+  document.getElementById('quickEditTimeModal').style.display = 'flex';
+  
+  // Focus on time input
+  setTimeout(() => {
+    document.getElementById('quick_time_value').focus();
+  }, 100);
+}
+
+function closeQuickEditTimeModal() {
+  document.getElementById('quickEditTimeModal').style.display = 'none';
+  document.getElementById('quickEditTimeForm').reset();
+}
+
+function submitQuickEditTime(event) {
+  event.preventDefault();
+  
+  const attendanceId = document.getElementById('quick_attendance_id').value;
+  const fieldType = document.getElementById('quick_field_type').value;
+  const timeValue = document.getElementById('quick_time_value').value;
+  
+  // Fetch current attendance data first
+  fetch(`{{ url('attendance') }}/${attendanceId}/edit`, {
+    method: 'GET',
+    headers: {
+      'X-CSRF-TOKEN': '{{ csrf_token() }}',
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      const attendance = data.attendance;
+      
+      // Prepare form data with all required fields
+      const formData = new FormData();
+      formData.append('_method', 'PUT');
+      formData.append('employee_id', attendance.employee_id);
+      formData.append('date', attendance.date);
+      formData.append('status', attendance.status);
+      formData.append('notes', attendance.notes || '');
+      
+      // Update the specific time field
+      if (fieldType === 'check_in') {
+        formData.append('check_in', timeValue);
+        // Keep existing check_out if available
+        if (attendance.check_out) {
+          const checkOutTime = typeof attendance.check_out === 'string' 
+            ? attendance.check_out.split(' ')[1].substring(0, 5)
+            : attendance.check_out.date.split(' ')[1].substring(0, 5);
+          formData.append('check_out', checkOutTime);
+        }
+      } else {
+        // Keep existing check_in
+        const checkInTime = typeof attendance.check_in === 'string'
+          ? attendance.check_in.split(' ')[1].substring(0, 5)
+          : attendance.check_in.date.split(' ')[1].substring(0, 5);
+        formData.append('check_in', checkInTime);
+        formData.append('check_out', timeValue);
+      }
+      
+      // Submit update
+      fetch(`{{ url('attendance') }}/${attendanceId}`, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': '{{ csrf_token() }}',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          if (typeof toastr !== 'undefined') {
+            toastr.success('Time updated successfully!');
+          } else {
+            alert('Time updated successfully!');
+          }
+          closeQuickEditTimeModal();
+          setTimeout(() => location.reload(), 800);
+        } else {
+          if (typeof toastr !== 'undefined') {
+            toastr.error(data.message || 'Error updating time');
+          } else {
+            alert(data.message || 'Error updating time');
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        if (typeof toastr !== 'undefined') {
+          toastr.error('Error updating time');
+        } else {
+          alert('Error updating time');
+        }
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    if (typeof toastr !== 'undefined') {
+      toastr.error('Error loading attendance data');
+    } else {
+      alert('Error loading attendance data');
+    }
+  });
+}
+
 function editAttendance(id) {
-  // Redirect to edit page or open modal
-  window.location.href = '{{ url("attendance") }}/' + id + '/edit';
+  // Fetch attendance data
+  fetch(`{{ url('attendance') }}/${id}/edit`, {
+    method: 'GET',
+    headers: {
+      'X-CSRF-TOKEN': '{{ csrf_token() }}',
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Attendance data:', data); // Debug log
+    
+    if (data.success) {
+      const attendance = data.attendance;
+      
+      // Populate edit modal
+      document.getElementById('edit_attendance_id').value = attendance.id;
+      document.getElementById('edit_employee_id').value = attendance.employee_id;
+      
+      // Parse date - handle both string and object formats
+      let dateValue = '';
+      if (typeof attendance.date === 'string') {
+        dateValue = attendance.date.split(' ')[0]; // Extract date part from string
+      } else if (attendance.date && attendance.date.date) {
+        dateValue = attendance.date.date.split(' ')[0]; // Extract from Carbon object
+      }
+      document.getElementById('edit_date').value = dateValue;
+      
+      // Extract time from datetime - handle both string and object formats
+      let checkIn = '';
+      let checkOut = '';
+      
+      if (attendance.check_in) {
+        if (typeof attendance.check_in === 'string') {
+          const parts = attendance.check_in.split(' ');
+          checkIn = parts.length > 1 ? parts[1].substring(0, 5) : '';
+        } else if (attendance.check_in.date) {
+          const parts = attendance.check_in.date.split(' ');
+          checkIn = parts.length > 1 ? parts[1].substring(0, 5) : '';
+        }
+      }
+      
+      if (attendance.check_out) {
+        if (typeof attendance.check_out === 'string') {
+          const parts = attendance.check_out.split(' ');
+          checkOut = parts.length > 1 ? parts[1].substring(0, 5) : '';
+        } else if (attendance.check_out.date) {
+          const parts = attendance.check_out.date.split(' ');
+          checkOut = parts.length > 1 ? parts[1].substring(0, 5) : '';
+        }
+      }
+      
+      document.getElementById('edit_check_in').value = checkIn;
+      document.getElementById('edit_check_out').value = checkOut;
+      document.getElementById('edit_status').value = attendance.status;
+      document.getElementById('edit_notes').value = attendance.notes || '';
+      
+      // Show edit modal
+      document.getElementById('editAttendanceModal').style.display = 'flex';
+    } else {
+      if (typeof toastr !== 'undefined') {
+        toastr.error(data.message || 'Error loading attendance data');
+      } else {
+        alert(data.message || 'Error loading attendance data');
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    if (typeof toastr !== 'undefined') {
+      toastr.error('Error loading attendance data: ' + error.message);
+    } else {
+      alert('Error loading attendance data: ' + error.message);
+    }
+  });
+}
+
+function closeEditAttendanceModal() {
+  document.getElementById('editAttendanceModal').style.display = 'none';
+  document.getElementById('editAttendanceForm').reset();
+}
+
+function submitEditAttendance(event) {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+  const attendanceId = document.getElementById('edit_attendance_id').value;
+  
+  // Add _method for PUT request
+  formData.append('_method', 'PUT');
+  
+  fetch(`{{ url('attendance') }}/${attendanceId}`, {
+    method: 'POST',
+    headers: {
+      'X-CSRF-TOKEN': '{{ csrf_token() }}',
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      toastr.success(data.message || 'Attendance updated successfully!');
+      closeEditAttendanceModal();
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      toastr.error(data.message || 'Error updating attendance');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    toastr.error('Error updating attendance');
+  });
 }
 
 function deleteAttendance(id) {
-  if (confirm('Are you sure you want to delete this attendance record?')) {
+  if (confirm('Are you sure you want to delete this attendance record? This action cannot be undone.')) {
+    // Use FormData with _method for DELETE
+    const formData = new FormData();
+    formData.append('_method', 'DELETE');
+    
     fetch('{{ url("attendance") }}/' + id, {
-      method: 'DELETE',
+      method: 'POST',
       headers: {
         'X-CSRF-TOKEN': '{{ csrf_token() }}',
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
     .then(data => {
       if (data.success) {
-        toastr.success('Attendance record deleted successfully!');
-        location.reload();
+        if (typeof toastr !== 'undefined') {
+          toastr.success('Attendance record deleted successfully!');
+        } else {
+          alert('Attendance record deleted successfully!');
+        }
+        setTimeout(() => location.reload(), 1000);
       } else {
-        toastr.error('Error deleting record: ' + (data.message || 'Unknown error'));
+        if (typeof toastr !== 'undefined') {
+          toastr.error('Error deleting record: ' + (data.message || 'Unknown error'));
+        } else {
+          alert('Error deleting record: ' + (data.message || 'Unknown error'));
+        }
       }
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('Error deleting record');
+      if (typeof toastr !== 'undefined') {
+        toastr.error('Error deleting record: ' + error.message);
+      } else {
+        alert('Error deleting record: ' + error.message);
+      }
     });
   }
 }

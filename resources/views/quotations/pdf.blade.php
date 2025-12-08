@@ -310,7 +310,7 @@
                         <div style="font-size: 20px; margin-bottom: 24px; color: #1a1a1a; font-weight: 600;">Dear {{ $quotation->contact_person_1 }},</div>
                         
                         <div style="font-size: 17px; line-height: 1.8; margin-bottom: 24px; text-align: justify; color: #2d3748;">
-                            I am pleased to introduce myself and my company, <strong style="font-weight: 600; color: #1a1a1a;">{{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }}</strong>. We are excited to get to work on your new {{ $quotation->quotation_title ?? 'Software' }}, and we want to make sure you're satisfied with our proposal and have a full understanding of what to expect in this lengthy process. Creating {{ $quotation->quotation_title ?? 'Software' }} is exciting, and our expert team is fully capable of giving you something unique that will help grow your business.
+                            I am pleased to introduce myself and my company, <strong style="font-weight: 600; color: #1a1a1a;">{{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }}</strong>. We are excited to get to work on your new lims , and we want to make sure you're satisfied with our proposal and have a full understanding of what to expect in this lengthy process. Creating lims is exciting, and our expert team is fully capable of giving you something unique that will help grow your business.
                         </div>
                         
                         <div style="font-size: 17px; line-height: 1.8; margin-bottom: 48px; text-align: justify; color: #2d3748;">
@@ -424,14 +424,14 @@
                             <td colspan="4" style="height:32px;"></td>
                         </tr>                                                
                         <tr>                                                        
-                            <td colspan="4" style="background:#3B86B3 !important; color:#ffffff !important; text-align:center; font-size:18px; font-weight:700; padding:16px; border-radius:8px 8px 0 0; letter-spacing:0.01em; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">Timeline for LIMS Development</td>                                                    
+                            <td colspan="4" style="background:#3B86B3 !important; color:#ffffff !important; text-align:center; font-size:18px; font-weight:700; padding:16px; border-radius:8px 8px 0 0; letter-spacing:0.01em; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">Timeline for {{ $quotation->quotation_title ?? 'Software' }}</td>                                                    
                         </tr>                                                
                         <tr>                                                        
                             <td colspan="2" style="background:#f7fafc !important; color:#1a1a1a; padding:14px 16px; font-size:16px; font-weight:700; border:1px solid #e2e8f0; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">Process</td>                                                        
                             <td colspan="2" style="background:#f7fafc !important; color:#1a1a1a; padding:14px 16px; font-size:16px; font-weight:700; border:1px solid #e2e8f0; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;">Delivery</td>                                                    
                         </tr>                                                
                         <tr>                                                        
-                            <td colspan="2" style="padding:14px 16px; border:1px solid #e2e8f0; border-radius:0 0 0 8px; font-weight:600; font-size:15px; color:#2d3748;">Development For LIMS</td>                                                        
+                            <td colspan="2" style="padding:14px 16px; border:1px solid #e2e8f0; border-radius:0 0 0 8px; font-weight:600; font-size:15px; color:#2d3748;">Development For {{ $quotation->quotation_title ?? 'Software' }}</td>                                                        
                             <td colspan="2" style="padding:14px 16px; border:1px solid #e2e8f0; border-radius:0 0 8px 0; font-weight:600; font-size:15px; color:#2d3748;">{{ $quotation->completion_time ?? '90 Days' }}</td>                                                    
                         </tr>                                            
                     </table>
@@ -639,7 +639,7 @@
 
                         <div style="margin-top:20px;">
                             <div style="font-size:24px; font-weight: 600; margin-bottom: 15px;">Agreement</div>
-                            <div style="font-size:20px; line-height:1.8; margin-bottom: 30px;">By signing below, you agree to accept this proposal for {{ $quotation->quotation_title ?? 'Software' }} development and any modifications already agreed upon with {{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }}.</div>
+                            <div style="font-size:20px; line-height:1.8; margin-bottom: 30px;">By signing below, you agree to accept this proposal for lims development and any modifications already agreed upon with {{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }}.</div>
                         </div>
 
                         <table class="inner-table" style="width: 100%; margin-top: 20px;">

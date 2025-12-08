@@ -80,9 +80,9 @@
 
       <div class="hrp-col-6">
         <label class="hrp-label Mobile-No" for="date_of_birth">{{ __('Date of Birth') }} :</label>
-        <input type="date" id="date_of_birth" name="date_of_birth" class="Rectangle-29" 
-               value="{{ old('date_of_birth', isset($employee->date_of_birth) ? $employee->date_of_birth->format('Y-m-d') : '') }}" 
-               placeholder="{{ __('DD/MM/YYYY') }}" />
+        <input type="text" id="date_of_birth" name="date_of_birth" class="Rectangle-29 date-picker" 
+               value="{{ old('date_of_birth', isset($employee->date_of_birth) ? $employee->date_of_birth->format('d/m/Y') : '') }}" 
+               placeholder="dd/mm/yyyy" autocomplete="off" />
         @if($errors->get('date_of_birth'))
           <div style="color: #ef4444; font-size: 13px; margin-top: 8px; font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
             {{ $errors->first('date_of_birth') }}

@@ -107,6 +107,12 @@
       <i class="fa fa-list"></i> Attendance Records
     </h3>
     
+    @php
+      // Check if employee has attendance records
+      $hasAttendanceRecords = false; // This should be replaced with actual data check from controller
+    @endphp
+
+    @if($hasAttendanceRecords)
     <div class="table-responsive">
       <table id="attendanceTable" class="table table-striped table-hover" style="width:100%">
         <thead>
@@ -119,105 +125,18 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Sample Data Rows -->
-          <tr>
-            <td>Monday</td>
-            <td>2025-11-01</td>
-            <td>
-              <div class="time-container">
-                <span class="time-badge in-time">09:15</span>
-                <div class="time-line">
-                  <div class="time-marker start">9:30</div>
-                  <div class="time-line-track">
-                    <div class="time-line-progress" style="left: 0%; width: 100%;"></div>
-                  </div>
-                  <div class="time-marker end">18:30</div>
-                </div>
-                <span class="time-badge out-time">18:45</span>
-              </div>
-            </td>
-            <td>00:15</td>
-            <td><span class="status-badge status-present">Present</span></td>
-          </tr>
-          <tr>
-            <td>Tuesday</td>
-            <td>2025-11-02</td>
-            <td>
-              <div class="time-container">
-                <span class="time-badge late-in">10:15</span>
-                <div class="time-line">
-                  <div class="time-marker start">9:30</div>
-                  <div class="time-line-track">
-                    <div class="time-line-progress" style="left: 0%; width: 100%;"></div>
-                  </div>
-                  <div class="time-marker end">18:30</div>
-                </div>
-                <span class="time-badge early-out">17:45</span>
-              </div>
-            </td>
-            <td>00:00</td>
-            <td><span class="status-badge status-late">Late In</span></td>
-          </tr>
-          <tr>
-            <td>Wednesday</td>
-            <td>2025-11-03</td>
-            <td>
-              <div class="time-container">
-                <span class="time-badge in-time">09:25</span>
-                <div class="time-line">
-                  <div class="time-marker start">9:30</div>
-                  <div class="time-line-track">
-                    <div class="time-line-progress" style="left: 0%; width: 100%;"></div>
-                  </div>
-                  <div class="time-marker end">18:30</div>
-                </div>
-                <span class="time-badge out-time">18:50</span>
-              </div>
-            </td>
-            <td>00:20</td>
-            <td><span class="status-badge status-present">Present</span></td>
-          </tr>
-          <tr>
-            <td>Thursday</td>
-            <td>2025-11-04</td>
-            <td>
-              <div class="time-container">
-                <span class="time-badge absent">-</span>
-                <div class="time-line">
-                  <div class="time-marker start">9:30</div>
-                  <div class="time-line-track">
-                    <div class="time-line-progress" style="left: 0%; width: 0%;"></div>
-                  </div>
-                  <div class="time-marker end">18:30</div>
-                </div>
-                <span class="time-badge absent">-</span>
-              </div>
-            </td>
-            <td>00:00</td>
-            <td><span class="status-badge status-absent">Absent</span></td>
-          </tr>
-          <tr>
-            <td>Friday</td>
-            <td>2025-11-05</td>
-            <td>
-              <div class="time-container">
-                <span class="time-badge in-time">09:00</span>
-                <div class="time-line">
-                  <div class="time-marker start">9:30</div>
-                  <div class="time-line-track">
-                    <div class="time-line-progress" style="left: 0%; width: 50%;"></div>
-                  </div>
-                  <div class="time-marker end">18:30</div>
-                </div>
-                <span class="time-badge half-day">14:00</span>
-              </div>
-            </td>
-            <td>00:00</td>
-            <td><span class="status-badge status-halfday">Half Day</span></td>
-          </tr>
+          <!-- Attendance records will be displayed here -->
         </tbody>
       </table>
     </div>
+    @else
+    <!-- Empty State -->
+    <x-empty-state 
+      icon="fa-calendar-times-o"
+      title="No Attendance Records"
+      message="No attendance records found for the selected period. Your attendance data will appear here once you start marking attendance."
+    />
+    @endif
   </div>
   
   <!-- Add this before the closing </div> tag -->

@@ -113,7 +113,10 @@
         </div>
       </div>
     @empty
-      <div class="text-center py-3">No records found</div>
+      <x-empty-state-grid 
+          title="No hiring records found" 
+          message="Try adjusting your filters or create a new hiring record"
+      />
     @endforelse
   </div>
 
@@ -210,9 +213,11 @@
             </td>
           </tr>
           @empty
-          <tr>
-            <td colspan="13" class="text-center py-8">No records found</td>
-          </tr>
+            <x-empty-state 
+                colspan="13" 
+                title="No hiring records found" 
+                message="Try adjusting your filters or create a new hiring record"
+            />
           @endforelse
         </tbody>
       </table>

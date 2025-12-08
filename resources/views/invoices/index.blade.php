@@ -88,9 +88,11 @@
         <td>₹{{ number_format($invoice->final_amount ?? 0, 2) }}</td>
       </tr>
       @empty
-      <tr>
-        <td colspan="11" class="text-center py-4">No invoices found</td>
-      </tr>
+        <x-empty-state 
+            colspan="11" 
+            title="No invoices found" 
+            message="Try adjusting your filters or create a new invoice"
+        />
       @endforelse
     </tbody>
   </table>

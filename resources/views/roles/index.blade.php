@@ -62,9 +62,11 @@
               <td>{{ $role->users->count() }}</td>
             </tr>
           @empty
-            <tr>
-              <td colspan="6">No roles found</td>
-            </tr>
+            <x-empty-state 
+                colspan="6" 
+                title="No roles found" 
+                message="Create a new role to get started"
+            />
           @endforelse
           </tbody>
         </table>

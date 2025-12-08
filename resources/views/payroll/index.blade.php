@@ -138,12 +138,11 @@
               </td>
             </tr>
           @empty
-            <tr>
-              <td colspan="9" style="text-align: center; padding: 40px; color: #9ca3af;">
-                <div style="font-weight: 600; margin-bottom: 8px;">No payroll records found</div>
-                <div style="font-size: 14px;">Try adjusting your filters or create a new payroll record</div>
-              </td>
-            </tr>
+            <x-empty-state 
+                colspan="9" 
+                title="No payroll records found" 
+                message="Try adjusting your filters or create a new payroll record"
+            />
           @endforelse
         </tbody>
       </table>

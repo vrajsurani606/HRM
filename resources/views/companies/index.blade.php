@@ -178,9 +178,11 @@
             <td>{{ ucfirst($company->city) }}</td>
           </tr>
           @empty
-          <tr>
-            <td colspan="10" class="text-center py-4">No companies found.</td>
-          </tr>
+            <x-empty-state 
+                colspan="10" 
+                title="No companies found" 
+                message="Try adjusting your filters or create a new company"
+            />
           @endforelse
         </tbody>
       </table>

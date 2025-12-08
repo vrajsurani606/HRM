@@ -22,7 +22,14 @@ class PermissionSeeder extends Seeder
             'print lead', 'convert lead', 'offer letter', 'view resume'],
             'Payroll Management' => ['view payroll', 'create payroll', 'edit payroll', 'delete payroll', 'manage payroll',
             'export payroll', 'print payroll', 'bulk generate payroll'],
-            'Attendance Management' => ['view attendance', 'create attendance', 'edit attendance', 'delete attendance', 'manage attendance', 'check in', 'check out', 'view own attendance'],
+            'Attendance Management' => [
+                'check in',
+                'check out',
+                'view attendance',
+                'create attendance',
+                'edit attendance',
+                'delete attendance'
+            ],
             'Leave Management' => ['view leave', 'create leave', 'edit leave', 'delete leave', 'manage leave', 'approve leave', 'reject leave', 'view own leave', 'cancel leave'],
             'Users Management' => ['view user', 'create user', 'edit user', 'delete user', 'manage user'],
             'Roles Management' => ['view role', 'create role', 'edit role', 'delete role', 'manage role'],

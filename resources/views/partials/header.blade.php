@@ -8,7 +8,7 @@
   </div>
   <div class="hrp-header-right" style="display: flex; align-items: center;">
     <!-- Time Tracker Component - Only show if user has check-in/out permissions -->
-    @if(auth()->user()->can('Attendance Management.check in') || auth()->user()->can('Attendance Management.check out') || auth()->user()->can('Attendance Management.view own attendance'))
+    @if(auth()->user()->can('Attendance Management.check in') || auth()->user()->can('Attendance Management.check out'))
     <a href="{{ route('attendance.check') }}" class="hrp-thumb" title="IN/OUT" id="attendanceBtn" style="text-decoration:none; cursor: pointer; position: relative; display: flex; flex-direction: column; align-items: center; justify-content:center; gap: 6px; padding: 10px 12px; border-radius: 12px; background: #E8E3DF; margin-right: 10px; transition: all 0.3s ease; min-width: 70px;">
       <div class="ico" aria-hidden="true" style="display:flex; align-items:center; justify-content:center; width:40px; height:40px;">
         <img src="{{ asset('action_icon/Vector.svg') }}" alt="IN/OUT" width="40" height="40" style="display:block; object-fit: contain;" />

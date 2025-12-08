@@ -3,6 +3,8 @@
 
 @section('content')
 @push('styles')
+<!-- jQuery UI CSS for Datepicker -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <style>
   /* Layout polish */
   .payroll-section { margin-top: 20px; }
@@ -178,27 +180,15 @@
             <div class="grid-3">
               <div>
                 <label class="hrp-label">Casual</label>
-                <select name="casual_leave" id="casual_leave" class="Rectangle-29 Rectangle-29-select" form="payrollForm" onchange="updateLeaveTotals()">
-                  @for($d = 0; $d <= 30; $d++)
-                    <option value="{{ $d }}" {{ (string)old('casual_leave', isset($payroll)?($payroll->casual_leave ?? 0):0) === (string)$d ? 'selected' : '' }}>{{ $d }}</option>
-                  @endfor
-                </select>
+                <input type="number" name="casual_leave" id="casual_leave" value="{{ old('casual_leave', isset($payroll)?($payroll->casual_leave ?? 0):0) }}" class="hrp-input Rectangle-29" form="payrollForm" step="0.5" min="0" max="30" oninput="updateLeaveTotals()" style="background:#f0fdf4;">
               </div>
               <div>
                 <label class="hrp-label">Medical</label>
-                <select name="medical_leave" id="medical_leave" class="Rectangle-29 Rectangle-29-select" form="payrollForm" onchange="updateLeaveTotals()">
-                  @for($d = 0; $d <= 30; $d++)
-                    <option value="{{ $d }}" {{ (string)old('medical_leave', isset($payroll)?($payroll->medical_leave ?? 0):0) === (string)$d ? 'selected' : '' }}>{{ $d }}</option>
-                  @endfor
-                </select>
+                <input type="number" name="medical_leave" id="medical_leave" value="{{ old('medical_leave', isset($payroll)?($payroll->medical_leave ?? 0):0) }}" class="hrp-input Rectangle-29" form="payrollForm" step="0.5" min="0" max="30" oninput="updateLeaveTotals()" style="background:#f0fdf4;">
               </div>
               <div>
                 <label class="hrp-label">Holiday</label>
-                <select name="holiday_leave" id="holiday_leave" class="Rectangle-29 Rectangle-29-select" form="payrollForm" onchange="updateLeaveTotals()">
-                  @for($d = 0; $d <= 30; $d++)
-                    <option value="{{ $d }}" {{ (string)old('holiday_leave', isset($payroll)?($payroll->holiday_leave ?? 0):0) === (string)$d ? 'selected' : '' }}>{{ $d }}</option>
-                  @endfor
-                </select>
+                <input type="number" name="holiday_leave" id="holiday_leave" value="{{ old('holiday_leave', isset($payroll)?($payroll->holiday_leave ?? 0):0) }}" class="hrp-input Rectangle-29" form="payrollForm" step="0.5" min="0" max="30" oninput="updateLeaveTotals()" style="background:#f0fdf4;">
               </div>
             </div>
           </div>
@@ -384,7 +374,7 @@
 
       <div id="paymentDateField" style="display: none;">
         <label class="hrp-label">Payment Date:</label>
-        <input type="date" name="payment_date" id="payment_date" value="{{ old('payment_date', isset($payroll)&&$payroll->payment_date ? optional($payroll->payment_date)->format('Y-m-d') : '') }}" class="hrp-input Rectangle-29" form="payrollForm">
+        <input type="text" name="payment_date" id="payment_date" value="{{ old('payment_date', isset($payroll)&&$payroll->payment_date ? optional($payroll->payment_date)->format('d/m/Y') : '') }}" class="hrp-input Rectangle-29 date-picker" placeholder="dd/mm/yyyy" autocomplete="off" form="payrollForm">
         @error('payment_date')<small class="hrp-error">{{ $message }}</small>@enderror
       </div>
 
@@ -520,10 +510,10 @@ function loadEmployeeSalaryData() {
             setSelectValue('total_working_days', data.days_in_month || 30);
             setSelectValue('attended_working_days', data.working_days || 0);
             
-            // Fill leave data (structured)
-            setSelectValue('casual_leave', data.casual_leave_used || 0);
-            setSelectValue('medical_leave', data.medical_leave_used || 0);
-            setSelectValue('holiday_leave', data.holiday_leave_used || 0);
+            // Fill leave data (structured) - now using number inputs
+            document.getElementById('casual_leave').value = parseFloat(data.casual_leave_used || 0);
+            document.getElementById('medical_leave').value = parseFloat(data.medical_leave_used || 0);
+            document.getElementById('holiday_leave').value = parseFloat(data.holiday_leave_used || 0);
             const personal = parseFloat(data.personal_leave_used || 0);
             document.getElementById('personal_leave_unpaid').value = personal;
             updateLeaveTotals();
@@ -715,7 +705,37 @@ document.getElementById('payrollForm').addEventListener('submit', function(e) {
         });
     });
 });
+
+// jQuery UI Datepicker initialization
+$(document).ready(function() {
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        maxDate: '+10y'
+    });
+    
+    // Convert date format before form submission
+    $('#payrollForm').on('submit', function(e) {
+        $('.date-picker').each(function() {
+            const dateValue = $(this).val();
+            if (dateValue && dateValue.match(/^\d{1,2}\/\d{1,2}\/\d{2,4}$/)) {
+                const parts = dateValue.split('/');
+                const day = parts[0].padStart(2, '0');
+                const month = parts[1].padStart(2, '0');
+                let year = parts[2];
+                if (year.length === 2) {
+                    year = (parseInt(year) > 50 ? '19' : '20') + year;
+                }
+                $(this).val(`${year}-${month}-${day}`);
+            }
+        });
+    });
+});
 </script>
+<!-- jQuery UI JS for Datepicker -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 @endpush
 @endsection
 
