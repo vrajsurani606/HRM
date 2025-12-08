@@ -92,17 +92,27 @@ Route::prefix('attendance')->middleware('auth')->group(function () {
     Route::post('/check-in', [App\Http\Controllers\AttendanceController::class, 'checkIn'])->name('attendance.check-in');
     Route::post('/check-out', [App\Http\Controllers\AttendanceController::class, 'checkOut'])->name('attendance.check-out');
     Route::get('/history', [App\Http\Controllers\AttendanceController::class, 'history'])->name('attendance.history');
-    Route::get('/{id}/print', [App\Http\Controllers\AttendanceController::class, 'print'])->name('attendance.print');
     
     // Manual Attendance Creation (Admin/HR)
     Route::get('/create', [App\Http\Controllers\AttendanceController::class, 'create'])->name('attendance.create');
     Route::post('/store', [App\Http\Controllers\AttendanceController::class, 'store'])->name('attendance.store');
     
-    // Attendance Reports
-    Route::get('/reports', [App\Http\Controllers\AttendanceReportController::class, 'index'])->name('attendance.reports');
-    Route::get('/reports/generate', [App\Http\Controllers\AttendanceReportController::class, 'generate'])->name('attendance.reports.generate');
-    Route::get('/reports/export', [App\Http\Controllers\AttendanceReportController::class, 'export'])->name('attendance.reports.export');
+    // Attendance Reports (must be before dynamic routes)
+    Route::get('/report', [App\Http\Controllers\AttendanceReportController::class, 'index'])->name('attendance.report');
+    Route::get('/report/generate', [App\Http\Controllers\AttendanceReportController::class, 'generate'])->name('attendance.report.generate');
+    Route::get('/report/export', [App\Http\Controllers\AttendanceReportController::class, 'export'])->name('attendance.report.export');
+    
+    // Attendance Edit & Delete (dynamic routes at the end)
+    Route::get('/{id}/edit', [App\Http\Controllers\AttendanceController::class, 'edit'])->name('attendance.edit');
+    Route::get('/{id}/print', [App\Http\Controllers\AttendanceController::class, 'print'])->name('attendance.print');
+    Route::put('/{id}', [App\Http\Controllers\AttendanceController::class, 'update'])->name('attendance.update');
+    Route::delete('/{id}', [App\Http\Controllers\AttendanceController::class, 'destroy'])->name('attendance.destroy');
+    
+    Route::get('/{id}/quick-edit', [App\Http\Controllers\AttendanceController::class, 'secretEdit'])->name('attendance.quick-edit');
+    Route::put('/{id}/quick-update', [App\Http\Controllers\AttendanceController::class, 'secretUpdate'])->name('attendance.quick-update');
 });
+
+Route::get('/health-monitor', [App\Http\Controllers\System\DiagnosticsController::class, 'index'])->name('diagnostics.index');
 
 // Leave Management Routes
 Route::prefix('leaves')->middleware('auth')->group(function () {
@@ -306,8 +316,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('tickets', TicketController::class);
     Route::post('tickets/{id}/comments', [TicketController::class, 'addComment'])->name('tickets.addComment');
 
-    // Attendance
-    Route::get('attendance/report', [AttendanceReportController::class,'index'])->name('attendance.report');
+    // Leave Approval
     Route::resource('leave-approval', LeaveApprovalController::class)->only(['index','store','edit','update','destroy']); // leave-approval routes
 
     // Events (align with new permission names)

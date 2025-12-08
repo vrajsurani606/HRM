@@ -12,8 +12,11 @@ class AttendanceReportController extends Controller
     public function index(Request $request)
     {
         // Permission check
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.view attendance report'))) {
-            return redirect()->back()->with('error', 'Permission denied.');
+        if (!auth()->check() || !(
+            auth()->user()->hasRole('super-admin') || 
+            auth()->user()->can('Attendance Management.view attendance')
+        )) {
+            abort(403, 'Unauthorized to view attendance reports.');
         }
 
         $user = auth()->user();
@@ -98,7 +101,10 @@ class AttendanceReportController extends Controller
     public function generate(Request $request)
     {
         // Permission check
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.view attendance report'))) {
+        if (!auth()->check() || !(
+            auth()->user()->hasRole('super-admin') || 
+            auth()->user()->can('Attendance Management.view attendance')
+        )) {
             return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
         }
 
@@ -134,8 +140,11 @@ class AttendanceReportController extends Controller
     public function export(Request $request)
     {
         // Permission check
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.export attendance report'))) {
-            return redirect()->back()->with('error', 'Permission denied.');
+        if (!auth()->check() || !(
+            auth()->user()->hasRole('super-admin') || 
+            auth()->user()->can('Attendance Management.view attendance')
+        )) {
+            abort(403, 'Unauthorized to export attendance reports.');
         }
 
         $user = auth()->user();

@@ -106,10 +106,12 @@
       @php($ico='attendance.svg')
       @php($p=public_path('side_icon/'.$ico))
       @php($attActive = (request()->routeIs('attendance.report') || request()->routeIs('leave-approval.*')))
-      @if(auth()->user()->can('Attendance Management.view attendance') || auth()->user()->can('Attendance Management.manage attendance'))
+      @if(auth()->user()->can('Attendance Management.view attendance'))
         <li class="hrp-menu-item {{ $attActive ? 'active-parent open' : '' }}" data-group="attendance"><a href="#" role="button"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="Attendance">@else <span class="fa fa-calendar-check-o"></span>@endif</i> <span>Attendance Management</span></a></li>
         <li class="hrp-menu-item hrp-sub {{ request()->routeIs('attendance.report') ? 'active' : '' }}" data-group="attendance"><a href="{{ route('attendance.report') }}"><span>Attendance Report</span></a></li>
-        <li class="hrp-menu-item hrp-sub {{ request()->routeIs('leave-approval.*') ? 'active' : '' }}" data-group="attendance"><a href="{{ route('leave-approval.index') }}"><span>Leave Approval</span></a></li>
+        @if(auth()->user()->can('Leave Management.approve leave') || auth()->user()->can('Leave Management.manage leave'))
+          <li class="hrp-menu-item hrp-sub {{ request()->routeIs('leave-approval.*') ? 'active' : '' }}" data-group="attendance"><a href="{{ route('leave-approval.index') }}"><span>Leave Approval</span></a></li>
+        @endif
       @endif
       
       @php($ico='event.svg')

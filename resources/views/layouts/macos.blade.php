@@ -83,7 +83,7 @@
         @if(auth()->user()->can('Tickets Management.view ticket') || auth()->user()->can('Tickets Management.manage ticket'))
           <a class="dock-item" data-section="ticket" href="{{ route('tickets.index') }}" title="Ticket"><img src="{{ asset('Doc_icon/Ticket Support System.png') }}" alt="Ticket" /></a>
         @endif
-        @if(auth()->user()->can('Attendance Management.view attendance') || auth()->user()->can('Attendance Management.manage attendance'))
+        @if(auth()->user()->can('Attendance Management.view attendance'))
           <a class="dock-item" data-section="attendance-mgmt" href="{{ route('attendance.report') }}" title="Attendance Mgmt."><img src="{{ asset('Doc_icon/Attendance Management.png') }}" alt="Attendance Mgmt." /></a>
         @endif
         @if(auth()->user()->can('Events Management.view event') || auth()->user()->can('Events Management.manage event'))

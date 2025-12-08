@@ -78,7 +78,7 @@
     <!-- Tab Navigation -->
     @php
       $canViewPayroll = auth()->user()->can('Profile Management.view own payroll') || auth()->user()->can('Payroll Management.view payroll');
-      $canViewAttendance = auth()->user()->can('Profile Management.view own attendance') || auth()->user()->can('Attendance Management.view own attendance');
+      $canViewAttendance = auth()->user()->can('Profile Management.view own attendance');
       $canViewDocuments = auth()->user()->can('Profile Management.view own documents');
       $canViewBank = auth()->user()->can('Profile Management.view own bank details') || auth()->user()->can('Profile Management.update bank details');
     @endphp
