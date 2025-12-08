@@ -257,7 +257,15 @@ class InquiryController extends Controller
                 $q->where('company_name', 'like', "%{$search}%")
                   ->orWhere('company_phone', 'like', "%{$search}%")
                   ->orWhere('unique_code', 'like', "%{$search}%")
-                  ->orWhere('contact_name', 'like', "%{$search}%");
+                  ->orWhere('contact_name', 'like', "%{$search}%")
+                  ->orWhere('contact_mobile', 'like', "%{$search}%")
+                  ->orWhere('contact_position', 'like', "%{$search}%")
+                  ->orWhere('company_address', 'like', "%{$search}%")
+                  ->orWhere('city', 'like', "%{$search}%")
+                  ->orWhere('state', 'like', "%{$search}%")
+                  ->orWhere('industry_type', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('quotation_sent', 'like', "%{$search}%");
             });
         }
 

@@ -171,6 +171,7 @@ class TicketController extends Controller
         
         // Check access based on role
         $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        $isEmployee = $user->hasRole('employee') || $user->hasRole('Employee');
         
         if (!$isAdmin) {
             if ($user->hasRole('customer') && $user->company_id) {
@@ -178,7 +179,7 @@ class TicketController extends Controller
                 if ($company && $ticket->company != $company->company_name && $ticket->customer != ($company->name ?? $user->name)) {
                     abort(403, 'Unauthorized access to this ticket.');
                 }
-            } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
+            } elseif ($isEmployee) {
                 $employee = \App\Models\Employee::where('user_id', $user->id)->first();
                 if (!$employee) {
                     $employee = \App\Models\Employee::where('email', $user->email)->first();
@@ -191,7 +192,7 @@ class TicketController extends Controller
             }
         }
         
-        return view('tickets.show', compact('ticket', 'isAdmin'));
+        return view('tickets.show', compact('ticket', 'isAdmin', 'isEmployee'));
     }
 
     public function addComment(Request $request, $id)
@@ -230,11 +231,17 @@ class TicketController extends Controller
             'is_internal' => 'nullable|boolean',
         ]);
 
+        $isEmployee = $user->hasRole('employee') || $user->hasRole('Employee');
+        
+        // Customers can never post internal comments
+        // Admins and Employees can post internal comments
+        $canPostInternal = $isAdmin || $isEmployee;
+        
         $comment = \App\Models\TicketComment::create([
             'ticket_id' => $ticket->id,
             'user_id' => $user->id,
             'comment' => $request->comment,
-            'is_internal' => $isAdmin && $request->is_internal ? true : false,
+            'is_internal' => $canPostInternal && $request->is_internal ? true : false,
         ]);
 
         $comment->load('user');
@@ -243,7 +250,11 @@ class TicketController extends Controller
             'success' => true,
             'message' => 'Comment added successfully',
             'comment' => $comment,
-            'html' => view('tickets.partials.comment', ['comment' => $comment, 'isAdmin' => $isAdmin])->render()
+            'html' => view('tickets.partials.comment', [
+                'comment' => $comment, 
+                'isAdmin' => $isAdmin,
+                'isEmployee' => $isEmployee
+            ])->render()
         ]);
     }
 

@@ -358,3 +358,14 @@ Route::get('storage/{path}', function ($path) {
 })->where('path', '.*')->name('storage.file');
 
 require __DIR__.'/auth.php';
+
+// Ticket Workflow Routes
+Route::middleware(['auth'])->prefix('tickets')->group(function () {
+    Route::post('{ticket}/assign', [\App\Http\Controllers\TicketController::class, 'assign'])->name('tickets.assign');
+    Route::post('{ticket}/complete', [\App\Http\Controllers\TicketController::class, 'complete'])->name('tickets.complete');
+    Route::post('{ticket}/confirm', [\App\Http\Controllers\TicketController::class, 'confirm'])->name('tickets.confirm');
+    Route::post('{ticket}/close', [\App\Http\Controllers\TicketController::class, 'close'])->name('tickets.close');
+    Route::post('{ticket}/comments', [\App\Http\Controllers\TicketController::class, 'addComment'])->name('tickets.addComment');
+    Route::post('{ticket}/update-completion', [\App\Http\Controllers\TicketController::class, 'updateCompletion'])->name('tickets.updateCompletion');
+    Route::post('{ticket}/delete-completion-image', [\App\Http\Controllers\TicketController::class, 'deleteCompletionImage'])->name('tickets.deleteCompletionImage');
+});
