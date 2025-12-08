@@ -310,11 +310,20 @@ class CompanyController extends Controller
         // Get receipts for this company's invoices
         $receipts = collect();
         if ($invoices->count() > 0) {
-            $receipts = \App\Models\Receipt::where(function($query) use ($invoices) {
-                foreach ($invoices->pluck('id') as $invoiceId) {
-                    $query->orWhereJsonContains('invoice_ids', $invoiceId);
+            $invoiceIds = $invoices->pluck('id')->toArray();
+            $receipts = \App\Models\Receipt::where(function($query) use ($invoiceIds, $company) {
+                // Match by invoice IDs in JSON array
+                foreach ($invoiceIds as $invoiceId) {
+                    $query->orWhereJsonContains('invoice_ids', (string)$invoiceId);
                 }
+                // Also match by company name
+                $query->orWhere('company_name', $company->company_name);
             })->orderBy('created_at', 'desc')->get();
+        } else {
+            // If no invoices, try to get receipts by company name
+            $receipts = \App\Models\Receipt::where('company_name', $company->company_name)
+                ->orderBy('created_at', 'desc')
+                ->get();
         }
         
         // Get projects for this company

@@ -167,7 +167,7 @@ class TicketController extends Controller
         }
         
         $user = auth()->user();
-        $ticket = Ticket::with('assignedEmployee')->findOrFail($id);
+        $ticket = Ticket::with(['assignedEmployee', 'comments.user'])->findOrFail($id);
         
         // Check access based on role
         $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
@@ -191,7 +191,60 @@ class TicketController extends Controller
             }
         }
         
-        return view('tickets.show', compact('ticket'));
+        return view('tickets.show', compact('ticket', 'isAdmin'));
+    }
+
+    public function addComment(Request $request, $id)
+    {
+        if (!auth()->check()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        $user = auth()->user();
+        $ticket = Ticket::findOrFail($id);
+        
+        // Check access
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        
+        if (!$isAdmin) {
+            if ($user->hasRole('customer') && $user->company_id) {
+                $company = $user->company;
+                if ($company && $ticket->company != $company->company_name && $ticket->customer != ($company->name ?? $user->name)) {
+                    return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+                }
+            } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
+                $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+                if (!$employee) {
+                    $employee = \App\Models\Employee::where('email', $user->email)->first();
+                }
+                if (!$employee || $ticket->assigned_to != $employee->id) {
+                    return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+                }
+            } else {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+        }
+
+        $request->validate([
+            'comment' => 'required|string|max:5000',
+            'is_internal' => 'nullable|boolean',
+        ]);
+
+        $comment = \App\Models\TicketComment::create([
+            'ticket_id' => $ticket->id,
+            'user_id' => $user->id,
+            'comment' => $request->comment,
+            'is_internal' => $isAdmin && $request->is_internal ? true : false,
+        ]);
+
+        $comment->load('user');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment added successfully',
+            'comment' => $comment,
+            'html' => view('tickets.partials.comment', ['comment' => $comment, 'isAdmin' => $isAdmin])->render()
+        ]);
     }
 
     public function edit($id)

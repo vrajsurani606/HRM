@@ -1,11 +1,16 @@
 // Project Materials Management
 let materialsData = [];
 let selectedMaterials = {};
+let currentMaterialsProjectId = null; // Store project ID globally
 
 console.log('✅ project-materials.js loaded successfully');
 
 async function openMaterialsModal(projectId) {
     console.log('🔵 openMaterialsModal called with projectId:', projectId);
+    
+    // Store projectId globally for use in other functions
+    currentMaterialsProjectId = projectId;
+    console.log('✅ Stored projectId globally:', currentMaterialsProjectId);
     
     if (!projectId) {
         console.error('❌ No project ID provided!');
@@ -96,7 +101,7 @@ function renderMaterialsModal() {
                 <div class="form-actions" style="margin-top: 0; padding: 24px 32px; border-top: 2px solid #e5e7eb; display: flex; gap: 16px; justify-content: flex-end; background: #f9fafb;">
                     <button type="button" onclick="closeMaterialsModal()" class="btn-cancel" style="padding: 12px 28px; background: white; color: #4b5563; border: 2px solid #d1d5db; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">Cancel</button>
                     <button type="button" onclick="saveMaterialsAsTasks()" class="btn-create" style="padding: 12px 28px; background: #10b981; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
-                        ✓ Add to Checklist
+                        ✓ Add to Task
                     </button>
                 </div>
             </div>
@@ -443,8 +448,14 @@ async function saveMaterialsAsTasks() {
             return;
         }
         
+        console.log('Creating tasks for projectId:', currentMaterialsProjectId);
+        
+        if (!currentMaterialsProjectId) {
+            throw new Error('projectId is not defined');
+        }
+        
         const baseUrl = window.appBaseUrl || '';
-        const response = await fetch(`${baseUrl}/projects/${projectId}/materials/create-tasks`, {
+        const response = await fetch(`${baseUrl}/projects/${currentMaterialsProjectId}/materials/create-tasks`, {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',

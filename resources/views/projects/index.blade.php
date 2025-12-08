@@ -1025,7 +1025,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Add
+            Add Task
+          </button>
+          <button onclick="openMaterialsModalInKanban()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: #10b981; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; color: white; transition: all 0.2s; font-weight: 600;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+            </svg>
+            Assign Materials
           </button>
           <button id="dueDateButton" onclick="openProjectDueDatePicker()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1080,6 +1087,46 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             <div style="margin-bottom: 12px;">
               <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">Task Name</label>
               <input type="text" id="newTaskTitle" placeholder="Enter task name..." style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none;">
+            </div>
+            <div style="margin-bottom: 12px;">
+              <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">Description</label>
+              <textarea id="newTaskDescription" placeholder="Task details (optional)..." style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none; min-height: 60px; resize: vertical;"></textarea>
+            </div>
+            <div style="margin-bottom: 12px;">
+              <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Assign To Employee
+              </label>
+              <select id="newTaskAssignedTo" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none;">
+                <option value="">Select Employee (Optional)</option>
+              </select>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+              <div>
+                <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  Due Date
+                </label>
+                <input type="date" id="newTaskDueDate" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none;">
+              </div>
+              <div>
+                <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  Due Time
+                </label>
+                <input type="time" id="newTaskDueTime" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none;">
+              </div>
             </div>
             <div style="display: flex; gap: 8px; justify-content: flex-end;">
               <button onclick="cancelAddTask()" style="padding: 8px 16px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; font-size: 13px; color: #000; font-weight: 500;">Cancel</button>
@@ -1198,12 +1245,19 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 @push('scripts')
 <script>
+// Set base URL for materials API
+window.appBaseUrl = '{{ url('') }}';
+console.log('Base URL set to:', window.appBaseUrl);
+</script>
+<script src="{{ asset('js/project-materials.js') }}?v={{ now()->timestamp }}"></script>
+<script>
 let draggedElement = null;
 
 // View Switching functionality
 document.addEventListener('DOMContentLoaded', function() {
     initializeViewSwitching();
     initializeDragAndDrop();
+    loadEmployeesForTasks();
 });
 
 function initializeViewSwitching() {
@@ -1734,6 +1788,37 @@ function addProjectMember() {
 // Task Management Functions
 let currentProjectId = null;
 let taskCounter = 0;
+let employeesListForTasks = [];
+let tasksDataStore = {}; // Store task data for editing
+
+// Load employees list for task assignment
+async function loadEmployeesForTasks() {
+    try {
+        const response = await fetch('{{ route("projects.employees.list") }}', {
+            headers: { 
+                'X-Requested-With': 'XMLHttpRequest', 
+                'Accept': 'application/json' 
+            }
+        });
+        const data = await response.json();
+        if (data.success && data.employees) {
+            employeesListForTasks = data.employees;
+            // Populate the select dropdown
+            const select = document.getElementById('newTaskAssignedTo');
+            if (select) {
+                select.innerHTML = '<option value="">Select Employee (Optional)</option>';
+                data.employees.forEach(emp => {
+                    const option = document.createElement('option');
+                    option.value = emp.id;
+                    option.textContent = emp.name;
+                    select.appendChild(option);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading employees:', error);
+    }
+}
 
 function toggleAddTaskBox() {
     const addTaskBox = document.getElementById('addTaskBox');
@@ -1750,6 +1835,10 @@ function toggleAddTaskBox() {
 function cancelAddTask() {
     document.getElementById('addTaskBox').style.display = 'none';
     document.getElementById('newTaskTitle').value = '';
+    document.getElementById('newTaskDescription').value = '';
+    document.getElementById('newTaskAssignedTo').value = '';
+    document.getElementById('newTaskDueDate').value = '';
+    document.getElementById('newTaskDueTime').value = '';
 }
 
 function saveNewTask() {
@@ -1864,6 +1953,10 @@ function saveNewTask() {
         },
         body: JSON.stringify({
             title: taskTitle,
+            description: document.getElementById('newTaskDescription').value.trim(),
+            assigned_to: document.getElementById('newTaskAssignedTo').value || null,
+            due_date: document.getElementById('newTaskDueDate').value || null,
+            due_time: document.getElementById('newTaskDueTime').value || null,
             parent_id: null
         })
     })
@@ -1875,8 +1968,12 @@ function saveNewTask() {
             const updatedHTML = taskHTML.replace(new RegExp(taskId, 'g'), dbTaskId);
             document.getElementById('tasksContainer').insertAdjacentHTML('beforeend', updatedHTML);
             
-            // Clear the input and hide the form
+            // Clear all inputs and hide the form
             document.getElementById('newTaskTitle').value = '';
+            document.getElementById('newTaskDescription').value = '';
+            document.getElementById('newTaskAssignedTo').value = '';
+            document.getElementById('newTaskDueDate').value = '';
+            document.getElementById('newTaskDueTime').value = '';
             document.getElementById('addTaskBox').style.display = 'none';
         } else {
             toastr.error('Failed to save task');
@@ -2308,6 +2405,103 @@ function updateKanbanCardTaskCount() {
     }
 }
 
+// Edit task in kanban view
+function editTaskInKanban(taskId) {
+    const task = tasksDataStore[taskId];
+    if (!task) {
+        toastr.error('Task data not found');
+        return;
+    }
+    
+    const taskDbId = taskId.replace('task-', '');
+    
+    // Build employees options
+    let employeesOptions = '<option value="">Select Employee (Optional)</option>';
+    employeesListForTasks.forEach(emp => {
+        const selected = task.assigned_to == emp.id ? 'selected' : '';
+        employeesOptions += `<option value="${emp.id}" ${selected}>${emp.name}</option>`;
+    });
+    
+    Swal.fire({
+        title: 'Edit Task',
+        html: `
+            <div style="text-align: left;">
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">Task Name</label>
+                    <input type="text" id="editTaskTitle" value="${task.title || ''}" placeholder="Enter task name..." style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none;">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">Description</label>
+                    <textarea id="editTaskDescription" placeholder="Task details..." style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none; min-height: 60px; resize: vertical;">${task.description || ''}</textarea>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">Assign To Employee</label>
+                    <select id="editTaskAssignedTo" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none;">
+                        ${employeesOptions}
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">Due Date</label>
+                        <input type="date" id="editTaskDueDate" value="${task.due_date || ''}" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">Due Time</label>
+                        <input type="time" id="editTaskDueTime" value="${task.due_time || ''}" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none;">
+                    </div>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Update Task',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#f59e0b',
+        cancelButtonColor: '#6b7280',
+        width: '600px',
+        preConfirm: () => {
+            const title = document.getElementById('editTaskTitle').value.trim();
+            if (!title) {
+                Swal.showValidationMessage('Please enter a task title');
+                return false;
+            }
+            return {
+                title: title,
+                description: document.getElementById('editTaskDescription').value.trim(),
+                assigned_to: document.getElementById('editTaskAssignedTo').value || null,
+                due_date: document.getElementById('editTaskDueDate').value || null,
+                due_time: document.getElementById('editTaskDueTime').value || null
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Update task via API
+            fetch(`{{ url('/projects') }}/${currentProjectId}/tasks/${taskDbId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(result.value)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success('Task updated successfully');
+                    // Reload tasks to show updated data
+                    loadProjectTasks(currentProjectId);
+                } else {
+                    toastr.error('Failed to update task');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('Error updating task');
+            });
+        }
+    });
+}
+
 // Delete task function
 function deleteTask(taskId) {
     Swal.fire({
@@ -2420,8 +2614,98 @@ function renderTaskFromDB(task) {
     taskCounter++;
     const taskId = 'task-' + task.id;
     
+    // Store task data for editing
+    tasksDataStore[taskId] = task;
+    
     const taskHTML = createTaskHTML(taskId, task.title);
     document.getElementById('tasksContainer').insertAdjacentHTML('beforeend', taskHTML);
+    
+    // Add employee and time info if available
+    if (task.assigned_employee || task.due_date || task.description) {
+        const taskElement = document.getElementById(taskId);
+        const titleDiv = taskElement.querySelector('.task-title');
+        let infoHTML = '';
+        
+        if (task.description) {
+            infoHTML += `<div style="font-size: 13px; color: #6b7280; margin-top: 4px;">${task.description}</div>`;
+        }
+        
+        if (task.assigned_employee || task.due_date) {
+            infoHTML += '<div style="display: flex; gap: 12px; margin-top: 6px; font-size: 12px; color: #6b7280;">';
+            
+            if (task.assigned_employee) {
+                infoHTML += `
+                    <span style="display: inline-flex; align-items: center; gap: 4px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        ${task.assigned_employee.name}
+                    </span>
+                `;
+            }
+            
+            if (task.due_date) {
+                // Check if task is overdue
+                let isOverdue = false;
+                const now = new Date();
+                let dueDate = new Date(task.due_date);
+                
+                if (!task.is_completed) {
+                    // If time is specified, include it in comparison
+                    if (task.due_time) {
+                        const [hours, minutes] = task.due_time.split(':');
+                        dueDate.setHours(parseInt(hours), parseInt(minutes), 0);
+                    } else {
+                        // If no time, set to end of day
+                        dueDate.setHours(23, 59, 59);
+                    }
+                    
+                    isOverdue = now > dueDate;
+                }
+                
+                // Format date in user-friendly way
+                const dateObj = new Date(task.due_date);
+                const formattedDate = dateObj.toLocaleDateString('en-GB', { 
+                    day: '2-digit', 
+                    month: 'short', 
+                    year: 'numeric' 
+                });
+                
+                let dueText = formattedDate;
+                if (task.due_time) {
+                    // Convert 24-hour to 12-hour format
+                    const [hours, minutes] = task.due_time.split(':');
+                    const hour = parseInt(hours);
+                    const ampm = hour >= 12 ? 'PM' : 'AM';
+                    const hour12 = hour % 12 || 12;
+                    dueText = `${formattedDate} at ${hour12}:${minutes} ${ampm}`;
+                }
+                
+                // Add overdue indicator
+                if (isOverdue) {
+                    dueText = `⚠️ OVERDUE - ${dueText}`;
+                }
+                
+                const overdueStyle = isOverdue ? 'color: #dc2626; font-weight: 700; background: #fee2e2; padding: 2px 6px; border-radius: 4px;' : '';
+                const iconColor = isOverdue ? '#dc2626' : 'currentColor';
+                
+                infoHTML += `
+                    <span style="display: inline-flex; align-items: center; gap: 4px; ${overdueStyle}">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        ${dueText}
+                    </span>
+                `;
+            }
+            
+            infoHTML += '</div>';
+        }
+        
+        titleDiv.insertAdjacentHTML('afterend', infoHTML);
+    }
     
     // Set task completion state
     if (task.is_completed) {
@@ -2474,12 +2758,20 @@ function createTaskHTML(taskId, title) {
                 <div style="flex: 1;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div class="task-title" style="font-size: 15px; font-weight: 600; color: #000;">${title}</div>
-                        <button onclick="deleteTask('${taskId}')" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; transition: all 0.2s;" title="Delete task">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                        </button>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="editTaskInKanban('${taskId}')" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; cursor: pointer; transition: all 0.2s;" title="Edit task">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button onclick="deleteTask('${taskId}')" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; transition: all 0.2s;" title="Delete task">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2845,6 +3137,30 @@ function closeProjectModal() {
 // Close View Project Modal
 function closeViewProjectModal() {
     document.getElementById('viewProjectModal').style.display = 'none';
+}
+
+// Open Materials Modal in Kanban View
+function openMaterialsModalInKanban() {
+    console.log('🔵 openMaterialsModalInKanban called');
+    console.log('Current Project ID:', currentProjectId);
+    
+    if (!currentProjectId) {
+        console.error('❌ No project ID set');
+        toastr.error('Please open a project first');
+        return;
+    }
+    
+    // Check if openMaterialsModal function exists (from project-materials.js)
+    console.log('Checking if openMaterialsModal exists:', typeof openMaterialsModal);
+    
+    if (typeof openMaterialsModal === 'function') {
+        console.log('✅ Calling openMaterialsModal with ID:', currentProjectId);
+        openMaterialsModal(currentProjectId);
+    } else {
+        console.error('❌ openMaterialsModal function not found, redirecting...');
+        // Fallback: redirect to overview page
+        window.location.href = `{{ url('/projects') }}/${currentProjectId}/overview`;
+    }
 }
 
 // Open Due Date Picker for View Project Modal

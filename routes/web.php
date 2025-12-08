@@ -94,6 +94,10 @@ Route::prefix('attendance')->middleware('auth')->group(function () {
     Route::get('/history', [App\Http\Controllers\AttendanceController::class, 'history'])->name('attendance.history');
     Route::get('/{id}/print', [App\Http\Controllers\AttendanceController::class, 'print'])->name('attendance.print');
     
+    // Manual Attendance Creation (Admin/HR)
+    Route::get('/create', [App\Http\Controllers\AttendanceController::class, 'create'])->name('attendance.create');
+    Route::post('/store', [App\Http\Controllers\AttendanceController::class, 'store'])->name('attendance.store');
+    
     // Attendance Reports
     Route::get('/reports', [App\Http\Controllers\AttendanceReportController::class, 'index'])->name('attendance.reports');
     Route::get('/reports/generate', [App\Http\Controllers\AttendanceReportController::class, 'generate'])->name('attendance.reports.generate');
@@ -234,6 +238,7 @@ Route::middleware('auth')->group(function () {
     Route::put('projects/{project}/tasks/{task}', [ProjectController::class, 'updateTask'])->name('projects.tasks.update');
     Route::patch('projects/{project}/tasks/{task}', [ProjectController::class, 'updateTask']);
     Route::delete('projects/{project}/tasks/{task}', [ProjectController::class, 'deleteTask'])->name('projects.tasks.delete');
+    Route::get('projects/employees/list', [ProjectController::class, 'getEmployeesList'])->name('projects.employees.list');
     
     // Project Comments (MUST be before resource routes)
     Route::get('projects/{project}/comments', [ProjectController::class, 'getComments'])->name('projects.comments.index');
@@ -299,6 +304,7 @@ Route::middleware('auth')->group(function () {
 
     // Tickets
     Route::resource('tickets', TicketController::class);
+    Route::post('tickets/{id}/comments', [TicketController::class, 'addComment'])->name('tickets.addComment');
 
     // Attendance
     Route::get('attendance/report', [AttendanceReportController::class,'index'])->name('attendance.report');
