@@ -1063,13 +1063,7 @@
             </svg>
             Add Task
           </button>
-          <button onclick="openMaterialsModalInKanban()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: #10b981; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; color: white; transition: all 0.2s; font-weight: 600;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 11l3 3L22 4"></path>
-              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
-            </svg>
-            Assign Materials
-          </button>
+          
           <button id="dueDateButton" onclick="openProjectDueDatePicker()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
@@ -1077,13 +1071,20 @@
             </svg>
             <span id="dueDateText">Due Date</span>
           </button>
-          <button style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;">
+          <button onclick="openMaterialsModalInKanban()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 11l3 3L22 4"></path>
               <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
             </svg>
             Auto Assign
           </button>
+          <!-- <button  style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: #10b981; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; color: white; transition: all 0.2s; font-weight: 600;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+            </svg>
+            Assign Materials
+          </button> -->
           
           <!-- Members Section (inline, no border) -->
           <div style="display: flex; align-items: center; gap: 8px; padding: 0;">
