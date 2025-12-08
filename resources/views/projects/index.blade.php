@@ -656,9 +656,33 @@
               <span class="task-count">{{ $project->completed_tasks }}/{{ $project->total_tasks }}</span>
             </div>
             <div class="card-avatars">
-              <div class="avatar" style="background: #4F46E5;">M</div>
-              <div class="avatar" style="background: #059669;">D</div>
-              <div class="avatar" style="background: #DC2626;">P</div>
+              @php
+                $colors = ['#4F46E5', '#059669', '#DC2626', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
+                $displayLimit = 3;
+              @endphp
+              @if($project->members->count() > 0)
+                @foreach($project->members->take($displayLimit) as $index => $member)
+                  @php
+                    $initials = strtoupper(substr($member->name, 0, 1));
+                    if (str_word_count($member->name) > 1) {
+                      $words = explode(' ', $member->name);
+                      $initials = strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
+                    }
+                    $bgColor = $colors[$index % count($colors)];
+                  @endphp
+                  <div class="avatar" style="background: {{ $bgColor }};" title="{{ $member->name }}">{{ $initials }}</div>
+                @endforeach
+                @if($project->members->count() > $displayLimit)
+                  <div class="avatar" style="background: #6B7280;" title="{{ $project->members->count() - $displayLimit }} more members">+{{ $project->members->count() - $displayLimit }}</div>
+                @endif
+              @else
+                <div class="avatar" style="background: #9CA3AF;" title="No members assigned">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+              @endif
             </div>
           </div>
         </div>

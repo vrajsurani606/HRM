@@ -301,27 +301,122 @@
 
 @section('content')
 <div class="hrp-grid" style="padding:14px">
-  <!-- AMC Renewal Warning - Always RED -->
+  <!-- AMC Renewal Notice - Professional Design -->
   @if(isset($amcRenewalWarning))
   <div class="hrp-col-12">
-    <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 16px; padding: 24px 32px; color: white; box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: space-between; border: 2px solid #fca5a5;">
-      <div>
-        <h3 style="font-size: 20px; font-weight: 700; margin: 0 0 8px 0;">
-          🚨 AMC Service {{ $amcRenewalWarning['is_expired'] ? 'Expired' : 'Expiring Soon' }}!
-        </h3>
-        <p style="font-size: 15px; opacity: 0.95; margin: 0;">
-          Your AMC service ({{ $amcRenewalWarning['quotation_number'] }}) 
-          @if($amcRenewalWarning['is_expired'])
-            <strong>expired {{ abs($amcRenewalWarning['days_until_expiry']) }} days ago</strong> on {{ $amcRenewalWarning['amc_end'] }}
-          @else
-            <strong>will expire in {{ $amcRenewalWarning['days_until_expiry'] }} days</strong> on {{ $amcRenewalWarning['amc_end'] }}
-          @endif
-          <br><strong>AMC Period:</strong> {{ $amcRenewalWarning['amc_start'] }} to {{ $amcRenewalWarning['amc_end'] }}
-        </p>
+    <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); border-left: 5px solid {{ $amcRenewalWarning['is_expired'] ? '#dc2626' : '#f59e0b' }};">
+      <!-- Header -->
+      <div style="background: {{ $amcRenewalWarning['is_expired'] ? 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)' : 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' }}; padding: 20px 28px; border-bottom: 1px solid {{ $amcRenewalWarning['is_expired'] ? '#fca5a5' : '#fde68a' }}; display: flex; align-items: center; gap: 16px;">
+        <div style="width: 48px; height: 48px; background: {{ $amcRenewalWarning['is_expired'] ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; box-shadow: 0 4px 12px {{ $amcRenewalWarning['is_expired'] ? 'rgba(239, 68, 68, 0.3)' : 'rgba(245, 158, 11, 0.3)' }};">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            @if($amcRenewalWarning['is_expired'])
+              <path d="M10.29 3.86L1.82 18C1.64537 18.3024 1.55296 18.6453 1.55199 18.9945C1.55101 19.3437 1.64151 19.6871 1.81445 19.9905C1.98738 20.2939 2.23675 20.5467 2.53773 20.7239C2.83871 20.901 3.18082 20.9962 3.53 21H20.47C20.8192 20.9962 21.1613 20.901 21.4623 20.7239C21.7633 20.5467 22.0126 20.2939 22.1856 19.9905C22.3585 19.6871 22.449 19.3437 22.448 18.9945C22.447 18.6453 22.3546 18.3024 22.18 18L13.71 3.86C13.5317 3.56611 13.2807 3.32312 12.9812 3.15448C12.6817 2.98585 12.3437 2.89725 12 2.89725C11.6563 2.89725 11.3183 2.98585 11.0188 3.15448C10.7193 3.32312 10.4683 3.56611 10.29 3.86Z"/>
+              <path d="M12 9V13"/>
+              <path d="M12 17H12.01"/>
+            @else
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 8V12"/>
+              <path d="M12 16H12.01"/>
+            @endif
+          </svg>
+        </div>
+        <div style="flex: 1;">
+          <h3 style="font-size: 20px; font-weight: 700; color: {{ $amcRenewalWarning['is_expired'] ? '#991b1b' : '#78350f' }}; margin: 0 0 4px 0; display: flex; align-items: center; gap: 10px;">
+            @if($amcRenewalWarning['is_expired'])
+              <span style="display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: #dc2626; color: white;">Urgent</span>
+              AMC Service Has Expired
+            @else
+              <span style="display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: #fed7aa; color: #9a3412;">Reminder</span>
+              AMC Service Renewal Approaching
+            @endif
+          </h3>
+          <p style="font-size: 14px; color: {{ $amcRenewalWarning['is_expired'] ? '#991b1b' : '#92400e' }}; margin: 0;">
+            @if($amcRenewalWarning['is_expired'])
+              Your Annual Maintenance Contract has expired. Please renew immediately to continue receiving support services.
+            @else
+              Your Annual Maintenance Contract is expiring soon. Renew now to ensure uninterrupted service.
+            @endif
+          </p>
+        </div>
       </div>
-      <a href="{{ route('tickets.create') }}" style="background: white; color: #dc2626; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.2s;">
-        Renew Service →
-      </a>
+      
+      <!-- Body -->
+      <div style="padding: 28px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 24px;">
+          <!-- Contract Number -->
+          <div style="display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #4338ca; flex-shrink: 0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"/>
+                <path d="M14 2V8H20"/>
+              </svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Contract Number</div>
+              <div style="font-size: 15px; font-weight: 600; color: #0f172a;">{{ $amcRenewalWarning['quotation_number'] }}</div>
+            </div>
+          </div>
+          
+          <!-- Service Period -->
+          <div style="display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #4338ca; flex-shrink: 0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Service Period</div>
+              <div style="font-size: 15px; font-weight: 600; color: #0f172a;">{{ $amcRenewalWarning['amc_start'] }} - {{ $amcRenewalWarning['amc_end'] }}</div>
+            </div>
+          </div>
+          
+          <!-- Time Remaining/Expired -->
+          <div style="display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: {{ $amcRenewalWarning['is_expired'] ? 'linear-gradient(135deg, #fee2e2, #fecaca)' : 'linear-gradient(135deg, #fef3c7, #fde68a)' }}; border-radius: 12px; border: 1px solid {{ $amcRenewalWarning['is_expired'] ? '#ef4444' : '#fbbf24' }};">
+            <div style="width: 40px; height: 40px; background: {{ $amcRenewalWarning['is_expired'] ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 12px; font-weight: 600; color: {{ $amcRenewalWarning['is_expired'] ? '#991b1b' : '#78350f' }}; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+                @if($amcRenewalWarning['is_expired'])
+                  Expired Since
+                @else
+                  Time Remaining
+                @endif
+              </div>
+              <div style="font-size: 17px; font-weight: 600; color: {{ $amcRenewalWarning['is_expired'] ? '#991b1b' : '#78350f' }};">
+                @if($amcRenewalWarning['is_expired'])
+                  {{ abs($amcRenewalWarning['days_until_expiry']) }} days ago
+                @else
+                  {{ $amcRenewalWarning['days_until_expiry'] }} days
+                @endif
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <a href="{{ route('tickets.create') }}" style="flex: 1; min-width: 200px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; text-decoration: none; background: {{ $amcRenewalWarning['is_expired'] ? 'linear-gradient(135deg, #dc2626, #991b1b)' : 'linear-gradient(135deg, #f59e0b, #d97706)' }}; color: white; box-shadow: 0 4px 12px {{ $amcRenewalWarning['is_expired'] ? 'rgba(220, 38, 38, 0.3)' : 'rgba(245, 158, 11, 0.3)' }}; transition: all 0.3s ease;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"/>
+            </svg>
+            {{ $amcRenewalWarning['is_expired'] ? 'Renew Now' : 'Request Renewal' }}
+          </a>
+          <a href="{{ route('quotations.show', $amcRenewalWarning['quotation_id']) }}" style="flex: 1; min-width: 200px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; text-decoration: none; background: white; color: #0f172a; border: 2px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); transition: all 0.3s ease;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            View Contract Details
+          </a>
+        </div>
+      </div>
     </div>
   </div>
   @endif
@@ -331,7 +426,7 @@
   <div class="hrp-col-12">
     <div style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border-radius: 16px; padding: 32px; color: white; box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);">
       <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 8px 0;">Welcome back, {{ auth()->user()->name }}!</h2>
-      <p style="font-size: 16px; opacity: 0.9; margin: 0;">{{ $company->company_name }} - Here's an overview of your account and recent activity</p>
+      <p style="font-size: 16px; opacity: 0.9; margin: 0;">{{ $company->company_name }}</p>
     </div>
   </div>
   @else

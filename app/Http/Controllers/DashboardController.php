@@ -2148,6 +2148,7 @@ class DashboardController extends Controller
                     // Show RED warning if AMC expired or expiring within 15 days
                     if ($daysUntilExpiry <= 15) {
                         $amcRenewalWarning = [
+                            'quotation_id' => $latestQuotation->id,
                             'quotation_number' => $latestQuotation->unique_code ?? 'Q-' . $latestQuotation->id,
                             'company_name' => $latestQuotation->company_name,
                             'amc_start' => $amcStartDate->format('M d, Y'),
