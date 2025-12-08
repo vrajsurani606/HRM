@@ -90,7 +90,9 @@
   </td>
 </tr>
 @empty
-<tr>
-  <td colspan="14" class="no-data">No inquiries found</td>
-</tr>
+  <x-empty-state 
+      colspan="14" 
+      title="No inquiries found" 
+      message="Try adjusting your filters or create a new inquiry"
+  />
 @endforelse

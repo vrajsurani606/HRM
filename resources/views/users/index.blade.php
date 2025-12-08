@@ -87,7 +87,10 @@
           </div>
         </div>
       @empty
-        <div class="empty-state">No users found</div>
+        <x-empty-state-grid 
+            title="No users found" 
+            message="Try adjusting your filters or create a new user"
+        />
       @endforelse
     </div>
   </div>

@@ -92,9 +92,11 @@
         <td>{{ $receipt->trans_code ?? '-' }}</td>
       </tr>
       @empty
-      <tr>
-        <td colspan="9" class="text-center py-4">No receipts found</td>
-      </tr>
+        <x-empty-state 
+            colspan="9" 
+            title="No receipts found" 
+            message="Try adjusting your filters or create a new receipt"
+        />
       @endforelse
     </tbody>
   </table>

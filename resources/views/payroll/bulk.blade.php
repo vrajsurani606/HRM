@@ -3,6 +3,8 @@
 
 @section('content')
 @push('styles')
+<!-- jQuery UI CSS for Datepicker -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <style>
   /* Page Header */
   .page-header-bulk {
@@ -532,7 +534,7 @@
               </svg>
               Payment Date
             </label>
-            <input type="date" name="payment_date" id="payment_date" class="hrp-input Rectangle-29">
+            <input type="text" name="payment_date" id="payment_date" class="hrp-input Rectangle-29 date-picker" placeholder="dd/mm/yyyy" autocomplete="off">
           </div>
 
           <div class="form-field" id="payment_method_group" style="display: none;">
@@ -827,5 +829,35 @@
       updateSelectedCount(); 
     }
   })();
+
+  // jQuery UI Datepicker initialization
+  $(document).ready(function() {
+      $('.date-picker').datepicker({
+          dateFormat: 'dd/mm/yy',
+          changeMonth: true,
+          changeYear: true,
+          yearRange: '-10:+10',
+          maxDate: '+10y'
+      });
+      
+      // Convert date format before form submission
+      $('form').on('submit', function(e) {
+          $('.date-picker').each(function() {
+              const dateValue = $(this).val();
+              if (dateValue && dateValue.match(/^\d{1,2}\/\d{1,2}\/\d{2,4}$/)) {
+                  const parts = dateValue.split('/');
+                  const day = parts[0].padStart(2, '0');
+                  const month = parts[1].padStart(2, '0');
+                  let year = parts[2];
+                  if (year.length === 2) {
+                      year = (parseInt(year) > 50 ? '19' : '20') + year;
+                  }
+                  $(this).val(`${year}-${month}-${day}`);
+              }
+          });
+      });
+  });
 </script>
+<!-- jQuery UI JS for Datepicker -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 @endpush

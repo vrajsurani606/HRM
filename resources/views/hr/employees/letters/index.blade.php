@@ -220,9 +220,11 @@
             <td>{{ $letter->notes ? Str::limit($letter->notes, 50) : '—' }}</td>
           </tr>
           @empty
-          <tr>
-            <td colspan="9" class="text-center py-8">No letters found</td>
-          </tr>
+            <x-empty-state 
+                colspan="9" 
+                title="No letters found" 
+                message="Try adjusting your filters or create a new letter"
+            />
           @endforelse
         </tbody>
       </table>

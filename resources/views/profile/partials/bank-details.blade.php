@@ -153,6 +153,11 @@
     <form method="post" action="{{ route('profile.bank.update') }}">
       @csrf
       @method('patch')
+      
+      <!-- Hidden field to pass employee_id when viewing from HR employee show page -->
+      @if(isset($employee) && request()->route()->getName() === 'employees.show')
+        <input type="hidden" name="employee_id" value="{{ $employee->id }}">
+      @endif
 
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:24px;">
       <div>

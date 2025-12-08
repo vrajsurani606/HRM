@@ -77,7 +77,7 @@
         
         <div>
           <label class="hrp-label">Mobile No:</label>
-          <input name="mobile_no" value="{{ old('mobile_no') }}" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10">
+          <input name="mobile_no" id="hiring_mobile_no" value="{{ old('mobile_no') }}" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
           @error('mobile_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>

@@ -1,6 +1,11 @@
 @extends('layouts.macos')
 @section('page_title', 'Convert to Invoice')
 
+@push('styles')
+<!-- jQuery UI CSS for Datepicker -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+@endpush
+
 @section('content')
 
 @if(session('error'))
@@ -57,7 +62,7 @@
         
         <div>
           <label class="hrp-label">Invoice Date: <span class="text-red-500">*</span></label>
-          <input type="date" class="Rectangle-29 @error('invoice_date') is-invalid @enderror" name="invoice_date" value="{{ old('invoice_date', date('Y-m-d')) }}" required>
+          <input type="text" class="Rectangle-29 date-picker @error('invoice_date') is-invalid @enderror" name="invoice_date" id="invoice_date" value="{{ old('invoice_date', date('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
           @error('invoice_date')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
@@ -77,8 +82,20 @@
 
 </form>
 
+@push('scripts')
+<!-- jQuery UI JS for Datepicker -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
+  // Initialize jQuery datepicker
+  $('.date-picker').datepicker({
+    dateFormat: 'dd/mm/yy',
+    changeMonth: true,
+    changeYear: true,
+    yearRange: '-10:+10',
+    maxDate: '+10y'
+  });
+  
   const invoiceTypeSelect = document.getElementById('invoiceType');
   const invoiceNoInput = document.getElementById('invoiceNo');
   
@@ -101,7 +118,25 @@ document.addEventListener('DOMContentLoaded', function() {
   } else if (invoiceTypeSelect.value === 'without_gst') {
     invoiceNoInput.value = wgCode;
   }
+  
+  // Convert date format before form submission
+  $('form').on('submit', function(e) {
+    $('.date-picker').each(function() {
+      const dateValue = $(this).val();
+      if (dateValue && dateValue.match(/^\d{1,2}\/\d{1,2}\/\d{2,4}$/)) {
+        const parts = dateValue.split('/');
+        const day = parts[0].padStart(2, '0');
+        const month = parts[1].padStart(2, '0');
+        let year = parts[2];
+        if (year.length === 2) {
+          year = (parseInt(year) > 50 ? '19' : '20') + year;
+        }
+        $(this).val(`${year}-${month}-${day}`);
+      }
+    });
+  });
 });
 </script>
+@endpush
 
 @endsection

@@ -186,7 +186,7 @@ class PayrollController extends Controller
                     ->whereYear('start_date', $year)->whereMonth('start_date', $monthNumber)
                     ->sum('total_days') ?? 0;
                 $holidayLeave = \App\Models\Leave::where('employee_id', $emp->id)
-                    ->where('leave_type', 'holiday')->where('status', 'approved')
+                    ->where('leave_type', 'company_holiday')->where('status', 'approved')
                     ->whereYear('start_date', $year)->whereMonth('start_date', $monthNumber)
                     ->sum('total_days') ?? 0;
                 $personalLeave = \App\Models\Leave::where('employee_id', $emp->id)
@@ -637,7 +637,7 @@ class PayrollController extends Controller
             
             // Holiday Leave (Company holidays)
             $holidayLeaveUsed = \App\Models\Leave::where('employee_id', $employeeId)
-                ->where('leave_type', 'holiday')
+                ->where('leave_type', 'company_holiday')
                 ->where('status', 'approved')
                 ->whereYear('start_date', $year)
                 ->whereMonth('start_date', $monthNumber)
@@ -687,10 +687,17 @@ class PayrollController extends Controller
                     
                     // Leave data - keep decimals for accurate leave counting (e.g., 7.5 days)
                     'casual_leave_used' => (int)$casualLeaveUsed,
-                    'medical_leave_used' => (int)$medicalLeaveUsed,
+                    'medical_leave_used' => (float)$medicalLeaveUsed,
                     'personal_leave_used' => (float)$personalLeaveUsed, // Keep decimal (7.5, etc)
-                    'holiday_leave_used' => (int)$holidayLeaveUsed,
+                    'holiday_leave_used' => (float)$holidayLeaveUsed,
                     'paid_leave_balance' => (int)$paidLeaveBalance,
+                    
+                    // Leave calculations
+                    'total_leave_days' => (float)$totalLeaveDays,
+                    'paid_leave_days' => (float)$paidLeavesUsed,
+                    'unpaid_leave_days' => (float)$leaveDaysDeducted,
+                    'leave_deduction' => number_format($leaveDeduction, 2, '.', ''),
+                    'leave_deduction_days' => (float)$leaveDaysDeducted,
                     
                     // Working days
                     'days_in_month' => (int)$daysInMonth,

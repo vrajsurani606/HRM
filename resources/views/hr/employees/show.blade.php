@@ -180,6 +180,26 @@
         <label class="hrp-label">Previous Company:</label>
         <div class="info-value">{{ $employee->previous_company_name ?: 'N/A' }}</div>
       </div>
+      <div>
+        <label class="hrp-label">Marital Status:</label>
+        <div class="info-value">{{ ucfirst($employee->marital_status) ?: 'N/A' }}</div>
+      </div>
+      <div>
+        <label class="hrp-label">Father Name:</label>
+        <div class="info-value">{{ $employee->father_name ?: 'N/A' }}</div>
+      </div>
+      <div>
+        <label class="hrp-label">Father Mobile No:</label>
+        <div class="info-value">{{ $employee->father_mobile_no ?: 'N/A' }}</div>
+      </div>
+      <div>
+        <label class="hrp-label">Mother Name:</label>
+        <div class="info-value">{{ $employee->mother_name ?: 'N/A' }}</div>
+      </div>
+      <div>
+        <label class="hrp-label">Mother Mobile No:</label>
+        <div class="info-value">{{ $employee->mother_mobile_no ?: 'N/A' }}</div>
+      </div>
       <div style="grid-column:1/-1">
         <label class="hrp-label">Address:</label>
         <div class="info-value">{{ $employee->address ?: 'N/A' }}</div>
@@ -501,6 +521,15 @@
     el.textContent=accountNumberVisible?fullAccountNumber:'*'.repeat(fullAccountNumber.length-4)+fullAccountNumber.slice(-4);
     if(btn){ btn.textContent = accountNumberVisible ? 'Hide' : 'Show'; }
   }
+  // Initialize active tab on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    @if(session('active_tab'))
+      switchTab('{{ session('active_tab') }}');
+    @else
+      switchTab('personal');
+    @endif
+  });
+
   function viewDocument(url, name) {
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,0.75);display:flex;align-items:center;justify-content:center;z-index:1000;padding:24px;';

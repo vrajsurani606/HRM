@@ -294,7 +294,11 @@
               <td>{{ !empty($emp->joining_date) ? \Carbon\Carbon::parse($emp->joining_date)->format('d M, Y') : '-' }}</td>
             </tr>
             @empty
-            <tr><td colspan="9" class="text-center py-3">No employees found</td></tr>
+            <x-empty-state 
+                colspan="9" 
+                title="No employees found" 
+                message="Try adjusting your filters or add a new employee"
+            />
             @endforelse
           </tbody>
         </table>

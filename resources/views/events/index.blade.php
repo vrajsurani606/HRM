@@ -111,7 +111,10 @@
         </div>
       </div>
     @empty
-      <div class="empty-state">No events found. Click Add to create your first event.</div>
+      <x-empty-state-grid 
+          title="No events found" 
+          message="Click 'Add' to create your first event"
+      />
     @endforelse
   </div>
 </div>
