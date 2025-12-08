@@ -25,16 +25,16 @@ class ProjectController extends Controller
             $stages = ProjectStage::with(['projects' => function($query) use ($user) {
                 $query->whereHas('members', function($q) use ($user) {
                     $q->where('users.id', $user->id);
-                })->with('company');
+                })->with(['company', 'members']);
             }])->orderBy('order')->get();
-        } elseif ($user->hasRole('customer') && $user->company_id) {
-            // Customers only see their company's projects
+        } elseif (($user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company')) && $user->company_id) {
+            // Customers/clients only see their company's projects
             $stages = ProjectStage::with(['projects' => function($query) use ($user) {
-                $query->where('company_id', $user->company_id)->with('company');
+                $query->where('company_id', $user->company_id)->with(['company', 'members']);
             }])->orderBy('order')->get();
         } else {
             // Admin/HR see all projects
-            $stages = ProjectStage::with(['projects.company'])->orderBy('order')->get();
+            $stages = ProjectStage::with(['projects.company', 'projects.members'])->orderBy('order')->get();
         }
         
         $companies = \App\Models\Company::orderBy('company_name')->get();
@@ -130,7 +130,7 @@ class ProjectController extends Controller
                 $query->whereHas('members', function($q) use ($user) {
                     $q->where('users.id', $user->id);
                 });
-            } elseif ($user->hasRole('customer') && $user->company_id) {
+            } elseif (($user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company')) && $user->company_id) {
                 $query->where('company_id', $user->company_id);
             }
             
@@ -174,7 +174,7 @@ class ProjectController extends Controller
             $query->whereHas('members', function($q) use ($user) {
                 $q->where('users.id', $user->id);
             });
-        } elseif ($user->hasRole('customer') && $user->company_id) {
+        } elseif (($user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company')) && $user->company_id) {
             $query->where('company_id', $user->company_id);
         }
         

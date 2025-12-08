@@ -307,15 +307,10 @@ class CompanyController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
         
-        // Get receipts for this company's invoices
-        $receipts = collect();
-        if ($invoices->count() > 0) {
-            $receipts = \App\Models\Receipt::where(function($query) use ($invoices) {
-                foreach ($invoices->pluck('id') as $invoiceId) {
-                    $query->orWhereJsonContains('invoice_ids', $invoiceId);
-                }
-            })->orderBy('created_at', 'desc')->get();
-        }
+        // Get receipts for this company by company name
+        $receipts = \App\Models\Receipt::where('company_name', $company->company_name)
+            ->orderBy('created_at', 'desc')
+            ->get();
         
         // Get projects for this company
         $projects = $company->projects()->orderBy('created_at', 'desc')->get();

@@ -322,10 +322,18 @@
   color: white;
   border: 2px solid white;
   margin-left: -4px;
+  cursor: pointer;
+  transition: transform 0.2s, z-index 0.2s;
+  position: relative;
 }
 
 .avatar:first-child {
   margin-left: 0;
+}
+
+.avatar:hover {
+  transform: scale(1.2);
+  z-index: 10;
 }
 
 /* Modal Styles */
@@ -619,6 +627,7 @@
 .kanban-cards {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.1);
+  max-height: 475px;
 }
 
 /* Responsive Design */

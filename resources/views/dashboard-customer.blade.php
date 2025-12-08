@@ -15,6 +15,13 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    cursor: pointer;
+  }
+  
+  .cust-kpi-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
   }
   
   .cust-kpi-card::before {
@@ -234,12 +241,91 @@
     border-radius: 4px;
     transition: width 0.3s ease;
   }
+
+  /* Quick Actions */
+  .cust-quick-action {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: #f8fafc;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .cust-quick-action:hover {
+    background: white;
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-color: #cbd5e1;
+  }
+  
+  .cust-quick-action-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .cust-quick-action-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 2px;
+  }
+  
+  .cust-quick-action-desc {
+    font-size: 12px;
+    color: #64748b;
+  }
+  
+  .cust-quick-action-arrow {
+    margin-left: auto;
+    font-size: 18px;
+    color: #94a3b8;
+    transition: all 0.3s ease;
+  }
+  
+  .cust-quick-action:hover .cust-quick-action-arrow {
+    color: #6366f1;
+    transform: translateX(4px);
+  }
 </style>
 @endpush
 
 
 @section('content')
 <div class="hrp-grid" style="padding:14px">
+  <!-- AMC Renewal Warning - Always RED -->
+  @if(isset($amcRenewalWarning))
+  <div class="hrp-col-12">
+    <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 16px; padding: 24px 32px; color: white; box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: space-between; border: 2px solid #fca5a5;">
+      <div>
+        <h3 style="font-size: 20px; font-weight: 700; margin: 0 0 8px 0;">
+          🚨 AMC Service {{ $amcRenewalWarning['is_expired'] ? 'Expired' : 'Expiring Soon' }}!
+        </h3>
+        <p style="font-size: 15px; opacity: 0.95; margin: 0;">
+          Your AMC service ({{ $amcRenewalWarning['quotation_number'] }}) 
+          @if($amcRenewalWarning['is_expired'])
+            <strong>expired {{ abs($amcRenewalWarning['days_until_expiry']) }} days ago</strong> on {{ $amcRenewalWarning['amc_end'] }}
+          @else
+            <strong>will expire in {{ $amcRenewalWarning['days_until_expiry'] }} days</strong> on {{ $amcRenewalWarning['amc_end'] }}
+          @endif
+          <br><strong>AMC Period:</strong> {{ $amcRenewalWarning['amc_start'] }} to {{ $amcRenewalWarning['amc_end'] }}
+        </p>
+      </div>
+      <a href="{{ route('tickets.create') }}" style="background: white; color: #dc2626; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.2s;">
+        Renew Service →
+      </a>
+    </div>
+  </div>
+  @endif
+
   <!-- Welcome Banner -->
   @if($company)
   <div class="hrp-col-12">
@@ -257,130 +343,85 @@
   </div>
   @endif
 
-  <!-- KPI Cards Row 1 -->
+  <!-- 4 ESSENTIAL KPI CARDS - Client Daily Needs (No Payment Info) -->
   <div class="hrp-col-3">
-    <div class="cust-kpi-card indigo">
-      <div class="cust-kpi-header">
-        <div class="cust-kpi-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10 9H9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+    <a href="{{ route('quotations.index') }}" class="cust-kpi-link">
+      <div class="cust-kpi-card indigo">
+        <div class="cust-kpi-header">
+          <div class="cust-kpi-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10 9H9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
         </div>
+        <div class="cust-kpi-value">{{ $stats['total_quotations'] }}</div>
+        <div class="cust-kpi-label">Total Quotations</div>
       </div>
-      <div class="cust-kpi-value">{{ $stats['total_quotations'] }}</div>
-      <div class="cust-kpi-label">Total Quotations</div>
-    </div>
+    </a>
   </div>
 
   <div class="hrp-col-3">
-    <div class="cust-kpi-card amber">
-      <div class="cust-kpi-header">
-        <div class="cust-kpi-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+    <a href="{{ route('invoices.index') }}" class="cust-kpi-link">
+      <div class="cust-kpi-card sky">
+        <div class="cust-kpi-header">
+          <div class="cust-kpi-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 18V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 15L12 12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
         </div>
+        <div class="cust-kpi-value">{{ $stats['total_invoices'] }}</div>
+        <div class="cust-kpi-label">GST Invoices</div>
       </div>
-      <div class="cust-kpi-value">{{ $stats['pending_quotations'] }}</div>
-      <div class="cust-kpi-label">Pending Quotations</div>
-    </div>
+    </a>
   </div>
 
   <div class="hrp-col-3">
-    <div class="cust-kpi-card sky">
-      <div class="cust-kpi-header">
-        <div class="cust-kpi-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 18V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M9 15L12 12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+    @if(Route::has('projects.index'))
+      <a href="{{ route('projects.index') }}" class="cust-kpi-link">
+    @else
+      <div class="cust-kpi-link" style="cursor:default;">
+    @endif
+      <div class="cust-kpi-card emerald">
+        <div class="cust-kpi-header">
+          <div class="cust-kpi-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
         </div>
+        <div class="cust-kpi-value">{{ $stats['active_projects'] }}</div>
+        <div class="cust-kpi-label">Active Projects</div>
       </div>
-      <div class="cust-kpi-value">{{ $stats['total_invoices'] }}</div>
-      <div class="cust-kpi-label">Total Invoices</div>
-    </div>
+    @if(Route::has('projects.index'))
+      </a>
+    @else
+      </div>
+    @endif
   </div>
 
   <div class="hrp-col-3">
-    <div class="cust-kpi-card rose">
-      <div class="cust-kpi-header">
-        <div class="cust-kpi-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 1V23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+    <a href="{{ route('tickets.index') }}" class="cust-kpi-link">
+      <div class="cust-kpi-card rose">
+        <div class="cust-kpi-header">
+          <div class="cust-kpi-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
         </div>
+        <div class="cust-kpi-value">{{ $stats['open_tickets'] }}</div>
+        <div class="cust-kpi-label">Open Support Tickets</div>
       </div>
-      <div class="cust-kpi-value">{{ $stats['pending_payments'] }}</div>
-      <div class="cust-kpi-label">Pending Payments</div>
-    </div>
-  </div>
-
-
-  <!-- KPI Cards Row 2 -->
-  <div class="hrp-col-3">
-    <div class="cust-kpi-card emerald">
-      <div class="cust-kpi-header">
-        <div class="cust-kpi-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22 19C22 19.5304 21.7893 20.0391 21.4142 20.4142C21.0391 20.7893 20.5304 21 20 21H4C3.46957 21 2.96086 20.7893 2.58579 20.4142C2.21071 20.0391 2 19.5304 2 19V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H9L11 6H20C20.5304 6 21.0391 6.21071 21.4142 6.58579C21.7893 6.96086 22 7.46957 22 8V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>
-      <div class="cust-kpi-value">{{ $stats['total_projects'] }}</div>
-      <div class="cust-kpi-label">Total Projects</div>
-    </div>
-  </div>
-
-  <div class="hrp-col-3">
-    <div class="cust-kpi-card violet">
-      <div class="cust-kpi-header">
-        <div class="cust-kpi-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>
-      <div class="cust-kpi-value">{{ $stats['active_projects'] }}</div>
-      <div class="cust-kpi-label">Active Projects</div>
-    </div>
-  </div>
-
-  <div class="hrp-col-3">
-    <div class="cust-kpi-card teal">
-      <div class="cust-kpi-header">
-        <div class="cust-kpi-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>
-      <div class="cust-kpi-value">{{ $stats['open_tickets'] }}</div>
-      <div class="cust-kpi-label">Open Tickets</div>
-    </div>
-  </div>
-
-  <div class="hrp-col-3">
-    <div class="cust-kpi-card fuchsia">
-      <div class="cust-kpi-header">
-        <div class="cust-kpi-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>
-      <div class="cust-kpi-value">${{ $stats['total_spent'] }}</div>
-      <div class="cust-kpi-label">Total Spent</div>
-    </div>
+    </a>
   </div>
 
   <!-- Recent Quotations -->
@@ -388,17 +429,20 @@
     <div class="cust-doc-card">
       <div class="cust-doc-header">
         📄 Recent Quotations
+        <a href="{{ route('quotations.index') }}" style="color:#fff;font-size:11px;margin-left:auto;text-decoration:none;opacity:0.8;">View All →</a>
       </div>
       <div>
         @forelse($recentQuotations as $quot)
-          <div class="cust-doc-item">
-            <div class="cust-doc-info">
-              <div class="cust-doc-number">{{ $quot['number'] }}</div>
-              <div class="cust-doc-details">{{ $quot['date'] }} • Valid until: {{ $quot['valid_until'] }}</div>
+          <a href="{{ route('quotations.show', $quot['id']) }}" style="text-decoration:none;color:inherit;display:block;">
+            <div class="cust-doc-item" style="cursor:pointer;">
+              <div class="cust-doc-info">
+                <div class="cust-doc-number">{{ $quot['number'] }}</div>
+                <div class="cust-doc-details">{{ $quot['date'] }} • {{ $quot['company'] }}</div>
+              </div>
+              <div class="cust-doc-amount">₹{{ $quot['amount'] }}</div>
+              <span class="cust-doc-badge {{ $quot['status'] }}">{{ ucfirst($quot['status']) }}</span>
             </div>
-            <div class="cust-doc-amount">${{ $quot['amount'] }}</div>
-            <span class="cust-doc-badge {{ $quot['status'] }}">{{ ucfirst($quot['status']) }}</span>
-          </div>
+          </a>
         @empty
           <div class="cust-doc-item">
             <div class="cust-doc-info">
@@ -411,27 +455,35 @@
     </div>
   </div>
 
-  <!-- Recent Invoices -->
+  <!-- Recent GST Invoices -->
   <div class="hrp-col-6">
     <div class="cust-doc-card">
       <div class="cust-doc-header">
-        💰 Recent Invoices
+        💰 Recent GST Invoices
+        <a href="{{ route('invoices.index', ['type' => 'gst']) }}" style="color:#fff;font-size:11px;margin-left:auto;text-decoration:none;opacity:0.8;">View All →</a>
       </div>
       <div>
         @forelse($recentInvoices as $inv)
-          <div class="cust-doc-item">
-            <div class="cust-doc-info">
-              <div class="cust-doc-number">{{ $inv['number'] }}</div>
-              <div class="cust-doc-details">{{ $inv['date'] }} • Due: {{ $inv['due_date'] }}</div>
+          <a href="{{ route('invoices.show', $inv['id']) }}" style="text-decoration:none;color:inherit;display:block;">
+            <div class="cust-doc-item" style="cursor:pointer;">
+              <div class="cust-doc-info">
+                <div class="cust-doc-number">{{ $inv['number'] }}</div>
+                <div class="cust-doc-details">
+                  {{ $inv['date'] }} • Due: {{ $inv['due_date'] }}
+                  @if($inv['status'] !== 'paid')
+                    <br><span style="color:#dc2626;font-weight:600;">Outstanding: ₹{{ $inv['outstanding'] }}</span>
+                  @endif
+                </div>
+              </div>
+              <div class="cust-doc-amount">₹{{ $inv['amount'] }}</div>
+              <span class="cust-doc-badge {{ $inv['status'] }}">{{ ucfirst($inv['status']) }}</span>
             </div>
-            <div class="cust-doc-amount">${{ $inv['amount'] }}</div>
-            <span class="cust-doc-badge {{ $inv['status'] }}">{{ ucfirst($inv['status']) }}</span>
-          </div>
+          </a>
         @empty
           <div class="cust-doc-item">
             <div class="cust-doc-info">
-              <div class="cust-doc-number">No invoices yet</div>
-              <div class="cust-doc-details">Your invoices will appear here</div>
+              <div class="cust-doc-number">No GST invoices yet</div>
+              <div class="cust-doc-details">Your GST invoices will appear here</div>
             </div>
           </div>
         @endforelse
@@ -441,13 +493,13 @@
 
   <!-- Active Projects -->
   <div class="hrp-col-12">
-    <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 12px;">
+    <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
       <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 20px 0;">🚀 Active Projects</h3>
       <div class="hrp-grid">
         @forelse($activeProjectsList as $project)
           <div class="hrp-col-6">
             <a href="{{ route('projects.overview', $project['id']) }}" style="text-decoration: none; color: inherit; display: block;">
-              <div class="cust-project-card" style="cursor: pointer; transition: all 0.3s ease;">
+              <div class="cust-project-card" style="cursor: pointer;">
                 <div class="cust-project-header">
                   <div class="cust-project-name">{{ $project['name'] }}</div>
                   <span class="cust-project-status">{{ ucfirst($project['status']) }}</span>
@@ -472,9 +524,89 @@
           </div>
         @empty
           <div class="hrp-col-12">
-            <p style="text-align: center; color: #64748b; padding: 40px 0;">No active projects at the moment</p>
+            <div style="text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 12px;">
+              <div style="font-size: 48px; margin-bottom: 16px;">📁</div>
+              <h4 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0 0 8px 0;">No Active Projects</h4>
+              <p style="color: #64748b; margin: 0;">Your projects will appear here once they are created</p>
+            </div>
           </div>
         @endforelse
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Tickets & Quick Actions -->
+  <div class="hrp-col-6">
+    <div class="cust-doc-card">
+      <div class="cust-doc-header">
+        🎫 Recent Support Tickets
+      </div>
+      <div>
+        @forelse($recentTickets as $ticket)
+          <div class="cust-doc-item">
+            <div class="cust-doc-info">
+              <div class="cust-doc-number">{{ $ticket['title'] }}</div>
+              <div class="cust-doc-details">{{ $ticket['created'] }} • Priority: {{ ucfirst($ticket['priority']) }}</div>
+            </div>
+            <span class="cust-doc-badge {{ $ticket['status'] }}">{{ ucfirst($ticket['status']) }}</span>
+          </div>
+        @empty
+          <div class="cust-doc-item">
+            <div class="cust-doc-info">
+              <div class="cust-doc-number">No support tickets</div>
+              <div class="cust-doc-details">Need help? Create a support ticket</div>
+            </div>
+          </div>
+        @endforelse
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions Card -->
+  <div class="hrp-col-6">
+    <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); height: 100%;">
+      <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 20px 0;">⚡ Quick Actions</h3>
+      <div style="display: grid; gap: 12px;">
+        <a href="{{ route('tickets.create') }}" class="cust-quick-action">
+          <div class="cust-quick-action-icon" style="background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #3730a3;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="cust-quick-action-title">Create Support Ticket</div>
+            <div class="cust-quick-action-desc">Get help from our team</div>
+          </div>
+          <div class="cust-quick-action-arrow">→</div>
+        </a>
+        
+        <a href="{{ route('quotations.index') }}" class="cust-quick-action">
+          <div class="cust-quick-action-icon" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"/>
+              <path d="M14 2V8H20"/>
+            </svg>
+          </div>
+          <div>
+            <div class="cust-quick-action-title">View All Quotations</div>
+            <div class="cust-quick-action-desc">Browse your quotes</div>
+          </div>
+          <div class="cust-quick-action-arrow">→</div>
+        </a>
+        
+        <a href="{{ route('invoices.index') }}" class="cust-quick-action">
+          <div class="cust-quick-action-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1V23"/>
+              <path d="M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6"/>
+            </svg>
+          </div>
+          <div>
+            <div class="cust-quick-action-title">View All Invoices</div>
+            <div class="cust-quick-action-desc">Check payment status</div>
+          </div>
+          <div class="cust-quick-action-arrow">→</div>
+        </a>
       </div>
     </div>
   </div>

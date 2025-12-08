@@ -47,10 +47,20 @@ class QuotationController extends Controller
             $request->merge(['per_page' => $perPage]);
             
 
+            $user = auth()->user();
             $query = Quotation::with(['followUps' => function ($q) {
                 $q->where('is_confirm', true)->latest();
             }])
                 ->select('id', 'unique_code', 'company_name', 'contact_number_1', 'quotation_date', 'service_contract_amount', 'created_at', 'updated_at', 'tentative_complete_date', 'customer_type', 'company_email', 'customer_id');
+            
+            // Filter by role: customers/clients see only their company's quotations
+            $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+            if ($isCustomer && $user->company_id) {
+                $company = $user->company;
+                if ($company) {
+                    $query->where('company_name', $company->company_name);
+                }
+            }
             
             // Handle sorting
             $sortBy = $request->get('sort', 'created_at');
@@ -179,9 +189,13 @@ class QuotationController extends Controller
             $user = auth()->user();
             $query = Quotation::query()->orderBy('created_at', 'desc');
             
-            // Filter by role: customers see only their company's quotations
-            if ($user->hasRole('customer') && $user->company_id) {
-                $query->where('customer_id', $user->company_id);
+            // Filter by role: customers/clients see only their company's quotations
+            $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+            if ($isCustomer && $user->company_id) {
+                $company = $user->company;
+                if ($company) {
+                    $query->where('company_name', $company->company_name);
+                }
             }
             
             // Apply filters if provided
@@ -230,9 +244,13 @@ class QuotationController extends Controller
         $user = auth()->user();
         $query = Quotation::query()->latest();
 
-        // Filter by role: customers see only their company's quotations
-        if ($user->hasRole('customer') && $user->company_id) {
-            $query->where('customer_id', $user->company_id);
+        // Filter by role: customers/clients see only their company's quotations
+        $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+        if ($isCustomer && $user->company_id) {
+            $company = $user->company;
+            if ($company) {
+                $query->where('company_name', $company->company_name);
+            }
         }
 
         if ($request->filled('from_date')) {
@@ -943,94 +961,71 @@ class QuotationController extends Controller
             // Update quotation
             $quotation->update($data);
             
-            // Update or create user account for company email
-            if (!empty($validated['company_email'])) {
-                $companyUser = User::where('email', $oldCompanyEmail)
-                    ->orWhere('email', $validated['company_email'])
-                    ->first();
-                
-                if ($companyUser) {
-                    // Update existing user
-                    $updateData = [
-                        'email' => $validated['company_email'],
-                        'name' => $validated['contact_person_1'] . ' (Company)',
-                        'mobile_no' => $validated['contact_number_1'] ?? '',
-                        'address' => $validated['address'] ?? '',
-                    ];
+            // Only update user accounts if quotation is already converted to company (customer_type = 'existing')
+            if ($quotation->customer_type === 'existing' && $quotation->customer_id) {
+                // Update or create user account for company email
+                if (!empty($validated['company_email'])) {
+                    $companyUser = User::where('email', $oldCompanyEmail)
+                        ->orWhere('email', $validated['company_email'])
+                        ->first();
                     
-                    // Update password if provided
-                    if (!empty($validated['company_password'])) {
-                        $updateData['password'] = Hash::make($validated['company_password']);
-                    }
-                    
-                    $companyUser->update($updateData);
-                } else if (!empty($validated['company_password'])) {
-                    // Create new user if password is provided
-                    $newUser = User::create([
-                        'name' => $validated['contact_person_1'] . ' (Company)',
-                        'email' => $validated['company_email'],
-                        'password' => Hash::make($validated['company_password']),
-                        'mobile_no' => $validated['contact_number_1'] ?? '',
-                        'address' => $validated['address'] ?? '',
-                    ]);
-                    
-                    // Assign customer role
-                    if (class_exists(\Spatie\Permission\Models\Role::class)) {
-                        $customerRole = \Spatie\Permission\Models\Role::where('name', 'customer')
-                            ->orWhere('id', 6)
-                            ->first();
-                        if ($customerRole) {
-                            $newUser->assignRole($customerRole);
+                    if ($companyUser) {
+                        // Update existing user
+                        $updateData = [
+                            'email' => $validated['company_email'],
+                            'name' => $validated['contact_person_1'] . ' (Company)',
+                            'mobile_no' => $validated['contact_number_1'] ?? '',
+                            'address' => $validated['address'] ?? '',
+                        ];
+                        
+                        // Update password if provided
+                        if (!empty($validated['company_password'])) {
+                            $updateData['password'] = Hash::make($validated['company_password']);
+                            \Log::info('Updated company user password for existing company', [
+                                'email' => $validated['company_email'],
+                                'quotation_id' => $quotation->id
+                            ]);
                         }
+                        
+                        $companyUser->update($updateData);
                     }
                 }
-            }
-            
-            // Update or create user account for employee email
-            if (!empty($validated['company_employee_email'])) {
-                $employeeUser = User::where('email', $oldEmployeeEmail)
-                    ->orWhere('email', $validated['company_employee_email'])
-                    ->first();
                 
-                if ($employeeUser) {
-                    // Update existing user
-                    $updateData = [
-                        'email' => $validated['company_employee_email'],
-                        'name' => $validated['contact_person_1'] . ' (Employee)',
-                        'mobile_no' => $validated['contact_number_1'] ?? '',
-                        'address' => $validated['address'] ?? '',
-                    ];
+                // Update or create user account for employee email
+                if (!empty($validated['company_employee_email'])) {
+                    $employeeUser = User::where('email', $oldEmployeeEmail)
+                        ->orWhere('email', $validated['company_employee_email'])
+                        ->first();
                     
-                    // Update password if provided
-                    if (!empty($validated['company_employee_password'])) {
-                        $updateData['password'] = Hash::make($validated['company_employee_password']);
-                    }
-                    
-                    $employeeUser->update($updateData);
-                } else if (!empty($validated['company_employee_password'])) {
-                    // Create new user if password is provided
-                    $newEmployeeUser = User::create([
-                        'name' => $validated['contact_person_1'] . ' (Employee)',
-                        'email' => $validated['company_employee_email'],
-                        'password' => Hash::make($validated['company_employee_password']),
-                        'mobile_no' => $validated['contact_number_1'] ?? '',
-                        'address' => $validated['address'] ?? '',
-                    ]);
-                    
-                    // Assign customer role
-                    if (class_exists(\Spatie\Permission\Models\Role::class)) {
-                        $customerRole = \Spatie\Permission\Models\Role::where('name', 'customer')
-                            ->orWhere('id', 6)
-                            ->first();
-                        if ($customerRole) {
-                            $newEmployeeUser->assignRole($customerRole);
+                    if ($employeeUser) {
+                        // Update existing user
+                        $updateData = [
+                            'email' => $validated['company_employee_email'],
+                            'name' => $validated['contact_person_1'] . ' (Employee)',
+                            'mobile_no' => $validated['contact_number_1'] ?? '',
+                            'address' => $validated['address'] ?? '',
+                        ];
+                        
+                        // Update password if provided
+                        if (!empty($validated['company_employee_password'])) {
+                            $updateData['password'] = Hash::make($validated['company_employee_password']);
                         }
+                        
+                        $employeeUser->update($updateData);
                     }
                 }
             }
 
+            // Prepare success message
+            $message = 'Quotation updated successfully.';
+            if ($quotation->customer_type === 'new') {
+                $message .= ' Note: Login credentials will be created when you convert this quotation to a company.';
+            } else if (!empty($validated['company_password'])) {
+                $message .= ' Login credentials have been updated.';
+            }
+
             return redirect()->route('quotations.index')
-                ->with('status', 'Quotation updated successfully. Login credentials have been synchronized.');
+                ->with('status', $message);
 
         } catch (\Exception $e) {
             \Log::error('Error updating quotation: ' . $e->getMessage());

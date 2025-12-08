@@ -20,11 +20,14 @@ class ReceiptController extends Controller
         $user = auth()->user();
         $query = Receipt::query();
         
-        // Filter by role: customers see only their company's receipts
-        if ($user->hasRole('customer') && $user->company_id) {
+        // Filter by role: customers/clients see only their company's receipts
+        $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+        if ($isCustomer && $user->company_id) {
             $company = $user->company;
             if ($company) {
                 $query->where('company_name', $company->company_name);
+                // Customers see only GST receipts
+                $query->where('invoice_type', 'gst');
             }
         }
         
@@ -81,11 +84,14 @@ class ReceiptController extends Controller
             $user = auth()->user();
             $query = Receipt::query()->orderBy('created_at', 'desc');
             
-            // Filter by role: customers see only their company's receipts
-            if ($user->hasRole('customer') && $user->company_id) {
+            // Filter by role: customers/clients see only their company's receipts
+            $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+            if ($isCustomer && $user->company_id) {
                 $company = $user->company;
                 if ($company) {
                     $query->where('company_name', $company->company_name);
+                    // Customers see only GST receipts
+                    $query->where('invoice_type', 'gst');
                 }
             }
             
@@ -131,11 +137,14 @@ class ReceiptController extends Controller
         $user = auth()->user();
         $query = Receipt::query()->latest();
 
-        // Filter by role: customers see only their company's receipts
-        if ($user->hasRole('customer') && $user->company_id) {
+        // Filter by role: customers/clients see only their company's receipts
+        $isCustomer = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+        if ($isCustomer && $user->company_id) {
             $company = $user->company;
             if ($company) {
                 $query->where('company_name', $company->company_name);
+                // Customers see only GST receipts
+                $query->where('invoice_type', 'gst');
             }
         }
 

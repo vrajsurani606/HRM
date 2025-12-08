@@ -1,6 +1,7 @@
 @extends('layouts.macos')
 @section('page_title', 'Projects')
 @push('styles')
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <link rel="stylesheet" href="{{ asset('new_theme/css/kanban.css') }}">
 <style>
 @keyframes modalSlideIn {
@@ -30,17 +31,52 @@
   z-index: 10000 !important;
 }
 
-input[type="date"] {
-  cursor: pointer !important;
-  position: relative !important;
-  z-index: 1 !important;
+/* jQuery UI Datepicker z-index fix for modals */
+.ui-datepicker {
+  z-index: 10001 !important;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
+/* Form Input Styling */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1f2937;
+  background: white;
+  transition: all 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-input::placeholder {
+  color: #9ca3af;
+}
+
+/* Date Picker Styling (same as inquiry form) */
+.date-picker-modal {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px !important;
   cursor: pointer !important;
-  position: relative !important;
-  z-index: 2 !important;
-  padding: 5px;
 }
 
 /* Due Date Styles */
@@ -872,13 +908,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
           <div class="form-group">
-            <label for="projectStartDate" style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Start Date</label>
-            <input type="date" id="projectStartDate" name="start_date" class="form-input" style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; cursor: pointer; position: relative; z-index: 1;">
+            <label for="projectStartDate">Start Date</label>
+            <input type="text" id="projectStartDate" name="start_date" class="form-input date-picker-modal" placeholder="dd/mm/yyyy" autocomplete="off">
           </div>
 
           <div class="form-group">
-            <label for="projectDueDate" style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Due Date (Deadline)</label>
-            <input type="date" id="projectDueDate" name="due_date" class="form-input" style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; cursor: pointer; position: relative; z-index: 1;">
+            <label for="projectDueDate">Due Date (Deadline)</label>
+            <input type="text" id="projectDueDate" name="due_date" class="form-input date-picker-modal" placeholder="dd/mm/yyyy" autocomplete="off">
           </div>
         </div>
 
@@ -950,13 +986,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
           <div class="form-group">
-            <label for="editProjectStartDate" style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Start Date</label>
-            <input type="date" id="editProjectStartDate" name="start_date" class="form-input" style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; cursor: pointer; position: relative; z-index: 1;">
+            <label for="editProjectStartDate">Start Date</label>
+            <input type="text" id="editProjectStartDate" name="start_date" class="form-input date-picker-modal" placeholder="dd/mm/yyyy" autocomplete="off">
           </div>
 
           <div class="form-group">
-            <label for="editProjectDueDate" style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Due Date (Deadline)</label>
-            <input type="date" id="editProjectDueDate" name="due_date" class="form-input" style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; cursor: pointer; position: relative; z-index: 1;">
+            <label for="editProjectDueDate">Due Date (Deadline)</label>
+            <input type="text" id="editProjectDueDate" name="due_date" class="form-input date-picker-modal" placeholder="dd/mm/yyyy" autocomplete="off">
           </div>
         </div>
 
@@ -1197,7 +1233,45 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 </div>
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script>
+// Initialize jQuery datepicker with dd/mm/yyyy format (same as inquiry)
+$(document).ready(function() {
+    $('.date-picker-modal').datepicker({
+        dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({
+                    marginTop: '2px',
+                    marginLeft: '0px',
+                    zIndex: 10001
+                });
+            }, 0);
+        }
+    });
+    
+    // Set minimum date for due_date based on start_date in Create Modal
+    $('#projectStartDate').on('change', function() {
+        var startDate = $(this).datepicker('getDate');
+        if (startDate) {
+            $('#projectDueDate').datepicker('option', 'minDate', startDate);
+        }
+    });
+    
+    // Set minimum date for due_date based on start_date in Edit Modal
+    $('#editProjectStartDate').on('change', function() {
+        var startDate = $(this).datepicker('getDate');
+        if (startDate) {
+            $('#editProjectDueDate').datepicker('option', 'minDate', startDate);
+        }
+    });
+});
+
 let draggedElement = null;
 
 // View Switching functionality
@@ -1515,6 +1589,20 @@ document.getElementById('projectForm').addEventListener('submit', function(e) {
     
     const formData = new FormData(this);
     const data = Object.fromEntries(formData.entries());
+    
+    // Convert dates from dd/mm/yyyy to yyyy-mm-dd
+    if (data.start_date) {
+        const parts = data.start_date.split('/');
+        if (parts.length === 3) {
+            data.start_date = parts[2] + '-' + parts[1] + '-' + parts[0];
+        }
+    }
+    if (data.due_date) {
+        const parts = data.due_date.split('/');
+        if (parts.length === 3) {
+            data.due_date = parts[2] + '-' + parts[1] + '-' + parts[0];
+        }
+    }
     
     fetch('{{ route("projects.store") }}', {
         method: 'POST',
@@ -2761,13 +2849,30 @@ function editProject(projectId) {
         if (data.success && data.project) {
             const project = data.project;
             
+            // Convert dates from yyyy-mm-dd to dd/mm/yyyy
+            let startDate = project.start_date || '';
+            if (startDate) {
+                const parts = startDate.split('-');
+                if (parts.length === 3) {
+                    startDate = parts[2] + '/' + parts[1] + '/' + parts[0];
+                }
+            }
+            
+            let dueDate = project.due_date || '';
+            if (dueDate) {
+                const parts = dueDate.split('-');
+                if (parts.length === 3) {
+                    dueDate = parts[2] + '/' + parts[1] + '/' + parts[0];
+                }
+            }
+            
             // Fill form fields
             document.getElementById('editProjectId').value = project.id;
             document.getElementById('editProjectName').value = project.name || '';
             document.getElementById('editProjectDescription').value = project.description || '';
             document.getElementById('editProjectCompany').value = project.company_id || '';
-            document.getElementById('editProjectStartDate').value = project.start_date || '';
-            document.getElementById('editProjectDueDate').value = project.due_date || '';
+            document.getElementById('editProjectStartDate').value = startDate;
+            document.getElementById('editProjectDueDate').value = dueDate;
             document.getElementById('editProjectPriority').value = project.priority || 'medium';
             document.getElementById('editProjectStatus').value = project.status || 'active';
             document.getElementById('editProjectBudget').value = project.budget || '';
@@ -2797,6 +2902,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const projectId = document.getElementById('editProjectId').value;
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
+            
+            // Convert dates from dd/mm/yyyy to yyyy-mm-dd
+            if (data.start_date) {
+                const parts = data.start_date.split('/');
+                if (parts.length === 3) {
+                    data.start_date = parts[2] + '-' + parts[1] + '-' + parts[0];
+                }
+            }
+            if (data.due_date) {
+                const parts = data.due_date.split('/');
+                if (parts.length === 3) {
+                    data.due_date = parts[2] + '-' + parts[1] + '-' + parts[0];
+                }
+            }
             
             fetch(`{{ url('/projects') }}/${projectId}`, {
                 method: 'PATCH',
