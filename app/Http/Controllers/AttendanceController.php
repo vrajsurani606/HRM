@@ -409,11 +409,86 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Show the form for creating a new attendance record.
+     */
+    public function create()
+    {
+        // Check permission
+        if (!auth()->user()->can('Attendance Management.create attendance')) {
+            abort(403, 'Unauthorized to create attendance records.');
+        }
+
+        $employees = Employee::orderBy('name')->get();
+        
+        return view('attendance.create', [
+            'employees' => $employees,
+            'page_title' => 'Create Attendance Record'
+        ]);
+    }
+
+    /**
+     * Store a newly created attendance record in storage.
      */
     public function store(Request $request)
     {
-        //
+        // Check permission
+        if (!auth()->user()->can('Attendance Management.create attendance')) {
+            return back()->with('error', 'Unauthorized to create attendance records.');
+        }
+
+        $validated = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date',
+            'check_in' => 'required|date_format:H:i',
+            'check_out' => 'nullable|date_format:H:i|after:check_in',
+            'status' => 'required|in:present,absent,half_day,late,early_leave',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        // Combine date with time
+        $checkInDateTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $validated['check_in']);
+        $checkOutDateTime = !empty($validated['check_out']) 
+            ? \Carbon\Carbon::parse($validated['date'] . ' ' . $validated['check_out']) 
+            : null;
+
+        // Calculate total working hours if check_out is provided
+        $totalWorkingHours = null;
+        if ($checkOutDateTime) {
+            $totalMinutes = $checkInDateTime->diffInMinutes($checkOutDateTime);
+            $hours = floor($totalMinutes / 60);
+            $minutes = $totalMinutes % 60;
+            $totalWorkingHours = sprintf('%02d:%02d', $hours, $minutes);
+        }
+
+        // Check if attendance already exists for this employee on this date
+        $existingAttendance = Attendance::where('employee_id', $validated['employee_id'])
+            ->whereDate('date', $validated['date'])
+            ->first();
+
+        if ($existingAttendance) {
+            return back()
+                ->withInput()
+                ->with('error', 'Attendance record already exists for this employee on this date.');
+        }
+
+        // Create attendance record
+        $attendance = Attendance::create([
+            'employee_id' => $validated['employee_id'],
+            'date' => $validated['date'],
+            'check_in' => $checkInDateTime,
+            'check_out' => $checkOutDateTime,
+            'total_working_hours' => $totalWorkingHours,
+            'status' => $validated['status'],
+            'notes' => $validated['notes'] ?? null,
+            'check_in_ip' => $request->ip(),
+            'check_out_ip' => $checkOutDateTime ? $request->ip() : null,
+            'check_in_location' => 'Manual Entry',
+            'check_out_location' => $checkOutDateTime ? 'Manual Entry' : null,
+        ]);
+
+        return redirect()
+            ->route('attendance.reports')
+            ->with('success', 'Attendance record created successfully.');
     }
 
     /**

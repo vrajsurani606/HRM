@@ -1,308 +1,533 @@
 @extends('layouts.macos')
 
-@section('page_title', 'Ticket Details - #' . ($ticket->ticket_no ?? $ticket->id))
+@section('page_title', 'Ticket #' . ($ticket->ticket_no ?? $ticket->id))
 
 @push('styles')
 <style>
-    .ticket-container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 24px;
+    * { box-sizing: border-box; }
+    
+    /* Hide menu toggle button on ticket page */
+    .hrp-menu-toggle {
+        display: none !important;
+    }
+    
+    .ticket-wrapper {
+     
+        padding: 20px;
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 20px;
+    }
+    
+    @media (max-width: 1024px) {
+        .ticket-wrapper {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .ticket-main {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        overflow: hidden;
     }
     
     .ticket-header {
+        padding: 24px;
+        border-bottom: 1px solid #e5e7eb;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    
+    .ticket-header-top {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 24px;
+        margin-bottom: 16px;
         flex-wrap: wrap;
-        gap: 16px;
+        gap: 12px;
     }
     
-    .ticket-title-section h1 {
-        font-size: 24px;
+    .ticket-title {
+        font-size: 22px;
         font-weight: 700;
-        color: #1e293b;
+        color: #0f172a;
         margin: 0 0 8px 0;
+        line-height: 1.3;
     }
     
     .ticket-id {
-        font-size: 14px;
+        font-size: 13px;
         color: #64748b;
         font-weight: 500;
     }
     
-    .ticket-actions {
+    .ticket-badges {
         display: flex;
-        gap: 12px;
+        gap: 8px;
+        flex-wrap: wrap;
     }
     
-    .btn-back {
+    .badge {
         display: inline-flex;
         align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    .badge-open { background: #fef3c7; color: #92400e; }
+    .badge-needs_approval { background: #fed7aa; color: #9a3412; }
+    .badge-in_progress { background: #dbeafe; color: #1e40af; }
+    .badge-resolved { background: #d1fae5; color: #065f46; }
+    .badge-closed { background: #e2e8f0; color: #475569; }
+    
+    .badge-low { background: #d1fae5; color: #065f46; }
+    .badge-normal { background: #dbeafe; color: #1e40af; }
+    .badge-high { background: #fed7aa; color: #9a3412; }
+    .badge-urgent { background: #fee2e2; color: #991b1b; }
+    
+    .ticket-actions-header {
+        display: flex;
         gap: 8px;
-        padding: 10px 20px;
-        background: #f1f5f9;
+    }
+    
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-secondary {
+        background: white;
         color: #475569;
         border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.2s;
     }
     
-    .btn-back:hover {
-        background: #e2e8f0;
-        color: #1e293b;
+    .btn-secondary:hover {
+        background: #f8fafc;
+        color: #0f172a;
     }
     
-    .btn-edit {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 20px;
+    .btn-primary {
         background: #3b82f6;
         color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.2s;
     }
     
-    .btn-edit:hover {
+    .btn-primary:hover {
         background: #2563eb;
         color: white;
     }
     
-    .ticket-card {
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-    }
-    
-    .ticket-status-bar {
-        padding: 16px 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-    
-    .status-bar-open { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
-    .status-bar-pending { background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); }
-    .status-bar-in_progress { background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%); }
-    .status-bar-resolved { background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%); }
-    .status-bar-closed { background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); }
-    
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .status-open { background: #fbbf24; color: #78350f; }
-    .status-pending { background: #f97316; color: white; }
-    .status-in_progress { background: #3b82f6; color: white; }
-    .status-resolved { background: #10b981; color: white; }
-    .status-closed { background: #6b7280; color: white; }
-    
-    .priority-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 600;
-    }
-    
-    .priority-low { background: #d1fae5; color: #065f46; }
-    .priority-normal { background: #dbeafe; color: #1e40af; }
-    .priority-high { background: #fed7aa; color: #9a3412; }
-    .priority-urgent { background: #fee2e2; color: #991b1b; }
-    
-    .ticket-body {
-        padding: 24px;
-    }
-    
-    .ticket-meta {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-bottom: 24px;
-        padding-bottom: 24px;
-        border-bottom: 1px solid #f1f5f9;
-    }
-    
-    .meta-item {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-    
-    .meta-label {
-        font-size: 12px;
-        color: #94a3b8;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .meta-value {
-        font-size: 15px;
-        color: #1e293b;
-        font-weight: 500;
-    }
-    
     .ticket-description {
-        margin-bottom: 24px;
+        padding: 24px;
+        border-bottom: 1px solid #e5e7eb;
     }
     
     .section-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #1e293b;
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
         margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
-    .description-content {
+    .description-text {
         background: #f8fafc;
-        border-radius: 12px;
-        padding: 20px;
+        border-radius: 8px;
+        padding: 16px;
         font-size: 14px;
         line-height: 1.7;
         color: #475569;
         white-space: pre-wrap;
+        word-wrap: break-word;
     }
     
-    .ticket-footer {
-        padding: 20px 24px;
+    .comments-section {
+        padding: 24px;
+    }
+    
+    .comments-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 24px;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .comment {
+        display: flex;
+        gap: 12px;
+        padding: 16px;
         background: #f8fafc;
-        border-top: 1px solid #e2e8f0;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .comment-internal {
+        background: #fef3c7;
+        border-color: #fbbf24;
+    }
+    
+    .comment-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+    
+    .comment-content {
+        flex: 1;
+    }
+    
+    .comment-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
+        margin-bottom: 8px;
     }
     
-    .footer-info {
-        font-size: 13px;
+    .comment-author {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 14px;
+    }
+    
+    .comment-time {
+        font-size: 12px;
         color: #64748b;
     }
     
-    .footer-info strong {
+    .comment-text {
+        font-size: 14px;
+        line-height: 1.6;
         color: #475569;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    
+    .comment-form {
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 16px;
+    }
+    
+    .form-group {
+        margin-bottom: 12px;
+    }
+    
+    .form-textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+        transition: all 0.2s;
+    }
+    
+    .form-textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .form-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #475569;
+        margin-bottom: 12px;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .ticket-sidebar {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        padding: 20px;
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+    }
+    
+    .sidebar-section {
+        margin-bottom: 24px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .sidebar-section:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    
+    .sidebar-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+    
+    .sidebar-value {
+        font-size: 14px;
+        color: #0f172a;
+        font-weight: 500;
+    }
+    
+    .empty-comments {
+        text-align: center;
+        padding: 40px 20px;
+        color: #94a3b8;
+    }
+    
+    .empty-comments svg {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+    }
+    
+    .internal-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        background: #fbbf24;
+        color: #78350f;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
     }
 </style>
 @endpush
 
 @section('content')
-<div class="ticket-container">
-    <div class="ticket-header">
-        <div class="ticket-title-section">
-            <h1>{{ $ticket->title ?? $ticket->subject ?? 'Ticket Details' }}</h1>
-            <div class="ticket-id">Ticket #{{ $ticket->ticket_no ?? $ticket->id }} • Created {{ $ticket->created_at ? $ticket->created_at->format('M d, Y \a\t h:i A') : 'N/A' }}</div>
+<div class="ticket-wrapper">
+    <!-- Main Content -->
+    <div class="ticket-main">
+        <!-- Header -->
+        <div class="ticket-header">
+            <div class="ticket-header-top">
+                <div>
+                    <h1 class="ticket-title">{{ $ticket->title ?? $ticket->subject ?? 'Ticket Details' }}</h1>
+                    <div class="ticket-id">Ticket #{{ $ticket->ticket_no ?? $ticket->id }} • Created {{ $ticket->created_at ? $ticket->created_at->format('M d, Y \a\t h:i A') : 'N/A' }}</div>
+                </div>
+                <div class="ticket-actions-header">
+                    <a href="{{ route('tickets.index') }}" class="btn btn-secondary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                        Back
+                    </a>
+                    @if($isAdmin || auth()->user()->hasRole('customer'))
+                    <a href="{{ route('tickets.edit', $ticket) }}" class="btn btn-primary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Edit
+                    </a>
+                    @endif
+                </div>
+            </div>
+            <div class="ticket-badges">
+                <span class="badge badge-{{ $ticket->status ?? 'open' }}">
+                    {{ str_replace('_', ' ', ucfirst($ticket->status ?? 'open')) }}
+                </span>
+                @if($ticket->priority)
+                <span class="badge badge-{{ $ticket->priority }}">
+                    {{ ucfirst($ticket->priority) }} Priority
+                </span>
+                @endif
+            </div>
         </div>
-        <div class="ticket-actions">
-            <a href="{{ route('tickets.index') }}" class="btn-back">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Back to List
-            </a>
-            <a href="{{ route('tickets.edit', $ticket) }}" class="btn-edit">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                Edit Ticket
-            </a>
+        
+        <!-- Description -->
+        <div class="ticket-description">
+            <div class="section-title">Description</div>
+            <div class="description-text">{{ $ticket->description ?? 'No description provided.' }}</div>
+        </div>
+        
+        <!-- Comments Section -->
+        <div class="comments-section">
+            <div class="section-title">Comments & Discussion</div>
+            
+            <div class="comments-list" id="commentsList">
+                @forelse($ticket->comments as $comment)
+                    @if(!$comment->is_internal || $isAdmin)
+                        @include('tickets.partials.comment', ['comment' => $comment, 'isAdmin' => $isAdmin])
+                    @endif
+                @empty
+                    <div class="empty-comments">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <p>No comments yet. Start the conversation!</p>
+                    </div>
+                @endforelse
+            </div>
+            
+            <!-- Add Comment Form -->
+            <div class="comment-form">
+                <form id="commentForm">
+                    @csrf
+                    <div class="form-group">
+                        <textarea 
+                            name="comment" 
+                            id="commentText" 
+                            class="form-textarea" 
+                            placeholder="Write your comment here..." 
+                            required
+                        ></textarea>
+                    </div>
+                    @if($isAdmin)
+                    <div class="form-checkbox">
+                        <input type="checkbox" name="is_internal" id="isInternal" value="1">
+                        <label for="isInternal">Internal note (only visible to staff)</label>
+                    </div>
+                    @endif
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                            Send Comment
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
     
-    <div class="ticket-card">
-        <div class="ticket-status-bar status-bar-{{ $ticket->status ?? 'open' }}">
-            <div>
-                <span class="status-badge status-{{ $ticket->status ?? 'open' }}">
-                    @if(($ticket->status ?? 'open') === 'open')
-                        🔓 Open
-                    @elseif($ticket->status === 'pending')
-                        ⏳ Pending
-                    @elseif($ticket->status === 'in_progress')
-                        🔄 In Progress
-                    @elseif($ticket->status === 'resolved')
-                        ✅ Resolved
-                    @elseif($ticket->status === 'closed')
-                        🔒 Closed
-                    @else
-                        {{ ucfirst($ticket->status ?? 'Open') }}
-                    @endif
-                </span>
-            </div>
-            <div>
-                <span class="priority-badge priority-{{ $ticket->priority ?? 'normal' }}">
-                    @if(($ticket->priority ?? 'normal') === 'low')
-                        🟢 Low Priority
-                    @elseif($ticket->priority === 'normal')
-                        🔵 Normal Priority
-                    @elseif($ticket->priority === 'high')
-                        🟠 High Priority
-                    @elseif($ticket->priority === 'urgent')
-                        🔴 Urgent Priority
-                    @else
-                        {{ ucfirst($ticket->priority ?? 'Normal') }} Priority
-                    @endif
-                </span>
-            </div>
+    <!-- Sidebar -->
+    <div class="ticket-sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-label">Customer</div>
+            <div class="sidebar-value">{{ $ticket->customer ?? '—' }}</div>
         </div>
         
-        <div class="ticket-body">
-            <div class="ticket-meta">
-                <div class="meta-item">
-                    <span class="meta-label">Customer</span>
-                    <span class="meta-value">{{ $ticket->customer ?? '—' }}</span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">Company</span>
-                    <span class="meta-value">{{ $ticket->company ?? '—' }}</span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">Category</span>
-                    <span class="meta-value">{{ $ticket->ticket_type ?? $ticket->category ?? 'General' }}</span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">Assigned To</span>
-                    <span class="meta-value">{{ $ticket->assignedEmployee->name ?? 'Not Assigned' }}</span>
-                </div>
-            </div>
-            
-            <div class="ticket-description">
-                <div class="section-title">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    Description
-                </div>
-                <div class="description-content">{{ $ticket->description ?? 'No description provided.' }}</div>
-            </div>
+        <div class="sidebar-section">
+            <div class="sidebar-label">Company</div>
+            <div class="sidebar-value">{{ $ticket->company ?? '—' }}</div>
         </div>
         
-        <div class="ticket-footer">
-            <div class="footer-info">
-                <strong>Created:</strong> {{ $ticket->created_at ? $ticket->created_at->format('M d, Y h:i A') : 'N/A' }}
-            </div>
-            <div class="footer-info">
-                <strong>Last Updated:</strong> {{ $ticket->updated_at ? $ticket->updated_at->format('M d, Y h:i A') : 'N/A' }}
-            </div>
+        <div class="sidebar-section">
+            <div class="sidebar-label">Category</div>
+            <div class="sidebar-value">{{ $ticket->ticket_type ?? $ticket->category ?? 'General' }}</div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-label">Assigned To</div>
+            <div class="sidebar-value">{{ $ticket->assignedEmployee->name ?? 'Not Assigned' }}</div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-label">Work Status</div>
+            <div class="sidebar-value">{{ str_replace('_', ' ', ucfirst($ticket->work_status ?? 'Not Started')) }}</div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-label">Created</div>
+            <div class="sidebar-value">{{ $ticket->created_at ? $ticket->created_at->format('M d, Y') : 'N/A' }}</div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-label">Last Updated</div>
+            <div class="sidebar-value">{{ $ticket->updated_at ? $ticket->updated_at->diffForHumans() : 'N/A' }}</div>
         </div>
     </div>
 </div>
+@endsection
+
+@push('scripts')
+<script>
+document.getElementById('commentForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Sending...';
+    
+    try {
+        const response = await fetch('{{ route("tickets.addComment", $ticket->id) }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Remove empty state if exists
+            const emptyState = document.querySelector('.empty-comments');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            // Add new comment to list
+            const commentsList = document.getElementById('commentsList');
+            commentsList.insertAdjacentHTML('beforeend', data.html);
+            
+            // Scroll to new comment
+            commentsList.scrollTop = commentsList.scrollHeight;
+            
+            // Reset form
+            document.getElementById('commentText').value = '';
+            const internalCheckbox = document.getElementById('isInternal');
+            if (internalCheckbox) {
+                internalCheckbox.checked = false;
+            }
+        } else {
+            alert(data.message || 'Failed to add comment');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while adding the comment');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
+});
+</script>
+@endpush
+
+@section('breadcrumb')
+  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+  <span class="hrp-bc-sep">›</span>
+  <a href="{{ route('tickets.index') }}">Tickets</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">#{{ $ticket->ticket_no ?? $ticket->id }}</span>
 @endsection

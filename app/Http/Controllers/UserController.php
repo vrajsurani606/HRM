@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -13,7 +14,7 @@ class UserController extends Controller
     {
         // Get per_page from request, default to 12
         $perPage = $request->get('per_page', 12);
-        $users = User::with('roles')->paginate($perPage)->withQueryString();
+        $users = User::with('roles')->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
         return view('users.index', compact('users'));
     }
 
@@ -55,7 +56,19 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::all();
-        return view('users.edit', compact('user', 'roles'));
+        
+        // Get all permissions grouped by module
+        $allPermissions = Permission::all()->groupBy(function($permission) {
+            return explode('.', $permission->name)[0];
+        });
+        
+        // Get user's direct permissions (not from roles)
+        $userDirectPermissions = $user->permissions->pluck('name')->toArray();
+        
+        // Get permissions from user's role
+        $rolePermissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
+        
+        return view('users.edit', compact('user', 'roles', 'allPermissions', 'userDirectPermissions', 'rolePermissions'));
     }
 
     public function update(Request $request, User $user)
@@ -66,6 +79,8 @@ class UserController extends Controller
             'role' => 'required|exists:roles,name',
             'mobile_no' => 'nullable|string|max:15',
             'address' => 'nullable|string',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,name',
         ]);
 
         $user->update([
@@ -79,9 +94,13 @@ class UserController extends Controller
             $user->update(['password' => Hash::make($request->password)]);
         }
 
+        // Update role
         $user->syncRoles([$request->role]);
+        
+        // Sync direct permissions (these are in addition to role permissions)
+        $user->syncPermissions($request->permissions ?? []);
 
-        return redirect()->route('users.index')->with('success', 'User updated successfully');
+        return redirect()->route('users.index')->with('success', 'User updated successfully with custom permissions');
     }
 
     public function destroy(User $user)

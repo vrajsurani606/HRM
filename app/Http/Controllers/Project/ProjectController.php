@@ -139,9 +139,16 @@ class ProjectController extends Controller
             \Log::info('Project found', ['project' => $project->toArray()]);
             
             if (request()->ajax() || request()->wantsJson()) {
+                // Check if current user is a member of this project
+                $isMember = $project->members()->where('users.id', $user->id)->exists();
+                $isAdmin = $user->hasRole('super-admin') || $user->hasRole('admin') || $user->hasRole('hr');
+                
                 return response()->json([
                     'success' => true,
-                    'project' => $project
+                    'project' => $project,
+                    'is_member' => $isMember,
+                    'is_admin' => $isAdmin,
+                    'can_access_chat' => $isAdmin || $isMember
                 ], 200);
             }
             
@@ -270,14 +277,20 @@ class ProjectController extends Controller
         
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'assigned_to' => 'nullable|exists:employees,id',
             'parent_id' => 'nullable|exists:project_tasks,id',
             'due_date' => 'nullable|date',
+            'due_time' => 'nullable|date_format:H:i',
         ]);
 
         $task = $project->allTasks()->create([
             'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'assigned_to' => $validated['assigned_to'] ?? null,
             'parent_id' => $validated['parent_id'] ?? null,
             'due_date' => $validated['due_date'] ?? null,
+            'due_time' => $validated['due_time'] ?? null,
             'order' => $project->allTasks()->where('parent_id', $validated['parent_id'] ?? null)->max('order') + 1,
         ]);
         
@@ -292,27 +305,49 @@ class ProjectController extends Controller
 
     public function updateTask(Request $request, Project $project, $taskId)
     {
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.edit task'))) {
-            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        try {
+            if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.edit task'))) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            
+            $task = $project->allTasks()->findOrFail($taskId);
+            
+            $validated = $request->validate([
+                'title' => 'sometimes|string|max:255',
+                'description' => 'nullable|string',
+                'assigned_to' => 'nullable|exists:employees,id',
+                'due_date' => 'nullable|date',
+                'due_time' => 'nullable|date_format:H:i',
+                'is_completed' => 'sometimes|boolean',
+            ]);
+
+            $task->update($validated);
+            
+            // Recalculate project task counts
+            $this->updateProjectTaskCounts($project);
+
+            return response()->json([
+                'success' => true,
+                'task' => $task->load('assignedEmployee')
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Task update failed', [
+                'error' => $e->getMessage(),
+                'task_id' => $taskId,
+                'project_id' => $project->id
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update task: ' . $e->getMessage()
+            ], 500);
         }
-        
-        $task = $project->allTasks()->findOrFail($taskId);
-        
-        $validated = $request->validate([
-            'title' => 'sometimes|string|max:255',
-            'due_date' => 'nullable|date',
-            'is_completed' => 'sometimes|boolean',
-        ]);
-
-        $task->update($validated);
-        
-        // Recalculate project task counts
-        $this->updateProjectTaskCounts($project);
-
-        return response()->json([
-            'success' => true,
-            'task' => $task
-        ]);
     }
     
     /**
@@ -350,7 +385,15 @@ class ProjectController extends Controller
             return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
         }
         
-        $tasks = $project->tasks()->with('subtasks')->get();
+        $user = auth()->user();
+        $query = $project->tasks()->with(['subtasks', 'assignedEmployee']);
+        
+        // If user is employee, show only tasks assigned to them
+        if ($user->hasRole('employee') && $user->employee) {
+            $query->where('assigned_to', $user->employee->id);
+        }
+        
+        $tasks = $query->get();
         
         return response()->json([
             'success' => true,
@@ -361,8 +404,21 @@ class ProjectController extends Controller
     // Comment Management Methods
     public function getComments(Project $project)
     {
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.view comments'))) {
-            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        if (!auth()->check()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized.'], 401);
+        }
+        
+        $user = auth()->user();
+        
+        // Check if user is admin/super-admin OR a member of this project
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('admin') || $user->hasRole('hr');
+        $isMember = $project->members()->where('users.id', $user->id)->exists();
+        
+        if (!$isAdmin && !$isMember) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Access denied. Only project members can view comments.'
+            ], 403);
         }
         
         $comments = $project->comments()->with('user')->orderBy('created_at', 'desc')->get();
@@ -375,8 +431,21 @@ class ProjectController extends Controller
 
     public function storeComment(Request $request, Project $project)
     {
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.create comment'))) {
-            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        if (!auth()->check()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized.'], 401);
+        }
+        
+        $user = auth()->user();
+        
+        // Check if user is admin/super-admin OR a member of this project
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('admin') || $user->hasRole('hr');
+        $isMember = $project->members()->where('users.id', $user->id)->exists();
+        
+        if (!$isAdmin && !$isMember) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Access denied. Only project members can post comments.'
+            ], 403);
         }
         
         $validated = $request->validate([
@@ -517,6 +586,22 @@ class ProjectController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Member removed successfully'
+        ]);
+    }
+
+    public function getEmployeesList()
+    {
+        if (!auth()->check()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        $employees = \App\Models\Employee::select('id', 'name', 'email')
+            ->orderBy('name')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'employees' => $employees
         ]);
     }
 }

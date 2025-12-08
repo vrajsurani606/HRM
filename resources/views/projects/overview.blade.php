@@ -367,7 +367,7 @@
       <button class="tab-nav-button active" onclick="switchTab('overview')">Overview</button>
       <button class="tab-nav-button" onclick="switchTab('tasks')">Tasks</button>
       <button class="tab-nav-button" onclick="switchTab('team')">Team</button>
-      <button class="tab-nav-button" onclick="switchTab('comments')">Comments</button>
+      <button class="tab-nav-button" id="commentsTabBtn" onclick="switchTab('comments')" style="display: none;">Comments</button>
       <button class="tab-nav-button" onclick="switchTab('files')">Files</button>
     </div>
 
@@ -555,7 +555,7 @@
     </div>
 
     <div class="tab-content-area" id="tab-comments">
-      <div class="comment-form">
+      <div class="comment-form" id="commentForm">
         <textarea class="comment-textarea" id="commentMessage" placeholder="Write a comment..."></textarea>
         <button class="comment-submit-btn" onclick="postComment()">Post Comment</button>
       </div>
@@ -603,12 +603,14 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ asset('js/project-tasks.js') }}?v={{ time() }}"></script>
 <script>
 const projectId = {{ $id }};
 let projectData = null;
 let tasksData = [];
 let membersData = [];
 let commentsData = [];
+let canAccessChat = false;
 
 async function loadProjectData() {
     try {
@@ -639,8 +641,26 @@ async function loadProjectData() {
         
         if (data.success && data.project) {
             projectData = data.project;
+            canAccessChat = data.can_access_chat || false;
+            
+            // Show/hide comments tab based on membership
+            const commentsTabBtn = document.getElementById('commentsTabBtn');
+            if (commentsTabBtn) {
+                if (canAccessChat) {
+                    commentsTabBtn.style.display = 'block';
+                } else {
+                    commentsTabBtn.style.display = 'none';
+                }
+            }
+            
             updateProjectInfo();
-            await Promise.all([loadTasks(), loadTeamMembers(), loadComments()]);
+            
+            // Load comments only if user has access
+            if (canAccessChat) {
+                await Promise.all([loadTasks(), loadTeamMembers(), loadComments()]);
+            } else {
+                await Promise.all([loadTasks(), loadTeamMembers()]);
+            }
         } else {
             throw new Error('Invalid response format: ' + JSON.stringify(data));
         }
@@ -703,9 +723,25 @@ async function loadComments() {
         });
         const data = await response.json();
         console.log('Comments data:', data);
+        
         if (data.success) {
             commentsData = data.comments || [];
             renderComments();
+        } else if (response.status === 403) {
+            // Access denied - user is not a member
+            document.getElementById('commentList').innerHTML = `
+                <div style="text-align: center; padding: 60px 20px;">
+                    <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(135deg, #fef2f2, #fee2e2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 700; color: #111827; margin: 0 0 8px 0;">Access Restricted</h3>
+                    <p style="font-size: 14px; color: #6b7280; margin: 0;">Only project members can view and post comments</p>
+                </div>
+            `;
         }
     } catch (error) {
         console.error('Error loading comments:', error);
@@ -733,11 +769,71 @@ function renderTasks() {
     let html = '';
     tasksData.forEach(task => {
         const isCompleted = task.is_completed;
+        const assignedEmployee = task.assigned_employee ? task.assigned_employee.name : 'Unassigned';
+        
+        // Check if task is overdue
+        let isOverdue = false;
+        let dueDateTime = 'No due date';
+        let dueDateStyle = '';
+        
+        if (task.due_date && !isCompleted) {
+            const now = new Date();
+            let dueDate = new Date(task.due_date);
+            
+            // If time is specified, include it in comparison
+            if (task.due_time) {
+                const [hours, minutes] = task.due_time.split(':');
+                dueDate.setHours(parseInt(hours), parseInt(minutes), 0);
+            } else {
+                // If no time, set to end of day
+                dueDate.setHours(23, 59, 59);
+            }
+            
+            isOverdue = now > dueDate;
+            
+            // Format date
+            const dateObj = new Date(task.due_date);
+            const formattedDate = dateObj.toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric' 
+            });
+            
+            if (task.due_time) {
+                const [hours, minutes] = task.due_time.split(':');
+                const hour = parseInt(hours);
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const hour12 = hour % 12 || 12;
+                dueDateTime = `${formattedDate} at ${hour12}:${minutes} ${ampm}`;
+            } else {
+                dueDateTime = formattedDate;
+            }
+            
+            // Add overdue indicator
+            if (isOverdue) {
+                dueDateTime = `⚠️ OVERDUE - ${dueDateTime}`;
+                dueDateStyle = 'color: #dc2626; font-weight: 700;';
+            }
+        }
+        
         html += `<div class="task-item-row" style="background: ${isCompleted ? '#f0fdf4' : 'white'};">
             <input type="checkbox" class="task-checkbox-input" ${isCompleted ? 'checked' : ''} onchange="toggleTask(${task.id}, this.checked)">
             <div class="task-info-content">
                 <h4 class="task-title-text" style="${isCompleted ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${escapeHtml(task.title)}</h4>
-                <p class="task-meta-text">${task.due_date ? 'Due: ' + task.due_date : 'No due date'}</p>
+                ${task.description ? `<p class="task-meta-text" style="margin-bottom: 4px;">${escapeHtml(task.description)}</p>` : ''}
+                <p class="task-meta-text">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <strong>Assigned to:</strong> ${assignedEmployee}
+                    <span style="margin: 0 8px;">•</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${isOverdue ? '#dc2626' : 'currentColor'}" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <strong style="${dueDateStyle}">Due:</strong> <span style="${dueDateStyle}">${dueDateTime}</span>
+                </p>
             </div>
             <div class="task-actions-buttons">
                 <button class="task-action-btn" onclick="editTask(${task.id})">Edit</button>
@@ -783,6 +879,13 @@ function renderTeamMembers() {
 
 function renderComments() {
     const container = document.getElementById('commentList');
+    const commentForm = document.getElementById('commentForm');
+    
+    // Hide comment form if user doesn't have access
+    if (commentForm) {
+        commentForm.style.display = canAccessChat ? 'block' : 'none';
+    }
+    
     if (commentsData.length === 0) {
         container.innerHTML = `
             <div style="text-align: center; padding: 60px 20px;">
@@ -792,7 +895,7 @@ function renderComments() {
                     </svg>
                 </div>
                 <h3 style="font-size: 18px; font-weight: 700; color: #111827; margin: 0 0 8px 0;">No Comments Yet</h3>
-                <p style="font-size: 14px; color: #6b7280; margin: 0;">Start the conversation by posting the first comment</p>
+                <p style="font-size: 14px; color: #6b7280; margin: 0;">${canAccessChat ? 'Start the conversation by posting the first comment' : 'Only project members can view comments'}</p>
             </div>
         `;
         return;
@@ -819,6 +922,14 @@ function renderComments() {
 async function postComment() {
     const message = document.getElementById('commentMessage').value.trim();
     if (!message) return;
+    
+    if (!canAccessChat) {
+        if (typeof toastr !== 'undefined') {
+            toastr.error('Only project members can post comments');
+        }
+        return;
+    }
+    
     try {
         const response = await fetch(`{{ url('/projects') }}/${projectId}/comments`, {
             method: 'POST',
@@ -830,13 +941,22 @@ async function postComment() {
             },
             body: JSON.stringify({ message })
         });
+        
         if (response.ok) {
             document.getElementById('commentMessage').value = '';
             await loadComments();
             if (typeof toastr !== 'undefined') toastr.success('Comment posted');
+        } else if (response.status === 403) {
+            const data = await response.json();
+            if (typeof toastr !== 'undefined') {
+                toastr.error(data.message || 'Access denied. Only project members can post comments.');
+            }
+        } else {
+            if (typeof toastr !== 'undefined') toastr.error('Failed to post comment');
         }
     } catch (error) {
         console.error('Error:', error);
+        if (typeof toastr !== 'undefined') toastr.error('Error posting comment');
     }
 }
 

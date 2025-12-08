@@ -10,7 +10,10 @@ class ProjectTask extends Model
         'project_id',
         'parent_id',
         'title',
+        'description',
+        'assigned_to',
         'due_date',
+        'due_time',
         'is_completed',
         'order'
     ];
@@ -33,5 +36,10 @@ class ProjectTask extends Model
     public function subtasks()
     {
         return $this->hasMany(ProjectTask::class, 'parent_id')->orderBy('order');
+    }
+
+    public function assignedEmployee()
+    {
+        return $this->belongsTo(\App\Models\Employee::class, 'assigned_to');
     }
 }

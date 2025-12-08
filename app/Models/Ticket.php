@@ -53,4 +53,12 @@ class Ticket extends Model
     {
         return $this->belongsTo(User::class, 'opened_by');
     }
+
+    /**
+     * Get all comments for this ticket.
+     */
+    public function comments()
+    {
+        return $this->hasMany(TicketComment::class)->orderBy('created_at', 'asc');
+    }
 }

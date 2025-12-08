@@ -38,6 +38,9 @@
     </a>
     
     <div class="filter-right">
+      @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.create attendance'))
+        <a href="{{ route('attendance.create') }}" class="pill-btn pill-primary">+ Create Attendance</a>
+      @endif
       @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.export attendance report'))
         <a href="{{ route('attendance.reports.export', request()->all()) }}" class="pill-btn pill-success">Export to Excel</a>
       @endif

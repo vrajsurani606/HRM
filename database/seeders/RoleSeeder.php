@@ -82,6 +82,17 @@ class RoleSeeder extends Seeder
                     'Attendance Management.check out',
                     'Attendance Management.view own attendance',
                     
+                    // Leave Management - Full access
+                    'Leave Management.view leave',
+                    'Leave Management.create leave',
+                    'Leave Management.edit leave',
+                    'Leave Management.delete leave',
+                    'Leave Management.manage leave',
+                    'Leave Management.approve leave',
+                    'Leave Management.reject leave',
+                    'Leave Management.view own leave',
+                    'Leave Management.cancel leave',
+                    
                     // Events Management - Full access
                     'Events Management.view event',
                     'Events Management.create event',
@@ -144,6 +155,11 @@ class RoleSeeder extends Seeder
                     'Attendance Management.check out',
                     'Attendance Management.view own attendance',
                     
+                    // Leave Management - Own leave only
+                    'Leave Management.view own leave',
+                    'Leave Management.create leave',
+                    'Leave Management.cancel leave',
+                    
                     // Events - View only
                     'Events Management.view event',
                     'Events Management.view event image',
@@ -191,6 +207,11 @@ class RoleSeeder extends Seeder
                     'Attendance Management.check in',
                     'Attendance Management.check out',
                     'Attendance Management.view own attendance',
+                    
+                    // Leave Management - Own leave only
+                    'Leave Management.view own leave',
+                    'Leave Management.create leave',
+                    'Leave Management.cancel leave',
                     
                     // Inquiries Management - Full access
                     'Inquiries Management.view inquiry',

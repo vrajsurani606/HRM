@@ -41,9 +41,16 @@ class ProjectSeeder extends Seeder
         $company = DB::table('companies')->first();
         
         if (!$company) {
-            // Create a company
+            // Create a company with all required fields
             $companyId = DB::table('companies')->insertGetId([
-                'name' => 'Demo Customer Company',
+                'company_name' => 'Demo Customer Company',
+                'company_address' => '123 Business Street, Tech Park',
+                'state' => 'Gujarat',
+                'city' => 'Ahmedabad',
+                'contact_person_name' => 'Demo Contact',
+                'contact_person_mobile' => '9876543210',
+                'company_email' => 'demo@company.com',
+                'company_type' => 'Private Limited',
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
