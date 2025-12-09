@@ -30,19 +30,19 @@
       @endforeach
     </select>
 
+    <button type="submit" class="filter-search" aria-label="Search">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+      </svg>
+    </button>
+
+    <a href="{{ route('tickets.index') }}" class="filter-search" aria-label="Reset" title="Reset Filters">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+      </svg>
+    </a>
+
     <div class="filter-right">
-      <button type="submit" class="filter-search" aria-label="Search">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-        </svg>
-      </button>
-
-      <a href="{{ route('tickets.index') }}" class="filter-search" aria-label="Reset" title="Reset Filters">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-        </svg>
-      </a>
-
       <input 
         type="text" 
         name="q" 
@@ -53,7 +53,7 @@
       >
 
       @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.create ticket'))
-        <button type="button" class="pill-btn pill-success" onclick="openAddTicketModal()" style="display: flex; align-items: center; gap: 8px; margin-left: 8px;">
+        <button type="button" class="pill-btn pill-success" onclick="openAddTicketModal()" style="display: flex; align-items: center; gap: 8px;">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
             </svg>
@@ -113,7 +113,7 @@
                   <img src="{{ asset('action_icon/approve.svg') }}" alt="Confirm" class="action-icon" onclick="confirmTicket({{ $ticket->id }})" title="Confirm Resolution">
                 @elseif($isEmployee && $isAssignedEmployee && in_array($ticket->status, ['assigned', 'in_progress']))
                   <!-- Employee: Mark as Complete -->
-                  <img src="{{ asset('action_icon/completed.svg') }}" alt="Complete" class="action-icon" onclick="completeTicket({{ $ticket->id }})" title="Mark as Complete">
+                  <img src="{{ asset('action_icon/approve.svg') }}" alt="Complete" class="action-icon" onclick="completeTicket({{ $ticket->id }})" title="Mark as Complete">
                 @elseif($isCustomer && $ticket->status === 'resolved')
                   <!-- Customer: Close Ticket -->
                   <img src="{{ asset('action_icon/reject.svg') }}" alt="Close" class="action-icon" onclick="closeTicketFromIndex({{ $ticket->id }})" title="Close Ticket">
@@ -518,8 +518,8 @@ function submitTicket(event) {
 }
 
 function editTicket(id) {
-  // Redirect to ticket show/edit page
-  window.location.href = `{{ url('tickets') }}/${id}`;
+  // Redirect to ticket edit page
+  window.location.href = `{{ url('tickets') }}/${id}/edit`;
 }
 
 function viewTicket(id) {
@@ -1433,40 +1433,11 @@ function performCloseTicketFromIndex(ticketId, feedback) {
   });
 }
 
-// Live search functionality
+// Auto-submit on filter changes (dropdowns only)
 document.addEventListener('DOMContentLoaded', function() {
-  const searchInput = document.getElementById('liveSearch');
   const filterForm = document.getElementById('ticketFilters');
-  
-  if (searchInput && filterForm) {
-    let searchTimeout;
-    
-    searchInput.addEventListener('input', function() {
-      clearTimeout(searchTimeout);
-      
-      // Show loading indicator
-      searchInput.style.background = '#f8fafc url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'20\' height=\'20\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%236b7280\' stroke-width=\'2\'%3E%3Cpath d=\'M21 12a9 9 0 1 1-6.219-8.56\'/%3E%3C/svg%3E") no-repeat right 12px center';
-      searchInput.style.backgroundSize = '16px';
-      searchInput.style.animation = 'spin 1s linear infinite';
-      
-      searchTimeout = setTimeout(() => {
-        filterForm.submit();
-      }, 800); // 800ms delay for better UX
-    });
-    
-    // Add CSS animation for loading spinner
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes spin {
-        from { background-position: right 12px center; transform: rotate(0deg); }
-        to { background-position: right 12px center; transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-  
-  // Auto-submit on filter changes
   const filterSelects = document.querySelectorAll('#ticketFilters select');
+  
   filterSelects.forEach(select => {
     select.addEventListener('change', function() {
       filterForm.submit();
@@ -1504,8 +1475,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @push('styles')
 <style>
-  /* Search Input Fix */
+  /* Filter Layout Fix */
+  .filter-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .filter-search {
+    order: 1;
+  }
+
+  .filter-search:nth-of-type(2) {
+    order: 2;
+  }
+
   .filter-pill.live-search {
+    order: 3;
     min-width: 280px;
     max-width: 350px;
     padding: 8px 14px;
@@ -1522,6 +1509,10 @@ document.addEventListener('DOMContentLoaded', function() {
   .filter-pill.live-search:focus {
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .pill-btn {
+    order: 4;
   }
 </style>
 @endpush

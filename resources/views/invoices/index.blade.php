@@ -82,7 +82,7 @@
         </td>
         <td>{{ $invoice->proforma ? $invoice->proforma->unique_code : '-' }}</td>
         <td>{{ $invoice->company_name }}</td>
-        <td>{{ $invoice->mobile_no ?? '-' }}</td>
+        <td>{{ display_mobile($invoice->mobile_no) ?? '-' }}</td>
         <td>₹{{ number_format($invoice->sub_total ?? 0, 2) }}</td>
         <td>₹{{ number_format($invoice->total_tax_amount ?? 0, 2) }}</td>
         <td>₹{{ number_format($invoice->final_amount ?? 0, 2) }}</td>

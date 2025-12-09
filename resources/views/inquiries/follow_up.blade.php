@@ -38,7 +38,7 @@
 
     <div>
       <label class="hrp-label">Company Mo. No.:</label>
-      <input class="hrp-input Rectangle-29" value="{{ $inquiry->company_phone }}" readonly />
+      <input class="hrp-input Rectangle-29" value="{{ display_mobile($inquiry->company_phone) }}" readonly />
     </div>
     <div>
       <label class="hrp-label">City:</label>
@@ -51,7 +51,7 @@
     </div>
     <div>
       <label class="hrp-label">Contact Person Mobile No:</label>
-      <input class="hrp-input Rectangle-29" value="{{ $inquiry->contact_mobile }}" readonly />
+      <input class="hrp-input Rectangle-29" value="{{ display_mobile($inquiry->contact_mobile) }}" readonly />
     </div>
 
     <div>

@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     .priority-option.low label { border-color: #d1fae5; background: #f0fdf4; }
-    .priority-option.normal label { border-color: #dbeafe; background: #eff6ff; }
+    .priority-option.medium label { border-color: #dbeafe; background: #eff6ff; }
     .priority-option.high label { border-color: #fed7aa; background: #fff7ed; }
     .priority-option.urgent label { border-color: #fecaca; background: #fef2f2; }
     
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     .priority-option.low input:checked + label { border-color: #10b981; background: #d1fae5; }
-    .priority-option.normal input:checked + label { border-color: #3b82f6; background: #dbeafe; }
+    .priority-option.medium input:checked + label { border-color: #3b82f6; background: #dbeafe; }
     .priority-option.high input:checked + label { border-color: #f97316; background: #fed7aa; }
     .priority-option.urgent input:checked + label { border-color: #ef4444; background: #fecaca; }
     
@@ -503,9 +503,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <input type="radio" name="priority" id="priority_low" value="low" {{ old('priority', $ticket->priority) == 'low' ? 'checked' : '' }}>
                                 <label for="priority_low">🟢 Low</label>
                             </div>
-                            <div class="priority-option normal">
-                                <input type="radio" name="priority" id="priority_normal" value="normal" {{ old('priority', $ticket->priority ?? 'normal') == 'normal' ? 'checked' : '' }}>
-                                <label for="priority_normal">🔵 Normal</label>
+                            <div class="priority-option medium">
+                                <input type="radio" name="priority" id="priority_medium" value="medium" {{ old('priority', $ticket->priority ?? 'medium') == 'medium' ? 'checked' : '' }}>
+                                <label for="priority_medium">🔵 Medium</label>
                             </div>
                             <div class="priority-option high">
                                 <input type="radio" name="priority" id="priority_high" value="high" {{ old('priority', $ticket->priority) == 'high' ? 'checked' : '' }}>

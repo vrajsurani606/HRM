@@ -42,7 +42,7 @@
         </div>
         <div class="info-row">
             <div class="info-label">Contact Number:</div>
-            <div class="info-value">{{ $quotation->contact_number_1 }}</div>
+            <div class="info-value">{{ display_mobile($quotation->contact_number_1) }}</div>
         </div>
         <div class="info-row">
             <div class="info-label">Email:</div>

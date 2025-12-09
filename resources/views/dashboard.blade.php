@@ -863,7 +863,7 @@
                   <td><span class="{{ $confirmClass }}" style="font-weight: 600;">{{ $isConfirm }}</span></td>
                   <td style="font-weight: 600; color: #1e293b;">{{ $inq['company'] ?? '—' }}</td>
                   <td style="color: #475569;">{{ $inq['person'] ?? '—' }}</td>
-                  <td style="font-family: monospace; color: #64748b;">{{ $inq['phone'] ?? '—' }}</td>
+                  <td style="font-family: monospace; color: #64748b;">{{ display_mobile($inq['phone']) ?? '—' }}</td>
                   <td style="color: #2563eb; font-weight: 500;">{{ $inq['next'] ?? $inq['date'] ?? '—' }}</td>
                   <td><span class="{{ $statusClass }}" style="font-weight: 500;">{{ $status }}</span></td>
                   <td style="font-size: 12px; color: #64748b;">{{ $inq['demo'] ?? '—' }}</td>

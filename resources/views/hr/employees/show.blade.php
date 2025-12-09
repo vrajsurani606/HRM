@@ -34,7 +34,7 @@
       <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
         <div style="display:flex;align-items:center;gap:6px;color:#000000;font-size:14px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-          {{ $employee->mobile_no ?: 'N/A' }}
+          {{ display_mobile($employee->mobile_no) ?: 'N/A' }}
         </div>
         <div style="display:flex;align-items:center;gap:6px;color:#000000;font-size:14px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
@@ -158,7 +158,7 @@
       </div>
       <div>
         <label class="hrp-label">Mobile No:</label>
-        <div class="info-value">{{ $employee->mobile_no ?: 'N/A' }}</div>
+        <div class="info-value">{{ display_mobile($employee->mobile_no) ?: 'N/A' }}</div>
       </div>
       <div>
         <label class="hrp-label">Email:</label>
@@ -190,7 +190,7 @@
       </div>
       <div>
         <label class="hrp-label">Father Mobile No:</label>
-        <div class="info-value">{{ $employee->father_mobile_no ?: 'N/A' }}</div>
+        <div class="info-value">{{ display_mobile($employee->father_mobile_no) ?: 'N/A' }}</div>
       </div>
       <div>
         <label class="hrp-label">Mother Name:</label>
@@ -198,7 +198,7 @@
       </div>
       <div>
         <label class="hrp-label">Mother Mobile No:</label>
-        <div class="info-value">{{ $employee->mother_mobile_no ?: 'N/A' }}</div>
+        <div class="info-value">{{ display_mobile($employee->mother_mobile_no) ?: 'N/A' }}</div>
       </div>
       <div style="grid-column:1/-1">
         <label class="hrp-label">Address:</label>

@@ -464,7 +464,7 @@
                         <p>GST. NO.: {{ $clientGstNo }}</p>
                         @endif
                         @if($clientMobile)
-                        <p>Mo. {{ $clientMobile }}</p>
+                        <p>Mo. {{ display_mobile($clientMobile) }}</p>
                         @endif
                     </div>
                 </div>

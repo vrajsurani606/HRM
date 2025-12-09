@@ -83,7 +83,7 @@
         <td>{{ $proforma->unique_code }}</td>
         <td>{{ $proforma->proforma_date ? $proforma->proforma_date->format('d-m-Y') : '-' }}</td>
         <td>{{ $proforma->company_name }}</td>
-        <td>{{ $proforma->mobile_no ?? '-' }}</td>
+        <td>{{ display_mobile($proforma->mobile_no) ?? '-' }}</td>
         <td>{{ number_format($proforma->sub_total ?? 0, 2) }}</td>
         <td>{{ number_format($proforma->discount_amount ?? 0, 2) }}</td>
         <td>{{ number_format($proforma->total_tax_amount ?? 0, 2) }}</td>

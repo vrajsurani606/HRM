@@ -48,8 +48,7 @@
   <td>{{ $inquiry->unique_code }}</td>
   <td>{{ $inquiry->inquiry_date->format('d-m-Y') }}</td>
   <td>{{ $inquiry->company_name }}</td>
-  <td>{{ $inquiry->company_phone }}</td>
-  <td>{{ Str::limit($inquiry->company_address, 30) }}</td>
+  <td>{{ display_mobile($inquiry->company_phone) }}</td>
   <td>{{ $inquiry->contact_name }}</td>
   <td>{{ $inquiry->contact_position }}</td>
   <td>{{ $inquiry->industry_type }}</td>

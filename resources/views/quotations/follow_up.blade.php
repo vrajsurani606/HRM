@@ -33,7 +33,7 @@
     </div>
     <div>
       <label class="hrp-label">Contact Number:</label>
-      <input class="hrp-input Rectangle-29" value="{{ $quotation->contact_number_1 }}" readonly />
+      <input class="hrp-input Rectangle-29" value="{{ display_mobile($quotation->contact_number_1) }}" readonly />
     </div>
 
     <div>

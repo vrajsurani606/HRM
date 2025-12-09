@@ -81,7 +81,7 @@
               <div>Joined</div>
             </div>
             <div class="info-values">
-              <div>{{ $user->mobile_no ?? 'N/A' }}</div>
+              <div>{{ display_mobile($user->mobile_no) ?? 'N/A' }}</div>
               <div>{{ optional($user->created_at)->format('d M, Y') }}</div>
             </div>
           </div>

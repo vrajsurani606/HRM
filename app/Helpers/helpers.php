@@ -36,6 +36,78 @@ if (!function_exists('user_has_permission')) {
     }
 }
 
+if (!function_exists('format_mobile_number')) {
+    /**
+     * Format mobile number with +91 country code
+     * Handles various input formats and returns consistent output
+     *
+     * @param string|null $mobile
+     * @param bool $withPlus Include + symbol (default: true)
+     * @return string|null
+     */
+    function format_mobile_number($mobile, $withPlus = true)
+    {
+        if (empty($mobile)) {
+            return null;
+        }
+        
+        // Remove all non-numeric characters
+        $mobile = preg_replace('/[^0-9]/', '', $mobile);
+        
+        // If already has country code (91), remove it
+        if (strlen($mobile) > 10 && substr($mobile, 0, 2) === '91') {
+            $mobile = substr($mobile, 2);
+        }
+        
+        // Ensure it's a 10-digit number
+        if (strlen($mobile) !== 10) {
+            return $mobile; // Return as-is if not valid 10-digit number
+        }
+        
+        // Format with country code
+        return ($withPlus ? '+' : '') . '91' . $mobile;
+    }
+}
+
+if (!function_exists('display_mobile')) {
+    /**
+     * Display formatted mobile number (alias for format_mobile_number)
+     * Use this in Blade views for consistent display
+     *
+     * @param string|null $mobile
+     * @return string
+     */
+    function display_mobile($mobile)
+    {
+        return format_mobile_number($mobile) ?? $mobile ?? '';
+    }
+}
+if (!function_exists('strip_country_code')) {
+    /**
+     * Strip country code from mobile number for form inputs
+     * Returns only the 10-digit number
+     *
+     * @param string|null $mobile
+     * @return string|null
+     */
+    function strip_country_code($mobile)
+    {
+        if (empty($mobile)) {
+            return null;
+        }
+        
+        // Remove all non-numeric characters
+        $mobile = preg_replace('/[^0-9]/', '', $mobile);
+        
+        // If has country code (91), remove it
+        if (strlen($mobile) > 10 && substr($mobile, 0, 2) === '91') {
+            $mobile = substr($mobile, 2);
+        }
+        
+        return $mobile;
+    }
+}
+
 if (!function_exists('user_has_any_action_permission')) {
     /**
      * Check if user has any action permissions (view, edit, delete) for a module
@@ -65,3 +137,4 @@ if (!function_exists('user_has_any_action_permission')) {
         return false;
     }
 }
+    

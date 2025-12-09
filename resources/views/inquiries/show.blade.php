@@ -25,7 +25,7 @@
     </div>
     <div>
       <label class="hrp-label">Company Mobile</label>
-      <div class="Rectangle-29">{{ $inquiry->company_phone }}</div>
+      <div class="Rectangle-29">{{ display_mobile($inquiry->company_phone) }}</div>
     </div>
 
     <div class="md:col-span-2">
@@ -48,7 +48,7 @@
     </div>
     <div>
       <label class="hrp-label">Contact Person Mobile</label>
-      <div class="Rectangle-29">{{ $inquiry->contact_mobile }}</div>
+      <div class="Rectangle-29">{{ display_mobile($inquiry->contact_mobile) }}</div>
     </div>
 
     <div>
