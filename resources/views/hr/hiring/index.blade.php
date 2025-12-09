@@ -28,7 +28,7 @@
       </button>
       <div class="filter-right">
         <div class="view-toggle-group" style="margin-right:8px;">
-          <button class="view-toggle-btn" data-view="grid" title="Grid View" aria-label="Grid View">
+          <button type="button" class="view-toggle-btn" data-view="grid" title="Grid View" aria-label="Grid View">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="7" height="7" rx="1"></rect>
               <rect x="14" y="3" width="7" height="7" rx="1"></rect>
@@ -36,7 +36,7 @@
               <rect x="14" y="14" width="7" height="7" rx="1"></rect>
             </svg>
           </button>
-          <button class="view-toggle-btn active" data-view="list" title="List View" aria-label="List View">
+          <button type="button" class="view-toggle-btn active" data-view="list" title="List View" aria-label="List View">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="8" y1="6" x2="21" y2="6"></line>
               <line x1="8" y1="12" x2="21" y2="12"></line>

@@ -23,14 +23,31 @@
   <form method="GET" action="{{ route('inquiries.index') }}" class="jv-filter" id="filterForm">
     <input type="text" id="start_date" name="from_date" class="filter-pill date-picker" placeholder="From: dd/mm/yyyy" value="{{ request('from_date') }}" autocomplete="off">
     <input type="text" id="end_date" name="to_date" class="filter-pill date-picker" placeholder="To: dd/mm/yyyy" value="{{ request('to_date') }}" autocomplete="off">
-    <button type="submit" class="filter-search" id="filter_btn" aria-label="Search">
-      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-      </svg>
-    </button>
+    
     <div class="filter-right">
-      <div class="view-toggle-group" style="margin-right:8px;">
-        <button class="view-toggle-btn" data-view="grid" title="Grid View" aria-label="Grid View">
+      <button type="submit" class="filter-search" id="filter_btn" aria-label="Search">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+        </svg>
+      </button>
+
+      <a href="{{ route('inquiries.index') }}" class="filter-search" aria-label="Reset" title="Reset Filters">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+        </svg>
+      </a>
+
+      <input 
+        type="text" 
+        name="search" 
+        id="custom_search" 
+        class="filter-pill live-search" 
+        placeholder="Search inquiries, company, contact, code..." 
+        value="{{ request('search') }}"
+      >
+
+      <div class="view-toggle-group">
+        <button type="button" class="view-toggle-btn" data-view="grid" title="Grid View" aria-label="Grid View">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="7" rx="1"></rect>
             <rect x="14" y="3" width="7" height="7" rx="1"></rect>
@@ -38,7 +55,7 @@
             <rect x="14" y="14" width="7" height="7" rx="1"></rect>
           </svg>
         </button>
-        <button class="view-toggle-btn active" data-view="list" title="List View" aria-label="List View">
+        <button type="button" class="view-toggle-btn active" data-view="list" title="List View" aria-label="List View">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="8" y1="6" x2="21" y2="6"></line>
             <line x1="8" y1="12" x2="21" y2="12"></line>
@@ -49,7 +66,7 @@
           </svg>
         </button>
       </div>
-      <input type="text" class="filter-pill live-search" placeholder="Search here..." id="custom_search" name="search" value="{{ request('search') }}">
+
       @can('Inquiries Management.export inquiry')
         <a href="{{ route('inquiries.export', request()->only(['from_date','to_date','search'])) }}" class="pill-btn pill-success" id="excel_btn">Excel</a>
       @endcan
@@ -414,6 +431,26 @@ $(document).ready(function() {
 
 @push('styles')
 <style>
+  /* Search Input Fix */
+  .filter-pill.live-search {
+    min-width: 280px;
+    max-width: 350px;
+    padding: 8px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .filter-pill.live-search:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
   /* Status Badges */
   .status-badge {
     padding: 4px 10px;
@@ -435,7 +472,7 @@ $(document).ready(function() {
   }
 
   /* Toggle */
-  .view-toggle-group { display:flex; gap:4px; background:#f3f4f6; padding:4px; border-radius:8px; }
+  .view-toggle-group { display:flex; gap:4px; background:#f3f4f6; padding:4px; border-radius:8px; margin-left: 8px; }
   .view-toggle-btn { padding:8px 12px; background:transparent; border:none; border-radius:6px; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; }
   .view-toggle-btn:hover { background:#e5e7eb; }
   .view-toggle-btn.active { background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); }

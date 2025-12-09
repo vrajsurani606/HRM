@@ -1,6 +1,10 @@
 <div class="comment {{ $comment->is_internal ? 'comment-internal' : '' }}">
-    <div class="comment-avatar">
-        {{ strtoupper(substr($comment->user->name ?? 'U', 0, 1)) }}
+    <div class="comment-avatar" style="overflow: hidden;">
+        @if($comment->user && $comment->user->photo_path && file_exists(public_path('storage/' . $comment->user->photo_path)))
+            <img src="{{ asset('storage/' . $comment->user->photo_path) }}" alt="{{ $comment->user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+        @else
+            {{ strtoupper(substr($comment->user->name ?? 'U', 0, 1)) }}
+        @endif
     </div>
     <div class="comment-content">
         <div class="comment-header">

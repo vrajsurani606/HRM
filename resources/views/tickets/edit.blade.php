@@ -2,6 +2,26 @@
 
 @section('page_title', 'Edit Ticket - #' . ($ticket->ticket_no ?? $ticket->id))
 
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const saveBtn = document.querySelector('.btn-save');
+    
+    form.addEventListener('submit', function(e) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Saving...';
+    });
+});
+</script>
+<style>
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
+@endpush
+
 @push('styles')
 <style>
     .edit-container {
@@ -152,7 +172,7 @@
     
     .status-options {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         gap: 8px;
     }
     
@@ -303,6 +323,27 @@
 
 @section('content')
 <div class="edit-container">
+    @if(session('success'))
+    <div style="background: #d1fae5; border: 2px solid #10b981; color: #065f46; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span style="font-weight: 600;">{{ session('success') }}</span>
+    </div>
+    @endif
+    
+    @if($errors->any())
+    <div style="background: #fee2e2; border: 2px solid #ef4444; color: #991b1b; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span style="font-weight: 600;">Please fix the following errors:</span>
+        </div>
+        <ul style="margin: 0; padding-left: 32px;">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+    
     <div class="edit-header">
         <div class="edit-title">
             <h1>
@@ -314,10 +355,16 @@
             </h1>
             <div class="edit-subtitle">Ticket #{{ $ticket->ticket_no ?? $ticket->id }} • {{ $ticket->title ?? $ticket->subject }}</div>
         </div>
-        <a href="{{ route('tickets.show', $ticket) }}" class="btn-back">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Back to Ticket
-        </a>
+        <div style="display: flex; gap: 12px;">
+            <a href="{{ route('tickets.index') }}" class="btn-back">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                All Tickets
+            </a>
+            <a href="{{ route('tickets.show', $ticket) }}" class="btn-back">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                View Ticket
+            </a>
+        </div>
     </div>
     
     <div class="edit-card">
@@ -366,21 +413,31 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                             Category
                         </label>
-                        <select name="ticket_type" class="form-select">
-                            <option value="">Select Category</option>
-                            <option value="General Inquiry" {{ old('ticket_type', $ticket->ticket_type) == 'General Inquiry' ? 'selected' : '' }}>General Inquiry</option>
-                            <option value="Technical Support" {{ old('ticket_type', $ticket->ticket_type) == 'Technical Support' ? 'selected' : '' }}>Technical Support</option>
-                            <option value="Bug Report" {{ old('ticket_type', $ticket->ticket_type) == 'Bug Report' ? 'selected' : '' }}>Bug Report</option>
-                            <option value="Feature Request" {{ old('ticket_type', $ticket->ticket_type) == 'Feature Request' ? 'selected' : '' }}>Feature Request</option>
-                            <option value="Billing" {{ old('ticket_type', $ticket->ticket_type) == 'Billing' ? 'selected' : '' }}>Billing</option>
-                            <option value="Other" {{ old('ticket_type', $ticket->ticket_type) == 'Other' ? 'selected' : '' }}>Other</option>
-                        </select>
+                        <input type="text" name="category" class="form-input" value="{{ old('category', $ticket->category) }}" placeholder="e.g. Technical, Billing">
                     </div>
                     
+                    @if(auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr'))
+                    <div class="form-group">
+                        <label class="form-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            Assign to Employee
+                        </label>
+                        <select name="assigned_to" class="form-select">
+                            <option value="">Not Assigned</option>
+                            @foreach(\App\Models\Employee::orderBy('name')->get() as $emp)
+                                <option value="{{ $emp->id }}" {{ old('assigned_to', $ticket->assigned_to) == $emp->id ? 'selected' : '' }}>
+                                    {{ $emp->name }} - {{ $emp->position ?? 'N/A' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
+                    
+                    @if(auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr'))
                     <div class="form-group full-width">
                         <label class="form-label">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                            Status
+                            Ticket Status
                         </label>
                         <div class="status-options">
                             <div class="status-option">
@@ -388,12 +445,16 @@
                                 <label for="status_open"><span class="icon">🔓</span>Open</label>
                             </div>
                             <div class="status-option">
-                                <input type="radio" name="status" id="status_pending" value="pending" {{ old('status', $ticket->status) == 'pending' ? 'checked' : '' }}>
-                                <label for="status_pending"><span class="icon">⏳</span>Pending</label>
+                                <input type="radio" name="status" id="status_assigned" value="assigned" {{ old('status', $ticket->status) == 'assigned' ? 'checked' : '' }}>
+                                <label for="status_assigned"><span class="icon">👤</span>Assigned</label>
                             </div>
                             <div class="status-option">
                                 <input type="radio" name="status" id="status_progress" value="in_progress" {{ old('status', $ticket->status) == 'in_progress' ? 'checked' : '' }}>
                                 <label for="status_progress"><span class="icon">🔄</span>In Progress</label>
+                            </div>
+                            <div class="status-option">
+                                <input type="radio" name="status" id="status_completed" value="completed" {{ old('status', $ticket->status) == 'completed' ? 'checked' : '' }}>
+                                <label for="status_completed"><span class="icon">✓</span>Completed</label>
                             </div>
                             <div class="status-option">
                                 <input type="radio" name="status" id="status_resolved" value="resolved" {{ old('status', $ticket->status) == 'resolved' ? 'checked' : '' }}>
@@ -405,6 +466,32 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="form-group full-width">
+                        <label class="form-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            Work Status
+                        </label>
+                        <div class="priority-options">
+                            <div class="priority-option low">
+                                <input type="radio" name="work_status" id="work_not_assigned" value="not_assigned" {{ old('work_status', $ticket->work_status) == 'not_assigned' ? 'checked' : '' }}>
+                                <label for="work_not_assigned">⚪ Not Assigned</label>
+                            </div>
+                            <div class="priority-option normal">
+                                <input type="radio" name="work_status" id="work_in_progress" value="in_progress" {{ old('work_status', $ticket->work_status) == 'in_progress' ? 'checked' : '' }}>
+                                <label for="work_in_progress">🔵 In Progress</label>
+                            </div>
+                            <div class="priority-option high">
+                                <input type="radio" name="work_status" id="work_on_hold" value="on_hold" {{ old('work_status', $ticket->work_status) == 'on_hold' ? 'checked' : '' }}>
+                                <label for="work_on_hold">🟡 On Hold</label>
+                            </div>
+                            <div class="priority-option urgent">
+                                <input type="radio" name="work_status" id="work_completed" value="completed" {{ old('work_status', $ticket->work_status) == 'completed' ? 'checked' : '' }}>
+                                <label for="work_completed">🟢 Completed</label>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                     
                     <div class="form-group full-width">
                         <label class="form-label">
@@ -434,10 +521,25 @@
                     <div class="form-group full-width">
                         <label class="form-label">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                            Description
+                            Description <span class="required">*</span>
                         </label>
-                        <textarea name="description" class="form-textarea" placeholder="Describe the issue in detail...">{{ old('description', $ticket->description) }}</textarea>
+                        <textarea name="description" class="form-textarea" required placeholder="Describe the issue in detail...">{{ old('description', $ticket->description) }}</textarea>
                     </div>
+                    
+                    @if($ticket->resolution_notes || in_array($ticket->status, ['completed', 'resolved', 'closed']))
+                    <div class="form-group full-width">
+                        <label class="form-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            Resolution Notes
+                        </label>
+                        <textarea name="resolution_notes" class="form-textarea" style="min-height: 100px;" placeholder="How was this issue resolved?">{{ old('resolution_notes', $ticket->resolution_notes) }}</textarea>
+                        @if($ticket->completed_at)
+                        <small style="color: #64748b; font-size: 12px; margin-top: 4px; display: block;">
+                            Completed by {{ $ticket->completedBy->name ?? 'Unknown' }} on {{ $ticket->completed_at->format('M d, Y h:i A') }}
+                        </small>
+                        @endif
+                    </div>
+                    @endif
                 </div>
             </div>
             
@@ -451,4 +553,14 @@
         </form>
     </div>
 </div>
+@endsection
+
+@section('breadcrumb')
+  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+  <span class="hrp-bc-sep">›</span>
+  <a href="{{ route('tickets.index') }}">Tickets</a>
+  <span class="hrp-bc-sep">›</span>
+  <a href="{{ route('tickets.show', $ticket) }}">Ticket #{{ $ticket->ticket_no ?? $ticket->id }}</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">Edit</span>
 @endsection
