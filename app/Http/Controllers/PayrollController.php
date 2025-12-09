@@ -163,7 +163,7 @@ class PayrollController extends Controller
         
         foreach ($employees as $emp) {
             try {
-                $basicSalary = $emp->current_offer_amount ?? 0;
+                $basicSalary = max(0, $emp->current_offer_amount ?? 0);
                 
                 // Skip if no salary defined
                 if ($basicSalary <= 0) {
@@ -175,6 +175,19 @@ class PayrollController extends Controller
                 // Days in month
                 $monthNumber = date('n', strtotime($month . ' 1'));
                 $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $monthNumber, $year);
+                
+                // Calculate pro-rata salary for partial months (if employee joined mid-month)
+                $actualBasicSalary = $basicSalary;
+                if ($emp->joining_date) {
+                    $joiningDate = \Carbon\Carbon::parse($emp->joining_date);
+                    $payrollMonth = \Carbon\Carbon::create($year, $monthNumber, 1);
+                    
+                    // If employee joined in this payroll month
+                    if ($joiningDate->year == $year && $joiningDate->month == $monthNumber) {
+                        $daysWorked = $daysInMonth - $joiningDate->day + 1;
+                        $actualBasicSalary = ($basicSalary / $daysInMonth) * $daysWorked;
+                    }
+                }
 
                 // Leave breakdown (paid vs unpaid)
                 $casualLeave = \App\Models\Leave::where('employee_id', $emp->id)
@@ -200,12 +213,12 @@ class PayrollController extends Controller
                 $tax = 0;
 
                 // Deductions: unpaid personal leave only
-                $perDay = $daysInMonth > 0 ? ($basicSalary / $daysInMonth) : 0;
-                $leaveDeduction = $perDay * $personalLeave;
+                $perDay = $daysInMonth > 0 ? ($actualBasicSalary / $daysInMonth) : 0;
+                $leaveDeduction = max(0, $perDay * $personalLeave);
                 $otherDeductions = 0;
                 $deductions = $leaveDeduction + $otherDeductions;
 
-                $net = ($basicSalary + $allowances + $bonuses) - ($deductions + $tax);
+                $net = ($actualBasicSalary + $allowances + $bonuses) - ($deductions + $tax);
 
                 $existing = Payroll::where('employee_id', $emp->id)
                     ->where('month', $month)
@@ -216,7 +229,7 @@ class PayrollController extends Controller
                     'employee_id' => $emp->id,
                     'month' => $month,
                     'year' => $year,
-                    'basic_salary' => $basicSalary,
+                    'basic_salary' => $actualBasicSalary,
                     'allowances' => $allowances,
                     'bonuses' => $bonuses,
                     'leave_deduction' => $leaveDeduction,
@@ -227,7 +240,7 @@ class PayrollController extends Controller
                     'payment_date' => $paymentDate,
                     'payment_method' => $paymentMethod,
                     'status' => $status,
-                    'notes' => 'Generated via bulk salary generator',
+                    'notes' => $actualBasicSalary != $basicSalary ? 'Generated via bulk (Pro-rata for partial month)' : 'Generated via bulk salary generator',
                 ];
 
                 if ($existing) {
@@ -331,6 +344,8 @@ class PayrollController extends Controller
             'payment_method' => 'nullable|string',
             'status' => 'required|in:pending,paid,cancelled',
             'notes' => 'nullable|string',
+            'total_working_days' => 'nullable|integer|min:1|max:31',
+            'attended_working_days' => 'nullable|integer|min:0|max:31',
         ]);
 
         try {
@@ -354,23 +369,24 @@ class PayrollController extends Controller
             }
 
             // Calculate net salary with detailed breakdown
-            $basicSalary = $request->basic_salary ?? 0;
-            $hra = $request->hra ?? 0;
-            $medicalAllowance = $request->medical_allowance ?? 0;
-            $cityAllowance = $request->city_allowance ?? 0;
-            $tiffinAllowance = $request->tiffin_allowance ?? 0;
-            $assistantAllowance = $request->assistant_allowance ?? 0;
-            $dearnessAllowance = $request->dearness_allowance ?? 0;
+            // Ensure all values are positive (security fix)
+            $basicSalary = max(0, $request->basic_salary ?? 0);
+            $hra = max(0, $request->hra ?? 0);
+            $medicalAllowance = max(0, $request->medical_allowance ?? 0);
+            $cityAllowance = max(0, $request->city_allowance ?? 0);
+            $tiffinAllowance = max(0, $request->tiffin_allowance ?? 0);
+            $assistantAllowance = max(0, $request->assistant_allowance ?? 0);
+            $dearnessAllowance = max(0, $request->dearness_allowance ?? 0);
             $totalAllowances = $hra + $medicalAllowance + $cityAllowance + $tiffinAllowance + $assistantAllowance + $dearnessAllowance;
-            $bonuses = $request->bonuses ?? 0;
+            $bonuses = max(0, $request->bonuses ?? 0);
             
-            $pf = $request->pf ?? 0;
-            $professionalTax = $request->professional_tax ?? 0;
-            $tds = $request->tds ?? 0;
-            $esic = $request->esic ?? 0;
-            $securityDeposit = $request->security_deposit ?? 0;
-            $leaveDeduction = $request->leave_deduction ?? 0;
-            $leaveDeductionDays = $request->leave_deduction_days ?? 0;
+            $pf = max(0, $request->pf ?? 0);
+            $professionalTax = max(0, $request->professional_tax ?? 0);
+            $tds = max(0, $request->tds ?? 0);
+            $esic = max(0, $request->esic ?? 0);
+            $securityDeposit = max(0, $request->security_deposit ?? 0);
+            $leaveDeduction = max(0, $request->leave_deduction ?? 0);
+            $leaveDeductionDays = max(0, $request->leave_deduction_days ?? 0);
             
             $totalDeductions = $pf + $professionalTax + $tds + $esic + $securityDeposit + $leaveDeduction;
             $netSalary = ($basicSalary + $totalAllowances + $bonuses) - $totalDeductions;
@@ -498,27 +514,30 @@ class PayrollController extends Controller
             'payment_method' => 'nullable|string',
             'status' => 'required|in:pending,paid,cancelled',
             'notes' => 'nullable|string',
+            'total_working_days' => 'nullable|integer|min:1|max:31',
+            'attended_working_days' => 'nullable|integer|min:0|max:31',
         ]);
 
         // Calculate net salary with detailed breakdown
-        $basicSalary = $request->basic_salary ?? 0;
-        $hra = $request->hra ?? 0;
-        $medicalAllowance = $request->medical_allowance ?? 0;
-        $cityAllowance = $request->city_allowance ?? 0;
-        $tiffinAllowance = $request->tiffin_allowance ?? 0;
-        $assistantAllowance = $request->assistant_allowance ?? 0;
-        $dearnessAllowance = $request->dearness_allowance ?? 0;
+        // Ensure all values are positive (security fix)
+        $basicSalary = max(0, $request->basic_salary ?? 0);
+        $hra = max(0, $request->hra ?? 0);
+        $medicalAllowance = max(0, $request->medical_allowance ?? 0);
+        $cityAllowance = max(0, $request->city_allowance ?? 0);
+        $tiffinAllowance = max(0, $request->tiffin_allowance ?? 0);
+        $assistantAllowance = max(0, $request->assistant_allowance ?? 0);
+        $dearnessAllowance = max(0, $request->dearness_allowance ?? 0);
         $totalAllowances = $hra + $medicalAllowance + $cityAllowance + $tiffinAllowance + $assistantAllowance + $dearnessAllowance;
-        $bonuses = $request->bonuses ?? 0;
+        $bonuses = max(0, $request->bonuses ?? 0);
         
-        $pf = $request->pf ?? 0;
-        $professionalTax = $request->professional_tax ?? 0;
-        $tds = $request->tds ?? 0;
-        $esic = $request->esic ?? 0;
-        $securityDeposit = $request->security_deposit ?? 0;
-        $leaveDeduction = $request->leave_deduction ?? 0;
-        $deductions = $request->deductions ?? 0;
-        $tax = $request->tax ?? 0;
+        $pf = max(0, $request->pf ?? 0);
+        $professionalTax = max(0, $request->professional_tax ?? 0);
+        $tds = max(0, $request->tds ?? 0);
+        $esic = max(0, $request->esic ?? 0);
+        $securityDeposit = max(0, $request->security_deposit ?? 0);
+        $leaveDeduction = max(0, $request->leave_deduction ?? 0);
+        $deductions = max(0, $request->deductions ?? 0);
+        $tax = max(0, $request->tax ?? 0);
         
         $totalDeductions = $pf + $professionalTax + $tds + $esic + $securityDeposit + $leaveDeduction + $deductions + $tax;
         $netSalary = ($basicSalary + $totalAllowances + $bonuses) - $totalDeductions;

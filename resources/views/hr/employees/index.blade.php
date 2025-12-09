@@ -203,7 +203,9 @@
         <table>
           <thead>
             <tr>
-              <th>Action</th>
+              @if(user_has_any_action_permission('Employees Management', ['view employee', 'edit employee', 'delete employee', 'letters', 'digital card']))
+                <th>Action</th>
+              @endif
               <th>Status</th>
               <th>Code</th>
               <th>Name</th>
@@ -217,30 +219,32 @@
           <tbody>
             @forelse($employees as $emp)
             <tr data-employee-id="{{ $emp->id }}">
-              <td>
-                <div class="action-icons">
-                  @can('Employees Management.view employee')
-                    <a href="{{ route('employees.show', $emp) }}" title="View"><img src="{{ asset('action_icon/view.svg') }}" class="action-icon" alt="View"></a>
-                  @endcan
-                  @can('Employees Management.edit employee')
-                    <a href="{{ route('employees.edit', $emp) }}" title="Edit"><img src="{{ asset('action_icon/edit.svg') }}" class="action-icon" alt="Edit"></a>
-                  @endcan
-                  @can('Employees Management.delete employee')
-                    <form method="POST" action="{{ route('employees.destroy', $emp) }}" class="delete-form" style="display:inline">
-                      @csrf @method('DELETE')
-                      <button type="button" onclick="confirmDelete(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:1;cursor:pointer">
-                        <img src="{{ asset('action_icon/delete.svg') }}" class="action-icon" alt="Delete">
-                      </button>
-                    </form>
-                  @endcan
-                  @can('Employees Management.letters')
-                    <a href="{{ route('employees.letters.index', $emp) }}" title="Letter"><img src="{{ asset('action_icon/print.svg') }}" class="action-icon" alt="Letter"></a>
-                  @endcan
-                  @can('Employees Management.digital card')
-                    <a href="{{ route('employees.digital-card.create', $emp) }}" title="Add Digital Card"><img src="{{ asset('action_icon/pluse.svg') }}" class="action-icon" alt="Add Digital Card"></a>
-                  @endcan
-                </div>
-              </td>
+              @if(user_has_any_action_permission('Employees Management', ['view employee', 'edit employee', 'delete employee', 'letters', 'digital card']))
+                <td>
+                  <div class="action-icons">
+                    @can('Employees Management.view employee')
+                      <a href="{{ route('employees.show', $emp) }}" title="View"><img src="{{ asset('action_icon/view.svg') }}" class="action-icon" alt="View"></a>
+                    @endcan
+                    @can('Employees Management.edit employee')
+                      <a href="{{ route('employees.edit', $emp) }}" title="Edit"><img src="{{ asset('action_icon/edit.svg') }}" class="action-icon" alt="Edit"></a>
+                    @endcan
+                    @can('Employees Management.delete employee')
+                      <form method="POST" action="{{ route('employees.destroy', $emp) }}" class="delete-form" style="display:inline">
+                        @csrf @method('DELETE')
+                        <button type="button" onclick="confirmDelete(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:1;cursor:pointer">
+                          <img src="{{ asset('action_icon/delete.svg') }}" class="action-icon" alt="Delete">
+                        </button>
+                      </form>
+                    @endcan
+                    @can('Employees Management.letters')
+                      <a href="{{ route('employees.letters.index', $emp) }}" title="Letter"><img src="{{ asset('action_icon/print.svg') }}" class="action-icon" alt="Letter"></a>
+                    @endcan
+                    @can('Employees Management.digital card')
+                      <a href="{{ route('employees.digital-card.create', $emp) }}" title="Add Digital Card"><img src="{{ asset('action_icon/pluse.svg') }}" class="action-icon" alt="Add Digital Card"></a>
+                    @endcan
+                  </div>
+                </td>
+              @endif
               <td>
                 @can('Employees Management.edit employee')
                   <form method="POST" action="{{ route('employees.toggle-status', $emp->id) }}" style="display:inline;margin:0;">
@@ -295,7 +299,7 @@
             </tr>
             @empty
             <x-empty-state 
-                colspan="9" 
+                colspan="{{ user_has_any_action_permission('Employees Management', ['view employee', 'edit employee', 'delete employee', 'letters', 'digital card']) ? '9' : '8' }}" 
                 title="No employees found" 
                 message="Try adjusting your filters or add a new employee"
             />

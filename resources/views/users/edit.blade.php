@@ -35,11 +35,18 @@
           @error('role')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
-          <x-phone-input 
-            name="mobile_no" 
-            label="Mobile Number" 
-            :value="old('mobile_no', $user->mobile_no)" 
+          <label class="hrp-label">Mobile Number</label>
+          <input
+            class="hrp-input Rectangle-29"
+            name="mobile_no"
+            type="tel"
+            inputmode="numeric"
+            pattern="\d{10}"
+            maxlength="10"
+            value="{{ old('mobile_no', strip_country_code($user->mobile_no)) }}"
+            placeholder="Enter 10 digit mobile number"
           />
+          @error('mobile_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div class="md:col-span-2">
           <label class="hrp-label">Address</label>

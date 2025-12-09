@@ -170,7 +170,9 @@
       <table style="table-layout: auto; width: 100%;">
         <thead>
           <tr>
-            <th style="text-align: center; width: 180px;">Action</th>
+            @if(user_has_any_action_permission('Quotations Management', ['view quotation', 'edit quotation', 'delete quotation', 'download quotation', 'template list', 'follow up', 'convert to company']))
+              <th style="text-align: center; width: 180px;">Action</th>
+            @endif
             <th style="width: 70px;">Sr.No.</th>
             <th style="width: 140px;">Code</th>
             <th style="min-width: 200px;">Company Name</th>
@@ -186,8 +188,9 @@
             $isConfirmed = in_array($quotation->id, $confirmedQuotationIds ?? []);
           @endphp
           <tr>
-            <td style="text-align: center; vertical-align: middle;">
-              <div class="action-icons">
+            @if(user_has_any_action_permission('Quotations Management', ['view quotation', 'edit quotation', 'delete quotation', 'download quotation', 'template list', 'follow up', 'convert to company']))
+              <td style="text-align: center; vertical-align: middle;">
+                <div class="action-icons">
                 @can('Quotations Management.view quotation')
                   <a href="{{ route('quotations.show', $quotation->id) }}" title="View Quotation" aria-label="View Quotation">
                     <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
@@ -234,7 +237,8 @@
                   @endcan
                 @endif
               </div>
-            </td>
+              </td>
+            @endif
             <td>{{ $quotations->firstItem() + $index }}</td>
             <td>{{ $quotation->unique_code ?? 'N/A' }}</td> 
             <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $quotation->company_name ?? 'N/A' }}">{{ $quotation->company_name ?? 'N/A' }}</td>
@@ -255,7 +259,7 @@
           </tr>
           @empty
             <x-empty-state 
-                colspan="8" 
+                colspan="{{ user_has_any_action_permission('Quotations Management', ['view quotation', 'edit quotation', 'delete quotation', 'download quotation', 'template list', 'follow up', 'convert to company']) ? '8' : '7' }}" 
                 title="No quotations found" 
                 message="Try adjusting your filters or create a new quotation"
             />
