@@ -25,7 +25,9 @@
         <table>
           <thead>
             <tr>
-              <th>Actions</th>
+              @if(user_has_any_action_permission('Roles Management', ['view role', 'edit role', 'delete role']))
+                <th>Actions</th>
+              @endif
               <th>ID</th>
               <th>Role Name</th>
               <th>Description</th>
@@ -36,25 +38,27 @@
           <tbody>
           @forelse($roles as $role)
             <tr>
-              <td>
-                <div class="action-icons">
-                  @can('Roles Management.view role')
-                    <a href="{{ route('roles.show', $role) }}" class="action-icon" title="View"><img src="{{ asset('action_icon/view.svg') }}" alt="view" width="16" height="16"></a>
-                  @endcan
-                  @can('Roles Management.edit role')
-                    <a href="{{ route('roles.edit', $role) }}" class="action-icon" title="Edit"><img src="{{ asset('action_icon/edit.svg') }}" alt="edit" width="16" height="16"></a>
-                  @endcan
-                  @can('Roles Management.delete role')
-                    @if($role->users->count() == 0)
-                      <form action="{{ route('roles.destroy', $role) }}" method="POST" onsubmit="return confirm('Are you sure?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="action-icon" title="Delete"><img src="{{ asset('action_icon/delete.svg') }}" alt="delete" width="16" height="16"></button>
-                      </form>
-                    @endif
-                  @endcan
-                </div>
-              </td>
+              @if(user_has_any_action_permission('Roles Management', ['view role', 'edit role', 'delete role']))
+                <td>
+                  <div class="action-icons">
+                    @can('Roles Management.view role')
+                      <a href="{{ route('roles.show', $role) }}" class="action-icon" title="View"><img src="{{ asset('action_icon/view.svg') }}" alt="view" width="16" height="16"></a>
+                    @endcan
+                    @can('Roles Management.edit role')
+                      <a href="{{ route('roles.edit', $role) }}" class="action-icon" title="Edit"><img src="{{ asset('action_icon/edit.svg') }}" alt="edit" width="16" height="16"></a>
+                    @endcan
+                    @can('Roles Management.delete role')
+                      @if($role->users->count() == 0)
+                        <form action="{{ route('roles.destroy', $role) }}" method="POST" onsubmit="return confirm('Are you sure?')">
+                          @csrf
+                          @method('DELETE')
+                          <button type="submit" class="action-icon" title="Delete"><img src="{{ asset('action_icon/delete.svg') }}" alt="delete" width="16" height="16"></button>
+                        </form>
+                      @endif
+                    @endcan
+                  </div>
+                </td>
+              @endif
               <td>{{ $role->id }}</td>
               <td>{{ ucfirst($role->name) }}</td>
               <td>{{ $role->description ?? 'No description' }}</td>
@@ -63,7 +67,7 @@
             </tr>
           @empty
             <x-empty-state 
-                colspan="6" 
+                colspan="{{ user_has_any_action_permission('Roles Management', ['view role', 'edit role', 'delete role']) ? '6' : '5' }}" 
                 title="No roles found" 
                 message="Create a new role to get started"
             />

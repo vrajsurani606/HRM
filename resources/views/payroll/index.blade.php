@@ -69,7 +69,9 @@
       <table>
         <thead>
           <tr>
-            <th style="width: 100px; text-align: center;">Action</th>
+            @if(user_has_any_action_permission('Payroll Management', ['view payroll', 'edit payroll', 'delete payroll']))
+              <th style="width: 100px; text-align: center;">Action</th>
+            @endif
             <th style="width: 100px; text-align: center;">EMP Code</th>
             <th style="width: 180px; text-align: center;">Employee</th>
             <th style="width: 120px; text-align: center;">Month/Year</th>
@@ -93,23 +95,25 @@
               $netSalary = ($payroll->basic_salary + $totalAllowances + ($payroll->bonuses ?? 0)) - $totalDeductions;
             @endphp
             <tr>
-              <td style="padding: 12px 8px; text-align: center;">
-                <div style="display: flex; gap: 6px; align-items: center; justify-content: center;">
-                  @can('Payroll Management.view payroll')
-                  <img src="{{ asset('action_icon/view.svg') }}" alt="View" style="cursor: pointer; width: 16px; height: 16px;" onclick="window.location.href='{{ route('payroll.show', $payroll->id) }}'" title="View Salary Slip">
-                  @endcan
-                  
-                  @can('Payroll Management.edit payroll')
-                  <a href="{{ route('payroll.edit', $payroll->id) }}" title="Edit">
-                    <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" style="cursor: pointer; width: 16px; height: 16px;">
-                  </a>
-                  @endcan
-                  
-                  @can('Payroll Management.delete payroll')
-                  <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 16px; height: 16px;" onclick="deletePayroll({{ $payroll->id }})" title="Delete">
-                  @endcan
-                </div>
-              </td>
+              @if(user_has_any_action_permission('Payroll Management', ['view payroll', 'edit payroll', 'delete payroll']))
+                <td style="padding: 12px 8px; text-align: center;">
+                  <div style="display: flex; gap: 6px; align-items: center; justify-content: center;">
+                    @can('Payroll Management.view payroll')
+                    <img src="{{ asset('action_icon/view.svg') }}" alt="View" style="cursor: pointer; width: 16px; height: 16px;" onclick="window.location.href='{{ route('payroll.show', $payroll->id) }}'" title="View Salary Slip">
+                    @endcan
+                    
+                    @can('Payroll Management.edit payroll')
+                    <a href="{{ route('payroll.edit', $payroll->id) }}" title="Edit">
+                      <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" style="cursor: pointer; width: 16px; height: 16px;">
+                    </a>
+                    @endcan
+                    
+                    @can('Payroll Management.delete payroll')
+                    <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 16px; height: 16px;" onclick="deletePayroll({{ $payroll->id }})" title="Delete">
+                    @endcan
+                  </div>
+                </td>
+              @endif
               <td style="padding: 12px 8px; text-align: center; font-weight: 600; color: #1e40af;">{{ $payroll->employee->code ?? 'N/A' }}</td>
               <td style="padding: 12px 8px; text-align: center;">
                 <div style="font-weight: 600; color: #1f2937;">{{ $payroll->employee->name ?? 'N/A' }}</div>
@@ -139,7 +143,7 @@
             </tr>
           @empty
             <x-empty-state 
-                colspan="9" 
+                colspan="{{ user_has_any_action_permission('Payroll Management', ['view payroll', 'edit payroll', 'delete payroll']) ? '9' : '8' }}" 
                 title="No payroll records found" 
                 message="Try adjusting your filters or create a new payroll record"
             />

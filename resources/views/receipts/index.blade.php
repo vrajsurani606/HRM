@@ -32,7 +32,9 @@
   <table>
     <thead>
       <tr>
-        <th>Action</th>
+        @if(user_has_any_action_permission('Receipts Management', ['view receipt', 'edit receipt', 'delete receipt', 'print receipt']))
+          <th>Action</th>
+        @endif
         <th>Serial No.</th>
         <th><x-sortable-header column="unique_code" title="Receipt No" /></th>
         <th><x-sortable-header column="receipt_date" title="Receipt Date" /></th>
@@ -46,34 +48,36 @@
     <tbody>
       @forelse($receipts as $index => $receipt)
       <tr>
-        <td>
-          <div class="action-icons">
-            @can('Receipts Management.view receipt')
-              <a href="{{ route('receipts.show', $receipt->id) }}">
-                <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
-              </a>
-            @endcan
-            @can('Receipts Management.edit receipt')
-              <a href="{{ route('receipts.edit', $receipt->id) }}">
-                <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
-              </a>
-            @endcan
-            @can('Receipts Management.print receipt')
-              <a href="{{ route('receipts.print', $receipt->id) }}" target="_blank">
-                <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
-              </a>
-            @endcan
-            @can('Receipts Management.delete receipt')
-              <form action="{{ route('receipts.destroy', $receipt->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this receipt?');">
-                @csrf
-                @method('DELETE')
-                <button type="submit" style="border:none;background:none;padding:0;cursor:pointer;">
-                  <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
-                </button>
-              </form>
-            @endcan
-          </div>
-        </td>
+        @if(user_has_any_action_permission('Receipts Management', ['view receipt', 'edit receipt', 'delete receipt', 'print receipt']))
+          <td>
+            <div class="action-icons">
+              @can('Receipts Management.view receipt')
+                <a href="{{ route('receipts.show', $receipt->id) }}">
+                  <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
+                </a>
+              @endcan
+              @can('Receipts Management.edit receipt')
+                <a href="{{ route('receipts.edit', $receipt->id) }}">
+                  <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+                </a>
+              @endcan
+              @can('Receipts Management.print receipt')
+                <a href="{{ route('receipts.print', $receipt->id) }}" target="_blank">
+                  <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
+                </a>
+              @endcan
+              @can('Receipts Management.delete receipt')
+                <form action="{{ route('receipts.destroy', $receipt->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this receipt?');">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" style="border:none;background:none;padding:0;cursor:pointer;">
+                    <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+                  </button>
+                </form>
+              @endcan
+            </div>
+          </td>
+        @endif
         <td>{{ $receipts->firstItem() + $index }}</td>
         <td>{{ $receipt->unique_code }}</td>
         <td>{{ $receipt->receipt_date ? $receipt->receipt_date->format('d-m-Y') : '-' }}</td>
@@ -93,7 +97,7 @@
       </tr>
       @empty
         <x-empty-state 
-            colspan="9" 
+            colspan="{{ user_has_any_action_permission('Receipts Management', ['view receipt', 'edit receipt', 'delete receipt', 'print receipt']) ? '9' : '8' }}" 
             title="No receipts found" 
             message="Try adjusting your filters or create a new receipt"
         />

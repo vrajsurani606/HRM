@@ -130,7 +130,9 @@
       <table>
         <thead>
           <tr>
-            <th>Action</th>
+            @if(user_has_any_action_permission('Companies Management', ['view company', 'edit company', 'delete company']))
+              <th>Action</th>
+            @endif
             <th>Serial No.</th>
             <th>Company Code</th>
             <th>Company Name</th>
@@ -145,28 +147,30 @@
         <tbody>
           @forelse($companies as $i => $company)
           <tr>
-            <td>
-              <div class="action-icons">
-                @can('Companies Management.view company')
-                  <a href="{{ route('companies.show', $company->id) }}" title="View" aria-label="View">
-                    <img src="{{ asset('action_icon/view.svg') }}" alt="View" class="action-icon">
-                  </a>
-                @endcan
-                @can('Companies Management.edit company')
-                  <a href="{{ route('companies.edit', $company->id) }}" title="Edit" aria-label="Edit">
-                    <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon">
-                  </a>
-                @endcan
-                @can('Companies Management.delete company')
-                  <form method="POST" action="{{ route('companies.destroy', $company->id) }}" class="delete-form" style="display:inline">
-                    @csrf @method('DELETE')
-                    <button type="button" onclick="confirmDelete(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
-                      <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon">
-                    </button>
-                  </form>
-                @endcan
-              </div>
-            </td>
+            @if(user_has_any_action_permission('Companies Management', ['view company', 'edit company', 'delete company']))
+              <td>
+                <div class="action-icons">
+                  @can('Companies Management.view company')
+                    <a href="{{ route('companies.show', $company->id) }}" title="View" aria-label="View">
+                      <img src="{{ asset('action_icon/view.svg') }}" alt="View" class="action-icon">
+                    </a>
+                  @endcan
+                  @can('Companies Management.edit company')
+                    <a href="{{ route('companies.edit', $company->id) }}" title="Edit" aria-label="Edit">
+                      <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon">
+                    </a>
+                  @endcan
+                  @can('Companies Management.delete company')
+                    <form method="POST" action="{{ route('companies.destroy', $company->id) }}" class="delete-form" style="display:inline">
+                      @csrf @method('DELETE')
+                      <button type="button" onclick="confirmDelete(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
+                        <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon">
+                      </button>
+                    </form>
+                  @endcan
+                </div>
+              </td>
+            @endif
             <td>{{ ($companies->currentPage() - 1) * $companies->perPage() + $i + 1 }}</td>
             <td>{{ $company->unique_code }}</td>
             <td>{{ $company->company_name }}</td>
@@ -179,7 +183,7 @@
           </tr>
           @empty
             <x-empty-state 
-                colspan="10" 
+                colspan="{{ user_has_any_action_permission('Companies Management', ['view company', 'edit company', 'delete company']) ? '10' : '9' }}" 
                 title="No companies found" 
                 message="Try adjusting your filters or create a new company"
             />

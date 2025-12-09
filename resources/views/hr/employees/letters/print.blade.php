@@ -324,7 +324,19 @@ if ($contentLength > 3000) {
                 @break
                 
             @case('resignation')
-                @include('hr.employees.letters.templates.resignation')
+                @include('hr.employees.letters.templates.resignation_acceptance')
+                @break
+            
+            @case('resignation_acceptance')
+                @include('hr.employees.letters.templates.resignation_acceptance')
+                @break
+            
+            @case('salary_certificate')
+                @include('hr.employees.letters.templates.salary_certificate')
+                @break
+            
+            @case('offer')
+                @include('hr.employees.letters.templates.offer')
                 @break
             
             @case('other')

@@ -210,8 +210,10 @@
           <select class="Rectangle-29-select @error('city') is-invalid @enderror" name="city" id="city_select">
             <option value="" disabled selected>SELECT STATE FIRST</option>
           </select>
+          <input type="text" class="Rectangle-29 @error('city_manual') is-invalid @enderror" name="city_manual" id="city_manual_input" placeholder="Enter city name manually" value="{{ old('city_manual') }}" style="display: none; margin-top: 10px;">
           <input type="hidden" id="old_city" value="{{ old('city') }}">
           @error('city')<small class="hrp-error">{{ $message }}</small>@enderror
+          @error('city_manual')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
 
@@ -697,15 +699,15 @@
       <label class="hrp-label">Retention Time:</label>
       <input class="Rectangle-29" name="retention_time" placeholder="Enter Time" value="{{ old('retention_time') }}">
     </div>
-
+       <div>
+      <label class="hrp-label">Retention %:</label>
+      <input class="Rectangle-29" id="retention_percent" name="retention_percent" type="number" min="0" max="100" step="0.1" placeholder="Enter %" oninput="calculateRetentionAmount()" value="{{ old('retention_percent') }}">
+    </div>
     <div>
       <label class="hrp-label">Retention Amount:</label>
       <input id="retention_amount" class="Rectangle-29" name="retention_amount" placeholder="Enter Amount" readonly value="{{ old('retention_amount') }}">
     </div>
-    <div>
-      <label class="hrp-label">Retention %:</label>
-      <input class="Rectangle-29" id="retention_percent" name="retention_percent" type="number" min="0" max="100" step="0.1" placeholder="Enter %" oninput="calculateRetentionAmount()" value="{{ old('retention_percent') }}">
-    </div>
+   
     <div>
       <label class="hrp-label">Tentative Complete Date:</label>
       <input type="text" class="Rectangle-29 date-picker" name="tentative_complete_date" placeholder="dd/mm/yyyy" value="{{ old('tentative_complete_date') }}" autocomplete="off">
@@ -844,6 +846,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<script src="{{ asset('js/state-city-dropdown.js') }}"></script>
 
 <script>
 //
@@ -1941,6 +1944,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.classList.contains('remove-row')) {
             // Check if this is from services_2 table (has completion-percent)
             const row = e.target.closest('tr');
+            const tbody = row.closest('tbody');
+            const rowCount = tbody.querySelectorAll('tr').length;
+            
+            // Prevent removing the last row
+            if (rowCount <= 1) {
+                alert('At least one service item must exist. You cannot remove all items.');
+                return;
+            }
+            
             const isServices2 = row.querySelector('.completion-percent') !== null;
             row.remove();
             calculateContractAmount();

@@ -3,42 +3,44 @@
   $highlightTodayDemo = in_array($inquiry->id, (array)($todayScheduledInquiryIds ?? []));
 @endphp
 <tr @if($highlightTodayDemo) style="background-color:#fff7ed;" @endif>
-  <td>
-    <div class="action-icons">
-      @can('Inquiries Management.view inquiry')
-        <a href="{{ route('inquiries.show', $inquiry->id) }}" title="View Inquiry" aria-label="View Inquiry">
-          <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="Show">
-        </a>
-      @endcan
+  @if(user_has_any_action_permission('Inquiries Management', ['view inquiry', 'edit inquiry', 'delete inquiry', 'follow up']) || auth()->user()->can('Quotations Management.create quotation'))
+    <td>
+      <div class="action-icons">
+        @can('Inquiries Management.view inquiry')
+          <a href="{{ route('inquiries.show', $inquiry->id) }}" title="View Inquiry" aria-label="View Inquiry">
+            <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="Show">
+          </a>
+        @endcan
 
-      @can('Inquiries Management.edit inquiry')
-        <a href="{{ route('inquiries.edit', $inquiry->id) }}" title="Edit Inquiry" aria-label="Edit Inquiry">
-          <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
-        </a>
-      @endcan
+        @can('Inquiries Management.edit inquiry')
+          <a href="{{ route('inquiries.edit', $inquiry->id) }}" title="Edit Inquiry" aria-label="Edit Inquiry">
+            <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+          </a>
+        @endcan
 
-      @can('Inquiries Management.delete inquiry')
-        <form method="POST" action="{{ route('inquiries.destroy', $inquiry->id) }}" class="delete-form" style="display:inline">
-          @csrf @method('DELETE')
-          <button type="button" onclick="confirmDeleteInquiry(this)" title="Delete Inquiry" aria-label="Delete Inquiry" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
-            <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
-          </button>
-        </form>
-      @endcan
+        @can('Inquiries Management.delete inquiry')
+          <form method="POST" action="{{ route('inquiries.destroy', $inquiry->id) }}" class="delete-form" style="display:inline">
+            @csrf @method('DELETE')
+            <button type="button" onclick="confirmDeleteInquiry(this)" title="Delete Inquiry" aria-label="Delete Inquiry" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
+              <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+            </button>
+          </form>
+        @endcan
 
-      @can('Inquiries Management.follow up')
-        <a href="{{ route('inquiry.follow-up', $inquiry->id) }}" title="Follow Up" aria-label="Follow Up">
-          <img class="action-icon" src="{{ asset('action_icon/follow-up.svg') }}" alt="Follow Up">
-        </a>
-      @endcan
+        @can('Inquiries Management.follow up')
+          <a href="{{ route('inquiry.follow-up', $inquiry->id) }}" title="Follow Up" aria-label="Follow Up">
+            <img class="action-icon" src="{{ asset('action_icon/follow-up.svg') }}" alt="Follow Up">
+          </a>
+        @endcan
 
-      @can('Quotations Management.create quotation')
-        <a href="{{ route('quotation.create-from-inquiry', $inquiry->id) }}" title="Make Quotation" aria-label="Make Quotation">
-          <img class="action-icon" src="{{ asset('action_icon/make-quatation.svg') }}" alt="Make Quotation">
-        </a>
-      @endcan
-    </div>
-  </td>
+        @can('Quotations Management.create quotation')
+          <a href="{{ route('quotation.create-from-inquiry', $inquiry->id) }}" title="Make Quotation" aria-label="Make Quotation">
+            <img class="action-icon" src="{{ asset('action_icon/make-quatation.svg') }}" alt="Make Quotation">
+          </a>
+        @endcan
+      </div>
+    </td>
+  @endif
   <td>
     @php($sno = ($inquiries->currentPage()-1) * $inquiries->perPage() + $index + 1)
     {{ $sno }}
@@ -91,7 +93,7 @@
 </tr>
 @empty
   <x-empty-state 
-      colspan="14" 
+      colspan="{{ (user_has_any_action_permission('Inquiries Management', ['view inquiry', 'edit inquiry', 'delete inquiry', 'follow up']) || auth()->user()->can('Quotations Management.create quotation')) ? '14' : '13' }}" 
       title="No inquiries found" 
       message="Try adjusting your filters or create a new inquiry"
   />

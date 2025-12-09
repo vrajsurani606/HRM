@@ -126,7 +126,9 @@
       <table>
         <thead>
           <tr>
-            <th>Action</th>
+            @if(user_has_any_action_permission('Inquiries Management', ['view inquiry', 'edit inquiry', 'delete inquiry', 'follow up']) || auth()->user()->can('Quotations Management.create quotation'))
+              <th>Action</th>
+            @endif
             <th>Serial No.</th>
             <th>Code</th>
             <th>Inq. Date</th>

@@ -29,7 +29,9 @@
   <table>
     <thead>
       <tr>
-        <th style="text-align: center;">Action</th>
+        @if(user_has_any_action_permission('Proformas Management', ['view proforma', 'edit proforma', 'delete proforma', 'print proforma', 'convert proforma']))
+          <th style="text-align: center;">Action</th>
+        @endif
         <th>Serial No.</th>
         <th><x-sortable-header column="unique_code" title="Proforma No" /></th>
         <th><x-sortable-header column="proforma_date" title="Proforma Date" /></th>
@@ -44,37 +46,39 @@
     <tbody>
       @forelse($performas as $index => $proforma)
       <tr>
-        <td style="text-align: center; vertical-align: middle;">
-          <div class="action-icons">
-            @can('Proformas Management.view proforma')
-              <a href="{{ route('performas.show', $proforma->id) }}" title="View Proforma" aria-label="View Proforma">
-                <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
-              </a>
-            @endcan
-            @can('Proformas Management.edit proforma')
-              <a href="{{ route('performas.edit', $proforma->id) }}" title="Edit Proforma" aria-label="Edit Proforma">
-                <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
-              </a>
-            @endcan
-            @can('Proformas Management.print proforma')
-              <a href="{{ route('performas.print', $proforma->id) }}" target="_blank" title="Print Proforma" aria-label="Print Proforma">
-                <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
-              </a>
-            @endcan
-            @can('Proformas Management.delete proforma')
-              <button type="button" onclick="confirmDelete({{ $proforma->id }})" title="Delete Proforma" aria-label="Delete Proforma">
-                <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
-              </button>
-            @endcan
-            @if($proforma->canConvert())
-              @can('Proformas Management.convert proforma')
-                <a href="{{ route('performas.convert', $proforma->id) }}" title="Convert to Invoice" aria-label="Convert to Invoice">
-                  <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert" class="action-icon">
+        @if(user_has_any_action_permission('Proformas Management', ['view proforma', 'edit proforma', 'delete proforma', 'print proforma', 'convert proforma']))
+          <td style="text-align: center; vertical-align: middle;">
+            <div class="action-icons">
+              @can('Proformas Management.view proforma')
+                <a href="{{ route('performas.show', $proforma->id) }}" title="View Proforma" aria-label="View Proforma">
+                  <img class="action-icon" src="{{ asset('action_icon/view.svg') }}" alt="View">
                 </a>
               @endcan
-            @endif
-          </div>
-        </td>
+              @can('Proformas Management.edit proforma')
+                <a href="{{ route('performas.edit', $proforma->id) }}" title="Edit Proforma" aria-label="Edit Proforma">
+                  <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+                </a>
+              @endcan
+              @can('Proformas Management.print proforma')
+                <a href="{{ route('performas.print', $proforma->id) }}" target="_blank" title="Print Proforma" aria-label="Print Proforma">
+                  <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
+                </a>
+              @endcan
+              @can('Proformas Management.delete proforma')
+                <button type="button" onclick="confirmDelete({{ $proforma->id }})" title="Delete Proforma" aria-label="Delete Proforma">
+                  <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
+                </button>
+              @endcan
+              @if($proforma->canConvert())
+                @can('Proformas Management.convert proforma')
+                  <a href="{{ route('performas.convert', $proforma->id) }}" title="Convert to Invoice" aria-label="Convert to Invoice">
+                    <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert" class="action-icon">
+                  </a>
+                @endcan
+              @endif
+            </div>
+          </td>
+        @endif
         <td>{{ $performas->firstItem() + $index }}</td>
         <td>{{ $proforma->unique_code }}</td>
         <td>{{ $proforma->proforma_date ? $proforma->proforma_date->format('d-m-Y') : '-' }}</td>
@@ -87,7 +91,7 @@
       </tr>
       @empty
         <x-empty-state 
-            colspan="10" 
+            colspan="{{ user_has_any_action_permission('Proformas Management', ['view proforma', 'edit proforma', 'delete proforma', 'print proforma', 'convert proforma']) ? '10' : '9' }}" 
             title="No proformas found" 
             message="Try adjusting your filters or create a new proforma"
         />
