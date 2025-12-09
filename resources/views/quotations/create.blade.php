@@ -237,12 +237,19 @@
           @enderror
         </div>
         <div>
-          <x-phone-input 
-            name="contact_number_1" 
-            label="Contact Number 1" 
-            :value="old('contact_number_1', $quotationData['contact_number_1'] ?? '')" 
-            required="true" 
+          <label class="hrp-label">Contact Number 1 <span style="color: red;">*</span></label>
+          <input
+            class="hrp-input Rectangle-29"
+            name="contact_number_1"
+            type="tel"
+            inputmode="numeric"
+            pattern="\d{10}"
+            maxlength="10"
+            value="{{ old('contact_number_1', strip_country_code($quotationData['contact_number_1'] ?? '')) }}"
+            placeholder="Enter 10 digit mobile number"
+            required
           />
+          @error('contact_number_1')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
 
@@ -792,11 +799,18 @@
       @error('prepared_by')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
-      <x-phone-input class="Rectangle-29"
-        name="mobile_no" 
-        label="Mobile No." 
-        :value="old('mobile_no')" 
+      <label class="hrp-label">Mobile No.</label>
+      <input
+        class="hrp-input Rectangle-29"
+        name="mobile_no"
+        type="tel"
+        inputmode="numeric"
+        pattern="\d{10}"
+        maxlength="10"
+        value="{{ old('mobile_no') }}"
+        placeholder="Enter 10 digit mobile number"
       />
+      @error('mobile_no')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
 
     <div>

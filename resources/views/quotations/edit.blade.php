@@ -226,12 +226,19 @@
           @enderror
         </div>
         <div>
-          <x-phone-input 
-            name="contact_number_1" 
-            label="Contact Number 1" 
-            :value="old('contact_number_1', $quotation->contact_number_1)" 
-            required="true" 
+          <label class="hrp-label">Contact Number 1 <span style="color: red;">*</span></label>
+          <input
+            class="hrp-input Rectangle-29"
+            name="contact_number_1"
+            type="tel"
+            inputmode="numeric"
+            pattern="\d{10}"
+            maxlength="10"
+            value="{{ old('contact_number_1', strip_country_code($quotation->contact_number_1)) }}"
+            placeholder="Enter 10 digit mobile number"
+            required
           />
+          @error('contact_number_1')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
 
@@ -696,11 +703,18 @@
       <input class="Rectangle-29" name="prepared_by" placeholder="Enter Name" value="{{ old('prepared_by', $quotation->prepared_by) }}">
     </div>
     <div>
-      <x-phone-input 
-        name="mobile_no" 
-        label="Mobile No." 
-        :value="old('mobile_no', $quotation->mobile_no)" 
+      <label class="hrp-label">Mobile No.</label>
+      <input
+        class="hrp-input Rectangle-29"
+        name="mobile_no"
+        type="tel"
+        inputmode="numeric"
+        pattern="\d{10}"
+        maxlength="10"
+        value="{{ old('mobile_no', strip_country_code($quotation->mobile_no)) }}"
+        placeholder="Enter 10 digit mobile number"
       />
+      @error('mobile_no')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
       <label class="hrp-label">Company Name:</label>

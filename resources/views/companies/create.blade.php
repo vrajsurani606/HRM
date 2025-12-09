@@ -219,12 +219,19 @@
 
           
           <div style="margin-bottom: 8px;">
-            <x-phone-input 
-              name="contact_person_mobile" 
-              label="Contact Person Mobile No" 
-              :value="old('contact_person_mobile')" 
-              placeholder="9876543210"
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Contact Person Mobile No</label>
+            <input
+              class="hrp-input Rectangle-29"
+              name="contact_person_mobile"
+              type="tel"
+              inputmode="numeric"
+              pattern="\d{10}"
+              maxlength="10"
+              value="{{ old('contact_person_mobile') }}"
+              placeholder="Enter 10 digit mobile number"
+              style="font-size: 14px; line-height: 1.5;"
             />
+            @error('contact_person_mobile')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
           
           <div style="margin-bottom: 8px;">

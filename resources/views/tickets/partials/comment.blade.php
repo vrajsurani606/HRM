@@ -1,9 +1,38 @@
 <div class="comment {{ $comment->is_internal ? 'comment-internal' : '' }}">
     <div class="comment-avatar" style="overflow: hidden;">
-        @if($comment->user && $comment->user->photo_path && file_exists(public_path('storage/' . $comment->user->photo_path)))
-            <img src="{{ asset('storage/' . $comment->user->photo_path) }}" alt="{{ $comment->user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+        @php
+            $photoPath = null;
+            $userName = $comment->user->name ?? 'Unknown User';
+            
+            // Try to get employee photo first
+            if ($comment->user) {
+                $employee = \App\Models\Employee::where('user_id', $comment->user->id)->first();
+                if (!$employee) {
+                    $employee = \App\Models\Employee::where('email', $comment->user->email)->first();
+                }
+                if ($employee && $employee->photo_path) {
+                    $photoPath = $employee->photo_path;
+                }
+            }
+            
+            // Fallback to user photo if no employee photo
+            if (!$photoPath && $comment->user && isset($comment->user->photo_path)) {
+                $photoPath = $comment->user->photo_path;
+            }
+            
+            // Check if company user has photo
+            if (!$photoPath && $comment->user && $comment->user->company_id) {
+                $company = $comment->user->company;
+                if ($company && isset($company->logo)) {
+                    $photoPath = $company->logo;
+                }
+            }
+        @endphp
+        
+        @if($photoPath)
+            <img src="{{ storage_asset($photoPath) }}" alt="{{ $userName }}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='{{ strtoupper(substr($userName, 0, 1)) }}';">
         @else
-            {{ strtoupper(substr($comment->user->name ?? 'U', 0, 1)) }}
+            {{ strtoupper(substr($userName, 0, 1)) }}
         @endif
     </div>
     <div class="comment-content">

@@ -29,7 +29,7 @@
             <div>
                 <h3 class="font-semibold text-lg mb-3 text-gray-700">Customer Information</h3>
                 <p class="mb-2"><strong>Company:</strong> {{ $invoice->company_name }}</p>
-                <p class="mb-2"><strong>Mobile:</strong> {{ $invoice->mobile_no ?? '-' }}</p>
+                <p class="mb-2"><strong>Mobile:</strong> {{ display_mobile($invoice->mobile_no) ?? '-' }}</p>
                 @if($invoice->invoice_type === 'gst')
                 <p class="mb-2"><strong>GST No:</strong> {{ $invoice->gst_no ?? '-' }}</p>
                 @endif

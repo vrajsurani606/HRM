@@ -735,7 +735,7 @@
                   <td><a href="{{ route('invoices.show', $invoice->id) }}" class="link-cell">{{ $invoice->unique_code ?? '-' }}</a></td>
                   <td>{{ $invoice->invoice_date ? $invoice->invoice_date->format('d M, Y') : '-' }}</td>
                   <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ Str::limit($invoice->company_name ?? $company->company_name, 20) }}</td>
-                  <td style="font-family: monospace; font-size: 13px;">{{ $invoice->mobile_no ?? '-' }}</td>
+                  <td style="font-family: monospace; font-size: 13px;">{{ display_mobile($invoice->mobile_no) ?? '-' }}</td>
                   <td class="amount-cell">₹{{ number_format($invoice->sub_total ?? 0, 2) }}</td>
                   <td class="amount-cell" style="color: #16a34a;">₹{{ number_format($invoice->final_amount ?? 0, 2) }}</td>
                   <td>

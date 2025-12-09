@@ -768,7 +768,7 @@
                     <div style="font-size: 16px; color: #ffffff; line-height: 1.8; margin-bottom: 8px;">
                         <strong>Phone:</strong> 
                         @if($quotation->mobile_no)
-                            {{ str_starts_with($quotation->mobile_no, '+91') ? $quotation->mobile_no : '+91 ' . $quotation->mobile_no }}
+                            {{ display_mobile($quotation->mobile_no) }}
                         @else
                             +91 72763 23999
                         @endif

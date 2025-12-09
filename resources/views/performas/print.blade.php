@@ -396,7 +396,7 @@
                         <p>GST. NO.: {{ $proforma->gst_no }}</p>
                         @endif
                         @if($proforma->mobile_no)
-                        <p>Mo. {{ $proforma->mobile_no }}</p>
+                        <p>Mo. {{ display_mobile($proforma->mobile_no) }}</p>
                         @endif
                     </div>
                 </div>

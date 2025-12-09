@@ -157,7 +157,7 @@ class TicketController extends Controller
         $rules = [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'priority' => $isCustomer ? 'required|in:low,normal,high,urgent' : 'nullable|in:low,normal,medium,high,urgent',
+            'priority' => 'nullable|in:low,medium,high,urgent',
             'status' => 'nullable|in:open,assigned,pending,needs_approval,in_progress,completed,resolved,closed',
             'work_status' => 'nullable|in:not_assigned,in_progress,on_hold,completed',
             'ticket_type' => 'nullable|string|max:100',
@@ -187,7 +187,7 @@ class TicketController extends Controller
         
         // Set default priority if not provided
         if (!isset($validated['priority'])) {
-            $validated['priority'] = 'normal';
+            $validated['priority'] = 'medium';
         }
         
         // Set subject from title if not provided (subject is required in DB)
@@ -279,7 +279,7 @@ class TicketController extends Controller
         $validated = $request->validate([
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
-            'priority' => 'nullable|in:low,normal,medium,high,urgent',
+            'priority' => 'nullable|in:low,medium,high,urgent',
             'status' => 'nullable|in:open,assigned,pending,needs_approval,in_progress,completed,resolved,closed',
             'work_status' => 'nullable|in:not_assigned,in_progress,on_hold,completed',
             'category' => 'nullable|string|max:255',
@@ -287,6 +287,17 @@ class TicketController extends Controller
             'company' => 'nullable|string|max:255',
             'customer' => 'nullable|string|max:255',
             'assigned_to' => 'nullable|exists:employees,id',
+            'resolution_notes' => 'nullable|string',
+        ]);
+
+        // Debug: Log what we're receiving
+        \Log::info('Ticket Update Request', [
+            'ticket_id' => $ticket->id,
+            'priority_before' => $ticket->priority,
+            'priority_new' => $validated['priority'] ?? 'not set',
+            'resolution_notes_before' => $ticket->resolution_notes,
+            'resolution_notes_new' => $validated['resolution_notes'] ?? 'not set',
+            'all_validated' => $validated
         ]);
 
         // Auto-update status when assigning employee
@@ -298,6 +309,16 @@ class TicketController extends Controller
         }
 
         $ticket->update($validated);
+        
+        // Debug: Log after update
+        \Log::info('Ticket After Update', [
+            'ticket_id' => $ticket->id,
+            'priority_after' => $ticket->priority,
+            'resolution_notes_after' => $ticket->resolution_notes,
+        ]);
+        
+        // Refresh the model to get updated values
+        $ticket->refresh();
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
@@ -307,7 +328,7 @@ class TicketController extends Controller
             ]);
         }
 
-        return redirect()->route('tickets.index')->with('success', 'Ticket updated successfully');
+        return redirect()->route('tickets.show', $ticket)->with('success', 'Ticket updated successfully');
     }
 
     public function destroy(Ticket $ticket): RedirectResponse|JsonResponse

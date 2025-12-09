@@ -405,7 +405,7 @@
                         <p>GST. NO.: {{ $invoice->gst_no }}</p>
                         @endif
                         @if($invoice->mobile_no)
-                        <p>Mo. {{ $invoice->mobile_no }}</p>
+                        <p>Mo. {{ display_mobile($invoice->mobile_no) }}</p>
                         @endif
                     </div>
                 </div>

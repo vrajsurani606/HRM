@@ -48,7 +48,7 @@
         <p style="margin: 0;">GST. NO.: {{ $proforma->gst_no }}</p>
         @endif
         @if($proforma->mobile_no)
-        <p style="margin: 0;">Mo. {{ $proforma->mobile_no }}</p>
+        <p style="margin: 0;">Mo. {{ display_mobile($proforma->mobile_no) }}</p>
         @endif
       </div>
     </div>

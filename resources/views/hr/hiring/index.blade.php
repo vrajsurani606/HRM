@@ -73,7 +73,7 @@
             <span class="chip chip-gender">{{ ucfirst($lead->gender ?? '-') }}</span>
           </div>
         </div>
-        <p class="hiring-grid-sub">Code: {{ $lead->unique_code }} • Mobile: {{ $lead->mobile_no ?? '-' }}</p>
+        <p class="hiring-grid-sub">Code: {{ $lead->unique_code }} • Mobile: {{ display_mobile($lead->mobile_no) ?? '-' }}</p>
         <div class="hiring-grid-meta">
           <div class="hiring-grid-left">
             <div class="meta-row"><span class="meta-label">Address</span><span class="meta-value">{{ $lead->address ?? '-' }}</span></div>
@@ -182,7 +182,7 @@
             </td>
             <td>{{ $lead->unique_code }}</td>
             <td>{{ $lead->person_name }}</td>
-            <td>{{ $lead->mobile_no }}</td>
+            <td>{{ display_mobile($lead->mobile_no) }}</td>
             <td>{{ $lead->address }}</td>
             <td>{{ $lead->position }}</td>
             <td>

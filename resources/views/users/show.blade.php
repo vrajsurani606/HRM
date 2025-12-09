@@ -37,7 +37,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
             <label class="hrp-label">Mobile</label>
-            <div class="hrp-input Rectangle-29" style="display:flex;align-items:center;min-height:44px">{{ $user->mobile_no ?? 'N/A' }}</div>
+            <div class="hrp-input Rectangle-29" style="display:flex;align-items:center;min-height:44px">{{ display_mobile($user->mobile_no) ?? 'N/A' }}</div>
           </div>
           <div>
             <label class="hrp-label">Joined</label>

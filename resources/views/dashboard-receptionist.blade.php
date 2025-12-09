@@ -398,7 +398,7 @@
               <span class="rec-inquiry-badge {{ $inquiry['status'] }}">{{ ucfirst($inquiry['status']) }}</span>
             </div>
             <div class="rec-inquiry-details">
-              <strong>{{ $inquiry['person'] }}</strong> • {{ $inquiry['phone'] }}<br>
+              <strong>{{ $inquiry['person'] }}</strong> • {{ display_mobile($inquiry['phone']) }}<br>
               Next Follow-up: {{ $inquiry['next_followup'] }} • {{ $inquiry['time'] }}
             </div>
           </div>
@@ -423,7 +423,7 @@
           <div class="rec-followup-time">{{ $followup['time'] }}</div>
           <div class="rec-followup-info">
             <div class="rec-followup-company">{{ $followup['company'] }}</div>
-            <div class="rec-followup-person">{{ $followup['person'] }} • {{ $followup['phone'] }}</div>
+            <div class="rec-followup-person">{{ $followup['person'] }} • {{ display_mobile($followup['phone']) }}</div>
           </div>
         </div>
       @empty

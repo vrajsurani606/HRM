@@ -104,7 +104,7 @@
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Mobile No</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $quotation->mobile_no }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ display_mobile($quotation->mobile_no) }}</span>
           </div>
           @endif
           @if($quotation->own_company_name)
@@ -218,7 +218,7 @@
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Contact Number</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $quotation->contact_number_1 }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ display_mobile($quotation->contact_number_1) }}</span>
           </div>
           @endif
           @endif
@@ -244,7 +244,7 @@
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Contact Number</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $quotation->contact_number_2 }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ display_mobile($quotation->contact_number_2) }}</span>
           </div>
           @endif
           @endif
@@ -270,7 +270,7 @@
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Contact Number</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $quotation->contact_number_3 }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ display_mobile($quotation->contact_number_3) }}</span>
           </div>
           @endif
           @endif

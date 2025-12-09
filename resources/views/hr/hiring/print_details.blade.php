@@ -17,7 +17,7 @@
   <table>
     <tr><th>Unique Code</th><td>{{ $lead->unique_code }}</td></tr>
     <tr><th>Person Name</th><td>{{ $lead->person_name }}</td></tr>
-    <tr><th>Mobile</th><td>{{ $lead->mobile_no }}</td></tr>
+    <tr><th>Mobile</th><td>{{ display_mobile($lead->mobile_no) }}</td></tr>
     <tr><th>Address</th><td>{{ $lead->address }}</td></tr>
     <tr><th>Position</th><td>{{ $lead->position }}</td></tr>
     <tr><th>Is Experience</th><td>{{ $lead->is_experience ? 'Yes' : 'No' }}</td></tr>

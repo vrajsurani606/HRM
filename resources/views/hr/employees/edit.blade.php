@@ -25,7 +25,7 @@
         <!-- Employee Mobile No -->
         <div>
           <label class="hrp-label">Employee Mobile No:</label>
-          <input name="mobile_no" value="{{ old('mobile_no', $employee->mobile_no ?? optional($employee->user)->mobile_no) }}" placeholder="Enter Mobile Number" class="hrp-input Rectangle-29">
+          <input name="mobile_no" value="{{ old('mobile_no', strip_country_code($employee->mobile_no ?? optional($employee->user)->mobile_no)) }}" placeholder="Enter Mobile Number" class="hrp-input Rectangle-29">
           @error('mobile_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
@@ -333,7 +333,7 @@
         <!-- Father Mobile Number -->
         <div>
           <label class="hrp-label">Father Mobile Number:</label>
-          <input name="father_mobile_no" id="father_mobile_no" value="{{ old('father_mobile_no', $employee->father_mobile_no ?? '') }}" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+          <input name="father_mobile_no" id="father_mobile_no" value="{{ old('father_mobile_no', strip_country_code($employee->father_mobile_no ?? '')) }}" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
           @error('father_mobile_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
@@ -347,7 +347,7 @@
         <!-- Mother Mobile Number -->
         <div>
           <label class="hrp-label">Mother Mobile Number:</label>
-          <input name="mother_mobile_no" id="mother_mobile_no" value="{{ old('mother_mobile_no', $employee->mother_mobile_no ?? '') }}" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+          <input name="mother_mobile_no" id="mother_mobile_no" value="{{ old('mother_mobile_no', strip_country_code($employee->mother_mobile_no ?? '')) }}" placeholder="10 digit mobile" class="hrp-input Rectangle-29" inputmode="numeric" pattern="\d{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
           @error('mother_mobile_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         

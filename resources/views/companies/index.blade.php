@@ -83,7 +83,7 @@
           <div class="company-grid-left">
             <div class="meta-row">
               <span class="meta-label">Contact</span>
-              <span class="meta-value">{{ $company->contact_person_name }} {{ $company->contact_person_mobile ? '• '.$company->contact_person_mobile : '' }}</span>
+              <span class="meta-value">{{ $company->contact_person_name }} {{ $company->contact_person_mobile ? '• '.display_mobile($company->contact_person_mobile) : '' }}</span>
             </div>
             <div class="meta-row">
               <span class="meta-label">Email</span>
@@ -172,7 +172,7 @@
             <td>{{ $company->company_name }}</td>
             <td>{{ $company->gst_no ?? 'N/A' }}</td>
             <td>{{ $company->contact_person_name }}</td>
-            <td>{{ $company->contact_person_mobile }}</td>
+            <td>{{ display_mobile($company->contact_person_mobile) }}</td>
             <td>{{ $company->company_email }}</td>
             <td>{{ $company->company_type }}</td>
             <td>{{ ucfirst($company->city) }}</td>

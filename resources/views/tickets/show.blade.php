@@ -624,6 +624,57 @@
                 </div>
             </div>
             @endif
+            
+            <!-- Customer Comments Section (External Messages Only) -->
+            @if(!$isAdmin && !$isEmployee)
+            <div class="tab-content" id="customer-comments">
+                <div class="comments-list" id="customerCommentsList">
+                    @php
+                        $customerComments = $ticket->comments->where('is_internal', false);
+                    @endphp
+                    @forelse($customerComments as $comment)
+                        @include('tickets.partials.comment', ['comment' => $comment, 'isAdmin' => false])
+                    @empty
+                        <div class="empty-comments">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            <p>No messages yet. Start the conversation with our support team!</p>
+                        </div>
+                    @endforelse
+                </div>
+                
+                <!-- Customer Comment Form -->
+                <div class="comment-form">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 16v-4M12 8h.01"/>
+                        </svg>
+                        <span style="font-size: 13px; color: #1e40af; font-weight: 500;">Your messages are visible to our support team</span>
+                    </div>
+                    <form class="comment-form-inner" data-type="external">
+                        @csrf
+                        <div class="form-group">
+                            <textarea 
+                                name="comment" 
+                                class="form-textarea" 
+                                placeholder="Write your message to our support team..." 
+                                required
+                                style="background: white;"
+                            ></textarea>
+                        </div>
+                        <input type="hidden" name="is_internal" value="0">
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                                Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
     

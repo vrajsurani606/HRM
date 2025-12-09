@@ -844,7 +844,7 @@
                         </div>
                         <div class="contact-text">
                             <div class="contact-label">Phone</div>
-                            <div class="contact-value">{{ $profile['phone'] }}</div>
+                            <div class="contact-value">{{ display_mobile($profile['phone']) }}</div>
                         </div>
                     </div>
                     @endif

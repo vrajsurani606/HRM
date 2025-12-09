@@ -103,17 +103,7 @@
         <p class="quotation-grid-sub">Code: {{ $quotation->unique_code ?? 'N/A' }} • Updated: {{ $quotation->updated_at ? $quotation->updated_at->format('d M, Y') : 'N/A' }}</p>
         <div class="quotation-grid-meta">
           <div class="quotation-grid-left">
-            <div class="meta-row"><span class="meta-label">Mobile</span><span class="meta-value">
-              @php
-                if($quotation->contact_number_1) {
-                  $mobile = $quotation->contact_number_1;
-                  $mobile = preg_replace('/^\+91/', '', $mobile);
-                  echo $mobile;
-                } else {
-                  echo 'N/A';
-                }
-              @endphp
-            </span></div>
+            <div class="meta-row"><span class="meta-label">Mobile</span><span class="meta-value">{{ display_mobile($quotation->contact_number_1) ?? 'N/A' }}</span></div>
             <div class="meta-row"><span class="meta-label">Next</span><span class="meta-value">{{ $quotation->tentative_complete_date ? $quotation->tentative_complete_date->format('d M, Y') : '-' }}</span></div>
             <div class="meta-row">
               <span class="meta-label">Confirm</span>
@@ -248,18 +238,7 @@
             <td>{{ $quotations->firstItem() + $index }}</td>
             <td>{{ $quotation->unique_code ?? 'N/A' }}</td> 
             <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $quotation->company_name ?? 'N/A' }}">{{ $quotation->company_name ?? 'N/A' }}</td>
-            <td>
-              @if($quotation->contact_number_1)
-                @php
-                  $mobile = $quotation->contact_number_1;
-                  // Remove +91 prefix if present
-                  $mobile = preg_replace('/^\+91/', '', $mobile);
-                  echo $mobile;
-                @endphp
-              @else
-                N/A
-              @endif
-            </td>
+            <td>{{ display_mobile($quotation->contact_number_1) ?? 'N/A' }}</td>
             <td>{{ $quotation->updated_at ? $quotation->updated_at->format('d/m/Y') : 'N/A' }}</td>
             <td>{{ $quotation->tentative_complete_date ? $quotation->tentative_complete_date->format('d/m/Y') : 'N/A' }}</td>
             <td style="text-align: center;">

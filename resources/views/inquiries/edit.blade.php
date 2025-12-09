@@ -93,7 +93,7 @@
         inputmode="numeric"
         pattern="\d{10}"
         maxlength="10"
-        value="{{ old('company_phone', $inquiry->company_phone) }}"
+        value="{{ old('company_phone', strip_country_code($inquiry->company_phone)) }}"
         placeholder="Enter 10 digit mobile number"
       />
       @error('company_phone')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -147,7 +147,7 @@
         inputmode="numeric"
         pattern="\d{10}"
         maxlength="10"
-        value="{{ old('contact_mobile', $inquiry->contact_mobile) }}"
+        value="{{ old('contact_mobile', strip_country_code($inquiry->contact_mobile)) }}"
         placeholder="Enter 10 digit mobile number"
       />
       @error('contact_mobile')<small class="hrp-error">{{ $message }}</small>@enderror
