@@ -210,10 +210,8 @@
           <select class="Rectangle-29-select @error('city') is-invalid @enderror" name="city" id="city_select">
             <option value="" disabled selected>SELECT STATE FIRST</option>
           </select>
-          <input type="text" class="Rectangle-29 @error('city_manual') is-invalid @enderror" name="city_manual" id="city_manual_input" placeholder="Enter city name manually" value="{{ old('city_manual') }}" style="display: none; margin-top: 10px;">
           <input type="hidden" id="old_city" value="{{ old('city') }}">
           @error('city')<small class="hrp-error">{{ $message }}</small>@enderror
-          @error('city_manual')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
 
@@ -846,7 +844,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-<script src="{{ asset('js/state-city-dropdown.js') }}"></script>
 
 <script>
 //
