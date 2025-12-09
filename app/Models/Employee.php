@@ -167,4 +167,20 @@ class Employee extends Model
     {
         return $this->hasMany(EmployeeDocument::class);
     }
+
+    /**
+     * Get the profile photo URL with fallback
+     */
+    public function getProfilePhotoUrlAttribute()
+    {
+        return get_profile_photo($this, $this->name);
+    }
+
+    /**
+     * Get user initials
+     */
+    public function getInitialsAttribute()
+    {
+        return get_user_initials($this->name);
+    }
 }

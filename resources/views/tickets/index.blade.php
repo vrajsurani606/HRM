@@ -171,13 +171,12 @@
             <td style="padding: 14px 16px;">
               @if($ticket->assignedEmployee)
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  @if($ticket->assignedEmployee->photo_path)
-                    <img src="{{ storage_asset($ticket->assignedEmployee->photo_path) }}" alt="{{ $ticket->assignedEmployee->name }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid #e5e7eb;">
-                  @else
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px; flex-shrink: 0;">
-                      {{ strtoupper(substr($ticket->assignedEmployee->name, 0, 1)) }}
-                    </div>
-                  @endif
+                  <x-avatar 
+                    :src="$ticket->assignedEmployee->profile_photo_url" 
+                    :name="$ticket->assignedEmployee->name" 
+                    size="32px"
+                    class="border-2 border-gray-200"
+                  />
                   <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
                     <span style="color: #0f172a; font-size: 14px; font-weight: 600; white-space: nowrap;">{{ $ticket->assignedEmployee->name }}</span>
                     @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.reassign ticket'))

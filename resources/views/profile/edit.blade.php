@@ -19,10 +19,7 @@
         <!-- Profile Info -->
         <div style="display:flex;align-items:center;gap:8px">
           <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;background:#fbbf24;flex-shrink:0">
-            @php
-              $photo = $employee && $employee->photo_path ? storage_asset($employee->photo_path) : null;
-            @endphp
-            <img src="{{ $photo ?? 'https://ui-avatars.com/api/?name=' . urlencode($employee->name ?? $user->name) . '&background=f59e0b&color=fff&size=60' }}" style="width:100%;height:100%;object-fit:cover" alt="{{ $employee->name ?? $user->name }}">
+            <img src="{{ $employee ? $employee->profile_photo_url : $user->profile_photo_url }}" style="width:100%;height:100%;object-fit:cover" alt="{{ $employee->name ?? $user->name }}">
           </div>
           <div>
             <h2 style="font-size:24px;font-weight:700;color:#1e293b;margin:0 0 1px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">{{ $employee->name ?? $user->name }}</h2>
@@ -128,10 +125,7 @@
         <!-- Left Column - Profile Image -->
         <div style="flex:0 0 200px">
           <div style="width:200px;height:200px;border-radius:50%;overflow:hidden;background:#fbbf24;margin-bottom:20px">
-            @php
-              $photo = $employee && $employee->photo_path ? storage_asset($employee->photo_path) : null;
-            @endphp
-            <img src="{{ $photo ?? 'https://ui-avatars.com/api/?name=' . urlencode($employee->name ?? $user->name) . '&background=f59e0b&color=fff&size=200' }}"
+            <img src="{{ $employee ? $employee->profile_photo_url : $user->profile_photo_url }}"
               style="width:100%;height:100%;object-fit:cover" alt="{{ $employee->name ?? $user->name }}">
           </div>
         </div>

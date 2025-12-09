@@ -23,12 +23,26 @@
 
 /* Modal and Date Input Fixes */
 .modal-overlay {
-  z-index: 9999 !important;
+  z-index: 2147483646 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  padding: 20px !important;
+  overflow-y: auto !important;
 }
 
 .modal-content {
   position: relative;
-  z-index: 10000 !important;
+  z-index: 2147483647 !important;
+  margin: auto !important;
+  max-height: calc(100vh - 100px) !important;
+  overflow-y: auto !important;
 }
 
 /* jQuery UI Datepicker z-index fix for modals */
@@ -663,14 +677,20 @@
               @if($project->members->count() > 0)
                 @foreach($project->members->take($displayLimit) as $index => $member)
                   @php
-                    $initials = strtoupper(substr($member->name, 0, 1));
-                    if (str_word_count($member->name) > 1) {
-                      $words = explode(' ', $member->name);
-                      $initials = strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
-                    }
-                    $bgColor = $colors[$index % count($colors)];
+                    $initials = get_user_initials($member->name);
+                    $bgColor = $colors[$member->id % count($colors)];
+                    
+                    // Get employee for this user to check for photo
+                    $employee = \App\Models\Employee::where('user_id', $member->id)->first();
+                    $photoUrl = $employee ? $employee->profile_photo_url : $member->profile_photo_url;
                   @endphp
-                  <div class="avatar" style="background: {{ $bgColor }};" title="{{ $member->name }}">{{ $initials }}</div>
+                  <div class="avatar" style="background: {{ $bgColor }}; overflow: hidden;" title="{{ $member->name }}">
+                    @if($employee && $employee->photo_path)
+                      <img src="{{ $photoUrl }}" alt="{{ $member->name }}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='{{ $initials }}';">
+                    @else
+                      {{ $initials }}
+                    @endif
+                  </div>
                 @endforeach
                 @if($project->members->count() > $displayLimit)
                   <div class="avatar" style="background: #6B7280;" title="{{ $project->members->count() - $displayLimit }} more members">+{{ $project->members->count() - $displayLimit }}</div>
@@ -1056,7 +1076,7 @@
 
   <!-- View Project Modal -->
   <div id="viewProjectModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 1400px; width: 95%; max-height: 90vh; overflow-y: auto; border-radius: 16px; padding: 0; background: white;">
+    <div class="modal-content" style="max-width: 1400px; width: 95%; max-height: calc(100vh - 120px); overflow-y: auto; border-radius: 16px; padding: 0; background: white; margin: 60px auto;">
       <!-- Stage Badge -->
       <div style="padding: 14px 20px; border-bottom: 1px solid #f0f0f0;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -3518,13 +3538,12 @@ function renderMemberCards(users) {
         card.dataset.name = user.name.toLowerCase();
         card.style.cssText = 'position: relative; display: flex; flex-direction: column; align-items: center; padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; background: white;';
         
-        // Get employee photo or use initials
-        const photoPath = user.employee && user.employee.photo_path 
-            ? `{{ asset('storage') }}/${user.employee.photo_path}`
-            : null;
+        // Get employee photo or use initials - photo_path comes directly from API
+        const photoPath = user.photo_path ? `{{ url('public/storage') }}/${user.photo_path}` : null;
         const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-        const avatarColors = ['#4F46E5', '#059669', '#DC2626', '#F59E0B', '#8B5CF6', '#EC4899'];
+        const avatarColors = ['#4F46E5', '#059669', '#DC2626', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
         const avatarColor = avatarColors[user.id % avatarColors.length];
+        const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=${avatarColor.substring(1)}&color=fff&size=80&bold=true`;
         
         card.innerHTML = `
             <div style="position: absolute; top: 8px; right: 8px;">
@@ -3532,7 +3551,7 @@ function renderMemberCards(users) {
             </div>
             <div style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; margin-bottom: 12px; border: 3px solid #e2e8f0; transition: border-color 0.2s ease; background: ${photoPath ? 'white' : avatarColor}; display: flex; align-items: center; justify-content: center;">
                 ${photoPath 
-                    ? `<img src="${photoPath}" alt="${user.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\\'color: white; font-size: 28px; font-weight: 700;\\'>${initials}</span>';">`
+                    ? `<img src="${photoPath}" alt="${user.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='${defaultAvatar}';">`
                     : `<span style="color: white; font-size: 28px; font-weight: 700;">${initials}</span>`
                 }
             </div>
@@ -3767,33 +3786,71 @@ function loadProjectMembers(projectId) {
             const memberColors = ['#4F46E5', '#059669', '#DC2626', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6'];
             
             data.members.forEach((member, index) => {
-                const color = memberColors[index % memberColors.length];
-                const initial = member.name.charAt(0).toUpperCase();
+                const color = memberColors[member.id % memberColors.length];
+                const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
                 
+                // Debug: Log member data to see structure
+                console.log('Member data:', member);
+                
+                // Check for photo from employee data - try multiple paths
+                let photoPath = null;
+                if (member.employee && member.employee.photo_path) {
+                    photoPath = `{{ asset('public/storage') }}/${member.employee.photo_path}`;
+                    console.log('Found employee photo:', photoPath);
+                } else if (member.photo_path) {
+                    photoPath = `{{ asset('public/storage') }}/${member.photo_path}`;
+                    console.log('Found user photo:', photoPath);
+                }
+                
+                const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=${color.substring(1)}&color=fff&size=32&bold=true`;
+                
+                // Create wrapper for avatar (no overflow hidden here)
+                const avatarWrapper = document.createElement('div');
+                avatarWrapper.style.cssText = `position: relative; margin-left: ${index > 0 ? '-10px' : '0'};`;
+                
+                // Create avatar circle
                 const avatar = document.createElement('div');
-                avatar.style.cssText = `width: 32px; height: 32px; border-radius: 50%; background: ${color}; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; border: 2px solid white; margin-left: ${index > 0 ? '-10px' : '0'}; cursor: pointer; position: relative;`;
+                avatar.style.cssText = `width: 32px; height: 32px; border-radius: 50%; background: ${photoPath ? 'white' : color}; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; border: 2px solid white; cursor: pointer; overflow: hidden;`;
                 avatar.title = member.name;
                 avatar.dataset.userId = member.id;
-                avatar.innerHTML = initial;
                 
-                // Add remove button on hover
-                avatar.addEventListener('mouseenter', function() {
+                // Set avatar content (photo or initials)
+                if (photoPath) {
+                    console.log('Setting photo for', member.name, ':', photoPath);
+                    const img = document.createElement('img');
+                    img.src = photoPath;
+                    img.alt = member.name;
+                    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+                    img.onerror = function() {
+                        console.log('Photo failed to load, using default avatar');
+                        this.src = defaultAvatar;
+                    };
+                    avatar.appendChild(img);
+                } else {
+                    console.log('No photo found for', member.name, ', using initials:', initials);
+                    avatar.textContent = initials;
+                }
+                
+                // Add remove button on hover (attached to wrapper, not avatar)
+                avatarWrapper.addEventListener('mouseenter', function() {
                     const removeBtn = document.createElement('div');
-                    removeBtn.style.cssText = 'position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white;';
+                    removeBtn.className = 'member-remove-btn';
+                    removeBtn.style.cssText = 'position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; z-index: 10;';
                     removeBtn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
                     removeBtn.onclick = (e) => {
                         e.stopPropagation();
-                        removeMember(member.id, avatar);
+                        removeMember(member.id, avatarWrapper);
                     };
-                    avatar.appendChild(removeBtn);
+                    avatarWrapper.appendChild(removeBtn);
                 });
                 
-                avatar.addEventListener('mouseleave', function() {
-                    const removeBtn = avatar.querySelector('div');
+                avatarWrapper.addEventListener('mouseleave', function() {
+                    const removeBtn = avatarWrapper.querySelector('.member-remove-btn');
                     if (removeBtn) removeBtn.remove();
                 });
                 
-                membersContainer.appendChild(avatar);
+                avatarWrapper.appendChild(avatar);
+                membersContainer.appendChild(avatarWrapper);
             });
             
             // Add + button
