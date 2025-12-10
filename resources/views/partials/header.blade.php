@@ -22,11 +22,8 @@
         @php
           $user = auth()->user();
           $employee = \App\Models\Employee::where('email', $user->email)->first();
-          $photoUrl = $employee && $employee->photo_path 
-            ? storage_asset($employee->photo_path) 
-            : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=3b82f6&color=fff&size=64';
         @endphp
-        <img class="hrp-avatar" src="{{ $photoUrl }}" alt="user"/>
+        <img class="hrp-avatar" src="{{ $employee ? $employee->profile_photo_url : $user->profile_photo_url }}" alt="{{ $user->name }}"/>
         <div class="hrp-user-meta">
           <div class="hrp-user-email">{{ $user->email ?? 'user@example.com' }}</div>
           <div class="hrp-user-name">{{ $user->name ?? 'User' }}</div>

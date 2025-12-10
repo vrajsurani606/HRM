@@ -866,10 +866,25 @@ function renderTeamMembers() {
     let html = '';
     membersData.forEach(member => {
         const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'];
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#ec4899', '#f97316'];
         const color = colors[member.id % colors.length];
+        
+        // Check for photo from employee data
+        const photoPath = member.employee && member.employee.photo_path 
+            ? `{{ asset('public/storage') }}/${member.employee.photo_path}`
+            : null;
+        const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=${color.substring(1)}&color=fff&size=70&bold=true`;
+        
+        // Build avatar content
+        let avatarContent = '';
+        if (photoPath) {
+            avatarContent = `<img src="${photoPath}" alt="${escapeHtml(member.name)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='${defaultAvatar}';">`;
+        } else {
+            avatarContent = initials;
+        }
+        
         html += `<div class="team-card-item">
-            <div class="team-avatar-circle" style="background: ${color};">${initials}</div>
+            <div class="team-avatar-circle" style="background: ${photoPath ? 'white' : color}; overflow: hidden; ${photoPath ? 'border: 3px solid #e5e7eb;' : ''}">${avatarContent}</div>
             <h4 class="team-name-text">${escapeHtml(member.name)}</h4>
             <p class="team-role-text">${member.pivot?.role || 'Member'}</p>
         </div>`;
@@ -1369,10 +1384,13 @@ async function addNewMember() {
             const color = colors[user.id % colors.length];
             const initial = user.name.charAt(0).toUpperCase();
             
-            // Determine avatar display (photo or initial)
+            // Determine avatar display (photo or initial) - photo_path comes directly from API
+            const photoPath = user.photo_path ? `{{ asset('public/storage') }}/${user.photo_path}` : null;
+            const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=${color.substring(1)}&color=fff&size=64&bold=true`;
+            
             let avatarContent = '';
-            if (user.photo_path) {
-                avatarContent = `<img src="{{ asset('storage') }}/${user.photo_path}" alt="${escapeHtml(user.name)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            if (photoPath) {
+                avatarContent = `<img src="${photoPath}" alt="${escapeHtml(user.name)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='${defaultAvatar}';">`;
             } else {
                 avatarContent = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 700;">${initial}</div>`;
             }

@@ -253,7 +253,7 @@ class DashboardController extends Controller
             return [
                 'id' => $emp->id, 
                 'name' => $emp->name,
-                'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png')
+                'photo' => $emp->profile_photo_url
             ];
         })->toArray();
 
@@ -485,7 +485,7 @@ class DashboardController extends Controller
                 return [
                     'name' => $emp->name,
                     'date' => Carbon::parse($emp->date_of_birth)->day,
-                    'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png'),
+                    'photo' => $emp->profile_photo_url,
                     'age' => Carbon::parse($emp->date_of_birth)->age
                 ];
             });
@@ -501,7 +501,7 @@ class DashboardController extends Controller
                 return [
                     'name' => $emp->name,
                     'date' => $birthday->day,
-                    'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png'),
+                    'photo' => $emp->profile_photo_url,
                     'daysUntil' => now()->diffInDays($birthday)
                 ];
             });
@@ -532,7 +532,7 @@ class DashboardController extends Controller
                 return [
                     'name' => $emp->name,
                     'date' => Carbon::parse($emp->date_of_birth)->day,
-                    'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png')
+                    'photo' => $emp->profile_photo_url
                 ];
             });
 
@@ -591,7 +591,7 @@ class DashboardController extends Controller
                         foreach ($assignees as $assigneeName) {
                             $assigneeEmp = Employee::where('name', $assigneeName)->first();
                             if ($assigneeEmp) {
-                                $assigneePhotos[] = $assigneeEmp->photo_path ? asset('storage/' . $assigneeEmp->photo_path) : asset('new_theme/dist/img/avatar.png');
+                                $assigneePhotos[] = $assigneeEmp->profile_photo_url;
                             }
                         }
                     }
@@ -689,7 +689,7 @@ class DashboardController extends Controller
                 $anniversariesCalendar[$day][] = [
                     'name' => $emp->name,
                     'years' => $yearsWorked,
-                    'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png')
+                    'photo' => $emp->profile_photo_url
                 ];
             }
         }
@@ -813,7 +813,7 @@ class DashboardController extends Controller
             }
             $birthdaysCalendar[$day][] = [
                 'name' => $emp->name,
-                'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png')
+                'photo' => $emp->profile_photo_url
             ];
         }
         
@@ -889,7 +889,7 @@ class DashboardController extends Controller
                 $anniversariesCalendar[$day][] = [
                     'name' => $emp->name,
                     'years' => $yearsWorked,
-                    'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png')
+                    'photo' => $emp->profile_photo_url
                 ];
             }
         }
@@ -1550,7 +1550,7 @@ class DashboardController extends Controller
                     'position' => $emp->position ?? 'Employee',
                     'date' => $nextBirthday->format('M d'),
                     'days_until' => now()->diffInDays($nextBirthday),
-                    'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png')
+                    'photo' => $emp->profile_photo_url
                 ];
             });
 
@@ -1567,7 +1567,7 @@ class DashboardController extends Controller
                     'position' => $emp->position ?? 'Employee',
                     'years' => $yearsWorked,
                     'date' => $joiningDate->format('M d'),
-                    'photo' => $emp->photo_path ? asset('storage/' . $emp->photo_path) : asset('new_theme/dist/img/avatar.png')
+                    'photo' => $emp->profile_photo_url
                 ];
             })
             ->filter(fn($emp) => $emp['years'] >= 1)

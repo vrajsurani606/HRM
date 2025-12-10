@@ -137,4 +137,104 @@ if (!function_exists('user_has_any_action_permission')) {
         return false;
     }
 }
+
+if (!function_exists('get_profile_photo')) {
+    /**
+     * Get profile photo URL for Employee or User with fallback to default
+     * 
+     * @param \App\Models\Employee|\App\Models\User|null $model
+     * @param string|null $name - Name for generating initials avatar
+     * @return string
+     */
+    function get_profile_photo($model, $name = null)
+    {
+        if (!$model) {
+            return get_default_avatar($name);
+        }
+        
+        // Check if model has photo_path
+        if (!empty($model->photo_path)) {
+            return storage_asset($model->photo_path);
+        }
+        
+        // Fallback to default avatar with name
+        $displayName = $name ?? $model->name ?? 'User';
+        return get_default_avatar($displayName);
+    }
+}
+
+if (!function_exists('get_default_avatar')) {
+    /**
+     * Generate default avatar URL using UI Avatars service
+     * 
+     * @param string|null $name
+     * @param string $background - Hex color without #
+     * @param string $color - Hex color without #
+     * @param int $size - Avatar size in pixels
+     * @return string
+     */
+    function get_default_avatar($name = null, $background = '3b82f6', $color = 'ffffff', $size = 200)
+    {
+        $name = $name ?? 'User';
+        return 'https://ui-avatars.com/api/?name=' . urlencode($name) 
+               . '&background=' . $background 
+               . '&color=' . $color 
+               . '&size=' . $size
+               . '&bold=true';
+    }
+}
+
+if (!function_exists('get_user_initials')) {
+    /**
+     * Get user initials from name (first letter of first and last name)
+     * 
+     * @param string|null $name
+     * @return string
+     */
+    function get_user_initials($name = null)
+    {
+        if (!$name) {
+            return 'U';
+        }
+        
+        $words = explode(' ', trim($name));
+        
+        if (count($words) >= 2) {
+            return strtoupper(substr($words[0], 0, 1) . substr($words[count($words) - 1], 0, 1));
+        }
+        
+        return strtoupper(substr($name, 0, 1));
+    }
+}
+
+if (!function_exists('profile_photo_or_initials')) {
+    /**
+     * Get profile photo HTML or initials div for display
+     * Returns array with 'type' (photo|initials), 'content' (url or initials), 'name'
+     * 
+     * @param \App\Models\Employee|\App\Models\User|null $model
+     * @param string|null $name
+     * @return array
+     */
+    function profile_photo_or_initials($model, $name = null)
+    {
+        $displayName = $name ?? ($model->name ?? 'User');
+        
+        if ($model && !empty($model->photo_path)) {
+            return [
+                'type' => 'photo',
+                'content' => storage_asset($model->photo_path),
+                'name' => $displayName,
+                'initials' => get_user_initials($displayName)
+            ];
+        }
+        
+        return [
+            'type' => 'initials',
+            'content' => get_user_initials($displayName),
+            'name' => $displayName,
+            'initials' => get_user_initials($displayName)
+        ];
+    }
+}
     
