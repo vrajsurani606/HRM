@@ -22,15 +22,15 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             
             // Then: Create users and employees
-            // EmployeeSeeder::class,
-            // UserSeeder::class,
+            EmployeeSeeder::class,
+            UserSeeder::class,
             
             // Finally: Create other data
-            // ProjectStageSeeder::class,
-            // TicketSeeder::class,
-            // MaterialSeeder::class,
-            // ProjectSeeder::class,
-            // CompanyHolidaySeeder::class,
+            ProjectStageSeeder::class,
+            TicketSeeder::class,
+            MaterialSeeder::class,
+            ProjectSeeder::class,
+            CompanyHolidaySeeder::class,
         ]);
     }
 }

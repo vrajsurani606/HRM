@@ -37,8 +37,21 @@ class ProjectController extends Controller
             $stages = ProjectStage::with(['projects.company', 'projects.members'])->orderBy('order')->get();
         }
         
+        // Get all projects for list/grid view (no pagination)
+        $projectsQuery = Project::with(['company', 'stage', 'members']);
+        
+        if ($user->hasRole('employee')) {
+            $projectsQuery->whereHas('members', function($q) use ($user) {
+                $q->where('users.id', $user->id);
+            });
+        } elseif (($user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company')) && $user->company_id) {
+            $projectsQuery->where('company_id', $user->company_id);
+        }
+        
+        $projects = $projectsQuery->orderBy('created_at', 'desc')->get();
+        
         $companies = \App\Models\Company::orderBy('company_name')->get();
-        return view('projects.index', compact('stages', 'companies'));
+        return view('projects.index', compact('stages', 'companies', 'projects'));
     }
 
     public function storeStage(Request $request): JsonResponse

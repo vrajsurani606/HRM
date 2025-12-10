@@ -22,6 +22,11 @@
           <div class="password-wrapper">
             <input type="password" name="password" class="hrp-input Rectangle-29">
           </div>
+          @can('Users Management.edit user')
+            @if($user->plain_password)
+            <small style="color:#6b7280;font-size:12px">Current: <strong>{{ $user->plain_password }}</strong></small>
+            @endif
+          @endcan
           @error('password')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>

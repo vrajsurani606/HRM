@@ -347,54 +347,55 @@
 /* List View Styles */
 .projects-list-view {
   display: none;
-  padding: 20px;
+  padding: 0 12px 12px;
 }
 
 .projects-list-view.active {
   display: block;
+  overflow:auto;
 }
 
-.projects-table {
-  width: 100%;
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+/* Fix scroll when list/grid view is active - match Companies behavior */
+.hrp-content.list-view-active,
+.hrp-content.grid-view-active {
+  height: auto !important;
+  min-height: auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
-.projects-table table {
-  width: 100%;
-  border-collapse: collapse;
+/* Hide kanban board when list/grid view is active */
+.hrp-content.list-view-active .kanban-board,
+.hrp-content.grid-view-active .kanban-board {
+  display: none !important;
 }
 
-.projects-table thead {
-  background: #f9fafb;
-  border-bottom: 2px solid #e5e7eb;
+/* Grid view styles */
+.projects-grid-view {
+  padding: 12px 12px 20px;
 }
 
-.projects-table th {
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 12px;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.projects-grid-view.active {
+  min-height: auto;
+  overflow: auto;
 }
 
-.projects-table td {
-  padding: 16px;
-  border-bottom: 1px solid #f3f4f6;
-  font-size: 14px;
-  color: #1f2937;
+/* Action icons in list view */
+.action-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.projects-table tbody tr {
-  transition: background 0.2s;
+.action-icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  transition: transform 0.2s;
 }
 
-.projects-table tbody tr:hover {
-  background: #f9fafb;
+.action-icon:hover {
+  transform: scale(1.1);
 }
 
 .project-list-name {
@@ -694,13 +695,12 @@
 
   <!-- Grid View -->
   <div class="projects-grid-view">
-    @foreach($stages as $stage)
-      @foreach($stage->projects as $project)
+    @forelse($projects as $project)
       <div class="project-grid-card" onclick="viewProject({{ $project->id }}, event)">
         <div class="project-grid-header">
           <h3 class="project-grid-title">{{ $project->name }}</h3>
-          <span class="project-grid-stage" style="background: {{ $stage->color }}; color: #000;">
-            {{ $stage->name }}
+          <span class="project-grid-stage" style="background: {{ $project->stage->color ?? '#f3f4f6' }}; color: #000;">
+            {{ $project->stage->name ?? 'No Stage' }}
           </span>
         </div>
         
@@ -756,29 +756,49 @@
           </div>
         </div>
       </div>
-      @endforeach
-    @endforeach
+    @empty
+      <div class="text-center py-3" style="grid-column: 1/-1;">No projects found</div>
+    @endforelse
   </div>
 
   <!-- List View -->
   <div class="projects-list-view">
-    <div class="projects-table">
+    <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
       <table>
         <thead>
           <tr>
+            <th style="width: 120px;">Actions</th>
+            <th>Sr.No.</th>
             <th>Project Name</th>
             <th>Company</th>
             <th>Stage</th>
             <th>Progress</th>
             <th>Due Date</th>
             <th>Priority</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          @foreach($stages as $stage)
-            @foreach($stage->projects as $project)
+          @forelse($projects as $index => $project)
             <tr>
+              <td>
+                <div class="action-icons">
+                  @can('Projects Management.view project')
+                    <img src="{{ asset('action_icon/view.svg') }}" alt="View" class="action-icon" onclick="viewProject({{ $project->id }}, event)" title="View Project" style="cursor:pointer;">
+                  @endcan
+                  @can('Projects Management.edit project')
+                    <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon" onclick="editProject({{ $project->id }})" title="Edit Project" style="cursor:pointer;">
+                  @endcan
+                  @can('Projects Management.view project')
+                    <a href="{{ url('/projects') }}/{{ $project->id }}/overview" title="Project Overview">
+                      <img src="{{ asset('action_icon/view_temp_list.svg') }}" alt="Overview" class="action-icon">
+                    </a>
+                  @endcan
+                  @can('Projects Management.delete project')
+                    <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon" onclick="deleteProject({{ $project->id }})" title="Delete Project" style="cursor:pointer;">
+                  @endcan
+                </div>
+              </td>
+              <td>{{ $index + 1 }}</td>
               <td>
                 <span class="project-list-name" onclick="viewProject({{ $project->id }}, event)">
                   {{ $project->name }}
@@ -786,8 +806,8 @@
               </td>
               <td>{{ $project->company->company_name ?? 'N/A' }}</td>
               <td>
-                <span class="project-list-stage-badge" style="background: {{ $stage->color }}; color: #000;">
-                  {{ $stage->name }}
+                <span class="project-list-stage-badge" style="background: {{ $project->stage->color ?? '#f3f4f6' }}; color: #000;">
+                  {{ $project->stage->name ?? 'No Stage' }}
                 </span>
               </td>
               <td>
@@ -798,53 +818,20 @@
                   <span class="project-list-progress-text">{{ $project->progress }}%</span>
                 </div>
               </td>
-              <td>{{ $project->due_date ? $project->due_date->format('M d, Y') : 'N/A' }}</td>
+              <td>{{ $project->due_date ? $project->due_date->format('d M, Y') : 'N/A' }}</td>
               <td>
                 <span style="color: {{ $project->priority === 'high' ? '#ef4444' : ($project->priority === 'medium' ? '#f59e0b' : '#10b981') }}; font-weight: 500; text-transform: capitalize;">
                   {{ $project->priority ?? 'medium' }}
                 </span>
               </td>
-              <td>
-                <div class="project-list-actions">
-                  @can('Projects Management.view project')
-                    <button class="project-list-action-btn btn-view" onclick="viewProject({{ $project->id }}, event)" title="View Project">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </button>
-                  @endcan
-                  @can('Projects Management.edit project')
-                    <button class="project-list-action-btn btn-edit" onclick="editProject({{ $project->id }})" title="Edit Project">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                      </svg>
-                    </button>
-                  @endcan
-                  @can('Projects Management.view project')
-                    <button class="project-list-action-btn btn-overview" onclick="window.location.href='{{ url('/projects') }}/{{ $project->id }}/overview'" title="Project Overview">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="14" width="7" height="7"></rect>
-                        <rect x="3" y="14" width="7" height="7"></rect>
-                      </svg>
-                    </button>
-                  @endcan
-                  @can('Projects Management.delete project')
-                    <button class="project-list-action-btn btn-delete" onclick="deleteProject({{ $project->id }})" title="Delete Project">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                      </svg>
-                    </button>
-                  @endcan
-                </div>
-              </td>
             </tr>
-            @endforeach
-          @endforeach
+          @empty
+            <x-empty-state 
+                colspan="8" 
+                title="No projects found" 
+                message="Create a new project to get started"
+            />
+          @endforelse
         </tbody>
       </table>
     </div>
@@ -1387,6 +1374,17 @@ function initializeViewSwitching() {
         kanbanView.classList.toggle('hidden', view !== 'kanban');
         gridView.classList.toggle('active', view === 'grid');
         listView.classList.toggle('active', view === 'list');
+        
+        // Fix overflow for list/grid views (enable vertical scroll)
+        const hrpContent = document.querySelector('.hrp-content');
+        if (hrpContent) {
+            hrpContent.classList.remove('list-view-active', 'grid-view-active');
+            if (view === 'list') {
+                hrpContent.classList.add('list-view-active');
+            } else if (view === 'grid') {
+                hrpContent.classList.add('grid-view-active');
+            }
+        }
     }
 }
 
@@ -3811,6 +3809,13 @@ function loadProjectMembers(projectId) {
 }
 </script>
 @endpush
+
+@section('breadcrumb')
+  <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">Projects</span>
+@endsection
+
 @endsection
 
 

@@ -168,6 +168,7 @@
               @endphp
               <span style="display: inline-block; padding: 6px 14px; background: {{ $statusBackground }}; border-radius: 20px; border: 2px solid {{ $statusColor }}; color: {{ $statusColor }}; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">{{ $statusText }}</span>
             </td>
+            @if(!auth()->user()->hasRole('customer'))
             <td style="padding: 14px 16px;">
               @if($ticket->assignedEmployee)
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -178,10 +179,13 @@
                       {{ strtoupper(substr($ticket->assignedEmployee->name, 0, 1)) }}
                     </div>
                   @endif
-                  <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; flex: 1;">
                     <span style="color: #0f172a; font-size: 14px; font-weight: 600; white-space: nowrap;">{{ $ticket->assignedEmployee->name }}</span>
-                    @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.reassign ticket'))
-                      <button onclick="assignTicket({{ $ticket->id }})" style="background: #f8fafc; border: 1px solid #e2e8f0; cursor: pointer; padding: 4px 10px; border-radius: 6px; font-size: 11px; color: #64748b; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;" onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#cbd5e1'" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'" title="Reassign to another employee">
+                    @if($ticket->assignedEmployee->position)
+                      <span style="color: #64748b; font-size: 11px; font-weight: 500;">{{ $ticket->assignedEmployee->position }}</span>
+                    @endif
+                    @if(!auth()->user()->hasRole('customer') && (auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.reassign ticket')))
+                      <button onclick="assignTicket({{ $ticket->id }})" style="background: #f8fafc; border: 1px solid #e2e8f0; cursor: pointer; padding: 4px 10px; border-radius: 6px; font-size: 11px; color: #64748b; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; margin-top: 4px; width: fit-content;" onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#cbd5e1'" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'" title="Reassign to another employee">
                         <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                         </svg>
@@ -191,7 +195,7 @@
                   </div>
                 </div>
               @else
-                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.assign ticket'))
+                @if(!auth()->user()->hasRole('customer') && (auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.assign ticket')))
                   <button onclick="assignTicket({{ $ticket->id }})" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(59, 130, 246, 0.3)'" title="Assign this ticket to an employee">
                     <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
@@ -199,15 +203,14 @@
                     <span style="white-space: nowrap;">Assign Employee</span>
                   </button>
                 @else
-                  <span style="color: #9ca3af; font-size: 13px; font-style: italic;">Not assigned</span>
+                  <span style="color: #9ca3af; font-size: 13px; font-style: italic;">Not assigned yet</span>
                 @endif
               @endif
             </td>
+            @endif
+            <td style="padding: 14px 16px;">{{ $ticket->category ?? 'General Inquiry' }}</td>
             @if(!auth()->user()->hasRole('customer'))
-            <td style="padding: 14px 16px;">{{ $ticket->category ?? 'General Inquiry' }}</td>
             <td style="padding: 14px 16px;">{{ $ticket->customer ?? '-' }}</td>
-            @else
-            <td style="padding: 14px 16px;">{{ $ticket->category ?? 'General Inquiry' }}</td>
             @endif
             <td style="padding: 14px 16px;">{{ $ticket->title ?? $ticket->subject ?? '-' }}</td>
             <td style="padding: 14px 16px;">{{ Str::limit($ticket->description ?? 'Ok', 50) }}</td>
@@ -230,7 +233,7 @@
   <div style="background: white; border-radius: 15px; padding: 30px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
     <h3 id="modalTitle" style="margin: 0 0 20px 0; font-size: 22px; font-weight: 700;">Add Ticket</h3>
     
-    <form id="ticketForm" onsubmit="submitTicket(event)">
+    <form id="ticketForm" onsubmit="submitTicket(event)" enctype="multipart/form-data">
       <input type="hidden" name="ticket_id" id="ticket_id">
       
       @php
@@ -361,9 +364,26 @@
         <input type="text" name="title" id="ticket_title" required placeholder="Brief description of your issue" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
       </div>
 
-      <div style="margin-bottom: 20px;">
+      <div style="margin-bottom: 15px;">
         <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Description <span style="color: #ef4444;">*</span></label>
         <textarea name="description" id="ticket_description" rows="4" required placeholder="Please provide detailed information about your issue..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: vertical;"></textarea>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: flex; align-items: center; margin-bottom: 8px; font-weight: 600; font-size: 14px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px; flex-shrink: 0;">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          </svg>
+          <span>Attach File (Optional)</span>
+        </label>
+        <label for="ticket_attachment" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; color: #64748b; transition: all 0.2s; width: 100%; justify-content: center;" onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#94a3b8'" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <span id="ticket_attachment_label">Click to upload image or PDF (Max 10MB)</span>
+        </label>
+        <input type="file" id="ticket_attachment" name="attachment" accept="image/*,.pdf" style="display: none;" onchange="showTicketFileName(this)">
+        <div id="ticket_file_preview" style="margin-top: 10px;"></div>
       </div>
 
       <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -386,6 +406,65 @@ function updatePriorityStyle() {
       label.style.background = 'white';
     }
   });
+}
+
+function showTicketFileName(input) {
+  const preview = document.getElementById('ticket_file_preview');
+  const label = document.getElementById('ticket_attachment_label');
+  
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+    const isImage = file.type.startsWith('image/');
+    const isPdf = file.type === 'application/pdf';
+    
+    // Update label
+    label.textContent = '✓ File selected';
+    label.parentElement.style.borderColor = '#10b981';
+    label.parentElement.style.background = '#f0fdf4';
+    
+    // Show preview
+    preview.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border: 1px solid #e5e7eb; border-radius: 8px;">
+        <div style="flex-shrink: 0;">
+          ${isImage ? `
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+            </svg>
+          ` : isPdf ? `
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            </svg>
+          ` : `
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/>
+            </svg>
+          `}
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-weight: 600; font-size: 14px; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</div>
+          <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+            ${isImage ? '🖼️ Image' : isPdf ? '📄 PDF' : '📎 File'} • ${fileSize} MB
+          </div>
+        </div>
+        <button type="button" onclick="clearTicketFile()" style="flex-shrink: 0; padding: 6px 12px; background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
+          Remove
+        </button>
+      </div>
+    `;
+  }
+}
+
+function clearTicketFile() {
+  const input = document.getElementById('ticket_attachment');
+  const preview = document.getElementById('ticket_file_preview');
+  const label = document.getElementById('ticket_attachment_label');
+  
+  input.value = '';
+  preview.innerHTML = '';
+  label.textContent = 'Click to upload image or PDF (Max 10MB)';
+  label.parentElement.style.borderColor = '#cbd5e1';
+  label.parentElement.style.background = '#f8fafc';
 }
 </script>
 
@@ -430,6 +509,13 @@ function closeTicketModal() {
 function submitTicket(event) {
   event.preventDefault();
   const formData = new FormData(event.target);
+  
+  // Debug: Check if file is in FormData
+  console.log('FormData entries:');
+  for (let pair of formData.entries()) {
+    console.log(pair[0], pair[1]);
+  }
+  
   const data = Object.fromEntries(formData);
   const ticketId = data.ticket_id;
   const url = ticketId ? `{{ url('tickets') }}/${ticketId}` : '{{ route("tickets.store") }}';

@@ -182,12 +182,16 @@ class EmployeeController extends Controller
             $data['password_hash'] = bcrypt($data['password']);
         }
         
+        // Store plain password for employee
+        $data['plain_password'] = $password;
+        
         DB::transaction(function () use ($data, $password) {
             // Create user account first
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => bcrypt($password),
+                'plain_password' => $password, // Store plain password
                 'mobile_no' => $data['mobile_no'] ?? null,
                 'address' => $data['address'] ?? null,
                 'photo_path' => $data['photo_path'] ?? null,
@@ -272,11 +276,15 @@ class EmployeeController extends Controller
             $data['password_hash'] = bcrypt($data['password']);
         }
         
+        // Store plain password for employee
+        $data['plain_password'] = $password;
+        
         DB::transaction(function () use ($data, $password, $lead) {
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => bcrypt($password),
+                'plain_password' => $password, // Store plain password
                 'mobile_no' => $data['mobile_no'] ?? null,
                 'address' => $data['address'] ?? null,
                 'photo_path' => $data['photo_path'] ?? null,
@@ -480,6 +488,7 @@ class EmployeeController extends Controller
         // Hash password if provided
         if (!empty($data['password'])) {
             $data['password_hash'] = bcrypt($data['password']);
+            $data['plain_password'] = $data['password']; // Store plain password
         }
         
         DB::transaction(function () use ($employee, $data) {
@@ -495,7 +504,10 @@ class EmployeeController extends Controller
                 
                 // Update password if provided
                 if (!empty($data['password'])) {
-                    $employee->user->update(['password' => bcrypt($data['password'])]);
+                    $employee->user->update([
+                        'password' => bcrypt($data['password']),
+                        'plain_password' => $data['password'], // Store plain password
+                    ]);
                 }
             }
             

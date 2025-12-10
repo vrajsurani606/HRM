@@ -94,7 +94,7 @@
 
         <div>
           <label class="hrp-label">PAN No:</label>
-          <input name="pan_no" value="{{ old('pan_no') }}" placeholder="Enter PAN No" class="hrp-input Rectangle-29" style="text-transform: uppercase;" maxlength="10" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}">
+          <input name="pan_no" value="{{ old('pan_no') }}" placeholder="e.g., ABCDE1234F" class="hrp-input Rectangle-29" style="text-transform: uppercase;" maxlength="10" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" title="Enter valid 10-character PAN No. (e.g., ABCDE1234F)" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10)">
           @error('pan_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
 

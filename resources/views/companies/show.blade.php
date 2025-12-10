@@ -69,21 +69,61 @@
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
             <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_email ? $company->company_email : '-' }}</span>
           </div>
+          @can('Company Management.view company')
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Password</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_password ? '••••••••' : '-' }}</span>
+            @if($company->company_password)
+            <div style="display:flex;align-items:center;gap:8px;flex:1">
+              <input type="password" id="company-password-{{ $company->id }}" value="{{ $company->company_password }}" readonly style="border:1px solid #e5e7eb;background:#f9fafb;padding:6px 10px;border-radius:6px;flex:1;outline:none;font-size:14px">
+              <button type="button" onclick="toggleCompanyPassword({{ $company->id }})" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Show/Hide Password">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" id="company-eye-icon-{{ $company->id }}">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button type="button" onclick="copyPassword('{{ $company->company_password }}')" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Copy Password">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
+            </div>
+            @else
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">-</span>
+            @endif
           </div>
+          @endcan
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Employee Email</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
             <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_employee_email ? $company->company_employee_email : '-' }}</span>
           </div>
+          @can('Company Management.view company')
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Employee Password</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_employee_password ? '••••••••' : '-' }}</span>
+            @if($company->company_employee_password)
+            <div style="display:flex;align-items:center;gap:8px;flex:1">
+              <input type="password" id="company-emp-password-{{ $company->id }}" value="{{ $company->company_employee_password }}" readonly style="border:1px solid #e5e7eb;background:#f9fafb;padding:6px 10px;border-radius:6px;flex:1;outline:none;font-size:14px">
+              <button type="button" onclick="toggleCompanyEmpPassword({{ $company->id }})" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Show/Hide Password">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" id="company-emp-eye-icon-{{ $company->id }}">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button type="button" onclick="copyPassword('{{ $company->company_employee_password }}')" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Copy Password">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
+            </div>
+            @else
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">-</span>
+            @endif
           </div>
+          @endcan
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company City</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
@@ -1150,6 +1190,50 @@ function deleteDocument(documentId) {
   .catch(error => {
     console.error('Delete error:', error);
     alert('Error deleting document. Please try again.');
+  });
+}
+
+function toggleCompanyPassword(companyId) {
+  const field = document.getElementById('company-password-' + companyId);
+  const icon = document.getElementById('company-eye-icon-' + companyId);
+  if (field.type === 'password') {
+    field.type = 'text';
+    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+  } else {
+    field.type = 'password';
+    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+}
+
+function toggleCompanyEmpPassword(companyId) {
+  const field = document.getElementById('company-emp-password-' + companyId);
+  const icon = document.getElementById('company-emp-eye-icon-' + companyId);
+  if (field.type === 'password') {
+    field.type = 'text';
+    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+  } else {
+    field.type = 'password';
+    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+}
+
+function copyPassword(password) {
+  navigator.clipboard.writeText(password).then(function() {
+    if (typeof toastr !== 'undefined') {
+      toastr.success('Password copied to clipboard!', '', {
+        timeOut: 2000,
+        progressBar: true,
+        closeButton: true,
+        positionClass: 'toast-top-right'
+      });
+    }
+  }).catch(function(err) {
+    if (typeof toastr !== 'undefined') {
+      toastr.error('Failed to copy password', '', {
+        timeOut: 3000,
+        closeButton: true
+      });
+    }
   });
 }
 </script>

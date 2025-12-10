@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test File Upload</title>
+</head>
+<body>
+    <h1>Test Ticket Comment Upload</h1>
+    
+    <form id="testForm">
+        <label>Message:</label><br>
+        <textarea name="comment" required style="width: 400px; height: 100px;">Test message with attachment</textarea><br><br>
+        
+        <label>Attachment:</label><br>
+        <input type="file" name="attachment" id="testFile" accept="image/*,.pdf"><br><br>
+        
+        <input type="hidden" name="is_internal" value="0">
+        
+        <button type="submit">Send Test Comment</button>
+    </form>
+    
+    <div id="result" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;"></div>
+    
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const resultDiv = document.getElementById('result');
+            
+            // Show what's in FormData
+            resultDiv.innerHTML = '<h3>FormData Contents:</h3>';
+            for (let pair of formData.entries()) {
+                resultDiv.innerHTML += `<div><strong>${pair[0]}:</strong> ${pair[1] instanceof File ? `File: ${pair[1].name} (${pair[1].size} bytes)` : pair[1]}</div>`;
+            }
+            
+            resultDiv.innerHTML += '<br><h3>Sending to server...</h3>';
+            
+            try {
+                const response = await fetch('/tickets/6/comments', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || 'TOKEN_HERE',
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                resultDiv.innerHTML += `<div style="color: ${data.success ? 'green' : 'red'}"><strong>Response:</strong> ${JSON.stringify(data, null, 2)}</div>`;
+            } catch (error) {
+                resultDiv.innerHTML += `<div style="color: red"><strong>Error:</strong> ${error.message}</div>`;
+            }
+        });
+    </script>
+</body>
+</html>

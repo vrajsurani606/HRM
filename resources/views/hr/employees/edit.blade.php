@@ -1,4 +1,4 @@
-@extends('layouts.macos')
+  @extends('layouts.macos')
 @section('page_title', $page_title)
 
 @section('content')
@@ -67,6 +67,11 @@
             </button>
           </div>
           <small style="color: #666; font-size: 12px; display: block; margin-top: 4px;">Leave blank to keep the current password unchanged</small>
+          @can('Employees Management.edit employee')
+            @if($employee->plain_password)
+            <small style="color:#6b7280;font-size:12px;display:block;margin-top:4px">Current: <strong>{{ $employee->plain_password }}</strong></small>
+            @endif
+          @endcan
           @error('password')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
@@ -94,7 +99,7 @@
         <!-- Employee Pan No -->
         <div>
           <label class="hrp-label">Employee PAN No:</label>
-          <input name="pan_no" value="{{ old('pan_no', $employee->pan_no) }}" placeholder="Enter PAN No" class="hrp-input Rectangle-29" style="text-transform: uppercase;" maxlength="10" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}">
+          <input name="pan_no" value="{{ old('pan_no', $employee->pan_no) }}" placeholder="e.g., ABCDE1234F" class="hrp-input Rectangle-29" style="text-transform: uppercase;" maxlength="10" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" title="Enter valid 10-character PAN No. (e.g., ABCDE1234F)" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10)">
           @error('pan_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         

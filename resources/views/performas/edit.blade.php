@@ -67,7 +67,7 @@
       <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
         <div>
           <label class="hrp-label">GST No :</label>
-          <input type="text" class="Rectangle-29" name="gst_no" id="gstNoInput" value="{{ old('gst_no', $proforma->gst_no) }}" placeholder="Enter GST No." style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase(); toggleGstFields();">
+          <input type="text" class="Rectangle-29" name="gst_no" id="gstNoInput" value="{{ old('gst_no', $proforma->gst_no) }}" placeholder="e.g., 22ABCDE1234F1Z5" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15); toggleGstFields();" maxlength="15" pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9A-Z]{1}[Z]{1}[0-9A-Z]{1}" title="Enter valid 15-character GST No. (e.g., 22ABCDE1234F1Z5)">
         </div>
         <div>
           <label class="hrp-label">Mobile No :</label>
