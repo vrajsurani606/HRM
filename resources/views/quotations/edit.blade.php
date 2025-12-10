@@ -78,12 +78,12 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">GST No:</label>
-          <input class="Rectangle-29 @error('gst_no') is-invalid @enderror" name="gst_no" placeholder="Enter GST No" value="{{ old('gst_no', $quotation->gst_no) }}" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+          <input class="Rectangle-29 @error('gst_no') is-invalid @enderror" name="gst_no" placeholder="e.g., 22ABCDE1234F1Z5" value="{{ old('gst_no', $quotation->gst_no) }}" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15)" maxlength="15" pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9A-Z]{1}[Z]{1}[0-9A-Z]{1}" title="Enter valid 15-character GST No. (e.g., 22ABCDE1234F1Z5)">
           @error('gst_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
           <label class="hrp-label">PAN No:</label>
-          <input class="Rectangle-29 @error('pan_no') is-invalid @enderror" name="pan_no" placeholder="Enter PAN No" value="{{ old('pan_no', $quotation->pan_no) }}" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+          <input class="Rectangle-29 @error('pan_no') is-invalid @enderror" name="pan_no" placeholder="e.g., ABCDE1234F" value="{{ old('pan_no', $quotation->pan_no) }}" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10)" maxlength="10" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" title="Enter valid 10-character PAN No. (e.g., ABCDE1234F)">
           @error('pan_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
@@ -507,7 +507,12 @@
   </div>
 
   <!-- Main Services Table -->
-  <div class="Rectangle-30 hrp-compact">
+  <div id="services-section" class="Rectangle-30 hrp-compact @if(session('error') && str_contains(session('error'), 'service')) service-error @endif" style="@if(session('error') && str_contains(session('error'), 'service')) border: 2px solid #dc3545; @endif">
+    @if(session('error') && str_contains(session('error'), 'service'))
+      <div style="background: #fee; border-left: 4px solid #dc3545; padding: 12px; margin-bottom: 15px; border-radius: 4px;">
+        <small class="hrp-error" style="font-size: 14px; font-weight: 600;">{{ session('error') }}</small>
+      </div>
+    @endif
     <table class="services-table-1" style="width: 100%;">
       <thead>
         <tr style="background: #f8f9fa;">
@@ -522,18 +527,18 @@
         @if($quotation->service_description && count($quotation->service_description) > 0)
           @foreach($quotation->service_description as $index => $description)
           <tr>
-            <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29" name="services_1[description][]" value="{{ $description }}" style="border: none; background: transparent;"></td>
-            <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 quantity" type="number" name="services_1[quantity][]" value="{{ $quotation->service_quantity[$index] ?? '' }}" style="border: none; background: transparent;" oninput="calculateRowTotal(this)"></td>
-            <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 rate" type="number" name="services_1[rate][]" value="{{ $quotation->service_rate[$index] ?? '' }}" style="border: none; background: transparent;" oninput="calculateRowTotal(this)"></td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 @if(session('error') && str_contains(session('error'), 'service')) is-invalid @endif" name="services_1[description][]" value="{{ $description }}" style="border: none; background: transparent;"></td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 quantity @if(session('error') && str_contains(session('error'), 'service')) is-invalid @endif" type="number" name="services_1[quantity][]" value="{{ $quotation->service_quantity[$index] ?? '' }}" style="border: none; background: transparent;" oninput="calculateRowTotal(this)"></td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 rate @if(session('error') && str_contains(session('error'), 'service')) is-invalid @endif" type="number" name="services_1[rate][]" value="{{ $quotation->service_rate[$index] ?? '' }}" style="border: none; background: transparent;" oninput="calculateRowTotal(this)"></td>
             <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 total" type="number" name="services_1[total][]" value="{{ $quotation->service_total[$index] ?? '' }}" style="border: none; background: transparent;" readonly></td>
             <td style="padding: 12px; border-bottom: 1px solid #eee;"><button type="button" class="remove-row" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px;">×</button></td>
           </tr>
           @endforeach
         @else
           <tr>
-            <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29" name="services_1[description][]" placeholder="Enter Description" style="border: none; background: transparent;"></td>
-            <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 quantity" type="number" name="services_1[quantity][]" placeholder="Enter Quantity" style="border: none; background: transparent;" oninput="calculateRowTotal(this)"></td>
-            <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 rate" type="number" name="services_1[rate][]" placeholder="Enter Rate" style="border: none; background: transparent;" oninput="calculateRowTotal(this)"></td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 @if(session('error') && str_contains(session('error'), 'service')) is-invalid @endif" name="services_1[description][]" placeholder="Enter Description" style="border: none; background: transparent;"></td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 quantity @if(session('error') && str_contains(session('error'), 'service')) is-invalid @endif" type="number" name="services_1[quantity][]" placeholder="Enter Quantity" style="border: none; background: transparent;" oninput="calculateRowTotal(this)"></td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 rate @if(session('error') && str_contains(session('error'), 'service')) is-invalid @endif" type="number" name="services_1[rate][]" placeholder="Enter Rate" style="border: none; background: transparent;" oninput="calculateRowTotal(this)"></td>
             <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 total" type="number" name="services_1[total][]" placeholder="Total Rate" style="border: none; background: transparent;" readonly></td>
             <td style="padding: 12px; border-bottom: 1px solid #eee;"><button type="button" class="remove-row" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px;">×</button></td>
           </tr>
@@ -1090,6 +1095,28 @@ document.addEventListener('DOMContentLoaded', function() {
         stateSelect.addEventListener('change', function() {
             populateCities(this.value);
         });
+    }
+
+    // Scroll to services section if there's a service validation error
+    const servicesSection = document.getElementById('services-section');
+    if (servicesSection && servicesSection.classList.contains('service-error')) {
+        setTimeout(function() {
+            servicesSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Focus on the first service input
+            const firstInput = servicesSection.querySelector('input[name="services_1[description][]"]');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        }, 500);
+    }
+
+    // Scroll to first validation error field
+    const firstErrorField = document.querySelector('.is-invalid');
+    if (firstErrorField) {
+        setTimeout(function() {
+            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstErrorField.focus();
+        }, 300);
     }
 });
 

@@ -39,6 +39,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'plain_password' => $request->password, // Store plain password
             'mobile_no' => $request->mobile_no,
             'address' => $request->address,
         ]);
@@ -91,7 +92,10 @@ class UserController extends Controller
         ]);
 
         if ($request->filled('password')) {
-            $user->update(['password' => Hash::make($request->password)]);
+            $user->update([
+                'password' => Hash::make($request->password),
+                'plain_password' => $request->password, // Store plain password
+            ]);
         }
 
         // Update role

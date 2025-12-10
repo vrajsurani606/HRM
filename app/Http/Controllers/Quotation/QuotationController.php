@@ -685,6 +685,9 @@ class QuotationController extends Controller
             return redirect()->route('quotations.index')
                 ->with('status', $message);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Re-throw validation exceptions so Laravel can handle them properly
+            throw $e;
         } catch (\Exception $e) {
             \Log::error('Error creating quotation: ' . $e->getMessage());
             return redirect()->back()->withInput()
@@ -1027,6 +1030,9 @@ class QuotationController extends Controller
             return redirect()->route('quotations.index')
                 ->with('status', $message);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Re-throw validation exceptions so Laravel can handle them properly
+            throw $e;
         } catch (\Exception $e) {
             \Log::error('Error updating quotation: ' . $e->getMessage());
             return redirect()->back()->withInput()
@@ -1097,19 +1103,48 @@ class QuotationController extends Controller
             ->orWhere('company_name', $inquiry->company_name)
             ->first();
         
-        // Pre-populate quotation data from inquiry
+        // Map industry type to company type
+        $companyType = '';
+        if ($inquiry->industry_type) {
+            $industryMapping = [
+                'Information Technology' => 'INFORMATION_TECHNOLOGY',
+                'Business Process Outsourcing (BPO)' => 'BPO_KPO',
+                'Manufacturing' => 'MANUFACTURING',
+                'Automobile' => 'AUTOMOBILE',
+                'Textiles & Apparel' => 'TEXTILES',
+                'Pharmaceuticals & Healthcare' => 'PHARMACEUTICALS',
+                'Banking, Financial Services & Insurance (BFSI)' => 'BANKING_FINANCIAL',
+                'Retail & E-commerce' => 'RETAIL',
+                'Telecommunications' => 'TELECOMMUNICATIONS',
+                'Real Estate & Construction' => 'REAL_ESTATE',
+                'Education & Training' => 'EDUCATION_TRAINING',
+                'Hospitality & Tourism' => 'HOSPITALITY',
+                'Logistics & Transportation' => 'LOGISTICS_SUPPLY',
+                'Agriculture & Agritech' => 'AGRICULTURE',
+                'Media & Entertainment' => 'MEDIA_ENTERTAINMENT',
+            ];
+            $companyType = $industryMapping[$inquiry->industry_type] ?? '';
+        }
+        
+        // Pre-populate quotation data from inquiry - map all available fields
         $quotationData = [
             'company_name' => $inquiry->company_name,
             'address' => $inquiry->company_address,
             'contact_person' => $inquiry->contact_name,
-            'contact_number_1' => $inquiry->company_phone,
-            'email' => $inquiry->company_email ?? '',
+            'contact_number_1' => $inquiry->company_phone ?? $inquiry->contact_mobile,
+            'contact_mobile' => $inquiry->contact_mobile,
+            'email' => $inquiry->email ?? '',
             'gst_no' => $inquiry->gst_no ?? '',
             'industry_type' => $inquiry->industry_type,
-            'quotation_date' => date('Y-m-d'),
+            'company_type' => $companyType,
+            'quotation_date' => date('d/m/Y'),
             'inquiry_id' => $inquiry->id,
             'customer_type' => $matchingCompany ? 'existing' : 'new',
             'customer_id' => $matchingCompany ? $matchingCompany->id : null,
+            'state' => $inquiry->state,
+            'city' => $inquiry->city,
+            'scope_link' => $inquiry->scope_link,
+            'contact_position' => $inquiry->contact_position,
         ];
         
         return view('quotations.create', compact('inquiry', 'nextCode', 'companies', 'quotationData'));

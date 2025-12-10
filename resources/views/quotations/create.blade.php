@@ -17,8 +17,6 @@
 
 @section('content')
 
-<!-- Error/Success Messages -->
-
 <div class="hrp-card">
   <div class="Rectangle-30 hrp-compact">
     <form id="quotationForm" method="POST" action="{{ route('quotations.store') }}" enctype="multipart/form-data"
@@ -89,12 +87,12 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">GST No:</label>
-          <input class="Rectangle-29 @error('gst_no') is-invalid @enderror" name="gst_no" placeholder="Enter GST No" value="{{ old('gst_no', $quotationData['gst_no'] ?? '') }}" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+          <input class="Rectangle-29 @error('gst_no') is-invalid @enderror" name="gst_no" placeholder="e.g., 22ABCDE1234F1Z5" value="{{ old('gst_no', $quotationData['gst_no'] ?? '') }}" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15)" maxlength="15" pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9A-Z]{1}[Z]{1}[0-9A-Z]{1}" title="Enter valid 15-character GST No. (e.g., 22ABCDE1234F1Z5)">
           @error('gst_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
           <label class="hrp-label">PAN No:</label>
-          <input class="Rectangle-29 @error('pan_no') is-invalid @enderror" name="pan_no" placeholder="Enter PAN No" value="{{ old('pan_no') }}" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+          <input class="Rectangle-29 @error('pan_no') is-invalid @enderror" name="pan_no" placeholder="e.g., ABCDE1234F" value="{{ old('pan_no') }}" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10)" maxlength="10" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" title="Enter valid 10-character PAN No. (e.g., ABCDE1234F)">
           @error('pan_no')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
@@ -107,56 +105,59 @@
               <small class="hrp-error">{{ $message }}</small>
           @enderror
         </div>
+        @php
+          $selectedCompanyType = old('company_type', $quotationData['company_type'] ?? '');
+        @endphp
         <div>
           <label class="hrp-label">Company Type</label>
           <select name="company_type" class="Rectangle-29-select">
-            <option value="">SELECT COMPANY TYPE</option>
-            <option value="INFORMATION_TECHNOLOGY">Information Technology (IT)</option>
-            <option value="SOFTWARE_DEVELOPMENT">Software Development</option>
-            <option value="HARDWARE_ELECTRONICS">Hardware & Electronics</option>
-            <option value="TELECOMMUNICATIONS">Telecommunications</option>
-            <option value="E_COMMERCE">E-Commerce</option>
-            <option value="MANUFACTURING">Manufacturing</option>
-            <option value="AUTOMOBILE">Automobile</option>
-            <option value="AEROSPACE_DEFENSE">Aerospace & Defense</option>
-            <option value="CONSTRUCTION_INFRASTRUCTURE">Construction & Infrastructure</option>
-            <option value="REAL_ESTATE">Real Estate</option>
-            <option value="BANKING_FINANCIAL">Banking & Financial Services</option>
-            <option value="INSURANCE">Insurance</option>
-            <option value="INVESTMENT_ASSET">Investment & Asset Management</option>
-            <option value="HEALTHCARE">Healthcare</option>
-            <option value="PHARMACEUTICALS">Pharmaceuticals</option>
-            <option value="BIOTECHNOLOGY">Biotechnology</option>
-            <option value="MEDICAL_DEVICES">Medical Devices</option>
-            <option value="EDUCATION_TRAINING">Education & Training</option>
-            <option value="RETAIL">Retail</option>
-            <option value="WHOLESALE_DISTRIBUTION">Wholesale & Distribution</option>
-            <option value="LOGISTICS_SUPPLY">Logistics & Supply Chain</option>
-            <option value="TRANSPORTATION">Transportation (Air, Road, Rail, Sea)</option>
-            <option value="FOOD_BEVERAGE">Food & Beverages</option>
-            <option value="HOSPITALITY">Hospitality</option>
-            <option value="TOURISM_TRAVEL">Tourism & Travel</option>
-            <option value="MEDIA_ENTERTAINMENT">Media & Entertainment</option>
-            <option value="ADVERTISING_MARKETING">Advertising & Marketing</option>
-            <option value="PUBLISHING">Publishing</option>
-            <option value="OIL_GAS">Oil & Gas</option>
-            <option value="MINING_METALS">Mining & Metals</option>
-            <option value="CHEMICALS">Chemicals</option>
-            <option value="ENERGY_POWER">Energy & Power</option>
-            <option value="RENEWABLE_ENERGY">Renewable Energy (Solar, Wind)</option>
-            <option value="AGRICULTURE">Agriculture</option>
-            <option value="ENVIRONMENTAL_SERVICES">Environmental Services</option>
-            <option value="LEGAL_SERVICES">Legal Services</option>
-            <option value="CONSULTING_ADVISORY">Consulting & Advisory</option>
-            <option value="HUMAN_RESOURCES">Human Resources Services</option>
-            <option value="BPO_KPO">BPO / KPO</option>
-            <option value="SECURITY_SERVICES">Security Services</option>
-            <option value="FASHION_APPAREL">Fashion & Apparel</option>
-            <option value="TEXTILES">Textiles</option>
-            <option value="SPORTS_FITNESS">Sports & Fitness</option>
-            <option value="NON_PROFIT_NGO">Non-Profit / NGO</option>
-            <option value="GOVERNMENT_PUBLIC">Government & Public Sector</option>
-            <option value="OTHER">Other</option>
+            <option value="" {{ $selectedCompanyType ? '' : 'selected' }}>SELECT COMPANY TYPE</option>
+            <option value="INFORMATION_TECHNOLOGY" {{ $selectedCompanyType == 'INFORMATION_TECHNOLOGY' ? 'selected' : '' }}>Information Technology (IT)</option>
+            <option value="SOFTWARE_DEVELOPMENT" {{ $selectedCompanyType == 'SOFTWARE_DEVELOPMENT' ? 'selected' : '' }}>Software Development</option>
+            <option value="HARDWARE_ELECTRONICS" {{ $selectedCompanyType == 'HARDWARE_ELECTRONICS' ? 'selected' : '' }}>Hardware & Electronics</option>
+            <option value="TELECOMMUNICATIONS" {{ $selectedCompanyType == 'TELECOMMUNICATIONS' ? 'selected' : '' }}>Telecommunications</option>
+            <option value="E_COMMERCE" {{ $selectedCompanyType == 'E_COMMERCE' ? 'selected' : '' }}>E-Commerce</option>
+            <option value="MANUFACTURING" {{ $selectedCompanyType == 'MANUFACTURING' ? 'selected' : '' }}>Manufacturing</option>
+            <option value="AUTOMOBILE" {{ $selectedCompanyType == 'AUTOMOBILE' ? 'selected' : '' }}>Automobile</option>
+            <option value="AEROSPACE_DEFENSE" {{ $selectedCompanyType == 'AEROSPACE_DEFENSE' ? 'selected' : '' }}>Aerospace & Defense</option>
+            <option value="CONSTRUCTION_INFRASTRUCTURE" {{ $selectedCompanyType == 'CONSTRUCTION_INFRASTRUCTURE' ? 'selected' : '' }}>Construction & Infrastructure</option>
+            <option value="REAL_ESTATE" {{ $selectedCompanyType == 'REAL_ESTATE' ? 'selected' : '' }}>Real Estate</option>
+            <option value="BANKING_FINANCIAL" {{ $selectedCompanyType == 'BANKING_FINANCIAL' ? 'selected' : '' }}>Banking & Financial Services</option>
+            <option value="INSURANCE" {{ $selectedCompanyType == 'INSURANCE' ? 'selected' : '' }}>Insurance</option>
+            <option value="INVESTMENT_ASSET" {{ $selectedCompanyType == 'INVESTMENT_ASSET' ? 'selected' : '' }}>Investment & Asset Management</option>
+            <option value="HEALTHCARE" {{ $selectedCompanyType == 'HEALTHCARE' ? 'selected' : '' }}>Healthcare</option>
+            <option value="PHARMACEUTICALS" {{ $selectedCompanyType == 'PHARMACEUTICALS' ? 'selected' : '' }}>Pharmaceuticals</option>
+            <option value="BIOTECHNOLOGY" {{ $selectedCompanyType == 'BIOTECHNOLOGY' ? 'selected' : '' }}>Biotechnology</option>
+            <option value="MEDICAL_DEVICES" {{ $selectedCompanyType == 'MEDICAL_DEVICES' ? 'selected' : '' }}>Medical Devices</option>
+            <option value="EDUCATION_TRAINING" {{ $selectedCompanyType == 'EDUCATION_TRAINING' ? 'selected' : '' }}>Education & Training</option>
+            <option value="RETAIL" {{ $selectedCompanyType == 'RETAIL' ? 'selected' : '' }}>Retail</option>
+            <option value="WHOLESALE_DISTRIBUTION" {{ $selectedCompanyType == 'WHOLESALE_DISTRIBUTION' ? 'selected' : '' }}>Wholesale & Distribution</option>
+            <option value="LOGISTICS_SUPPLY" {{ $selectedCompanyType == 'LOGISTICS_SUPPLY' ? 'selected' : '' }}>Logistics & Supply Chain</option>
+            <option value="TRANSPORTATION" {{ $selectedCompanyType == 'TRANSPORTATION' ? 'selected' : '' }}>Transportation (Air, Road, Rail, Sea)</option>
+            <option value="FOOD_BEVERAGE" {{ $selectedCompanyType == 'FOOD_BEVERAGE' ? 'selected' : '' }}>Food & Beverages</option>
+            <option value="HOSPITALITY" {{ $selectedCompanyType == 'HOSPITALITY' ? 'selected' : '' }}>Hospitality</option>
+            <option value="TOURISM_TRAVEL" {{ $selectedCompanyType == 'TOURISM_TRAVEL' ? 'selected' : '' }}>Tourism & Travel</option>
+            <option value="MEDIA_ENTERTAINMENT" {{ $selectedCompanyType == 'MEDIA_ENTERTAINMENT' ? 'selected' : '' }}>Media & Entertainment</option>
+            <option value="ADVERTISING_MARKETING" {{ $selectedCompanyType == 'ADVERTISING_MARKETING' ? 'selected' : '' }}>Advertising & Marketing</option>
+            <option value="PUBLISHING" {{ $selectedCompanyType == 'PUBLISHING' ? 'selected' : '' }}>Publishing</option>
+            <option value="OIL_GAS" {{ $selectedCompanyType == 'OIL_GAS' ? 'selected' : '' }}>Oil & Gas</option>
+            <option value="MINING_METALS" {{ $selectedCompanyType == 'MINING_METALS' ? 'selected' : '' }}>Mining & Metals</option>
+            <option value="CHEMICALS" {{ $selectedCompanyType == 'CHEMICALS' ? 'selected' : '' }}>Chemicals</option>
+            <option value="ENERGY_POWER" {{ $selectedCompanyType == 'ENERGY_POWER' ? 'selected' : '' }}>Energy & Power</option>
+            <option value="RENEWABLE_ENERGY" {{ $selectedCompanyType == 'RENEWABLE_ENERGY' ? 'selected' : '' }}>Renewable Energy (Solar, Wind)</option>
+            <option value="AGRICULTURE" {{ $selectedCompanyType == 'AGRICULTURE' ? 'selected' : '' }}>Agriculture</option>
+            <option value="ENVIRONMENTAL_SERVICES" {{ $selectedCompanyType == 'ENVIRONMENTAL_SERVICES' ? 'selected' : '' }}>Environmental Services</option>
+            <option value="LEGAL_SERVICES" {{ $selectedCompanyType == 'LEGAL_SERVICES' ? 'selected' : '' }}>Legal Services</option>
+            <option value="CONSULTING_ADVISORY" {{ $selectedCompanyType == 'CONSULTING_ADVISORY' ? 'selected' : '' }}>Consulting & Advisory</option>
+            <option value="HUMAN_RESOURCES" {{ $selectedCompanyType == 'HUMAN_RESOURCES' ? 'selected' : '' }}>Human Resources Services</option>
+            <option value="BPO_KPO" {{ $selectedCompanyType == 'BPO_KPO' ? 'selected' : '' }}>BPO / KPO</option>
+            <option value="SECURITY_SERVICES" {{ $selectedCompanyType == 'SECURITY_SERVICES' ? 'selected' : '' }}>Security Services</option>
+            <option value="FASHION_APPAREL" {{ $selectedCompanyType == 'FASHION_APPAREL' ? 'selected' : '' }}>Fashion & Apparel</option>
+            <option value="TEXTILES" {{ $selectedCompanyType == 'TEXTILES' ? 'selected' : '' }}>Textiles</option>
+            <option value="SPORTS_FITNESS" {{ $selectedCompanyType == 'SPORTS_FITNESS' ? 'selected' : '' }}>Sports & Fitness</option>
+            <option value="NON_PROFIT_NGO" {{ $selectedCompanyType == 'NON_PROFIT_NGO' ? 'selected' : '' }}>Non-Profit / NGO</option>
+            <option value="GOVERNMENT_PUBLIC" {{ $selectedCompanyType == 'GOVERNMENT_PUBLIC' ? 'selected' : '' }}>Government & Public Sector</option>
+            <option value="OTHER" {{ $selectedCompanyType == 'OTHER' ? 'selected' : '' }}>Other</option>
           </select>
         </div>
       </div>
@@ -167,41 +168,44 @@
           <input class="Rectangle-29 @error('nature_of_work') is-invalid @enderror" name="nature_of_work" placeholder="Enter Nature" value="{{ old('nature_of_work') }}">
           @error('nature_of_work')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
+        @php
+          $selectedState = old('state', $quotationData['state'] ?? '');
+        @endphp
         <div>
           <label class="hrp-label">State:</label>
           <select class="Rectangle-29-select @error('state') is-invalid @enderror" name="state" id="state_select">
-            <option value="" disabled {{ old('state') ? '' : 'selected' }}>SELECT STATE</option>
-            <option value="andhra_pradesh" {{ old('state') == 'andhra_pradesh' ? 'selected' : '' }}>Andhra Pradesh</option>
-            <option value="arunachal_pradesh" {{ old('state') == 'arunachal_pradesh' ? 'selected' : '' }}>Arunachal Pradesh</option>
-            <option value="assam" {{ old('state') == 'assam' ? 'selected' : '' }}>Assam</option>
-            <option value="bihar" {{ old('state') == 'bihar' ? 'selected' : '' }}>Bihar</option>
-            <option value="chhattisgarh" {{ old('state') == 'chhattisgarh' ? 'selected' : '' }}>Chhattisgarh</option>
-            <option value="delhi" {{ old('state') == 'delhi' ? 'selected' : '' }}>Delhi</option>
-            <option value="goa" {{ old('state') == 'goa' ? 'selected' : '' }}>Goa</option>
-            <option value="gujarat" {{ old('state') == 'gujarat' ? 'selected' : '' }}>Gujarat</option>
-            <option value="haryana" {{ old('state') == 'haryana' ? 'selected' : '' }}>Haryana</option>
-            <option value="himachal_pradesh" {{ old('state') == 'himachal_pradesh' ? 'selected' : '' }}>Himachal Pradesh</option>
-            <option value="jammu_kashmir" {{ old('state') == 'jammu_kashmir' ? 'selected' : '' }}>Jammu & Kashmir</option>
-            <option value="jharkhand" {{ old('state') == 'jharkhand' ? 'selected' : '' }}>Jharkhand</option>
-            <option value="karnataka" {{ old('state') == 'karnataka' ? 'selected' : '' }}>Karnataka</option>
-            <option value="kerala" {{ old('state') == 'kerala' ? 'selected' : '' }}>Kerala</option>
-            <option value="madhya_pradesh" {{ old('state') == 'madhya_pradesh' ? 'selected' : '' }}>Madhya Pradesh</option>
-            <option value="maharashtra" {{ old('state') == 'maharashtra' ? 'selected' : '' }}>Maharashtra</option>
-            <option value="manipur" {{ old('state') == 'manipur' ? 'selected' : '' }}>Manipur</option>
-            <option value="meghalaya" {{ old('state') == 'meghalaya' ? 'selected' : '' }}>Meghalaya</option>
-            <option value="mizoram" {{ old('state') == 'mizoram' ? 'selected' : '' }}>Mizoram</option>
-            <option value="nagaland" {{ old('state') == 'nagaland' ? 'selected' : '' }}>Nagaland</option>
-            <option value="odisha" {{ old('state') == 'odisha' ? 'selected' : '' }}>Odisha</option>
-            <option value="punjab" {{ old('state') == 'punjab' ? 'selected' : '' }}>Punjab</option>
-            <option value="rajasthan" {{ old('state') == 'rajasthan' ? 'selected' : '' }}>Rajasthan</option>
-            <option value="sikkim" {{ old('state') == 'sikkim' ? 'selected' : '' }}>Sikkim</option>
-            <option value="tamil_nadu" {{ old('state') == 'tamil_nadu' ? 'selected' : '' }}>Tamil Nadu</option>
-            <option value="telangana" {{ old('state') == 'telangana' ? 'selected' : '' }}>Telangana</option>
-            <option value="tripura" {{ old('state') == 'tripura' ? 'selected' : '' }}>Tripura</option>
-            <option value="uttar_pradesh" {{ old('state') == 'uttar_pradesh' ? 'selected' : '' }}>Uttar Pradesh</option>
-            <option value="uttarakhand" {{ old('state') == 'uttarakhand' ? 'selected' : '' }}>Uttarakhand</option>
-            <option value="west_bengal" {{ old('state') == 'west_bengal' ? 'selected' : '' }}>West Bengal</option>
-            <option value="other" {{ old('state') == 'other' ? 'selected' : '' }}>Other</option>
+            <option value="" disabled {{ $selectedState ? '' : 'selected' }}>SELECT STATE</option>
+            <option value="andhra_pradesh" {{ $selectedState == 'andhra_pradesh' ? 'selected' : '' }}>Andhra Pradesh</option>
+            <option value="arunachal_pradesh" {{ $selectedState == 'arunachal_pradesh' ? 'selected' : '' }}>Arunachal Pradesh</option>
+            <option value="assam" {{ $selectedState == 'assam' ? 'selected' : '' }}>Assam</option>
+            <option value="bihar" {{ $selectedState == 'bihar' ? 'selected' : '' }}>Bihar</option>
+            <option value="chhattisgarh" {{ $selectedState == 'chhattisgarh' ? 'selected' : '' }}>Chhattisgarh</option>
+            <option value="delhi" {{ $selectedState == 'delhi' ? 'selected' : '' }}>Delhi</option>
+            <option value="goa" {{ $selectedState == 'goa' ? 'selected' : '' }}>Goa</option>
+            <option value="gujarat" {{ $selectedState == 'gujarat' ? 'selected' : '' }}>Gujarat</option>
+            <option value="haryana" {{ $selectedState == 'haryana' ? 'selected' : '' }}>Haryana</option>
+            <option value="himachal_pradesh" {{ $selectedState == 'himachal_pradesh' ? 'selected' : '' }}>Himachal Pradesh</option>
+            <option value="jammu_kashmir" {{ $selectedState == 'jammu_kashmir' ? 'selected' : '' }}>Jammu & Kashmir</option>
+            <option value="jharkhand" {{ $selectedState == 'jharkhand' ? 'selected' : '' }}>Jharkhand</option>
+            <option value="karnataka" {{ $selectedState == 'karnataka' ? 'selected' : '' }}>Karnataka</option>
+            <option value="kerala" {{ $selectedState == 'kerala' ? 'selected' : '' }}>Kerala</option>
+            <option value="madhya_pradesh" {{ $selectedState == 'madhya_pradesh' ? 'selected' : '' }}>Madhya Pradesh</option>
+            <option value="maharashtra" {{ $selectedState == 'maharashtra' ? 'selected' : '' }}>Maharashtra</option>
+            <option value="manipur" {{ $selectedState == 'manipur' ? 'selected' : '' }}>Manipur</option>
+            <option value="meghalaya" {{ $selectedState == 'meghalaya' ? 'selected' : '' }}>Meghalaya</option>
+            <option value="mizoram" {{ $selectedState == 'mizoram' ? 'selected' : '' }}>Mizoram</option>
+            <option value="nagaland" {{ $selectedState == 'nagaland' ? 'selected' : '' }}>Nagaland</option>
+            <option value="odisha" {{ $selectedState == 'odisha' ? 'selected' : '' }}>Odisha</option>
+            <option value="punjab" {{ $selectedState == 'punjab' ? 'selected' : '' }}>Punjab</option>
+            <option value="rajasthan" {{ $selectedState == 'rajasthan' ? 'selected' : '' }}>Rajasthan</option>
+            <option value="sikkim" {{ $selectedState == 'sikkim' ? 'selected' : '' }}>Sikkim</option>
+            <option value="tamil_nadu" {{ $selectedState == 'tamil_nadu' ? 'selected' : '' }}>Tamil Nadu</option>
+            <option value="telangana" {{ $selectedState == 'telangana' ? 'selected' : '' }}>Telangana</option>
+            <option value="tripura" {{ $selectedState == 'tripura' ? 'selected' : '' }}>Tripura</option>
+            <option value="uttar_pradesh" {{ $selectedState == 'uttar_pradesh' ? 'selected' : '' }}>Uttar Pradesh</option>
+            <option value="uttarakhand" {{ $selectedState == 'uttarakhand' ? 'selected' : '' }}>Uttarakhand</option>
+            <option value="west_bengal" {{ $selectedState == 'west_bengal' ? 'selected' : '' }}>West Bengal</option>
+            <option value="other" {{ $selectedState == 'other' ? 'selected' : '' }}>Other</option>
           </select>
           @error('state')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
@@ -210,7 +214,7 @@
           <select class="Rectangle-29-select @error('city') is-invalid @enderror" name="city" id="city_select">
             <option value="" disabled selected>SELECT STATE FIRST</option>
           </select>
-          <input type="hidden" id="old_city" value="{{ old('city') }}">
+          <input type="hidden" id="old_city" value="{{ old('city', $quotationData['city'] ?? '') }}">
           @error('city')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
@@ -256,7 +260,7 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Position 1:</label>
-          <input class="Rectangle-29 @error('position_1') is-invalid @enderror" name="position_1" placeholder="Enter Position" value="{{ old('position_1') }}">
+          <input class="Rectangle-29 @error('position_1') is-invalid @enderror" name="position_1" placeholder="Enter Position" value="{{ old('position_1', $quotationData['contact_position'] ?? '') }}">
           @error('position_1')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
@@ -638,7 +642,12 @@
 
 
   <!-- First Services Table -->
-  <div class="Rectangle-30 hrp-compact">
+  <div id="services-section" class="Rectangle-30 hrp-compact @if(session('error') && str_contains(session('error'), 'service')) service-error @endif" style="@if(session('error') && str_contains(session('error'), 'service')) border: 2px solid #dc3545; @endif">
+    @if(session('error') && str_contains(session('error'), 'service'))
+      <div style="background: #fee; border-left: 4px solid #dc3545; padding: 12px; margin-bottom: 15px; border-radius: 4px;">
+        <small class="hrp-error" style="font-size: 14px; font-weight: 600;">{{ session('error') }}</small>
+      </div>
+    @endif
     <table class="services-table-1"
       style="width: 100%;">
       <thead>
@@ -652,11 +661,11 @@
       </thead>
       <tbody>
         <tr>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29"
+          <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 @if(session('error') && str_contains(session('error'), 'service')) is-invalid @endif"
               name="services_1[description][]" placeholder="Enter Description" style="border: none; background: transparent;"></td>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 quantity"
+          <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 quantity @if(session('error') && str_contains(session('error'), 'service')) is-invalid @endif"
               type="number" min="0" step="1" name="services_1[quantity][]" placeholder="Enter Quantity" style="border: none; background: transparent;" oninput="calculateRowTotal(this)"></td>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 rate"
+          <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 rate @if(session('error') && str_contains(session('error'), 'service')) is-invalid @endif"
               type="number" min="0" step="0.01" name="services_1[rate][]" placeholder="Enter Rate" style="border: none; background: transparent;" oninput="calculateRowTotal(this)"></td>
           <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29 total"
               type="number" min="0" step="0.01" name="services_1[total][]" placeholder="Total Rate" style="border: none; background: transparent;" readonly></td>
@@ -1211,6 +1220,28 @@ document.addEventListener('DOMContentLoaded', function() {
         stateSelect.addEventListener('change', function() {
             populateCities(this.value);
         });
+    }
+
+    // Scroll to services section if there's a service validation error
+    const servicesSection = document.getElementById('services-section');
+    if (servicesSection && servicesSection.classList.contains('service-error')) {
+        setTimeout(function() {
+            servicesSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Focus on the first service input
+            const firstInput = servicesSection.querySelector('input[name="services_1[description][]"]');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        }, 500);
+    }
+
+    // Scroll to first validation error field
+    const firstErrorField = document.querySelector('.is-invalid');
+    if (firstErrorField) {
+        setTimeout(function() {
+            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstErrorField.focus();
+        }, 300);
     }
 });
 

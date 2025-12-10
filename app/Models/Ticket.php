@@ -30,6 +30,7 @@ class Ticket extends Model
         'customer',
         'title',
         'description',
+        'attachment',
         'company',
         'company_id',
         'ticket_type',

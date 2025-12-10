@@ -154,6 +154,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/documents/{id}', [ProfileController::class, 'deleteDocument'])->name('profile.documents.delete');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // System Passwords (Admin Only)
+    Route::prefix('system-passwords')->name('system-passwords.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\SystemPasswordController::class, 'index'])->name('index');
+        Route::get('/employees', [\App\Http\Controllers\SystemPasswordController::class, 'employees'])->name('employees');
+        Route::get('/companies', [\App\Http\Controllers\SystemPasswordController::class, 'companies'])->name('companies');
+    });
+
     // Employees - toggle-status must come before resource routes
     Route::post('employees/{employeeId}/toggle-status', [EmployeeController::class, 'toggleStatus'])->name('employees.toggle-status');
     Route::resource('employees', EmployeeController::class);
@@ -314,7 +321,6 @@ Route::middleware('auth')->group(function () {
 
     // Tickets
     Route::resource('tickets', TicketController::class);
-    Route::post('tickets/{id}/comments', [TicketController::class, 'addComment'])->name('tickets.addComment');
 
     // Leave Approval
     Route::resource('leave-approval', LeaveApprovalController::class)->only(['index','store','edit','update','destroy']); // leave-approval routes

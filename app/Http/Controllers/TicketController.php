@@ -12,7 +12,7 @@ class TicketController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $query = Ticket::query();
+        $query = Ticket::with(['assignedEmployee', 'opener', 'company', 'project']);
 
         // Super-admin and HR can see all tickets
         $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
@@ -140,6 +140,18 @@ class TicketController extends Controller
             }
         }
         
+        // Eager load relationships for better performance
+        $ticket->load([
+            'comments.user',
+            'assignedEmployee',
+            'opener',
+            'completedBy',
+            'confirmedBy',
+            'closedBy',
+            'company',
+            'project'
+        ]);
+        
         return view('tickets.show', compact('ticket', 'isAdmin', 'isEmployee'));
     }
 
@@ -205,6 +217,43 @@ class TicketController extends Controller
         }
 
         $ticket = Ticket::create($validated);
+
+        // Handle attachment if provided
+        \Log::info('Ticket Store - Checking for attachment', [
+            'has_file' => $request->hasFile('attachment'),
+            'all_files' => $request->allFiles(),
+            'has_attachment_input' => $request->has('attachment'),
+        ]);
+        
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            
+            \Log::info('Ticket Store - File found', [
+                'original_name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+                'mime' => $file->getMimeType(),
+            ]);
+            
+            // Validate file
+            $request->validate([
+                'attachment' => 'file|mimes:jpeg,jpg,png,gif,webp,pdf,doc,docx,zip|max:10240', // 10MB max
+            ]);
+            
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $attachmentPath = $file->storeAs('ticket_attachments', $filename, 'public');
+            
+            \Log::info('Ticket Store - File stored', [
+                'path' => $attachmentPath,
+            ]);
+            
+            // Save attachment to ticket
+            $ticket->attachment = $attachmentPath;
+            $ticket->save();
+            
+            \Log::info('Ticket Store - Attachment saved to ticket');
+        } else {
+            \Log::info('Ticket Store - No attachment file found');
+        }
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
@@ -668,6 +717,13 @@ class TicketController extends Controller
      */
     public function addComment(Request $request, Ticket $ticket)
     {
+        \Log::info('=== ADD COMMENT METHOD CALLED ===', [
+            'ticket_id' => $ticket->id,
+            'has_file' => $request->hasFile('attachment'),
+            'all_files' => $request->allFiles(),
+            'content_type' => $request->header('Content-Type'),
+        ]);
+        
         $user = auth()->user();
         $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
         $isEmployee = $user->hasRole('employee') || $user->hasRole('Employee');
@@ -691,6 +747,7 @@ class TicketController extends Controller
         $validated = $request->validate([
             'comment' => 'required|string',
             'is_internal' => 'nullable|boolean',
+            'attachment' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,pdf|max:10240', // 10MB max
         ]);
         
         // Customers can never post internal comments
@@ -698,14 +755,33 @@ class TicketController extends Controller
             $validated['is_internal'] = false;
         }
         
+        // Handle file upload
+        $attachmentPath = null;
+        $attachmentType = null;
+        $attachmentName = null;
+        
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $attachmentPath = $file->store('tickets/attachments', 'public');
+            $attachmentType = $file->getMimeType();
+            $attachmentName = $file->getClientOriginalName();
+        }
+        
         $comment = $ticket->comments()->create([
             'user_id' => $user->id,
             'comment' => $validated['comment'],
             'is_internal' => $validated['is_internal'] ?? false,
+            'attachment_path' => $attachmentPath,
+            'attachment_type' => $attachmentType,
+            'attachment_name' => $attachmentName,
         ]);
         
         if ($request->wantsJson() || $request->ajax()) {
             $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+            
+            // Load the comment with user relationship
+            $comment->load('user');
+            
             $html = view('tickets.partials.comment', compact('comment', 'isAdmin'))->render();
             
             return response()->json([

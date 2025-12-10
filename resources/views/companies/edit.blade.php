@@ -15,12 +15,12 @@
             </div>
             <div>
               <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">GST No</label>
-              <input name="gst_no" type="text" placeholder="Enter GST No" value="{{ old('gst_no', $company->gst_no) }}" class="hrp-input Rectangle-29" maxlength="15" style="font-size: 14px; line-height: 1.5;">
+              <input name="gst_no" type="text" placeholder="e.g., 22ABCDE1234F1Z5" value="{{ old('gst_no', $company->gst_no) }}" class="hrp-input Rectangle-29" maxlength="15" style="text-transform: uppercase; font-size: 14px; line-height: 1.5;" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15)" pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9A-Z]{1}[Z]{1}[0-9A-Z]{1}" title="Enter valid 15-character GST No. (e.g., 22ABCDE1234F1Z5)">
               @error('gst_no')<small class="hrp-error">{{ $message }}</small>@enderror
             </div>
             <div>
               <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Pan No</label>
-              <input name="pan_no" type="text" placeholder="Enter PAN No" value="{{ old('pan_no', $company->pan_no) }}" class="hrp-input Rectangle-29" maxlength="10" style="text-transform: uppercase; font-size: 14px; line-height: 1.5;">
+              <input name="pan_no" type="text" placeholder="e.g., ABCDE1234F" value="{{ old('pan_no', $company->pan_no) }}" class="hrp-input Rectangle-29" maxlength="10" style="text-transform: uppercase; font-size: 14px; line-height: 1.5;" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10)" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" title="Enter valid 10-character PAN No. (e.g., ABCDE1234F)">
               @error('pan_no')<small class="hrp-error">{{ $message }}</small>@enderror
             </div>
           </div>
@@ -80,7 +80,7 @@
           <div style="margin-bottom: 8px;">
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">State</label>
             <div class="relative">
-              <select name="state" class="hrp-input Rectangle-29" style="
+              <select name="state" id="state_select" class="hrp-input Rectangle-29" style="
                 padding-right: 32px;
                 -webkit-appearance: none;
                 -moz-appearance: none;
@@ -101,10 +101,12 @@
                 <option value="assam" {{ old('state', $company->state) == 'assam' ? 'selected' : '' }}>Assam</option>
                 <option value="bihar" {{ old('state', $company->state) == 'bihar' ? 'selected' : '' }}>Bihar</option>
                 <option value="chhattisgarh" {{ old('state', $company->state) == 'chhattisgarh' ? 'selected' : '' }}>Chhattisgarh</option>
+                <option value="delhi" {{ old('state', $company->state) == 'delhi' ? 'selected' : '' }}>Delhi</option>
                 <option value="goa" {{ old('state', $company->state) == 'goa' ? 'selected' : '' }}>Goa</option>
                 <option value="gujarat" {{ old('state', $company->state) == 'gujarat' ? 'selected' : '' }}>Gujarat</option>
                 <option value="haryana" {{ old('state', $company->state) == 'haryana' ? 'selected' : '' }}>Haryana</option>
                 <option value="himachal_pradesh" {{ old('state', $company->state) == 'himachal_pradesh' ? 'selected' : '' }}>Himachal Pradesh</option>
+                <option value="jammu_kashmir" {{ old('state', $company->state) == 'jammu_kashmir' ? 'selected' : '' }}>Jammu & Kashmir</option>
                 <option value="jharkhand" {{ old('state', $company->state) == 'jharkhand' ? 'selected' : '' }}>Jharkhand</option>
                 <option value="karnataka" {{ old('state', $company->state) == 'karnataka' ? 'selected' : '' }}>Karnataka</option>
                 <option value="kerala" {{ old('state', $company->state) == 'kerala' ? 'selected' : '' }}>Kerala</option>
@@ -124,14 +126,7 @@
                 <option value="uttar_pradesh" {{ old('state', $company->state) == 'uttar_pradesh' ? 'selected' : '' }}>Uttar Pradesh</option>
                 <option value="uttarakhand" {{ old('state', $company->state) == 'uttarakhand' ? 'selected' : '' }}>Uttarakhand</option>
                 <option value="west_bengal" {{ old('state', $company->state) == 'west_bengal' ? 'selected' : '' }}>West Bengal</option>
-                <option value="andaman_nicobar" {{ old('state', $company->state) == 'andaman_nicobar' ? 'selected' : '' }}>Andaman and Nicobar Islands</option>
-                <option value="chandigarh" {{ old('state', $company->state) == 'chandigarh' ? 'selected' : '' }}>Chandigarh</option>
-                <option value="dadra_nagar_haveli" {{ old('state', $company->state) == 'dadra_nagar_haveli' ? 'selected' : '' }}>Dadra and Nagar Haveli and Daman and Diu</option>
-                <option value="delhi" {{ old('state', $company->state) == 'delhi' ? 'selected' : '' }}>Delhi</option>
-                <option value="jammu_kashmir" {{ old('state', $company->state) == 'jammu_kashmir' ? 'selected' : '' }}>Jammu and Kashmir</option>
-                <option value="ladakh" {{ old('state', $company->state) == 'ladakh' ? 'selected' : '' }}>Ladakh</option>
-                <option value="lakshadweep" {{ old('state', $company->state) == 'lakshadweep' ? 'selected' : '' }}>Lakshadweep</option>
-                <option value="puducherry" {{ old('state', $company->state) == 'puducherry' ? 'selected' : '' }}>Puducherry</option>
+                <option value="other" {{ old('state', $company->state) == 'other' ? 'selected' : '' }}>Other</option>
               </select>
               @error('state')<small class="hrp-error">{{ $message }}</small>@enderror
             </div>
@@ -140,7 +135,7 @@
           <div style="margin-bottom: 8px;">
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">City</label>
             <div class="relative">
-              <select name="city" class="hrp-input Rectangle-29" style="
+              <select name="city" id="city_select" class="hrp-input Rectangle-29" style="
                 padding-right: 32px;
                 -webkit-appearance: none;
                 -moz-appearance: none;
@@ -154,25 +149,9 @@
                 font-size: 14px;
                 line-height: 1.5;
               ">
-                <option value="" disabled {{ old('city', $company->city) ? '' : 'selected' }}>SELECT CITY</option>
-                @php
-                  $cities = [
-                    'mumbai', 'delhi', 'bengaluru', 'hyderabad', 'ahmedabad', 'chennai', 'kolkata', 'surat',
-                    'pune', 'jaipur', 'lucknow', 'kanpur', 'nagpur', 'indore', 'thane', 'bhopal', 'visakhapatnam',
-                    'pimpri_chinchwad', 'patna', 'vadodara', 'ghaziabad', 'ludhiana', 'coimbatore', 'kochi', 'nashik',
-                    'faridabad', 'gurgaon', 'noida', 'greater_noida', 'raipur', 'kota', 'chandigarh', 'bhubaneswar',
-                    'guwahati', 'dehradun', 'ranchi', 'srinagar', 'jammu', 'thiruvananthapuram', 'shimla', 'itanagar',
-                    'kohima', 'imphal', 'shillong', 'aizawl', 'gangtok', 'agartala', 'kavaratti', 'puducherry', 'daman',
-                    'daman_and_diu', 'port_blair', 'silvassa'
-                  ];
-                  sort($cities);
-                @endphp
-                @foreach($cities as $city)
-                  <option value="{{ $city }}" {{ old('city', $company->city) == $city ? 'selected' : '' }}>
-                    {{ ucwords(str_replace('_', ' ', $city)) }}
-                  </option>
-                @endforeach
+                <option value="" disabled selected>SELECT STATE FIRST</option>
               </select>
+              <input type="hidden" id="old_city" value="{{ old('city', $company->city) }}">
               @error('city')<small class="hrp-error">{{ $message }}</small>@enderror
             </div>
           </div>
@@ -368,6 +347,11 @@
               <input name="company_password" id="company_password" type="text" placeholder="Leave blank to keep current password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;" autocomplete="new-password">
               <button type="button" onclick="generateCompanyPassword()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
             </div>
+            @can('Company Management.edit company')
+              @if($company->company_password)
+              <small style="color:#6b7280;font-size:12px;display:block;margin-top:4px">Current: <strong>{{ $company->company_password }}</strong></small>
+              @endif
+            @endcan
             @error('company_password')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
           
@@ -391,6 +375,11 @@
               <input name="company_employee_password" id="company_employee_password" type="text" placeholder="Leave blank to keep current password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;" autocomplete="new-password">
               <button type="button" onclick="generateEmployeePasswordEdit()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
             </div>
+            @can('Company Management.edit company')
+              @if($company->company_employee_password)
+              <small style="color:#6b7280;font-size:12px;display:block;margin-top:4px">Current: <strong>{{ $company->company_employee_password }}</strong></small>
+              @endif
+            @endcan
             @error('company_employee_password')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
           
@@ -413,6 +402,356 @@
 
 @push('scripts')
 <script>
+// STATE-CITY DEPENDENT DROPDOWN DATA
+const stateCityData = {
+    'andhra_pradesh': [
+        {value: 'visakhapatnam', label: 'Visakhapatnam'},
+        {value: 'vijayawada', label: 'Vijayawada'},
+        {value: 'guntur', label: 'Guntur'},
+        {value: 'nellore', label: 'Nellore'},
+        {value: 'kurnool', label: 'Kurnool'},
+        {value: 'tirupati', label: 'Tirupati'},
+        {value: 'rajahmundry', label: 'Rajahmundry'},
+        {value: 'kakinada', label: 'Kakinada'},
+        {value: 'anantapur', label: 'Anantapur'},
+        {value: 'other', label: 'Other'}
+    ],
+    'arunachal_pradesh': [
+        {value: 'itanagar', label: 'Itanagar'},
+        {value: 'naharlagun', label: 'Naharlagun'},
+        {value: 'pasighat', label: 'Pasighat'},
+        {value: 'other', label: 'Other'}
+    ],
+    'assam': [
+        {value: 'guwahati', label: 'Guwahati'},
+        {value: 'silchar', label: 'Silchar'},
+        {value: 'dibrugarh', label: 'Dibrugarh'},
+        {value: 'jorhat', label: 'Jorhat'},
+        {value: 'nagaon', label: 'Nagaon'},
+        {value: 'tinsukia', label: 'Tinsukia'},
+        {value: 'other', label: 'Other'}
+    ],
+    'bihar': [
+        {value: 'patna', label: 'Patna'},
+        {value: 'gaya', label: 'Gaya'},
+        {value: 'bhagalpur', label: 'Bhagalpur'},
+        {value: 'muzaffarpur', label: 'Muzaffarpur'},
+        {value: 'purnia', label: 'Purnia'},
+        {value: 'darbhanga', label: 'Darbhanga'},
+        {value: 'bihar_sharif', label: 'Bihar Sharif'},
+        {value: 'other', label: 'Other'}
+    ],
+    'chhattisgarh': [
+        {value: 'raipur', label: 'Raipur'},
+        {value: 'bhilai', label: 'Bhilai'},
+        {value: 'bilaspur', label: 'Bilaspur'},
+        {value: 'korba', label: 'Korba'},
+        {value: 'durg', label: 'Durg'},
+        {value: 'rajnandgaon', label: 'Rajnandgaon'},
+        {value: 'other', label: 'Other'}
+    ],
+    'delhi': [
+        {value: 'new_delhi', label: 'New Delhi'},
+        {value: 'delhi', label: 'Delhi'},
+        {value: 'noida', label: 'Noida'},
+        {value: 'gurgaon', label: 'Gurgaon'},
+        {value: 'faridabad', label: 'Faridabad'},
+        {value: 'ghaziabad', label: 'Ghaziabad'},
+        {value: 'other', label: 'Other'}
+    ],
+    'goa': [
+        {value: 'panaji', label: 'Panaji'},
+        {value: 'margao', label: 'Margao'},
+        {value: 'vasco_da_gama', label: 'Vasco da Gama'},
+        {value: 'mapusa', label: 'Mapusa'},
+        {value: 'ponda', label: 'Ponda'},
+        {value: 'other', label: 'Other'}
+    ],
+    'gujarat': [
+        {value: 'ahmedabad', label: 'Ahmedabad'},
+        {value: 'surat', label: 'Surat'},
+        {value: 'vadodara', label: 'Vadodara'},
+        {value: 'rajkot', label: 'Rajkot'},
+        {value: 'bhavnagar', label: 'Bhavnagar'},
+        {value: 'jamnagar', label: 'Jamnagar'},
+        {value: 'junagadh', label: 'Junagadh'},
+        {value: 'gandhinagar', label: 'Gandhinagar'},
+        {value: 'anand', label: 'Anand'},
+        {value: 'nadiad', label: 'Nadiad'},
+        {value: 'morbi', label: 'Morbi'},
+        {value: 'mehsana', label: 'Mehsana'},
+        {value: 'bharuch', label: 'Bharuch'},
+        {value: 'vapi', label: 'Vapi'},
+        {value: 'navsari', label: 'Navsari'},
+        {value: 'veraval', label: 'Veraval'},
+        {value: 'porbandar', label: 'Porbandar'},
+        {value: 'godhra', label: 'Godhra'},
+        {value: 'palanpur', label: 'Palanpur'},
+        {value: 'valsad', label: 'Valsad'},
+        {value: 'other', label: 'Other'}
+    ],
+    'haryana': [
+        {value: 'faridabad', label: 'Faridabad'},
+        {value: 'gurgaon', label: 'Gurgaon'},
+        {value: 'panipat', label: 'Panipat'},
+        {value: 'ambala', label: 'Ambala'},
+        {value: 'yamunanagar', label: 'Yamunanagar'},
+        {value: 'rohtak', label: 'Rohtak'},
+        {value: 'hisar', label: 'Hisar'},
+        {value: 'karnal', label: 'Karnal'},
+        {value: 'sonipat', label: 'Sonipat'},
+        {value: 'panchkula', label: 'Panchkula'},
+        {value: 'other', label: 'Other'}
+    ],
+    'himachal_pradesh': [
+        {value: 'shimla', label: 'Shimla'},
+        {value: 'mandi', label: 'Mandi'},
+        {value: 'solan', label: 'Solan'},
+        {value: 'dharamshala', label: 'Dharamshala'},
+        {value: 'kullu', label: 'Kullu'},
+        {value: 'manali', label: 'Manali'},
+        {value: 'other', label: 'Other'}
+    ],
+    'jammu_kashmir': [
+        {value: 'srinagar', label: 'Srinagar'},
+        {value: 'jammu', label: 'Jammu'},
+        {value: 'anantnag', label: 'Anantnag'},
+        {value: 'baramulla', label: 'Baramulla'},
+        {value: 'other', label: 'Other'}
+    ],
+    'jharkhand': [
+        {value: 'ranchi', label: 'Ranchi'},
+        {value: 'jamshedpur', label: 'Jamshedpur'},
+        {value: 'dhanbad', label: 'Dhanbad'},
+        {value: 'bokaro', label: 'Bokaro'},
+        {value: 'deoghar', label: 'Deoghar'},
+        {value: 'hazaribagh', label: 'Hazaribagh'},
+        {value: 'other', label: 'Other'}
+    ],
+    'karnataka': [
+        {value: 'bengaluru', label: 'Bengaluru'},
+        {value: 'mysuru', label: 'Mysuru'},
+        {value: 'hubli', label: 'Hubli'},
+        {value: 'mangaluru', label: 'Mangaluru'},
+        {value: 'belgaum', label: 'Belgaum'},
+        {value: 'gulbarga', label: 'Gulbarga'},
+        {value: 'davanagere', label: 'Davanagere'},
+        {value: 'bellary', label: 'Bellary'},
+        {value: 'shimoga', label: 'Shimoga'},
+        {value: 'tumkur', label: 'Tumkur'},
+        {value: 'other', label: 'Other'}
+    ],
+    'kerala': [
+        {value: 'thiruvananthapuram', label: 'Thiruvananthapuram'},
+        {value: 'kochi', label: 'Kochi'},
+        {value: 'kozhikode', label: 'Kozhikode'},
+        {value: 'thrissur', label: 'Thrissur'},
+        {value: 'kollam', label: 'Kollam'},
+        {value: 'kannur', label: 'Kannur'},
+        {value: 'alappuzha', label: 'Alappuzha'},
+        {value: 'palakkad', label: 'Palakkad'},
+        {value: 'other', label: 'Other'}
+    ],
+    'madhya_pradesh': [
+        {value: 'indore', label: 'Indore'},
+        {value: 'bhopal', label: 'Bhopal'},
+        {value: 'jabalpur', label: 'Jabalpur'},
+        {value: 'gwalior', label: 'Gwalior'},
+        {value: 'ujjain', label: 'Ujjain'},
+        {value: 'sagar', label: 'Sagar'},
+        {value: 'dewas', label: 'Dewas'},
+        {value: 'satna', label: 'Satna'},
+        {value: 'ratlam', label: 'Ratlam'},
+        {value: 'other', label: 'Other'}
+    ],
+    'maharashtra': [
+        {value: 'mumbai', label: 'Mumbai'},
+        {value: 'pune', label: 'Pune'},
+        {value: 'nagpur', label: 'Nagpur'},
+        {value: 'thane', label: 'Thane'},
+        {value: 'nashik', label: 'Nashik'},
+        {value: 'aurangabad', label: 'Aurangabad'},
+        {value: 'solapur', label: 'Solapur'},
+        {value: 'kolhapur', label: 'Kolhapur'},
+        {value: 'navi_mumbai', label: 'Navi Mumbai'},
+        {value: 'amravati', label: 'Amravati'},
+        {value: 'sangli', label: 'Sangli'},
+        {value: 'malegaon', label: 'Malegaon'},
+        {value: 'jalgaon', label: 'Jalgaon'},
+        {value: 'akola', label: 'Akola'},
+        {value: 'latur', label: 'Latur'},
+        {value: 'ahmednagar', label: 'Ahmednagar'},
+        {value: 'other', label: 'Other'}
+    ],
+    'manipur': [
+        {value: 'imphal', label: 'Imphal'},
+        {value: 'thoubal', label: 'Thoubal'},
+        {value: 'other', label: 'Other'}
+    ],
+    'meghalaya': [
+        {value: 'shillong', label: 'Shillong'},
+        {value: 'tura', label: 'Tura'},
+        {value: 'other', label: 'Other'}
+    ],
+    'mizoram': [
+        {value: 'aizawl', label: 'Aizawl'},
+        {value: 'lunglei', label: 'Lunglei'},
+        {value: 'other', label: 'Other'}
+    ],
+    'nagaland': [
+        {value: 'kohima', label: 'Kohima'},
+        {value: 'dimapur', label: 'Dimapur'},
+        {value: 'other', label: 'Other'}
+    ],
+    'odisha': [
+        {value: 'bhubaneswar', label: 'Bhubaneswar'},
+        {value: 'cuttack', label: 'Cuttack'},
+        {value: 'rourkela', label: 'Rourkela'},
+        {value: 'berhampur', label: 'Berhampur'},
+        {value: 'sambalpur', label: 'Sambalpur'},
+        {value: 'puri', label: 'Puri'},
+        {value: 'other', label: 'Other'}
+    ],
+    'punjab': [
+        {value: 'ludhiana', label: 'Ludhiana'},
+        {value: 'amritsar', label: 'Amritsar'},
+        {value: 'jalandhar', label: 'Jalandhar'},
+        {value: 'patiala', label: 'Patiala'},
+        {value: 'bathinda', label: 'Bathinda'},
+        {value: 'mohali', label: 'Mohali'},
+        {value: 'pathankot', label: 'Pathankot'},
+        {value: 'hoshiarpur', label: 'Hoshiarpur'},
+        {value: 'other', label: 'Other'}
+    ],
+    'rajasthan': [
+        {value: 'jaipur', label: 'Jaipur'},
+        {value: 'jodhpur', label: 'Jodhpur'},
+        {value: 'kota', label: 'Kota'},
+        {value: 'bikaner', label: 'Bikaner'},
+        {value: 'ajmer', label: 'Ajmer'},
+        {value: 'udaipur', label: 'Udaipur'},
+        {value: 'bhilwara', label: 'Bhilwara'},
+        {value: 'alwar', label: 'Alwar'},
+        {value: 'bharatpur', label: 'Bharatpur'},
+        {value: 'sikar', label: 'Sikar'},
+        {value: 'other', label: 'Other'}
+    ],
+    'sikkim': [
+        {value: 'gangtok', label: 'Gangtok'},
+        {value: 'namchi', label: 'Namchi'},
+        {value: 'other', label: 'Other'}
+    ],
+    'tamil_nadu': [
+        {value: 'chennai', label: 'Chennai'},
+        {value: 'coimbatore', label: 'Coimbatore'},
+        {value: 'madurai', label: 'Madurai'},
+        {value: 'tiruchirappalli', label: 'Tiruchirappalli'},
+        {value: 'salem', label: 'Salem'},
+        {value: 'tirunelveli', label: 'Tirunelveli'},
+        {value: 'tiruppur', label: 'Tiruppur'},
+        {value: 'erode', label: 'Erode'},
+        {value: 'vellore', label: 'Vellore'},
+        {value: 'thoothukudi', label: 'Thoothukudi'},
+        {value: 'other', label: 'Other'}
+    ],
+    'telangana': [
+        {value: 'hyderabad', label: 'Hyderabad'},
+        {value: 'warangal', label: 'Warangal'},
+        {value: 'nizamabad', label: 'Nizamabad'},
+        {value: 'karimnagar', label: 'Karimnagar'},
+        {value: 'khammam', label: 'Khammam'},
+        {value: 'ramagundam', label: 'Ramagundam'},
+        {value: 'secunderabad', label: 'Secunderabad'},
+        {value: 'other', label: 'Other'}
+    ],
+    'tripura': [
+        {value: 'agartala', label: 'Agartala'},
+        {value: 'other', label: 'Other'}
+    ],
+    'uttar_pradesh': [
+        {value: 'lucknow', label: 'Lucknow'},
+        {value: 'kanpur', label: 'Kanpur'},
+        {value: 'ghaziabad', label: 'Ghaziabad'},
+        {value: 'agra', label: 'Agra'},
+        {value: 'meerut', label: 'Meerut'},
+        {value: 'varanasi', label: 'Varanasi'},
+        {value: 'prayagraj', label: 'Prayagraj'},
+        {value: 'bareilly', label: 'Bareilly'},
+        {value: 'aligarh', label: 'Aligarh'},
+        {value: 'moradabad', label: 'Moradabad'},
+        {value: 'saharanpur', label: 'Saharanpur'},
+        {value: 'gorakhpur', label: 'Gorakhpur'},
+        {value: 'noida', label: 'Noida'},
+        {value: 'firozabad', label: 'Firozabad'},
+        {value: 'jhansi', label: 'Jhansi'},
+        {value: 'other', label: 'Other'}
+    ],
+    'uttarakhand': [
+        {value: 'dehradun', label: 'Dehradun'},
+        {value: 'haridwar', label: 'Haridwar'},
+        {value: 'roorkee', label: 'Roorkee'},
+        {value: 'haldwani', label: 'Haldwani'},
+        {value: 'rudrapur', label: 'Rudrapur'},
+        {value: 'kashipur', label: 'Kashipur'},
+        {value: 'rishikesh', label: 'Rishikesh'},
+        {value: 'other', label: 'Other'}
+    ],
+    'west_bengal': [
+        {value: 'kolkata', label: 'Kolkata'},
+        {value: 'howrah', label: 'Howrah'},
+        {value: 'durgapur', label: 'Durgapur'},
+        {value: 'asansol', label: 'Asansol'},
+        {value: 'siliguri', label: 'Siliguri'},
+        {value: 'bardhaman', label: 'Bardhaman'},
+        {value: 'malda', label: 'Malda'},
+        {value: 'kharagpur', label: 'Kharagpur'},
+        {value: 'other', label: 'Other'}
+    ],
+    'other': [
+        {value: 'other', label: 'Other'}
+    ]
+};
+
+// Function to populate cities based on selected state
+function populateCities(stateValue, selectedCity = null) {
+    const citySelect = document.getElementById('city_select');
+    if (!citySelect) return;
+    
+    // Clear existing options
+    citySelect.innerHTML = '<option value="" disabled selected>SELECT CITY</option>';
+    
+    if (stateValue && stateCityData[stateValue]) {
+        const cities = stateCityData[stateValue];
+        cities.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city.value;
+            option.textContent = city.label;
+            if (selectedCity && city.value === selectedCity) {
+                option.selected = true;
+            }
+            citySelect.appendChild(option);
+        });
+    }
+}
+
+// Initialize state-city dropdown on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const stateSelect = document.getElementById('state_select');
+    const oldCity = document.getElementById('old_city')?.value;
+    
+    if (stateSelect) {
+        // If state is already selected (e.g., from existing data or old input), populate cities
+        if (stateSelect.value) {
+            populateCities(stateSelect.value, oldCity);
+        }
+        
+        // Add change event listener
+        stateSelect.addEventListener('change', function() {
+            populateCities(this.value);
+        });
+    }
+});
+
   // Function to update file name display
   function updateFileName(input, targetId) {
     const fileName = input.files[0] ? input.files[0].name : 'No File Chosen';

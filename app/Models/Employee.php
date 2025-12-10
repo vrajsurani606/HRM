@@ -26,6 +26,7 @@ class Employee extends Model
         'address',
         'position',
         'password_hash',
+        'plain_password',
         'reference_name',
         'reference_no',
         'aadhaar_no',

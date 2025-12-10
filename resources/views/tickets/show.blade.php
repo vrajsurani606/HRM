@@ -389,6 +389,45 @@
         <div class="ticket-description">
             <div class="section-title">Description</div>
             <div class="description-text">{{ $ticket->description ?? 'No description provided.' }}</div>
+            
+            @if($ticket->attachment)
+            <div style="margin-top: 20px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: #64748b; font-size: 13px; font-weight: 600;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                    </svg>
+                    <span>Ticket Attachment</span>
+                </div>
+                @php
+                    $extension = pathinfo($ticket->attachment, PATHINFO_EXTENSION);
+                    $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                    $isPdf = strtolower($extension) === 'pdf';
+                @endphp
+                
+                @if($isImage)
+                    <div style="margin-top: 12px;">
+                        <a href="{{ storage_asset($ticket->attachment) }}" target="_blank" style="display: inline-block;">
+                            <img src="{{ storage_asset($ticket->attachment) }}" alt="Ticket Attachment" style="max-width: 100%; max-height: 400px; border-radius: 8px; border: 2px solid #e5e7eb; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        </a>
+                    </div>
+                @elseif($isPdf)
+                    <div style="margin-top: 12px;">
+                        <embed src="{{ storage_asset($ticket->attachment) }}" type="application/pdf" style="width: 100%; height: 500px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                    </div>
+                @else
+                    <div style="margin-top: 12px;">
+                        <a href="{{ storage_asset($ticket->attachment) }}" download style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; color: #3b82f6; text-decoration: none; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#3b82f6'" onmouseout="this.style.background='white'; this.style.borderColor='#e5e7eb'">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            <span>Download {{ basename($ticket->attachment) }}</span>
+                        </a>
+                    </div>
+                @endif
+            </div>
+            @endif
         </div>
         
         <!-- Comments Section -->
@@ -457,7 +496,7 @@
                 
                 <!-- External Comment Form -->
                 <div class="comment-form">
-                    <form class="comment-form-inner" data-type="external">
+                    <form class="comment-form-inner" data-type="external" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group">
                             <textarea 
@@ -466,6 +505,16 @@
                                 placeholder="Write a message to the customer..." 
                                 required
                             ></textarea>
+                        </div>
+                        <div class="form-group" style="margin-top: 12px;">
+                            <label for="external-attachment" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; color: #64748b; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                                </svg>
+                                Attach File (Image/PDF)
+                            </label>
+                            <input type="file" id="external-attachment" name="attachment" accept="image/*,.pdf" style="display: none;" onchange="showFileName(this, 'external-file-name')">
+                            <div id="external-file-name" style="margin-top: 8px; font-size: 13px; color: #64748b;"></div>
                         </div>
                         <input type="hidden" name="is_internal" value="0">
                         <div class="form-actions">
@@ -602,7 +651,7 @@
                         </svg>
                         Internal Note (Not visible to customer)
                     </div>
-                    <form class="comment-form-inner" data-type="internal">
+                    <form class="comment-form-inner" data-type="internal" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group">
                             <textarea 
@@ -612,6 +661,16 @@
                                 required
                                 style="background: white;"
                             ></textarea>
+                        </div>
+                        <div class="form-group" style="margin-top: 12px;">
+                            <label for="internal-attachment" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: white; border: 1px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; color: #616161; transition: all 0.2s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='white'">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                                </svg>
+                                Attach File (Image/PDF)
+                            </label>
+                            <input type="file" id="internal-attachment" name="attachment" accept="image/*,.pdf" style="display: none;" onchange="showFileName(this, 'internal-file-name')">
+                            <div id="internal-file-name" style="margin-top: 8px; font-size: 13px; color: #616161;"></div>
                         </div>
                         <input type="hidden" name="is_internal" value="1">
                         <div class="form-actions">
@@ -653,7 +712,7 @@
                         </svg>
                         <span style="font-size: 13px; color: #1e40af; font-weight: 500;">Your messages are visible to our support team</span>
                     </div>
-                    <form class="comment-form-inner" data-type="external">
+                    <form class="comment-form-inner" data-type="external" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group">
                             <textarea 
@@ -663,6 +722,16 @@
                                 required
                                 style="background: white;"
                             ></textarea>
+                        </div>
+                        <div class="form-group" style="margin-top: 12px;">
+                            <label for="customer-attachment" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; color: #64748b; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                                </svg>
+                                Attach File (Image/PDF)
+                            </label>
+                            <input type="file" id="customer-attachment" name="attachment" accept="image/*,.pdf" style="display: none;" onchange="showFileName(this, 'customer-file-name')">
+                            <div id="customer-file-name" style="margin-top: 8px; font-size: 13px; color: #64748b;"></div>
                         </div>
                         <input type="hidden" name="is_internal" value="0">
                         <div class="form-actions">
@@ -695,10 +764,53 @@
             <div class="sidebar-value">{{ $ticket->ticket_type ?? $ticket->category ?? 'General' }}</div>
         </div>
         
+        @if(!auth()->user()->hasRole('customer'))
         <div class="sidebar-section">
             <div class="sidebar-label">Assigned To</div>
-            <div class="sidebar-value">{{ $ticket->assignedEmployee->name ?? 'Not Assigned' }}</div>
+            @if($ticket->assignedEmployee)
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    @if($ticket->assignedEmployee->photo_path)
+                        <img src="{{ storage_asset($ticket->assignedEmployee->photo_path) }}" alt="{{ $ticket->assignedEmployee->name }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #e5e7eb; flex-shrink: 0;">
+                    @else
+                        <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; flex-shrink: 0;">
+                            {{ strtoupper(substr($ticket->assignedEmployee->name, 0, 1)) }}
+                        </div>
+                    @endif
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 600; color: #0f172a; font-size: 15px; margin-bottom: 6px;">
+                            {{ $ticket->assignedEmployee->name }}
+                        </div>
+                        @if($ticket->assignedEmployee->position)
+                            <div style="font-size: 12px; color: #64748b; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                                <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink: 0;">
+                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                </svg>
+                                <span>{{ $ticket->assignedEmployee->position }}</span>
+                            </div>
+                        @endif
+                        @if($ticket->assignedEmployee->email)
+                            <div style="font-size: 12px; color: #64748b; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; word-break: break-all;">
+                                <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink: 0;">
+                                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                </svg>
+                                <span>{{ $ticket->assignedEmployee->email }}</span>
+                            </div>
+                        @endif
+                        @if($ticket->assignedEmployee->phone)
+                            <div style="font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 4px;">
+                                <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink: 0;">
+                                    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                                </svg>
+                                <span>{{ $ticket->assignedEmployee->phone }}</span>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @else
+                <div class="sidebar-value" style="color: #9ca3af; font-style: italic;">Not assigned yet</div>
+            @endif
         </div>
+        @endif
         
         <div class="sidebar-section">
             <div class="sidebar-label">Work Status</div>
@@ -825,6 +937,30 @@ document.querySelectorAll('.comment-form-inner').forEach(form => {
         const type = this.dataset.type;
         const textarea = this.querySelector('textarea');
         
+        // Manually add file if it exists (for hidden file inputs)
+        const fileInput = this.querySelector('input[type="file"]');
+        console.log('File input found:', fileInput ? 'YES' : 'NO');
+        console.log('File input ID:', fileInput?.id);
+        console.log('Files in input:', fileInput?.files?.length || 0);
+        
+        if (fileInput && fileInput.files && fileInput.files.length > 0) {
+            formData.set('attachment', fileInput.files[0]);
+            console.log('✅ File added to FormData:', fileInput.files[0].name, fileInput.files[0].size, 'bytes');
+        } else {
+            console.log('❌ No file selected in input');
+        }
+        
+        // Debug: Show all FormData
+        console.log('=== FormData Contents ===');
+        for (let pair of formData.entries()) {
+            if (pair[1] instanceof File) {
+                console.log(pair[0] + ':', 'File -', pair[1].name, pair[1].size, 'bytes');
+            } else {
+                console.log(pair[0] + ':', pair[1]);
+            }
+        }
+        console.log('========================');
+        
         // Don't submit if empty
         if (!textarea.value.trim()) {
             return;
@@ -847,8 +983,22 @@ document.querySelectorAll('.comment-form-inner').forEach(form => {
             
             if (data.success) {
                 // Determine which list to update
-                const listId = isInternal ? 'internalCommentsList' : 'externalCommentsList';
+                let listId;
+                if (isInternal) {
+                    listId = 'internalCommentsList';
+                } else {
+                    // Check if customer or admin view
+                    listId = document.getElementById('externalCommentsList') ? 'externalCommentsList' : 'customerCommentsList';
+                }
+                
                 const commentsList = document.getElementById(listId);
+                
+                if (!commentsList) {
+                    console.error('Comments list not found:', listId);
+                    alert('Comment added successfully! Please refresh the page to see it.');
+                    location.reload();
+                    return;
+                }
                 
                 // Remove empty state if exists
                 const emptyState = commentsList.querySelector('.empty-comments');
@@ -883,6 +1033,16 @@ document.querySelectorAll('.comment-form-inner').forEach(form => {
                 // Reset form
                 textarea.value = '';
                 textarea.style.height = 'auto';
+                
+                // Clear file input if exists
+                const fileInput = this.querySelector('input[type="file"]');
+                if (fileInput) {
+                    fileInput.value = '';
+                    const fileNameDiv = this.querySelector('[id$="-file-name"]');
+                    if (fileNameDiv) {
+                        fileNameDiv.innerHTML = '';
+                    }
+                }
                 
                 // Show subtle success indicator
                 const successMsg = document.createElement('div');
@@ -1054,6 +1214,34 @@ function performCloseTicket(ticketId, feedback) {
             alert('Error closing ticket');
         }
     });
+}
+
+// Show selected filename
+function showFileName(input, targetId) {
+    const target = document.getElementById(targetId);
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const fileSize = (file.size / 1024 / 1024).toFixed(2); // Convert to MB
+        const fileType = file.type.includes('image') ? '🖼️ Image' : '📄 PDF';
+        target.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px;">
+                <span style="font-weight: 600; color: #15803d;">${fileType}:</span>
+                <span style="color: #166534;">${file.name}</span>
+                <span style="color: #86efac; font-size: 12px;">(${fileSize} MB)</span>
+                <button type="button" onclick="clearFile('${input.id}', '${targetId}')" style="margin-left: auto; background: none; border: none; color: #dc2626; cursor: pointer; font-size: 18px; line-height: 1;" title="Remove file">×</button>
+            </div>
+        `;
+    } else {
+        target.innerHTML = '';
+    }
+}
+
+// Clear selected file
+function clearFile(inputId, targetId) {
+    const input = document.getElementById(inputId);
+    const target = document.getElementById(targetId);
+    input.value = '';
+    target.innerHTML = '';
 }
 </script>
 

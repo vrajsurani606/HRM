@@ -7,13 +7,21 @@
       <input type="text" name="name" class="filter-pill" placeholder="Name" value="{{ request('name') }}">
       <input type="text" name="email" class="filter-pill" placeholder="Email" value="{{ request('email') }}">
       <input type="text" name="code" class="filter-pill" placeholder="Employee Code" value="{{ request('code') }}">
+      
       <button type="submit" class="filter-search" aria-label="Search">
         <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
           <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
         </svg>
       </button>
+
+      <a href="{{ route('employees.index') }}" class="filter-search" aria-label="Reset" title="Reset Filters">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+        </svg>
+      </a>
+
       <div class="filter-right">
-        <div class="view-toggle-group" style="margin-right:8px;">
+        <div class="view-toggle-group">
           <button type="button" class="view-toggle-btn" data-view="grid" title="Grid View" aria-label="Grid View">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="7" height="7" rx="1"></rect>
@@ -33,8 +41,9 @@
             </svg>
           </button>
         </div>
+
         <input type="text" name="search" class="filter-pill live-search" placeholder="Search here..." value="{{ request('search') }}">
-        <a href="{{ route('employees.index') }}" class="pill-btn pill-secondary">Reset</a>
+
         @can('Employees Management.create employee')
           <a href="{{ route('employees.create') }}" class="pill-btn pill-success">+ Add</a>
         @endcan
@@ -316,9 +325,9 @@
   @if(isset($employees) && method_exists($employees,'links'))
   <form method="GET" class="hrp-entries-form">
     <span>Entries</span>
-    @php($currentPerPage = (int) request()->get('per_page', 12))
+    @php($currentPerPage = (int) request()->get('per_page', 10))
     <select name="per_page" onchange="this.form.submit()">
-      @foreach([12,24,48,100] as $size)
+      @foreach([10,25,50,100] as $size)
       <option value="{{ $size }}" {{ $currentPerPage === $size ? 'selected' : '' }}>{{ $size }}</option>
       @endforeach
     </select>
