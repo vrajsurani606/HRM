@@ -82,39 +82,11 @@ class EmployeeController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
-        $positions = [
-            'Full Stack Developer',
-            'Frontend Developer', 
-            'Backend Developer',
-            'Mobile App Developer',
-            'UI/UX Designer',
-            'Graphic Designer',
-            'Project Manager',
-            'Team Lead',
-            'HR Executive',
-            'HR Manager',
-            'Sales Executive',
-            'Sales Manager',
-            'Marketing Executive',
-            'Digital Marketing Specialist',
-            'Content Writer',
-            'SEO Specialist',
-            'Business Analyst',
-            'Quality Assurance Engineer',
-            'DevOps Engineer',
-            'System Administrator',
-            'Accountant',
-            'Finance Manager',
-            'Customer Support Executive',
-            'Operations Manager',
-            'Intern',
-            'Other'
-        ];
         $nextCode = Employee::nextCode();
         
         return view('hr.employees.create', [
             'page_title' => 'Add Employee',
-            'positions' => $positions,
+            'positions' => config('positions.all'),
             'nextCode' => $nextCode,
         ]);
     }
@@ -389,40 +361,12 @@ class EmployeeController extends Controller
         }
         
         $employee->load('user');
-        $positions = [
-            'Full Stack Developer',
-            'Frontend Developer', 
-            'Backend Developer',
-            'Mobile App Developer',
-            'UI/UX Designer',
-            'Graphic Designer',
-            'Project Manager',
-            'Team Lead',
-            'HR Executive',
-            'HR Manager',
-            'Sales Executive',
-            'Sales Manager',
-            'Marketing Executive',
-            'Digital Marketing Specialist',
-            'Content Writer',
-            'SEO Specialist',
-            'Business Analyst',
-            'Quality Assurance Engineer',
-            'DevOps Engineer',
-            'System Administrator',
-            'Accountant',
-            'Finance Manager',
-            'Customer Support Executive',
-            'Operations Manager',
-            'Intern',
-            'Other'
-        ];
         $incentiveOptions = ['YES', 'NO'];
         
         return view('hr.employees.edit', [
             'employee'   => $employee,
             'page_title' => 'Edit Employee',
-            'positions' => $positions,
+            'positions' => config('positions.all'),
             'incentiveOptions' => $incentiveOptions,
         ]);
     }

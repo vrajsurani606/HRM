@@ -76,8 +76,9 @@
         <p class="hiring-grid-sub">Code: {{ $lead->unique_code }} • Mobile: {{ display_mobile($lead->mobile_no) ?? '-' }}</p>
         <div class="hiring-grid-meta">
           <div class="hiring-grid-left">
-            <div class="meta-row"><span class="meta-label">Address</span><span class="meta-value">{{ $lead->address ?? '-' }}</span></div>
-            <div class="meta-row"><span class="meta-label">Prev.</span><span class="meta-value">{{ $lead->experience_previous_company ?? '-' }} {{ $lead->previous_salary ? '• ₹'.$lead->previous_salary : '' }}</span></div>
+            @if($lead->address)
+            <div class="meta-row"><span class="meta-label">Address</span><span class="meta-value">{{ Str::limit($lead->address, 40) }}</span></div>
+            @endif
           </div>
           <div class="hiring-grid-actions" onclick="event.stopPropagation()">
             @can('Leads Management.edit lead')
@@ -127,16 +128,12 @@
         <thead>
           <tr>
             <th>Action</th>
-            <th>Serial No.</th>
-            <th>Hiring Lead Code</th>
-            <th>Person Name</th>
-            <th>Mo. No.</th>
-            <th>Address</th>
+            <th>Sr.</th>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Mobile</th>
             <th>Position</th>
-            <th>Is Exp.?</th>
-            <th>Exp.</th>
-            <th>Pre. Company</th>
-            <th>Pre. Salary</th>
+            <th>Experience</th>
             <th>Gender</th>
             <th>Resume</th>
           </tr>
@@ -176,30 +173,23 @@
                 @endcan
               </div>
             </td>
-            <td>
-              @php($sno = ($leads->currentPage()-1) * $leads->perPage() + $i + 1)
-              {{ $sno }}
-            </td>
-            <td>{{ $lead->unique_code }}</td>
-            <td>{{ $lead->person_name }}</td>
+            <td>{{ ($leads->currentPage()-1) * $leads->perPage() + $i + 1 }}</td>
+            <td><span style="font-weight:600;color:#3b82f6;">{{ $lead->unique_code }}</span></td>
+            <td><span style="font-weight:600;">{{ $lead->person_name }}</span></td>
             <td>{{ display_mobile($lead->mobile_no) }}</td>
-            <td>{{ $lead->address }}</td>
             <td>{{ $lead->position }}</td>
             <td>
               @if($lead->is_experience)
-              <span style="display:inline-flex;align-items:center;gap:6px;background:#e8f7ef;color:#0ea05d;font-weight:800;font-size:12px;padding:6px 10px;border-radius:9999px;">
-                <span style="width:8px;height:8px;border-radius:9999px;background:#0ea05d;display:inline-block"></span> Yes
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#dcfce7;color:#166534;font-weight:600;font-size:12px;padding:4px 10px;border-radius:9999px;">
+                {{ $lead->experience_count ?? 0 }} yrs
               </span>
               @else
-              <span style="display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;color:#6b7280;font-weight:800;font-size:12px;padding:6px 10px;border-radius:9999px;">
-                <span style="width:8px;height:8px;border-radius:9999px;background:#9ca3af;display:inline-block"></span> No
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#f3f4f6;color:#6b7280;font-weight:600;font-size:12px;padding:4px 10px;border-radius:9999px;">
+                Fresher
               </span>
               @endif
             </td>
-            <td>{{ $lead->experience_count }}</td>
-            <td>{{ $lead->experience_previous_company }}</td>
-            <td>{{ $lead->previous_salary }}</td>
-            <td class="capitalize">{{ $lead->gender }}</td>
+            <td class="capitalize">{{ ucfirst($lead->gender) }}</td>
             <td>
               @if($lead->resume_path)
                 @can('Leads Management.view resume')
@@ -214,7 +204,7 @@
           </tr>
           @empty
             <x-empty-state 
-                colspan="13" 
+                colspan="9" 
                 title="No hiring records found" 
                 message="Try adjusting your filters or create a new hiring record"
             />

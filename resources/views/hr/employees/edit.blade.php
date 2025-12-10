@@ -39,14 +39,7 @@
         <!-- Employee Position -->
         <div>
           <label class="hrp-label">Employee Position:</label>
-          <select name="position" class="Rectangle-29 Rectangle-29-select">
-            <option value="">Select Position</option>
-            @if(isset($positions))
-              @foreach($positions as $pos)
-                <option value="{{ $pos }}" {{ old('position', $employee->position) === $pos ? 'selected' : '' }}>{{ $pos }}</option>
-              @endforeach
-            @endif
-          </select>
+          <x-position-select name="position" id="positionSelectEdit" :value="old('position', $employee->position)" />
           @error('position')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         

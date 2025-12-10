@@ -37,29 +37,9 @@
       }
       if(expSel){ expSel.addEventListener('change', toggleExpReq); toggleExpReq(); }
 
-      // Handle "Other" position
-      var posSel = document.getElementById('positionSelect');
-      var otherWrap = document.getElementById('otherPositionWrap');
-      var otherInput = document.getElementById('otherPositionInput');
-      function toggleOtherPosition(){
-        var isOther = posSel && posSel.value === 'Other';
-        if(otherWrap){ otherWrap.style.display = isOther ? '' : 'none'; }
-        if(otherInput){ 
-          otherInput.required = isOther; 
-          otherInput.disabled = !isOther;
-          if(!isOther){ otherInput.value = ''; }
-        }
-      }
-      if(posSel){ posSel.addEventListener('change', toggleOtherPosition); toggleOtherPosition(); }
-
       var form = document.getElementById('hiringForm');
       if(form){
         form.addEventListener('submit', function(e){
-          // If "Other" is selected, use the custom position value
-          if(posSel && posSel.value === 'Other' && otherInput && otherInput.value.trim()){
-            posSel.value = otherInput.value.trim();
-          }
-          
           if(!form.checkValidity()){
             e.preventDefault();
             form.reportValidity();
@@ -87,56 +67,8 @@
         </div>
         <div>
           <label class="hrp-label">Position:</label>
-          <select name="position" id="positionSelect" class="Rectangle-29 Rectangle-29-select" required>
-            <option value="">Select Position</option>
-            <optgroup label="Development">
-              <option value="Full Stack Developer" {{ old('position') === 'Full Stack Developer' ? 'selected' : '' }}>Full Stack Developer</option>
-              <option value="Frontend Developer" {{ old('position') === 'Frontend Developer' ? 'selected' : '' }}>Frontend Developer</option>
-              <option value="Backend Developer" {{ old('position') === 'Backend Developer' ? 'selected' : '' }}>Backend Developer</option>
-              <option value="Mobile App Developer" {{ old('position') === 'Mobile App Developer' ? 'selected' : '' }}>Mobile App Developer</option>
-              <option value="DevOps Engineer" {{ old('position') === 'DevOps Engineer' ? 'selected' : '' }}>DevOps Engineer</option>
-              <option value="Quality Assurance Engineer" {{ old('position') === 'Quality Assurance Engineer' ? 'selected' : '' }}>Quality Assurance Engineer</option>
-            </optgroup>
-            <optgroup label="Design">
-              <option value="UI/UX Designer" {{ old('position') === 'UI/UX Designer' ? 'selected' : '' }}>UI/UX Designer</option>
-              <option value="Graphic Designer" {{ old('position') === 'Graphic Designer' ? 'selected' : '' }}>Graphic Designer</option>
-            </optgroup>
-            <optgroup label="Management">
-              <option value="Project Manager" {{ old('position') === 'Project Manager' ? 'selected' : '' }}>Project Manager</option>
-              <option value="Team Lead" {{ old('position') === 'Team Lead' ? 'selected' : '' }}>Team Lead</option>
-              <option value="Operations Manager" {{ old('position') === 'Operations Manager' ? 'selected' : '' }}>Operations Manager</option>
-            </optgroup>
-            <optgroup label="Human Resources">
-              <option value="HR Executive" {{ old('position') === 'HR Executive' ? 'selected' : '' }}>HR Executive</option>
-              <option value="HR Manager" {{ old('position') === 'HR Manager' ? 'selected' : '' }}>HR Manager</option>
-            </optgroup>
-            <optgroup label="Sales & Marketing">
-              <option value="Sales Executive" {{ old('position') === 'Sales Executive' ? 'selected' : '' }}>Sales Executive</option>
-              <option value="Sales Manager" {{ old('position') === 'Sales Manager' ? 'selected' : '' }}>Sales Manager</option>
-              <option value="Marketing Executive" {{ old('position') === 'Marketing Executive' ? 'selected' : '' }}>Marketing Executive</option>
-              <option value="Digital Marketing Specialist" {{ old('position') === 'Digital Marketing Specialist' ? 'selected' : '' }}>Digital Marketing Specialist</option>
-              <option value="Content Writer" {{ old('position') === 'Content Writer' ? 'selected' : '' }}>Content Writer</option>
-              <option value="SEO Specialist" {{ old('position') === 'SEO Specialist' ? 'selected' : '' }}>SEO Specialist</option>
-            </optgroup>
-            <optgroup label="Finance & Accounting">
-              <option value="Accountant" {{ old('position') === 'Accountant' ? 'selected' : '' }}>Accountant</option>
-              <option value="Finance Manager" {{ old('position') === 'Finance Manager' ? 'selected' : '' }}>Finance Manager</option>
-            </optgroup>
-            <optgroup label="Other Roles">
-              <option value="Business Analyst" {{ old('position') === 'Business Analyst' ? 'selected' : '' }}>Business Analyst</option>
-              <option value="System Administrator" {{ old('position') === 'System Administrator' ? 'selected' : '' }}>System Administrator</option>
-              <option value="Customer Support Executive" {{ old('position') === 'Customer Support Executive' ? 'selected' : '' }}>Customer Support Executive</option>
-              <option value="Receptionist" {{ old('position') === 'Receptionist' ? 'selected' : '' }}>Receptionist</option>
-              <option value="Intern" {{ old('position') === 'Intern' ? 'selected' : '' }}>Intern</option>
-              <option value="Other" {{ old('position') === 'Other' ? 'selected' : '' }}>Other</option>
-            </optgroup>
-          </select>
+          <x-position-select name="position" id="positionSelect" :value="old('position')" :required="true" />
           @error('position')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        <div id="otherPositionWrap" style="display:none">
-          <label class="hrp-label">Specify Position:</label>
-          <input name="other_position" id="otherPositionInput" value="{{ old('other_position') }}" placeholder="Enter position name" class="hrp-input Rectangle-29">
-          @error('other_position')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
           <label class="hrp-label">Is experience ?:</label>

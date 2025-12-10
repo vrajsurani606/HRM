@@ -44,7 +44,7 @@
 
         <div>
           <label class="hrp-label">Position:</label>
-          <input name="position" value="{{ old('position') }}" placeholder="Enter Position" class="hrp-input Rectangle-29" required>
+          <x-position-select name="position" id="positionSelect" :value="old('position')" :required="true" />
           @error('position')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
 

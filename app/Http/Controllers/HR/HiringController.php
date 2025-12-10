@@ -107,12 +107,11 @@ class HiringController extends Controller
             ]);
         }
 
-        $positions = ['Developer', 'Designer', 'Manager', 'HR', 'Sales', 'Marketing', 'Accountant', 'Other'];
         $nextCode = Employee::nextCode();
 
         return view('hr.employees.convert', [
             'lead' => $lead,
-            'positions' => $positions,
+            'positions' => config('positions.all'),
             'nextCode' => $nextCode,
             'page_title' => 'Convert Lead to Employee',
         ]);
@@ -230,39 +229,10 @@ class HiringController extends Controller
         }
         
         $nextCode = HiringLead::nextCode();
-        $positions = [
-            'Full Stack Developer',
-            'Frontend Developer', 
-            'Backend Developer',
-            'Mobile App Developer',
-            'UI/UX Designer',
-            'Graphic Designer',
-            'Project Manager',
-            'Team Lead',
-            'HR Executive',
-            'HR Manager',
-            'Sales Executive',
-            'Sales Manager',
-            'Marketing Executive',
-            'Digital Marketing Specialist',
-            'Content Writer',
-            'SEO Specialist',
-            'Business Analyst',
-            'Quality Assurance Engineer',
-            'DevOps Engineer',
-            'System Administrator',
-            'Accountant',
-            'Finance Manager',
-            'Customer Support Executive',
-            'Operations Manager',
-            'Intern',
-            'Reciptionist',
-            'Other'
-        ];
         return view('hr.hiring.create', [
             'page_title' => 'Add New Hiring Lead',
             'nextCode' => $nextCode,
-            'positions' => $positions,
+            'positions' => config('positions.all'),
         ]);
     }
 
@@ -306,38 +276,10 @@ class HiringController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
-        $positions = [
-            'Full Stack Developer',
-            'Frontend Developer', 
-            'Backend Developer',
-            'Mobile App Developer',
-            'UI/UX Designer',
-            'Graphic Designer',
-            'Project Manager',
-            'Team Lead',
-            'HR Executive',
-            'HR Manager',
-            'Sales Executive',
-            'Sales Manager',
-            'Marketing Executive',
-            'Digital Marketing Specialist',
-            'Content Writer',
-            'SEO Specialist',
-            'Business Analyst',
-            'Quality Assurance Engineer',
-            'DevOps Engineer',
-            'System Administrator',
-            'Accountant',
-            'Finance Manager',
-            'Customer Support Executive',
-            'Operations Manager',
-            'Intern',
-            'Other'
-        ];
         return view('hr.hiring.edit', [
             'page_title' => 'Edit Hiring Lead',
             'lead' => $hiring,
-            'positions' => $positions,
+            'positions' => config('positions.all'),
         ]);
     }
 

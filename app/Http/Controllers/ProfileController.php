@@ -187,8 +187,13 @@ class ProfileController extends Controller
         }
         
         // Get payslips for the employee (only if employee exists)
+        // Only show PAID payroll records to employees (not pending/cancelled)
         if ($employee) {
-            $payslips = $employee->payrolls()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
+            $payslips = $employee->payrolls()
+                ->where('status', 'paid')
+                ->orderBy('year', 'desc')
+                ->orderBy('month', 'desc')
+                ->get();
         }
         
         return view('profile.edit', [
