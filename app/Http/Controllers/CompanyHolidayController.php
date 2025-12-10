@@ -13,6 +13,11 @@ class CompanyHolidayController extends Controller
      */
     public function index()
     {
+        // Permission check - all authenticated users can view holidays
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Company Holidays Management.view holiday'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $currentYear = now()->year;
         $holidays = CompanyHoliday::where('year', $currentYear)
             ->orderBy('date')
@@ -26,9 +31,9 @@ class CompanyHolidayController extends Controller
      */
     public function create()
     {
-        $user = Auth::user();
-        if (!$user->hasRole('admin') && !$user->hasRole('hr') && !$user->hasRole('super-admin')) {
-            abort(403, 'Unauthorized access.');
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Company Holidays Management.create holiday'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
         }
 
         return view('holidays.create');
@@ -39,9 +44,9 @@ class CompanyHolidayController extends Controller
      */
     public function store(Request $request)
     {
-        $user = Auth::user();
-        if (!$user->hasRole('admin') && !$user->hasRole('hr') && !$user->hasRole('super-admin')) {
-            abort(403, 'Unauthorized access.');
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Company Holidays Management.create holiday'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
         }
 
         $validated = $request->validate([
@@ -69,9 +74,9 @@ class CompanyHolidayController extends Controller
      */
     public function edit(CompanyHoliday $holiday)
     {
-        $user = Auth::user();
-        if (!$user->hasRole('admin') && !$user->hasRole('hr') && !$user->hasRole('super-admin')) {
-            abort(403, 'Unauthorized access.');
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Company Holidays Management.edit holiday'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
         }
 
         return view('holidays.edit', compact('holiday'));
@@ -82,9 +87,9 @@ class CompanyHolidayController extends Controller
      */
     public function update(Request $request, CompanyHoliday $holiday)
     {
-        $user = Auth::user();
-        if (!$user->hasRole('admin') && !$user->hasRole('hr') && !$user->hasRole('super-admin')) {
-            abort(403, 'Unauthorized access.');
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Company Holidays Management.edit holiday'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
         }
 
         $validated = $request->validate([
@@ -113,9 +118,9 @@ class CompanyHolidayController extends Controller
      */
     public function destroy(CompanyHoliday $holiday)
     {
-        $user = Auth::user();
-        if (!$user->hasRole('admin') && !$user->hasRole('hr') && !$user->hasRole('super-admin')) {
-            abort(403, 'Unauthorized access.');
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Company Holidays Management.delete holiday'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
         }
 
         $holiday->delete();

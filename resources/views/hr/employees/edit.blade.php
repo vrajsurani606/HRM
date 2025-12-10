@@ -50,16 +50,23 @@
           @error('position')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
-        <!-- Employee Email -->
+        <!-- Personal Email -->
         <div>
-          <label class="hrp-label">Employee Email:</label>
-          <input name="email" type="email" value="{{ old('email', $employee->email ?? optional($employee->user)->email) }}" placeholder="Enter Email" class="hrp-input Rectangle-29" required>
+          <label class="hrp-label">Personal Email:</label>
+          <input name="personal_email" type="email" value="{{ old('personal_email', $employee->personal_email) }}" placeholder="Enter Personal Email" class="hrp-input Rectangle-29">
+          @error('personal_email')<small class="hrp-error">{{ $message }}</small>@enderror
+        </div>
+        
+        <!-- Login Email ID -->
+        <div>
+          <label class="hrp-label">Login Email ID:</label>
+          <input name="email" type="email" value="{{ old('email', $employee->email ?? optional($employee->user)->email) }}" placeholder="Enter Login Email ID" class="hrp-input Rectangle-29" required>
           @error('email')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
-        <!-- Employee Password -->
+        <!-- Login Password -->
         <div>
-          <label class="hrp-label">Employee Password:</label>
+          <label class="hrp-label">Login Password:</label>
           <div class="password-wrapper" style="position: relative;">
             <input name="password" id="passwordInput" type="password" placeholder="Leave blank to keep current password" class="hrp-input Rectangle-29" style="padding-right: 45px;">
             <button type="button" id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666; font-size: 18px; padding: 5px;">

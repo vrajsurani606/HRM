@@ -50,6 +50,8 @@
         font-family: 'Poppins', sans-serif;
         font-weight: 700 !important;
     }
+    
+
 </style>
 
 <div class="letter-header">
@@ -80,36 +82,55 @@
     
     @php
         $startDate = \Carbon\Carbon::parse($letter->start_date ?? $employee->joining_date);
-        $endDate = $letter->end_date ? \Carbon\Carbon::parse($letter->end_date) : null;
+        
+        // Simple and robust end_date handling
+        $endDate = null;
+        
+        // Check if end_date exists and has a value
+        if (!empty($letter->end_date)) {
+            try {
+                // Since the model has date casting, this should work directly
+                $endDate = $letter->end_date instanceof \Carbon\Carbon ? $letter->end_date : \Carbon\Carbon::parse($letter->end_date);
+                
+                // Additional check: if the date is in the past or future, it's valid
+                // If it's 1970-01-01 or similar invalid dates, ignore it
+                if ($endDate->year < 1990 || $endDate->year > 2100) {
+                    $endDate = null;
+                }
+            } catch (Exception $e) {
+                // If parsing fails, set to null
+                $endDate = null;
+            }
+        }
         
         $startDateFormatted = $startDate->format('jS F Y');
         $endDateFormatted = $endDate ? $endDate->format('jS F Y') : 'Current';
+        
+        // Determine employment status text
+        $employmentStatus = $endDate ? 'was employed' : 'is employed';
+        $employmentPeriod = $endDate ? "from <b>{$startDateFormatted}</b> to <b>{$endDateFormatted}</b>" : "from <b>{$startDateFormatted}</b> to <b>Current</b>";
     @endphp
     
+
+    
+
+    
     @if($letter->use_default_content ?? true)
-        <p>This is to certify that <b>{{ $employee->name }}</b> is employed with <b>{{ $company_name }}</b> 
-        as a <b>{{ $employee->position ?? 'Employee' }}</b> from <b>{{ $startDateFormatted }}</b> to <b>{{ $endDateFormatted }}</b>.</p>
+        <p>This is to certify that <b>{{ $employee->name }}</b> {{ $employmentStatus }} with <b>{{ $company_name }}</b> 
+        as a <b>{{ $employee->position ?? 'Employee' }}</b> {!! $employmentPeriod !!}.</p>
         
-        <p>During this period, {{ $employee->gender === 'Female' ? 'she' : 'he' }} demonstrated professionalism, dedication, and a strong work ethic in all assigned responsibilities. <b>{{ $employee->name }}</b> is involved in the design, development, testing, and maintenance of {{ $employee->position ?? 'assigned projects' }}, and consistently contributed to the team's success.</p>
+        <p>During this period, {{ $employee->gender === 'Female' ? 'she' : 'he' }} demonstrated professionalism, dedication, and a strong work ethic in all assigned responsibilities. {{ $employee->name }} is involved in the design, development, testing, and maintenance of {{ $employee->position ?? 'assigned projects' }}, and consistently contributed to the team's success.</p>
         
         <p>{{ $employee->gender === 'Female' ? 'She' : 'He' }} maintained good relationships with colleagues and clients, and is known for punctuality and problem-solving skills. We found {{ $employee->gender === 'Female' ? 'her' : 'him' }} to be trustworthy and sincere in all duties.</p>
         
-        <p>We wish <b>{{ $employee->name }}</b> all the best in {{ $employee->gender === 'Female' ? 'her' : 'his' }} future endeavors.</p>
+        <p>We wish {{ $employee->name }} all the best in {{ $employee->gender === 'Female' ? 'her' : 'his' }} future endeavors.</p>
     @endif
     
     @if($letter->content)
         {!! $letter->content !!}
     @endif
     
-    @php
-        $cleanNotes = trim(strip_tags($letter->notes ?? ''));
-    @endphp
-
-    @if(!empty($cleanNotes))
-        <div class="note-rectangle">
-            <b>Note: {!! strip_tags($letter->notes) !!}</b>
-        </div>
-    @endif
+    {{-- Notes are for internal use only and should not appear in printed letters --}}
 </div>
 
 <div class="signature">

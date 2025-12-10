@@ -15,7 +15,7 @@ class SystemPasswordController extends Controller
     public function index(Request $request)
     {
         // Check if user has permission
-        if (!auth()->check() || !auth()->user()->can('Users Management.view user')) {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('System Management.view system passwords'))) {
             return redirect()->back()->with('error', 'Permission denied.');
         }
 
@@ -42,7 +42,7 @@ class SystemPasswordController extends Controller
     public function employees(Request $request)
     {
         // Check if user has permission
-        if (!auth()->check() || !auth()->user()->can('Employees Management.view employee')) {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('System Management.view system passwords'))) {
             return redirect()->back()->with('error', 'Permission denied.');
         }
 
@@ -70,7 +70,7 @@ class SystemPasswordController extends Controller
     public function companies(Request $request)
     {
         // Check if user has permission
-        if (!auth()->check() || !auth()->user()->can('Company Management.view company')) {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.view company'))) {
             return redirect()->back()->with('error', 'Permission denied.');
         }
 

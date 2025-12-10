@@ -31,6 +31,17 @@ class EmployeeController extends Controller
         // Build query with filters
         $query = Employee::with('user.roles');
         
+        // Check if user is restricted to own data only
+        if (user_restricted_to_own_data()) {
+            $authEmployee = get_auth_employee();
+            if ($authEmployee) {
+                $query->where('id', $authEmployee->id);
+            } else {
+                // No linked employee, show nothing
+                $query->whereRaw('1 = 0');
+            }
+        }
+        
         // Apply filters
         if ($request->filled('name')) {
             $query->where('name', 'like', '%' . $request->name . '%');
@@ -117,6 +128,7 @@ class EmployeeController extends Controller
         $data = $request->validate([
             'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:employees,email',
+            'personal_email' => 'nullable|email|max:255',
             'gender' => 'nullable|in:male,female,other',
             'date_of_birth' => 'nullable|date',
             'marital_status' => 'nullable|in:single,married,other',
@@ -222,6 +234,7 @@ class EmployeeController extends Controller
             'code' => 'nullable|string|max:100',
             'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:employees,email',
+            'personal_email' => 'nullable|email|max:255',
             'mobile_no' => 'nullable|string|max:30',
             'address' => 'nullable|string',
             'position' => 'nullable|string|max:190',
@@ -425,6 +438,7 @@ class EmployeeController extends Controller
             'status' => 'nullable|in:active,inactive',
             'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:employees,email,'.$employee->id,
+            'personal_email' => 'nullable|email|max:255',
             'gender' => 'nullable|in:male,female,other',
             'date_of_birth' => 'nullable|date',
             'marital_status' => 'nullable|in:single,married,other',
@@ -676,6 +690,8 @@ class EmployeeController extends Controller
         'salary_increment' => 'nullable',
         'start_date' => 'nullable|date',
         'end_date' => 'nullable|date|after_or_equal:start_date',
+        'termination_end_date' => 'nullable|date',
+        'termination_end_date' => 'nullable|date',
         'increment_amount' => 'nullable|numeric|min:0',
         'increment_effective_date' => 'nullable|date',
         'internship_position' => 'nullable|string|max:190',
@@ -698,6 +714,12 @@ class EmployeeController extends Controller
         
         if (isset($validated['salary_increment']) && is_array($validated['salary_increment'])) {
             $validated['salary_increment'] = json_encode(array_filter($validated['salary_increment']));
+        }
+        
+        // Handle termination letter end_date mapping
+        if ($validated['type'] === 'termination' && isset($validated['termination_end_date'])) {
+            $validated['end_date'] = $validated['termination_end_date'];
+            unset($validated['termination_end_date']);
         }
         
         // Set the created_by field
@@ -826,6 +848,12 @@ class EmployeeController extends Controller
             }
             if (isset($validated['salary_increment']) && is_array($validated['salary_increment'])) {
                 $validated['salary_increment'] = json_encode(array_filter($validated['salary_increment']));
+            }
+            
+            // Handle termination letter end_date mapping
+            if ($validated['type'] === 'termination' && isset($validated['termination_end_date'])) {
+                $validated['end_date'] = $validated['termination_end_date'];
+                unset($validated['termination_end_date']);
             }
 
             $letter->update($validated);

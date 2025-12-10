@@ -23,28 +23,23 @@ class DashboardController extends Controller
         // Check if user has dashboard permissions (for full data access)
         $hasFullAccess = auth()->user()->hasRole('super-admin') || auth()->user()->can('Dashboard.view dashboard') || auth()->user()->can('Dashboard.manage dashboard');
 
-        // ========== EMPLOYEE DASHBOARD ==========
-        // If user has 'employee' role, show employee-specific dashboard
-        if (auth()->user()->hasRole('employee')) {
-            return $this->employeeDashboard();
-        }
-
-        // ========== HR DASHBOARD ==========
-        // If user has 'hr' role, show HR-specific dashboard
-        if (auth()->user()->hasRole('hr')) {
-            return $this->hrDashboard();
-        }
-
-        // ========== RECEPTIONIST DASHBOARD ==========
-        // If user has 'receptionist' role, show receptionist-specific dashboard
-        if (auth()->user()->hasRole('receptionist')) {
-            return $this->receptionistDashboard();
-        }
-
-        // ========== CUSTOMER/CLIENT DASHBOARD ==========
-        // If user has 'customer', 'client', or 'company' role, show customer-specific dashboard
-        if (auth()->user()->hasRole('customer') || auth()->user()->hasRole('client') || auth()->user()->hasRole('company')) {
-            return $this->customerDashboard();
+        // ========== DASHBOARD TYPE BASED ROUTING ==========
+        // Get dashboard type from user's role settings (supports custom roles like employee2, client2, etc.)
+        $dashboardType = get_user_dashboard_type();
+        
+        switch ($dashboardType) {
+            case 'employee':
+                return $this->employeeDashboard();
+            case 'hr':
+                return $this->hrDashboard();
+            case 'receptionist':
+                return $this->receptionistDashboard();
+            case 'customer':
+                return $this->customerDashboard();
+            case 'admin':
+            default:
+                // Continue to admin dashboard below
+                break;
         }
 
         // ========== KPI STATS - ALL DYNAMIC ==========

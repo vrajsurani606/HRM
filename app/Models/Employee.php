@@ -21,6 +21,7 @@ class Employee extends Model
         'father_name',
         'father_mobile_no',
         'email',
+        'personal_email',
         'mobile_no',
         'address',
         'position',

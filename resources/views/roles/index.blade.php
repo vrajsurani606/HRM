@@ -31,6 +31,8 @@
               <th>ID</th>
               <th>Role Name</th>
               <th>Description</th>
+              <th>Dashboard</th>
+              <th>Data Access</th>
               <th>Permissions</th>
               <th>Users</th>
             </tr>
@@ -62,12 +64,33 @@
               <td>{{ $role->id }}</td>
               <td>{{ ucfirst($role->name) }}</td>
               <td>{{ $role->description ?? 'No description' }}</td>
+              <td>
+                @php
+                  $dashboardColors = [
+                    'admin' => ['bg' => '#dbeafe', 'color' => '#1e40af'],
+                    'employee' => ['bg' => '#fef3c7', 'color' => '#92400e'],
+                    'customer' => ['bg' => '#e0e7ff', 'color' => '#3730a3'],
+                    'hr' => ['bg' => '#fce7f3', 'color' => '#9d174d'],
+                    'receptionist' => ['bg' => '#d1fae5', 'color' => '#065f46'],
+                  ];
+                  $dt = $role->dashboard_type ?? 'admin';
+                  $dtColor = $dashboardColors[$dt] ?? $dashboardColors['admin'];
+                @endphp
+                <span style="background:{{ $dtColor['bg'] }}; color:{{ $dtColor['color'] }}; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600;">{{ ucfirst($dt) }}</span>
+              </td>
+              <td>
+                @if($role->restrict_to_own_data)
+                  <span style="background:#fef3c7; color:#92400e; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600;">Own Data Only</span>
+                @else
+                  <span style="background:#d1fae5; color:#065f46; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600;">All Data</span>
+                @endif
+              </td>
               <td>{{ $role->permissions->count() }}</td>
               <td>{{ $role->users->count() }}</td>
             </tr>
           @empty
             <x-empty-state 
-                colspan="{{ user_has_any_action_permission('Roles Management', ['view role', 'edit role', 'delete role']) ? '6' : '5' }}" 
+                colspan="{{ user_has_any_action_permission('Roles Management', ['view role', 'edit role', 'delete role']) ? '8' : '7' }}" 
                 title="No roles found" 
                 message="Create a new role to get started"
             />

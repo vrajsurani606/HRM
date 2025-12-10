@@ -238,3 +238,86 @@ if (!function_exists('profile_photo_or_initials')) {
     }
 }
     
+
+if (!function_exists('user_restricted_to_own_data')) {
+    /**
+     * Check if the current user's role restricts them to only see their own data
+     * 
+     * @param \App\Models\User|null $user
+     * @return bool
+     */
+    function user_restricted_to_own_data($user = null)
+    {
+        $user = $user ?? auth()->user();
+        
+        if (!$user) {
+            return true; // No user = restrict by default
+        }
+        
+        // Super-admin and admin always see all data
+        if ($user->hasRole(['super-admin', 'admin'])) {
+            return false;
+        }
+        
+        // Check if any of user's roles have restrict_to_own_data enabled
+        foreach ($user->roles as $role) {
+            if ($role->restrict_to_own_data) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+}
+
+if (!function_exists('get_auth_employee')) {
+    /**
+     * Get the employee record linked to the authenticated user
+     * 
+     * @param \App\Models\User|null $user
+     * @return \App\Models\Employee|null
+     */
+    function get_auth_employee($user = null)
+    {
+        $user = $user ?? auth()->user();
+        
+        if (!$user) {
+            return null;
+        }
+        
+        return \App\Models\Employee::where('user_id', $user->id)->first();
+    }
+}
+
+
+if (!function_exists('get_user_dashboard_type')) {
+    /**
+     * Get the dashboard type for the current user based on their role's dashboard_type setting
+     * 
+     * @param \App\Models\User|null $user
+     * @return string - admin, employee, customer, hr, receptionist
+     */
+    function get_user_dashboard_type($user = null)
+    {
+        $user = $user ?? auth()->user();
+        
+        if (!$user) {
+            return 'admin'; // Default for guests
+        }
+        
+        // Super-admin and admin always get admin dashboard
+        if ($user->hasRole(['super-admin', 'admin'])) {
+            return 'admin';
+        }
+        
+        // Check user's roles for dashboard_type setting
+        foreach ($user->roles as $role) {
+            if (!empty($role->dashboard_type)) {
+                return $role->dashboard_type;
+            }
+        }
+        
+        // Default to admin dashboard if no specific type set
+        return 'admin';
+    }
+}

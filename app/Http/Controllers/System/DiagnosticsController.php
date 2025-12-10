@@ -11,6 +11,13 @@ class DiagnosticsController extends Controller
 {
     public function index(Request $request)
     {
+        // Permission check - only super-admin or users with system diagnostics permission
+        if (auth()->check()) {
+            if (!(auth()->user()->hasRole('super-admin') || auth()->user()->can('System Management.view diagnostics'))) {
+                return redirect()->back()->with('error', 'Permission denied.');
+            }
+        }
+        
         if ($request->has('logout')) {
             $request->session()->forget('diag_auth');
             return redirect()->route('diagnostics.index');

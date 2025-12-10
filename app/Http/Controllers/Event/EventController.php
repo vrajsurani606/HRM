@@ -15,6 +15,11 @@ class EventController extends Controller
 {
     public function index(): View|RedirectResponse
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Events Management.view event'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $events = Event::with([
             'images' => function($q){ $q->latest(); },
             'coverImage'

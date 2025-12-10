@@ -14,19 +14,20 @@ class AttendanceReportController extends Controller
         // Permission check
         if (!auth()->check() || !(
             auth()->user()->hasRole('super-admin') || 
-            auth()->user()->can('Attendance Management.view attendance')
+            auth()->user()->can('Attendance Management.view attendance') ||
+            auth()->user()->can('Attendance Management.view attendance report')
         )) {
-            abort(403, 'Unauthorized to view attendance reports.');
+            return redirect()->back()->with('error', 'Permission denied.');
         }
 
         $user = auth()->user();
         $query = Attendance::with('employee.user');
 
-        // Filter by role: employees see only their own attendance
-        if ($user->hasRole('employee')) {
-            $employee = Employee::where('email', $user->email)->first();
-            if ($employee) {
-                $query->where('employee_id', $employee->id);
+        // Check if user is restricted to own data only (checkbox-based)
+        if (user_restricted_to_own_data()) {
+            $authEmployee = get_auth_employee();
+            if ($authEmployee) {
+                $query->where('employee_id', $authEmployee->id);
             } else {
                 // If no employee record, show empty results
                 $query->where('employee_id', -1);
@@ -72,8 +73,8 @@ class AttendanceReportController extends Controller
             }
         }
 
-        // Filter by employee (only for non-employee roles)
-        if ($request->has('employee_id') && $request->employee_id && !$user->hasRole('employee')) {
+        // Filter by employee (only for non-restricted users)
+        if ($request->has('employee_id') && $request->employee_id && !user_restricted_to_own_data()) {
             $query->where('employee_id', $request->employee_id);
         }
 
@@ -87,10 +88,10 @@ class AttendanceReportController extends Controller
             ->orderBy('check_in', 'desc')
             ->paginate(50);
 
-        // Get employees for filter dropdown (only for non-employee roles)
-        if ($user->hasRole('employee')) {
-            $employee = Employee::where('email', $user->email)->first();
-            $employees = $employee ? collect([$employee]) : collect([]);
+        // Get employees for filter dropdown (restricted users see only their own)
+        if (user_restricted_to_own_data()) {
+            $authEmployee = get_auth_employee();
+            $employees = $authEmployee ? collect([$authEmployee]) : collect([]);
         } else {
             $employees = Employee::with('user')->orderBy('name')->get();
         }
@@ -142,19 +143,20 @@ class AttendanceReportController extends Controller
         // Permission check
         if (!auth()->check() || !(
             auth()->user()->hasRole('super-admin') || 
-            auth()->user()->can('Attendance Management.view attendance')
+            auth()->user()->can('Attendance Management.view attendance') ||
+            auth()->user()->can('Attendance Management.export attendance report')
         )) {
-            abort(403, 'Unauthorized to export attendance reports.');
+            return redirect()->back()->with('error', 'Permission denied.');
         }
 
         $user = auth()->user();
         $query = Attendance::with('employee.user');
 
-        // Filter by role: employees see only their own attendance
-        if ($user->hasRole('employee')) {
-            $employee = Employee::where('email', $user->email)->first();
-            if ($employee) {
-                $query->where('employee_id', $employee->id);
+        // Check if user is restricted to own data only (checkbox-based)
+        if (user_restricted_to_own_data()) {
+            $authEmployee = get_auth_employee();
+            if ($authEmployee) {
+                $query->where('employee_id', $authEmployee->id);
             } else {
                 // If no employee record, return empty
                 $query->where('employee_id', -1);
@@ -194,8 +196,8 @@ class AttendanceReportController extends Controller
             }
         }
 
-        // Filter by employee (only for non-employee roles)
-        if ($request->has('employee_id') && $request->employee_id && !$user->hasRole('employee')) {
+        // Filter by employee (only for non-restricted users)
+        if ($request->has('employee_id') && $request->employee_id && !user_restricted_to_own_data()) {
             $query->where('employee_id', $request->employee_id);
         }
 

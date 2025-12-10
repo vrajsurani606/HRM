@@ -28,7 +28,29 @@ class PermissionSeeder extends Seeder
                 'view attendance',
                 'create attendance',
                 'edit attendance',
-                'delete attendance'
+                'delete attendance',
+                'view attendance report',
+                'export attendance report'
+            ],
+            'Leave Approval Management' => [
+                'view leave approval',
+                'create leave approval',
+                'edit leave approval',
+                'delete leave approval',
+                'approve leave',
+                'reject leave'
+            ],
+            'Company Holidays Management' => [
+                'view holiday',
+                'create holiday',
+                'edit holiday',
+                'delete holiday',
+                'manage holiday'
+            ],
+            'System Management' => [
+                'view diagnostics',
+                'manage diagnostics',
+                'view system passwords'
             ],
             'Leave Management' => ['view leave', 'create leave', 'edit leave', 'delete leave', 'manage leave', 'approve leave', 'reject leave', 'view own leave', 'cancel leave'],
             'Users Management' => ['view user', 'create user', 'edit user', 'delete user', 'manage user'],

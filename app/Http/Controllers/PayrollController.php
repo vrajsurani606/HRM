@@ -19,11 +19,11 @@ class PayrollController extends Controller
         $user = auth()->user();
         $query = Payroll::with('employee');
 
-        // Filter by role: employees see only their own payroll
-        if ($user->hasRole('employee')) {
-            $employee = Employee::where('email', $user->email)->first();
-            if ($employee) {
-                $query->where('employee_id', $employee->id);
+        // Check if user is restricted to own data only (checkbox-based)
+        if (user_restricted_to_own_data()) {
+            $authEmployee = get_auth_employee();
+            if ($authEmployee) {
+                $query->where('employee_id', $authEmployee->id);
             } else {
                 // If no employee record, show empty results
                 $query->where('employee_id', -1);
@@ -85,10 +85,10 @@ class PayrollController extends Controller
                           ->paginate($perPage)
                           ->appends($request->query());
 
-        // Get employees for filter dropdown (only for non-employee roles)
-        if ($user->hasRole('employee')) {
-            $employee = Employee::where('email', $user->email)->first();
-            $employees = $employee ? collect([$employee]) : collect([]);
+        // Get employees for filter dropdown (restricted users see only their own)
+        if (user_restricted_to_own_data()) {
+            $authEmployee = get_auth_employee();
+            $employees = $authEmployee ? collect([$authEmployee]) : collect([]);
         } else {
             $employees = Employee::orderBy('name')->get();
         }

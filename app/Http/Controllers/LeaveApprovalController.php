@@ -15,7 +15,7 @@ class LeaveApprovalController extends Controller
     public function index(Request $request)
     {
         // Permission check
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.view leave approval'))) {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Approval Management.view leave approval'))) {
             return redirect()->back()->with('error', 'Permission denied.');
         }
 
@@ -71,7 +71,7 @@ class LeaveApprovalController extends Controller
     public function store(Request $request)
     {
         // Permission check
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.create leave approval'))) {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Approval Management.create leave approval'))) {
             if ($request->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
             }
@@ -141,7 +141,7 @@ class LeaveApprovalController extends Controller
         // Check if this is a status update (approve/reject)
         if ($request->has('status') && !$request->has('employee_id')) {
             // Permission check for approve/reject
-            $requiredPermission = $request->status === 'approved' ? 'Attendance Management.approve leave' : 'Attendance Management.reject leave';
+            $requiredPermission = $request->status === 'approved' ? 'Leave Approval Management.approve leave' : 'Leave Approval Management.reject leave';
             if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can($requiredPermission))) {
                 if ($request->ajax()) {
                     return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
@@ -169,7 +169,7 @@ class LeaveApprovalController extends Controller
             }
         } else {
             // Permission check for edit
-            if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.edit leave approval'))) {
+            if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Approval Management.edit leave approval'))) {
                 if ($request->ajax()) {
                     return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
                 }
@@ -209,7 +209,7 @@ class LeaveApprovalController extends Controller
     public function destroy($id)
     {
         // Permission check
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.delete leave approval'))) {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Approval Management.delete leave approval'))) {
             if (request()->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
             }
@@ -235,7 +235,7 @@ class LeaveApprovalController extends Controller
     public function edit($id)
     {
         // Permission check
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Attendance Management.edit leave approval'))) {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Approval Management.edit leave approval'))) {
             if (request()->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
             }

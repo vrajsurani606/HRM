@@ -19,8 +19,14 @@
         </div>
         
         <div>
-          <label class="hrp-label">Email:</label>
-          <input name="email" value="{{ old('email') }}" placeholder="Enter Email Address" class="hrp-input Rectangle-29" type="email" required>
+          <label class="hrp-label">Personal Email:</label>
+          <input name="personal_email" value="{{ old('personal_email') }}" placeholder="Enter Personal Email" class="hrp-input Rectangle-29" type="email">
+          @error('personal_email')<small class="hrp-error">{{ $message }}</small>@enderror
+        </div>
+
+        <div>
+          <label class="hrp-label">Login Email ID:</label>
+          <input name="email" value="{{ old('email') }}" placeholder="Enter Login Email ID" class="hrp-input Rectangle-29" type="email" required>
           @error('email')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
 
