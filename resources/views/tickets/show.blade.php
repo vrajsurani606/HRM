@@ -357,13 +357,23 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                         Back
                     </a>
-                    @if($isAdmin || auth()->user()->hasRole('customer'))
+                    @if($isAdmin)
                     <a href="{{ route('tickets.edit', $ticket) }}" class="btn btn-primary">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                         Edit
                     </a>
+                    @elseif(auth()->user()->hasRole('customer') && $ticket->status === 'open')
+                    <a href="{{ route('tickets.edit', $ticket) }}" class="btn btn-primary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Edit
+                    </a>
+                    @elseif(auth()->user()->hasRole('customer') && $ticket->status !== 'open')
+                    <span class="btn btn-secondary" style="cursor: not-allowed; opacity: 0.6;" title="You can only edit tickets when they are in 'Open' status">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Locked
+                    </span>
                     @endif
-                    @if(auth()->user()->hasRole('customer') && $ticket->status === 'resolved')
+                    @if(auth()->user()->hasRole('customer') && !in_array($ticket->status, ['completed', 'closed', 'resolved']))
                     <button onclick="closeTicket({{ $ticket->id }})" class="btn" style="background: #10b981; color: white;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20 6L9 17l-5-5"/>
@@ -374,8 +384,16 @@
                 </div>
             </div>
             <div class="ticket-badges">
-                <span class="badge badge-{{ $ticket->status ?? 'open' }}">
-                    {{ str_replace('_', ' ', ucfirst($ticket->status ?? 'open')) }}
+                @php
+                    // For customers, show "completed" as "in_progress" (they see resolved only when admin confirms)
+                    $displayStatus = $ticket->status ?? 'open';
+                    $isCustomerUser = auth()->user()->hasRole('customer');
+                    if ($isCustomerUser && $displayStatus === 'completed') {
+                        $displayStatus = 'in_progress';
+                    }
+                @endphp
+                <span class="badge badge-{{ $displayStatus }}">
+                    {{ str_replace('_', ' ', ucfirst($displayStatus)) }}
                 </span>
                 @if($ticket->priority)
                 <span class="badge badge-{{ $ticket->priority }}">
@@ -389,45 +407,7 @@
         <div class="ticket-description">
             <div class="section-title">Description</div>
             <div class="description-text">{{ $ticket->description ?? 'No description provided.' }}</div>
-            
-            @if($ticket->attachment)
-            <div style="margin-top: 20px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: #64748b; font-size: 13px; font-weight: 600;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-                    </svg>
-                    <span>Ticket Attachment</span>
-                </div>
-                @php
-                    $extension = pathinfo($ticket->attachment, PATHINFO_EXTENSION);
-                    $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-                    $isPdf = strtolower($extension) === 'pdf';
-                @endphp
-                
-                @if($isImage)
-                    <div style="margin-top: 12px;">
-                        <a href="{{ storage_asset($ticket->attachment) }}" target="_blank" style="display: inline-block;">
-                            <img src="{{ storage_asset($ticket->attachment) }}" alt="Ticket Attachment" style="max-width: 100%; max-height: 400px; border-radius: 8px; border: 2px solid #e5e7eb; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                        </a>
-                    </div>
-                @elseif($isPdf)
-                    <div style="margin-top: 12px;">
-                        <embed src="{{ storage_asset($ticket->attachment) }}" type="application/pdf" style="width: 100%; height: 500px; border-radius: 8px; border: 2px solid #e5e7eb;">
-                    </div>
-                @else
-                    <div style="margin-top: 12px;">
-                        <a href="{{ storage_asset($ticket->attachment) }}" download style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; color: #3b82f6; text-decoration: none; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#3b82f6'" onmouseout="this.style.background='white'; this.style.borderColor='#e5e7eb'">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7 10 12 15 17 10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
-                            </svg>
-                            <span>Download {{ basename($ticket->attachment) }}</span>
-                        </a>
-                    </div>
-                @endif
-            </div>
-            @endif
+            {{-- Attachments are shown in chat section only --}}
         </div>
         
         <!-- Comments Section -->
@@ -482,16 +462,81 @@
                     @php
                         $externalComments = $ticket->comments->where('is_internal', false);
                     @endphp
-                    @forelse($externalComments as $comment)
-                        @include('tickets.partials.comment', ['comment' => $comment, 'isAdmin' => $isAdmin])
-                    @empty
-                        <div class="empty-comments">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                            </svg>
-                            <p>No customer messages yet. Start the conversation!</p>
+                    
+                    {{-- Show initial ticket as first message --}}
+                    <div class="comment">
+                        <div class="comment-avatar" style="overflow: hidden;">
+                            @php
+                                $opener = $ticket->opener;
+                                $openerName = $opener ? $opener->name : 'Customer';
+                                $openerPhoto = $opener ? $opener->profile_photo_url : get_default_avatar($openerName);
+                            @endphp
+                            <img src="{{ $openerPhoto }}" alt="{{ $openerName }}" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
-                    @endforelse
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <div>
+                                    <span class="comment-author">{{ $openerName }}</span>
+                                    <span style="display: inline-block; margin-left: 8px; padding: 3px 8px; background: #dbeafe; color: #1e40af; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase;">Initial Ticket</span>
+                                </div>
+                                <span class="comment-time">{{ $ticket->created_at->diffForHumans() }}</span>
+                            </div>
+                            <div class="comment-text">{{ $ticket->description ?? 'No description provided.' }}</div>
+                            
+                            {{-- Display ticket attachments if any --}}
+                            @if($ticket->attachments && is_array($ticket->attachments) && count($ticket->attachments) > 0)
+                            <div class="comment-attachment" style="margin-top: 12px;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                                    @foreach($ticket->attachments as $index => $attachment)
+                                        @php
+                                            $extension = pathinfo($attachment, PATHINFO_EXTENSION);
+                                            $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                            $isPdf = strtolower($extension) === 'pdf';
+                                            $fileName = basename($attachment);
+                                        @endphp
+                                        
+                                        @if($isImage)
+                                            <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white;">
+                                                <a href="{{ storage_asset($attachment) }}" target="_blank" style="display: block;">
+                                                    <img src="{{ storage_asset($attachment) }}" alt="Attachment {{ $index + 1 }}" style="width: 100%; height: 150px; object-fit: cover; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                                </a>
+                                                <div style="padding: 8px; font-size: 11px; color: #64748b; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                    🖼️ {{ $fileName }}
+                                                </div>
+                                            </div>
+                                        @elseif($isPdf)
+                                            <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white; padding: 12px; text-align: center;">
+                                                <a href="{{ storage_asset($attachment) }}" target="_blank" style="display: inline-flex; flex-direction: column; align-items: center; gap: 6px; color: #dc2626; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.color='#991b1b'" onmouseout="this.style.color='#dc2626'">
+                                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                                                    </svg>
+                                                    <div style="font-size: 11px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;">
+                                                        📄 {{ $fileName }}
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        @else
+                                            <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white; padding: 12px; text-align: center;">
+                                                <a href="{{ storage_asset($attachment) }}" download style="display: inline-flex; flex-direction: column; align-items: center; gap: 6px; color: #3b82f6; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#3b82f6'">
+                                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/>
+                                                    </svg>
+                                                    <div style="font-size: 11px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;">
+                                                        📎 {{ $fileName }}
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    
+                    @foreach($externalComments as $comment)
+                        @include('tickets.partials.comment', ['comment' => $comment, 'isAdmin' => $isAdmin])
+                    @endforeach
                 </div>
                 
                 <!-- External Comment Form -->
@@ -691,16 +736,81 @@
                     @php
                         $customerComments = $ticket->comments->where('is_internal', false);
                     @endphp
-                    @forelse($customerComments as $comment)
-                        @include('tickets.partials.comment', ['comment' => $comment, 'isAdmin' => false])
-                    @empty
-                        <div class="empty-comments">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                            </svg>
-                            <p>No messages yet. Start the conversation with our support team!</p>
+                    
+                    {{-- Show initial ticket as first message --}}
+                    <div class="comment">
+                        <div class="comment-avatar" style="overflow: hidden;">
+                            @php
+                                $opener = $ticket->opener;
+                                $openerName = $opener ? $opener->name : 'You';
+                                $openerPhoto = $opener ? $opener->profile_photo_url : get_default_avatar($openerName);
+                            @endphp
+                            <img src="{{ $openerPhoto }}" alt="{{ $openerName }}" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
-                    @endforelse
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <div>
+                                    <span class="comment-author">{{ $openerName }}</span>
+                                    <span style="display: inline-block; margin-left: 8px; padding: 3px 8px; background: #dbeafe; color: #1e40af; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase;">Your Ticket</span>
+                                </div>
+                                <span class="comment-time">{{ $ticket->created_at->diffForHumans() }}</span>
+                            </div>
+                            <div class="comment-text">{{ $ticket->description ?? 'No description provided.' }}</div>
+                            
+                            {{-- Display ticket attachments if any --}}
+                            @if($ticket->attachments && is_array($ticket->attachments) && count($ticket->attachments) > 0)
+                            <div class="comment-attachment" style="margin-top: 12px;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                                    @foreach($ticket->attachments as $index => $attachment)
+                                        @php
+                                            $extension = pathinfo($attachment, PATHINFO_EXTENSION);
+                                            $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                            $isPdf = strtolower($extension) === 'pdf';
+                                            $fileName = basename($attachment);
+                                        @endphp
+                                        
+                                        @if($isImage)
+                                            <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white;">
+                                                <a href="{{ storage_asset($attachment) }}" target="_blank" style="display: block;">
+                                                    <img src="{{ storage_asset($attachment) }}" alt="Attachment {{ $index + 1 }}" style="width: 100%; height: 150px; object-fit: cover; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                                </a>
+                                                <div style="padding: 8px; font-size: 11px; color: #64748b; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                    🖼️ {{ $fileName }}
+                                                </div>
+                                            </div>
+                                        @elseif($isPdf)
+                                            <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white; padding: 12px; text-align: center;">
+                                                <a href="{{ storage_asset($attachment) }}" target="_blank" style="display: inline-flex; flex-direction: column; align-items: center; gap: 6px; color: #dc2626; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.color='#991b1b'" onmouseout="this.style.color='#dc2626'">
+                                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                                                    </svg>
+                                                    <div style="font-size: 11px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;">
+                                                        📄 {{ $fileName }}
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        @else
+                                            <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white; padding: 12px; text-align: center;">
+                                                <a href="{{ storage_asset($attachment) }}" download style="display: inline-flex; flex-direction: column; align-items: center; gap: 6px; color: #3b82f6; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#3b82f6'">
+                                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/>
+                                                    </svg>
+                                                    <div style="font-size: 11px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;">
+                                                        📎 {{ $fileName }}
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    
+                    @foreach($customerComments as $comment)
+                        @include('tickets.partials.comment', ['comment' => $comment, 'isAdmin' => false])
+                    @endforeach
                 </div>
                 
                 <!-- Customer Comment Form -->

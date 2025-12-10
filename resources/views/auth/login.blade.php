@@ -108,7 +108,7 @@
                 <input type="checkbox" name="remember" class="rounded border-gray-300 text-emerald-600"> Remember me
               </label>
             </div>
-            <button type="submit" class="w-full h-11 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-md hover:shadow-lg transition">Log in</button>
+            <button type="submit" style="width: 100%; height: 44px; border-radius: 8px; background: #059669; color: white; font-weight: 500; font-size: 16px; border: none; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: all 0.2s ease;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">Log in</button>
             <p class="text-center text-sm text-gray-600 dark:text-gray-400">Don't have an account? <a href="{{ route('register') }}" class="text-emerald-600 hover:underline font-medium">Sign up</a></p>
           </form>
         </div>

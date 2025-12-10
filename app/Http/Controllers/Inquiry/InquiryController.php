@@ -11,7 +11,7 @@ use Illuminate\View\View;
 
 class InquiryController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.view inquiry'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -87,7 +87,7 @@ class InquiryController extends Controller
         return view('inquiries.index', compact('inquiries', 'todayScheduledInquiryIds'));
     }
 
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.create inquiry'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -158,7 +158,7 @@ class InquiryController extends Controller
         return redirect()->route('inquiries.index')->with('status', 'Inquiry created successfully!');
     }
 
-    public function show(int $id): View
+    public function show(int $id): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.view inquiry'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -168,7 +168,7 @@ class InquiryController extends Controller
         return view('inquiries.show', compact('inquiry'));
     }
 
-    public function edit(int $id): View
+    public function edit(int $id): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.edit inquiry'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -332,7 +332,7 @@ class InquiryController extends Controller
         return response()->streamDownload($callback, $fileName, $headers);
     }
 
-    public function followUp(int $id): View
+    public function followUp(int $id): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Inquiries Management.follow up'))) {
             return redirect()->back()->with('error', 'Permission denied.');

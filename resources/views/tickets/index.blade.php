@@ -86,7 +86,7 @@
       <tbody>
         @forelse($tickets as $i => $ticket)
           <tr>
-            <td style="text-align: center; padding: 14px;">
+            <td style="text-align: center; padding: 14px; vertical-align: middle;">
               @php
                 $isAdmin = auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr');
                 $isEmployee = auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee');
@@ -95,33 +95,37 @@
                 $isAssignedEmployee = $employeeRecord && $ticket->assigned_to == $employeeRecord->id;
               @endphp
               
-              <div style="display: inline-flex; gap: 8px; align-items: center; justify-content: center;">
+              <div style="display: flex; gap: 6px; align-items: center; justify-content: center; height: 100%;">
                 <!-- View/Edit/Delete Actions -->
                 @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.view ticket'))
-                  <img src="{{ asset('action_icon/view.svg') }}" alt="View" class="action-icon" onclick="viewTicket({{ $ticket->id }})" title="View">
+                  <img src="{{ asset('action_icon/view.svg') }}" alt="View" class="action-icon" onclick="viewTicket({{ $ticket->id }})" title="View" style="vertical-align: middle;">
                 @endif
                 @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.edit ticket'))
-                  <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon" onclick="editTicket({{ $ticket->id }})" title="Edit">
+                  @if($isCustomer && $ticket->status !== 'open')
+                    <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon" style="opacity: 0.4; cursor: not-allowed; vertical-align: middle;" title="You can only edit tickets when they are in 'Open' status">
+                  @else
+                    <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon" onclick="editTicket({{ $ticket->id }})" title="Edit" style="vertical-align: middle;">
+                  @endif
                 @endif
                 @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.delete ticket'))
-                  <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon" onclick="deleteTicket({{ $ticket->id }})" title="Delete">
+                  <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon" onclick="deleteTicket({{ $ticket->id }})" title="Delete" style="vertical-align: middle;">
                 @endif
                 
                 <!-- Workflow Actions -->
                 @if($isAdmin && $ticket->status === 'completed')
                   <!-- Admin: Confirm Completion -->
-                  <img src="{{ asset('action_icon/approve.svg') }}" alt="Confirm" class="action-icon" onclick="confirmTicket({{ $ticket->id }})" title="Confirm Resolution">
+                  <img src="{{ asset('action_icon/approve.svg') }}" alt="Confirm" class="action-icon" onclick="confirmTicket({{ $ticket->id }})" title="Confirm Resolution" style="vertical-align: middle;">
                 @elseif($isEmployee && $isAssignedEmployee && in_array($ticket->status, ['assigned', 'in_progress']))
                   <!-- Employee: Mark as Complete -->
-                  <img src="{{ asset('action_icon/approve.svg') }}" alt="Complete" class="action-icon" onclick="completeTicket({{ $ticket->id }})" title="Mark as Complete">
-                @elseif($isCustomer && $ticket->status === 'resolved')
+                  <img src="{{ asset('action_icon/approve.svg') }}" alt="Complete" class="action-icon" onclick="completeTicket({{ $ticket->id }})" title="Mark as Complete" style="vertical-align: middle;">
+                @elseif($isCustomer && !in_array($ticket->status, ['completed', 'closed', 'resolved']))
                   <!-- Customer: Close Ticket -->
-                  <img src="{{ asset('action_icon/reject.svg') }}" alt="Close" class="action-icon" onclick="closeTicketFromIndex({{ $ticket->id }})" title="Close Ticket">
+                  <img src="{{ asset('action_icon/reject.svg') }}" alt="Close" class="action-icon" onclick="closeTicketFromIndex({{ $ticket->id }})" title="Close Ticket" style="vertical-align: middle;">
                 @endif
               </div>
             </td>
-            <td style="padding: 14px 16px; text-align: center; font-weight: 600; color: #64748b;">{{ ($tickets->currentPage()-1) * $tickets->perPage() + $i + 1 }}</td>
-            <td style="padding: 14px 16px;">
+            <td style="padding: 14px 16px; text-align: center; font-weight: 600; color: #64748b; vertical-align: middle;">{{ ($tickets->currentPage()-1) * $tickets->perPage() + $i + 1 }}</td>
+            <td style="padding: 14px 16px; vertical-align: middle;">
               @php
                 $ticketStatusColors = [
                   'open' => '#3b82f6',
@@ -137,7 +141,7 @@
                 <span style="font-weight: 700; color: #0f172a; font-size: 14px;">{{ $ticket->ticket_no ?? 'TKT-'.$ticket->id }}</span>
               </div>
             </td>
-            <td style="padding: 14px 16px;">
+            <td style="padding: 14px 16px; vertical-align: middle;">
               @php
                 $statusColors = [
                   'open' => '#3b82f6',
@@ -155,9 +159,15 @@
                   'resolved' => '#d1fae5',
                   'closed' => '#f3f4f6',
                 ];
-                $statusColor = $statusColors[$ticket->status] ?? '#6b7280';
-                $statusBackground = $statusBg[$ticket->status] ?? '#f3f4f6';
-                $statusText = match($ticket->status) {
+                // For customers, show "completed" as "in_progress" (they see resolved only when admin confirms)
+                $displayStatus = $ticket->status;
+                if (auth()->user()->hasRole('customer') && $displayStatus === 'completed') {
+                    $displayStatus = 'in_progress';
+                }
+                
+                $statusColor = $statusColors[$displayStatus] ?? '#6b7280';
+                $statusBackground = $statusBg[$displayStatus] ?? '#f3f4f6';
+                $statusText = match($displayStatus) {
                   'assigned' => 'Assigned',
                   'in_progress' => 'In Progress',
                   'completed' => 'Completed',
@@ -169,9 +179,9 @@
               <span style="display: inline-block; padding: 6px 14px; background: {{ $statusBackground }}; border-radius: 20px; border: 2px solid {{ $statusColor }}; color: {{ $statusColor }}; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">{{ $statusText }}</span>
             </td>
             @if(!auth()->user()->hasRole('customer'))
-            <td style="padding: 14px 16px;">
+            <td style="padding: 14px 16px; vertical-align: middle;">
               @if($ticket->assignedEmployee)
-                <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px; white-space: nowrap;">
                   @if($ticket->assignedEmployee->photo_path)
                     <img src="{{ storage_asset($ticket->assignedEmployee->photo_path) }}" alt="{{ $ticket->assignedEmployee->name }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid #e5e7eb;">
                   @else
@@ -179,13 +189,10 @@
                       {{ strtoupper(substr($ticket->assignedEmployee->name, 0, 1)) }}
                     </div>
                   @endif
-                  <div style="display: flex; flex-direction: column; gap: 2px; flex: 1;">
-                    <span style="color: #0f172a; font-size: 14px; font-weight: 600; white-space: nowrap;">{{ $ticket->assignedEmployee->name }}</span>
-                    @if($ticket->assignedEmployee->position)
-                      <span style="color: #64748b; font-size: 11px; font-weight: 500;">{{ $ticket->assignedEmployee->position }}</span>
-                    @endif
+                  <div style="display: inline-flex; align-items: center; gap: 8px; min-width: 0;">
+                    <span style="color: #0f172a; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $ticket->assignedEmployee->name }}</span>
                     @if(!auth()->user()->hasRole('customer') && (auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.reassign ticket')))
-                      <button onclick="assignTicket({{ $ticket->id }})" style="background: #f8fafc; border: 1px solid #e2e8f0; cursor: pointer; padding: 4px 10px; border-radius: 6px; font-size: 11px; color: #64748b; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; margin-top: 4px; width: fit-content;" onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#cbd5e1'" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'" title="Reassign to another employee">
+                      <button onclick="assignTicket({{ $ticket->id }})" style="background: #f8fafc; border: 1px solid #e2e8f0; cursor: pointer; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #64748b; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; flex-shrink: 0;" onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#cbd5e1'" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'" title="Reassign to another employee">
                         <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                         </svg>
@@ -196,11 +203,11 @@
                 </div>
               @else
                 @if(!auth()->user()->hasRole('customer') && (auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.assign ticket')))
-                  <button onclick="assignTicket({{ $ticket->id }})" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(59, 130, 246, 0.3)'" title="Assign this ticket to an employee">
+                  <button onclick="assignTicket({{ $ticket->id }})" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3); white-space: nowrap;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(59, 130, 246, 0.3)'" title="Assign this ticket to an employee">
                     <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                     </svg>
-                    <span style="white-space: nowrap;">Assign Employee</span>
+                    <span>Assign Employee</span>
                   </button>
                 @else
                   <span style="color: #9ca3af; font-size: 13px; font-style: italic;">Not assigned yet</span>
@@ -208,16 +215,16 @@
               @endif
             </td>
             @endif
-            <td style="padding: 14px 16px;">{{ $ticket->category ?? 'General Inquiry' }}</td>
+            <td style="padding: 14px 16px; vertical-align: middle;">{{ $ticket->category ?? 'General Inquiry' }}</td>
             @if(!auth()->user()->hasRole('customer'))
-            <td style="padding: 14px 16px;">{{ $ticket->customer ?? '-' }}</td>
+            <td style="padding: 14px 16px; vertical-align: middle;">{{ $ticket->customer ?? '-' }}</td>
             @endif
-            <td style="padding: 14px 16px;">{{ $ticket->title ?? $ticket->subject ?? '-' }}</td>
-            <td style="padding: 14px 16px;">{{ Str::limit($ticket->description ?? 'Ok', 50) }}</td>
+            <td style="padding: 14px 16px; vertical-align: middle;">{{ $ticket->title ?? $ticket->subject ?? '-' }}</td>
+            <td style="padding: 14px 16px; vertical-align: middle;">{{ Str::limit($ticket->description ?? 'Ok', 50) }}</td>
           </tr>
         @empty
             <x-empty-state 
-                colspan="8" 
+                colspan="9" 
                 title="No tickets found" 
                 message="Try adjusting your filters or create a new ticket"
             />
@@ -344,8 +351,8 @@
               <span style="font-size: 13px; font-weight: 600;">Low</span>
             </label>
             <label style="display: flex; align-items: center; padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onclick="this.querySelector('input').checked = true; updatePriorityStyle()">
-              <input type="radio" name="priority" value="normal" style="margin-right: 6px;">
-              <span style="font-size: 13px; font-weight: 600;">Normal</span>
+              <input type="radio" name="priority" value="medium" style="margin-right: 6px;">
+              <span style="font-size: 13px; font-weight: 600;">Medium</span>
             </label>
             <label style="display: flex; align-items: center; padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onclick="this.querySelector('input').checked = true; updatePriorityStyle()">
               <input type="radio" name="priority" value="high" style="margin-right: 6px;">
@@ -374,16 +381,16 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px; flex-shrink: 0;">
             <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
           </svg>
-          <span>Attach File (Optional)</span>
+          <span>Attach Files (Optional) - Multiple images supported</span>
         </label>
-        <label for="ticket_attachment" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; color: #64748b; transition: all 0.2s; width: 100%; justify-content: center;" onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#94a3b8'" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1'">
+        <label for="ticket_attachments" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; color: #64748b; transition: all 0.2s; width: 100%; justify-content: center;" onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#94a3b8'" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1'">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0;">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
           </svg>
-          <span id="ticket_attachment_label">Click to upload image or PDF (Max 10MB)</span>
+          <span id="ticket_attachments_label">Click to upload images or PDFs (Max 10MB each)</span>
         </label>
-        <input type="file" id="ticket_attachment" name="attachment" accept="image/*,.pdf" style="display: none;" onchange="showTicketFileName(this)">
-        <div id="ticket_file_preview" style="margin-top: 10px;"></div>
+        <input type="file" id="ticket_attachments" name="attachments[]" accept="image/*,.pdf" multiple style="display: none;" onchange="showTicketFileNames(this)">
+        <div id="ticket_files_preview" style="margin-top: 10px;"></div>
       </div>
 
       <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -396,8 +403,13 @@
 
 <script>
 function updatePriorityStyle() {
-  document.querySelectorAll('input[name="priority"]').forEach(radio => {
+  const radios = document.querySelectorAll('input[name="priority"]');
+  if (!radios || radios.length === 0) return;
+  
+  radios.forEach(radio => {
     const label = radio.closest('label');
+    if (!label) return;
+    
     if (radio.checked) {
       label.style.borderColor = '#3b82f6';
       label.style.background = '#eff6ff';
@@ -408,61 +420,86 @@ function updatePriorityStyle() {
   });
 }
 
-function showTicketFileName(input) {
-  const preview = document.getElementById('ticket_file_preview');
-  const label = document.getElementById('ticket_attachment_label');
+function showTicketFileNames(input) {
+  const preview = document.getElementById('ticket_files_preview');
+  const label = document.getElementById('ticket_attachments_label');
   
-  if (input.files && input.files[0]) {
-    const file = input.files[0];
-    const fileSize = (file.size / 1024 / 1024).toFixed(2);
-    const isImage = file.type.startsWith('image/');
-    const isPdf = file.type === 'application/pdf';
+  if (input.files && input.files.length > 0) {
+    const files = Array.from(input.files);
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+    const totalSizeMB = (totalSize / 1024 / 1024).toFixed(2);
     
     // Update label
-    label.textContent = '✓ File selected';
+    label.textContent = `✓ ${files.length} file(s) selected (${totalSizeMB} MB total)`;
     label.parentElement.style.borderColor = '#10b981';
     label.parentElement.style.background = '#f0fdf4';
     
     // Show preview
-    preview.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border: 1px solid #e5e7eb; border-radius: 8px;">
-        <div style="flex-shrink: 0;">
-          ${isImage ? `
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-            </svg>
-          ` : isPdf ? `
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-            </svg>
-          ` : `
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
-              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/>
-            </svg>
-          `}
-        </div>
-        <div style="flex: 1; min-width: 0;">
-          <div style="font-weight: 600; font-size: 14px; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</div>
-          <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
-            ${isImage ? '🖼️ Image' : isPdf ? '📄 PDF' : '📎 File'} • ${fileSize} MB
+    let previewHTML = '<div style="display: grid; gap: 8px;">';
+    
+    files.forEach((file, index) => {
+      const fileSize = (file.size / 1024 / 1024).toFixed(2);
+      const isImage = file.type.startsWith('image/');
+      const isPdf = file.type === 'application/pdf';
+      
+      previewHTML += `
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border: 1px solid #e5e7eb; border-radius: 8px;">
+          <div style="flex-shrink: 0;">
+            ${isImage ? `
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+              </svg>
+            ` : isPdf ? `
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              </svg>
+            ` : `
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/>
+              </svg>
+            `}
           </div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-weight: 600; font-size: 14px; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+              ${isImage ? '🖼️ Image' : isPdf ? '📄 PDF' : '📎 File'} • ${fileSize} MB
+            </div>
+          </div>
+          <button type="button" onclick="removeTicketFile(${index})" style="flex-shrink: 0; padding: 6px 12px; background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
+            Remove
+          </button>
         </div>
-        <button type="button" onclick="clearTicketFile()" style="flex-shrink: 0; padding: 6px 12px; background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
-          Remove
-        </button>
-      </div>
-    `;
+      `;
+    });
+    
+    previewHTML += '</div>';
+    preview.innerHTML = previewHTML;
   }
 }
 
-function clearTicketFile() {
-  const input = document.getElementById('ticket_attachment');
-  const preview = document.getElementById('ticket_file_preview');
-  const label = document.getElementById('ticket_attachment_label');
+function removeTicketFile(index) {
+  const input = document.getElementById('ticket_attachments');
+  const dt = new DataTransfer();
+  
+  // Add all files except the one to remove
+  Array.from(input.files).forEach((file, i) => {
+    if (i !== index) {
+      dt.items.add(file);
+    }
+  });
+  
+  input.files = dt.files;
+  showTicketFileNames(input);
+}
+
+function clearTicketFiles() {
+  const input = document.getElementById('ticket_attachments');
+  const preview = document.getElementById('ticket_files_preview');
+  const label = document.getElementById('ticket_attachments_label');
   
   input.value = '';
   preview.innerHTML = '';
-  label.textContent = 'Click to upload image or PDF (Max 10MB)';
+  label.textContent = 'Click to upload images or PDFs (Max 10MB each)';
   label.parentElement.style.borderColor = '#cbd5e1';
   label.parentElement.style.background = '#f8fafc';
 }
@@ -509,6 +546,19 @@ function closeTicketModal() {
 function submitTicket(event) {
   event.preventDefault();
   const formData = new FormData(event.target);
+  
+  // Handle multiple attachments
+  const attachmentsInput = document.getElementById('ticket_attachments');
+  if (attachmentsInput && attachmentsInput.files.length > 0) {
+    // Remove any existing attachment entries
+    formData.delete('attachment');
+    formData.delete('attachments[]');
+    
+    // Add all files as attachments[]
+    Array.from(attachmentsInput.files).forEach((file, index) => {
+      formData.append('attachments[]', file);
+    });
+  }
   
   // Debug: Check if file is in FormData
   console.log('FormData entries:');
@@ -604,8 +654,165 @@ function submitTicket(event) {
 }
 
 function editTicket(id) {
-  // Redirect to ticket edit page
-  window.location.href = `{{ url('tickets') }}/${id}/edit`;
+  // Fetch ticket data and open modal
+  fetch(`{{ url('tickets') }}/${id}/json`, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success && data.ticket) {
+      const ticket = data.ticket;
+      const isCustomer = {{ auth()->user()->hasRole('customer') ? 'true' : 'false' }};
+      
+      // Check if customer can edit (only when status is 'open')
+      if (isCustomer && ticket.status !== 'open') {
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Cannot Edit',
+            text: 'You can only edit tickets when they are in "Open" status. This ticket is currently "' + ticket.status.replace('_', ' ').toUpperCase() + '".',
+            confirmButtonColor: '#3b82f6'
+          });
+        } else {
+          alert('You can only edit tickets when they are in "Open" status.');
+        }
+        return;
+      }
+      
+      // Set modal title
+      document.getElementById('modalTitle').textContent = 'Edit Ticket #' + (ticket.ticket_no || ticket.id);
+      
+      // Fill form fields
+      document.getElementById('ticket_id').value = ticket.id;
+      document.getElementById('ticket_title').value = ticket.title || ticket.subject || '';
+      document.getElementById('ticket_description').value = ticket.description || '';
+      
+      // Admin fields
+      const statusField = document.getElementById('ticket_status');
+      if (statusField) statusField.value = ticket.status || 'open';
+      
+      const workStatusField = document.getElementById('ticket_work_status');
+      if (workStatusField) workStatusField.value = ticket.work_status || 'not_assigned';
+      
+      const assignedToField = document.getElementById('ticket_assigned_to');
+      if (assignedToField) assignedToField.value = ticket.assigned_to || '';
+      
+      const categoryField = document.getElementById('ticket_category');
+      if (categoryField) categoryField.value = ticket.category || '';
+      
+      const companyField = document.getElementById('ticket_company');
+      if (companyField) companyField.value = ticket.company || '';
+      
+      const customerField = document.getElementById('ticket_customer');
+      if (customerField) customerField.value = ticket.customer || '';
+      
+      // Customer fields
+      const ticketTypeField = document.getElementById('ticket_type');
+      if (ticketTypeField) ticketTypeField.value = ticket.ticket_type || ticket.category || '';
+      
+      const projectIdField = document.getElementById('ticket_project_id');
+      if (projectIdField) projectIdField.value = ticket.project_id || '';
+      
+      // Set priority radio buttons
+      const priorityValue = ticket.priority || 'low';
+      document.querySelectorAll('input[name="priority"]').forEach(radio => {
+        radio.checked = (radio.value === priorityValue);
+      });
+      updatePriorityStyle();
+      
+      // Show existing attachments
+      showExistingAttachments(ticket.attachments || []);
+      
+      // Clear new file input
+      clearTicketFiles();
+      
+      // Open modal
+      document.getElementById('ticketModal').style.display = 'flex';
+    } else {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Could not load ticket data' });
+      } else {
+        alert('Error loading ticket data');
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Error loading ticket data' });
+    } else {
+      alert('Error loading ticket data');
+    }
+  });
+}
+
+// Show existing attachments in edit mode
+function showExistingAttachments(attachments) {
+  const preview = document.getElementById('ticket_files_preview');
+  
+  if (!attachments || attachments.length === 0) {
+    preview.innerHTML = '';
+    return;
+  }
+  
+  let previewHTML = '<div style="margin-bottom: 12px; font-size: 13px; font-weight: 600; color: #64748b;">📎 Existing Attachments:</div>';
+  previewHTML += '<div id="existing_attachments_grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px;">';
+  
+  attachments.forEach((attachment, index) => {
+    const fileName = attachment.split('/').pop();
+    const extension = fileName.split('.').pop().toLowerCase();
+    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension);
+    const isPdf = extension === 'pdf';
+    const imageUrl = getStorageUrl(attachment);
+    
+    if (isImage) {
+      previewHTML += `
+        <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white; position: relative;">
+          <a href="${imageUrl}" target="_blank" style="display: block;">
+            <img src="${imageUrl}" alt="Attachment ${index + 1}" style="width: 100%; height: 100px; object-fit: cover;">
+          </a>
+          <div style="padding: 6px; font-size: 10px; color: #64748b; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            🖼️ ${fileName}
+          </div>
+        </div>
+      `;
+    } else if (isPdf) {
+      previewHTML += `
+        <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white; padding: 12px; text-align: center;">
+          <a href="${imageUrl}" target="_blank" style="display: inline-flex; flex-direction: column; align-items: center; gap: 4px; color: #dc2626; text-decoration: none;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <div style="font-size: 10px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;">
+              📄 ${fileName}
+            </div>
+          </a>
+        </div>
+      `;
+    } else {
+      previewHTML += `
+        <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white; padding: 12px; text-align: center;">
+          <a href="${imageUrl}" target="_blank" style="display: inline-flex; flex-direction: column; align-items: center; gap: 4px; color: #3b82f6; text-decoration: none;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/>
+            </svg>
+            <div style="font-size: 10px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;">
+              📎 ${fileName}
+            </div>
+          </a>
+        </div>
+      `;
+    }
+  });
+  
+  previewHTML += '</div>';
+  previewHTML += '<div style="font-size: 12px; color: #64748b; margin-bottom: 8px;">➕ Add more files (optional):</div>';
+  
+  preview.innerHTML = previewHTML;
 }
 
 function viewTicket(id) {

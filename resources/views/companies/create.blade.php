@@ -226,10 +226,11 @@
             <div class="upload-pill Rectangle-29" onclick="document.getElementById('sopInput').click()">
               <div class="choose" style="font-size: 14px;">Choose File</div>
               <div class="filename" id="sopFileName" style="font-size: 14px;">No File Chosen</div>
-              <input id="sopInput" name="sop_upload" type="file" style="display: none;" onchange="updateFileName(this, 'sopFileName')" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+              <input id="sopInput" name="sop_upload" type="file" style="display: none;" onchange="validateSopFile(this)" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
             </div>
+            <small id="sopError" class="hrp-error" style="display: none;"></small>
             @error('sop_upload')<small class="hrp-error">{{ $message }}</small>@enderror
-            <small class="text-gray-500 text-xs">Accepted formats: PDF, DOC, DOCX, JPG, JPEG, PNG (Max: 5MB)</small>
+            <small class="text-gray-500 text-xs" style="display: block; margin-top: 4px;">Accepted formats: PDF, DOC, DOCX, JPG, JPEG, PNG (Max: 5MB)</small>
           </div>
           
           <div style="margin-bottom: 8px;">
@@ -237,10 +238,11 @@
             <div class="upload-pill Rectangle-29" onclick="document.getElementById('quotationInput').click()">
               <div class="choose" style="font-size: 14px;">Choose File</div>
               <div class="filename" id="quotationFileName" style="font-size: 14px;">No File Chosen</div>
-              <input id="quotationInput" name="quotation_upload" type="file" style="display: none;" onchange="updateFileName(this, 'quotationFileName')" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+              <input id="quotationInput" name="quotation_upload" type="file" style="display: none;" onchange="validateQuotationFile(this)" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
             </div>
+            <small id="quotationError" class="hrp-error" style="display: none;"></small>
             @error('quotation_upload')<small class="hrp-error">{{ $message }}</small>@enderror
-            <small class="text-gray-500 text-xs">Accepted formats: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG (Max: 5MB)</small>
+            <small class="text-gray-500 text-xs" style="display: block; margin-top: 4px;">Accepted formats: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG (Max: 5MB)</small>
           </div>
           
           <div class="md:col-span-2 grid grid-cols-3 gap-5" style="margin-bottom: 12px;">
@@ -299,12 +301,17 @@
           
           <div style="margin-bottom: 8px;">
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Logo</label>
-            <div class="upload-pill Rectangle-29">
+            <div class="upload-pill Rectangle-29" onclick="document.getElementById('logoInput').click()">
               <div class="choose" style="font-size: 14px;">Choose File</div>
               <div class="filename" id="logoFileName" style="font-size: 14px;">No File Chosen</div>
-              <input id="logoInput" name="company_logo" type="file" accept="image/*">
+              <input id="logoInput" name="company_logo" type="file" accept=".jpeg,.jpg,.png" style="display: none;" onchange="validateLogoFile(this)">
             </div>
+            <div id="logoPreview" style="margin-top: 10px; display: none;">
+              <img id="logoPreviewImg" src="" alt="Logo Preview" style="max-width: 150px; max-height: 100px; border-radius: 8px; border: 2px solid #e5e7eb;">
+            </div>
+            <small id="logoError" class="hrp-error" style="display: none;"></small>
             @error('company_logo')<small class="hrp-error">{{ $message }}</small>@enderror
+            <small class="text-gray-500 text-xs" style="display: block; margin-top: 4px;">Accepted formats: JPEG, JPG, PNG (Max: 2MB)</small>
           </div>
           
           <div style="margin-bottom: 8px;">
@@ -316,7 +323,7 @@
           <div style="margin-bottom: 8px;">
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Email <span class="text-red-500">*</span></label>
             <div style="position: relative;">
-              <input name="company_email" id="company_email" type="email" placeholder="Enter Company Email" value="{{ old('company_email') }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;" required>
+              <input name="company_email" id="company_email" type="email" placeholder="Enter Company Email" value="{{ old('company_email') }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;">
               <button type="button" onclick="generateCompanyEmail()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
             </div>
             @error('company_email')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -325,7 +332,7 @@
           <div style="margin-bottom: 8px;">
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Password <span class="text-red-500">*</span></label>
             <div style="position: relative;">
-              <input name="company_password" id="company_password" type="text" placeholder="Enter Company Password (min 6 characters)" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;" autocomplete="new-password" required>
+              <input name="company_password" id="company_password" type="text" placeholder="Enter Company Password (min 6 characters)" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;" autocomplete="new-password">
               <button type="button" onclick="generateCompanyPassword()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
             </div>
             @error('company_password')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -333,7 +340,7 @@
           
           <div style="margin-bottom: 8px;">
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Confirm Password <span class="text-red-500">*</span></label>
-            <input name="company_password_confirmation" id="company_password_confirmation" type="text" placeholder="Confirm Company Password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;" autocomplete="new-password" required>
+            <input name="company_password_confirmation" id="company_password_confirmation" type="text" placeholder="Confirm Company Password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;" autocomplete="new-password">
           </div>
           
           <div style="margin-bottom: 8px;">
@@ -372,6 +379,159 @@
 
 @push('scripts')
 <script>
+// SOP FILE VALIDATION FUNCTION
+function validateSopFile(input) {
+    const sopFileName = document.getElementById('sopFileName');
+    const sopError = document.getElementById('sopError');
+    
+    // Reset error
+    sopError.style.display = 'none';
+    sopError.textContent = '';
+    
+    if (!input.files || !input.files[0]) {
+        sopFileName.textContent = 'No File Chosen';
+        return;
+    }
+    
+    const file = input.files[0];
+    const fileName = file.name;
+    const fileSize = file.size;
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedExtensions = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+    
+    // Get file extension
+    const extension = fileName.split('.').pop().toLowerCase();
+    
+    // Validate file type
+    if (!allowedExtensions.includes(extension)) {
+        sopError.textContent = 'Invalid file type. Only PDF, DOC, DOCX, JPG, JPEG, and PNG files are allowed.';
+        sopError.style.display = 'block';
+        input.value = '';
+        sopFileName.textContent = 'No File Chosen';
+        return;
+    }
+    
+    // Validate file size
+    if (fileSize > maxSize) {
+        const sizeMB = (fileSize / 1024 / 1024).toFixed(2);
+        sopError.textContent = `File size (${sizeMB}MB) exceeds the maximum allowed size of 5MB.`;
+        sopError.style.display = 'block';
+        input.value = '';
+        sopFileName.textContent = 'No File Chosen';
+        return;
+    }
+    
+    // Update filename display
+    sopFileName.textContent = fileName;
+}
+
+// QUOTATION FILE VALIDATION FUNCTION
+function validateQuotationFile(input) {
+    const quotationFileName = document.getElementById('quotationFileName');
+    const quotationError = document.getElementById('quotationError');
+    
+    // Reset error
+    quotationError.style.display = 'none';
+    quotationError.textContent = '';
+    
+    if (!input.files || !input.files[0]) {
+        quotationFileName.textContent = 'No File Chosen';
+        return;
+    }
+    
+    const file = input.files[0];
+    const fileName = file.name;
+    const fileSize = file.size;
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'];
+    
+    // Get file extension
+    const extension = fileName.split('.').pop().toLowerCase();
+    
+    // Validate file type
+    if (!allowedExtensions.includes(extension)) {
+        quotationError.textContent = 'Invalid file type. Only PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, and PNG files are allowed.';
+        quotationError.style.display = 'block';
+        input.value = '';
+        quotationFileName.textContent = 'No File Chosen';
+        return;
+    }
+    
+    // Validate file size
+    if (fileSize > maxSize) {
+        const sizeMB = (fileSize / 1024 / 1024).toFixed(2);
+        quotationError.textContent = `File size (${sizeMB}MB) exceeds the maximum allowed size of 5MB.`;
+        quotationError.style.display = 'block';
+        input.value = '';
+        quotationFileName.textContent = 'No File Chosen';
+        return;
+    }
+    
+    // Update filename display
+    quotationFileName.textContent = fileName;
+}
+
+// LOGO FILE VALIDATION FUNCTION
+function validateLogoFile(input) {
+    const logoFileName = document.getElementById('logoFileName');
+    const logoPreview = document.getElementById('logoPreview');
+    const logoPreviewImg = document.getElementById('logoPreviewImg');
+    const logoError = document.getElementById('logoError');
+    
+    // Reset error
+    logoError.style.display = 'none';
+    logoError.textContent = '';
+    
+    if (!input.files || !input.files[0]) {
+        logoFileName.textContent = 'No File Chosen';
+        logoPreview.style.display = 'none';
+        return;
+    }
+    
+    const file = input.files[0];
+    const fileName = file.name;
+    const fileSize = file.size;
+    const fileType = file.type;
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const allowedExtensions = ['jpeg', 'jpg', 'png'];
+    
+    // Get file extension
+    const extension = fileName.split('.').pop().toLowerCase();
+    
+    // Validate file type
+    if (!allowedTypes.includes(fileType) && !allowedExtensions.includes(extension)) {
+        logoError.textContent = 'Invalid file type. Only JPEG, JPG, and PNG files are allowed.';
+        logoError.style.display = 'block';
+        input.value = '';
+        logoFileName.textContent = 'No File Chosen';
+        logoPreview.style.display = 'none';
+        return;
+    }
+    
+    // Validate file size
+    if (fileSize > maxSize) {
+        const sizeMB = (fileSize / 1024 / 1024).toFixed(2);
+        logoError.textContent = `File size (${sizeMB}MB) exceeds the maximum allowed size of 2MB.`;
+        logoError.style.display = 'block';
+        input.value = '';
+        logoFileName.textContent = 'No File Chosen';
+        logoPreview.style.display = 'none';
+        return;
+    }
+    
+    // Update filename display
+    logoFileName.textContent = fileName;
+    
+    // Show image preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        logoPreviewImg.src = e.target.result;
+        logoPreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
 // STATE-CITY DEPENDENT DROPDOWN DATA
 const stateCityData = {
     'andhra_pradesh': [
@@ -880,32 +1040,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
     
-    var logoInput = document.getElementById('logoInput');
-    var logoLabel = document.getElementById('logoFileName');
-    if(logoInput && logoLabel){
-      logoInput.addEventListener('change', function(){
-        var name = this.files && this.files.length ? this.files[0].name : 'No File Chosen';
-        logoLabel.textContent = name;
-        
-        // Show image preview if an image is selected
-        if (this.files && this.files[0]) {
-          var reader = new FileReader();
-          reader.onload = function(e) {
-            var preview = document.getElementById('logoPreview');
-            if (!preview) {
-              preview = document.createElement('img');
-              preview.id = 'logoPreview';
-              preview.style.maxWidth = '150px';
-              preview.style.marginTop = '10px';
-              preview.style.display = 'block';
-              logoLabel.parentNode.insertAdjacentElement('afterend', preview);
-            }
-            preview.src = e.target.result;
-          }
-          reader.readAsDataURL(this.files[0]);
-        }
-      });
-    }
+    // Logo validation is handled by validateLogoFile function
   })();
 
   // Auto-generate employee email

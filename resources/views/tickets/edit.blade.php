@@ -413,7 +413,16 @@ document.addEventListener('DOMContentLoaded', function() {
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                             Category
                         </label>
-                        <input type="text" name="category" class="form-input" value="{{ old('category', $ticket->category) }}" placeholder="e.g. Technical, Billing">
+                        <select name="ticket_type" class="form-select">
+                            <option value="">Select a category</option>
+                            <option value="Technical Support" {{ old('ticket_type', $ticket->ticket_type) == 'Technical Support' ? 'selected' : '' }}>Technical Support</option>
+                            <option value="Billing" {{ old('ticket_type', $ticket->ticket_type) == 'Billing' ? 'selected' : '' }}>Billing</option>
+                            <option value="Feature Request" {{ old('ticket_type', $ticket->ticket_type) == 'Feature Request' ? 'selected' : '' }}>Feature Request</option>
+                            <option value="Bug Report" {{ old('ticket_type', $ticket->ticket_type) == 'Bug Report' ? 'selected' : '' }}>Bug Report</option>
+                            <option value="General Inquiry" {{ old('ticket_type', $ticket->ticket_type) == 'General Inquiry' ? 'selected' : '' }}>General Inquiry</option>
+                            <option value="AMC Renewal" {{ old('ticket_type', $ticket->ticket_type) == 'AMC Renewal' ? 'selected' : '' }}>AMC Renewal</option>
+                            <option value="Other" {{ old('ticket_type', $ticket->ticket_type) == 'Other' ? 'selected' : '' }}>Other</option>
+                        </select>
                     </div>
                     
                     @if(auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr'))
@@ -493,6 +502,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     @endif
                     
+                    @php
+                        // Map "normal" to "medium" for backward compatibility
+                        $currentPriority = old('priority', $ticket->priority ?? 'medium');
+                        if ($currentPriority === 'normal') $currentPriority = 'medium';
+                    @endphp
                     <div class="form-group full-width">
                         <label class="form-label">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -500,19 +514,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         </label>
                         <div class="priority-options">
                             <div class="priority-option low">
-                                <input type="radio" name="priority" id="priority_low" value="low" {{ old('priority', $ticket->priority) == 'low' ? 'checked' : '' }}>
+                                <input type="radio" name="priority" id="priority_low" value="low" {{ $currentPriority == 'low' ? 'checked' : '' }}>
                                 <label for="priority_low">🟢 Low</label>
                             </div>
                             <div class="priority-option medium">
-                                <input type="radio" name="priority" id="priority_medium" value="medium" {{ old('priority', $ticket->priority ?? 'medium') == 'medium' ? 'checked' : '' }}>
+                                <input type="radio" name="priority" id="priority_medium" value="medium" {{ $currentPriority == 'medium' ? 'checked' : '' }}>
                                 <label for="priority_medium">🔵 Medium</label>
                             </div>
                             <div class="priority-option high">
-                                <input type="radio" name="priority" id="priority_high" value="high" {{ old('priority', $ticket->priority) == 'high' ? 'checked' : '' }}>
+                                <input type="radio" name="priority" id="priority_high" value="high" {{ $currentPriority == 'high' ? 'checked' : '' }}>
                                 <label for="priority_high">🟠 High</label>
                             </div>
                             <div class="priority-option urgent">
-                                <input type="radio" name="priority" id="priority_urgent" value="urgent" {{ old('priority', $ticket->priority) == 'urgent' ? 'checked' : '' }}>
+                                <input type="radio" name="priority" id="priority_urgent" value="urgent" {{ $currentPriority == 'urgent' ? 'checked' : '' }}>
                                 <label for="priority_urgent">🔴 Urgent</label>
                             </div>
                         </div>
@@ -525,6 +539,38 @@ document.addEventListener('DOMContentLoaded', function() {
                         </label>
                         <textarea name="description" class="form-textarea" required placeholder="Describe the issue in detail...">{{ old('description', $ticket->description) }}</textarea>
                     </div>
+                    
+                    @if($ticket->attachments && count($ticket->attachments) > 0)
+                    <div class="form-group full-width">
+                        <label class="form-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                            Current Attachments ({{ count($ticket->attachments) }})
+                        </label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 8px;">
+                            @foreach($ticket->attachments as $index => $attachment)
+                                @php
+                                    $extension = pathinfo($attachment, PATHINFO_EXTENSION);
+                                    $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                    $fileName = basename($attachment);
+                                @endphp
+                                <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white;">
+                                    @if($isImage)
+                                        <a href="{{ storage_asset($attachment) }}" target="_blank" style="display: block;">
+                                            <img src="{{ storage_asset($attachment) }}" alt="Attachment {{ $index + 1 }}" style="width: 100%; height: 100px; object-fit: cover;">
+                                        </a>
+                                    @else
+                                        <div style="height: 100px; display: flex; align-items: center; justify-content: center; background: #f8fafc;">
+                                            <span style="font-size: 32px;">📄</span>
+                                        </div>
+                                    @endif
+                                    <div style="padding: 8px; font-size: 11px; color: #64748b; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $fileName }}">
+                                        {{ $fileName }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                     
                     @if($ticket->resolution_notes || in_array($ticket->status, ['completed', 'resolved', 'closed']))
                     <div class="form-group full-width">

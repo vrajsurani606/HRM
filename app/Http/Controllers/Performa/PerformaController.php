@@ -10,7 +10,7 @@ use Illuminate\View\View;
 
 class PerformaController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.view proforma'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -243,7 +243,7 @@ class PerformaController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    public function create(Request $request): View
+    public function create(Request $request): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.create proforma'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -394,7 +394,7 @@ class PerformaController extends Controller
         }
     }
 
-    public function show(int $id): View
+    public function show(int $id): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.view proforma'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -404,7 +404,7 @@ class PerformaController extends Controller
         return view('performas.show', compact('proforma'));
     }
 
-    public function edit(int $id): View
+    public function edit(int $id): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.edit proforma'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -540,7 +540,7 @@ class PerformaController extends Controller
         }
     }
 
-    public function print(int $id): View
+    public function print(int $id): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.print proforma'))) {
             return redirect()->back()->with('error', 'Permission denied.');

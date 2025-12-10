@@ -41,7 +41,7 @@
               <rect x="14" y="14" width="7" height="7" rx="1"></rect>
             </svg>
           </button>
-          <button class="view-toggle-btn active" data-view="list" title="List View" aria-label="List View">
+          <button class="view-toggle-btn" data-view="list" title="List View" aria-label="List View">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="8" y1="6" x2="21" y2="6"></line>
               <line x1="8" y1="12" x2="21" y2="12"></line>
@@ -125,7 +125,7 @@
   </div>
 
   <!-- List View -->
-  <div class="companies-list-view active">
+  <div class="companies-list-view">
     <div class="JV-datatble JV-datatble--zoom striped-surface striped-surface--full table-wrap pad-none">
       <table>
         <thead>
@@ -324,28 +324,54 @@ document.addEventListener('DOMContentLoaded', function() {
   const buttons = document.querySelectorAll('.view-toggle-btn');
   const grid = document.querySelector('.companies-grid-view');
   const list = document.querySelector('.companies-list-view');
-  if (!buttons.length || !grid || !list) return;
+  
+  if (!buttons.length || !grid || !list) {
+    return;
+  }
 
   function applyView(view) {
+    
+    // Remove active class from both views first
+    grid.classList.remove('active');
+    list.classList.remove('active');
+    
+    // Add active class to selected view
     if (view === 'grid') {
       grid.classList.add('active');
-      list.classList.remove('active');
     } else {
       list.classList.add('active');
-      grid.classList.remove('active');
     }
-    buttons.forEach(b => b.classList.toggle('active', b.getAttribute('data-view') === view));
+    
+    // Update button states
+    buttons.forEach(b => {
+      b.classList.remove('active');
+      if (b.getAttribute('data-view') === view) {
+        b.classList.add('active');
+      }
+    });
   }
 
   // Initialize from localStorage (default to 'list')
-  const saved = localStorage.getItem('companies_view') || 'list';
+  let saved = 'list';
+  try {
+    saved = localStorage.getItem('companies_view') || 'list';
+  } catch (e) {
+    // localStorage not available, use default
+  }
   applyView(saved);
 
   // Bind clicks and persist
   buttons.forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
       const view = this.getAttribute('data-view');
-      localStorage.setItem('companies_view', view);
+      
+      try {
+        localStorage.setItem('companies_view', view);
+      } catch (e) {
+        // localStorage not available
+      }
+      
       applyView(view);
     });
   });
@@ -409,10 +435,21 @@ document.addEventListener('DOMContentLoaded', function() {
 .view-toggle-btn.active svg { color:#3b82f6; }
 
 /* Grid View Styles */
-.companies-grid-view { display:none; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:16px; padding: 12px 12px 12px; }
-.companies-grid-view.active { display:grid; }
-.companies-list-view { display:none; }
-.companies-list-view.active { display:block; }
+.companies-grid-view { 
+  display: none; 
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+  gap: 16px; 
+  padding: 12px 12px 12px; 
+}
+.companies-grid-view.active { 
+  display: grid !important; 
+}
+.companies-list-view { 
+  display: none; 
+}
+.companies-list-view.active { 
+  display: block !important; 
+}
 
 .company-grid-card { background:#fff; border-radius:12px; padding:16px 18px; box-shadow:0 1px 6px rgba(0,0,0,0.06); transition:transform .25s, box-shadow .25s; cursor:pointer; margin-top:4px; box-sizing:border-box; }
 .company-grid-card:hover { transform: translateY(-4px); box-shadow:0 4px 16px rgba(0,0,0,0.12); }

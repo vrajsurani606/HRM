@@ -31,6 +31,7 @@ class Ticket extends Model
         'title',
         'description',
         'attachment',
+        'attachments',
         'company',
         'company_id',
         'ticket_type',
@@ -52,6 +53,7 @@ class Ticket extends Model
         'confirmed_at' => 'datetime',
         'closed_at' => 'datetime',
         'completion_images' => 'array',
+        'attachments' => 'array',
     ];
 
     /**
@@ -139,7 +141,7 @@ class Ticket extends Model
      */
     public function canBeClosed()
     {
-        return $this->status === self::STATUS_RESOLVED;
+        return in_array($this->status, [self::STATUS_OPEN, self::STATUS_RESOLVED]);
     }
     
     /**

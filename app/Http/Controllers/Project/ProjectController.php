@@ -11,7 +11,7 @@ use Illuminate\View\View;
 
 class ProjectController extends Controller
 {
-    public function index(): View
+    public function index(): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.view project'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -87,7 +87,7 @@ class ProjectController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.create project'))) {
             return redirect()->back()->with('error', 'Permission denied.');

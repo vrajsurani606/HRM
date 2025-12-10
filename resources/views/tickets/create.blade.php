@@ -190,6 +190,116 @@
     border-color: #cbd5e1;
   }
   
+  /* Attachment Upload Styles */
+  .attachment-upload-area {
+    border: 2px dashed #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background: #f8fafc;
+    position: relative;
+  }
+  
+  .attachment-upload-area:hover,
+  .attachment-upload-area.dragover {
+    border-color: #6366f1;
+    background: #ede9fe;
+  }
+  
+  .attachment-file-input {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .upload-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 12px;
+    color: #6366f1;
+  }
+  
+  .upload-text {
+    font-size: 15px;
+    color: #475569;
+    margin-bottom: 4px;
+  }
+  
+  .upload-hint {
+    font-size: 13px;
+    color: #94a3b8;
+  }
+  
+  .attachment-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+  
+  .attachment-preview-item {
+    position: relative;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+  }
+  
+  .attachment-preview-item img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+  }
+  
+  .attachment-preview-item .file-icon {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+  }
+  
+  .attachment-preview-item .file-name {
+    padding: 8px;
+    font-size: 11px;
+    color: #64748b;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .attachment-preview-item .remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+  
+  .attachment-preview-item .remove-btn:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+  }
+  
   @media (max-width: 768px) {
     .priority-options {
       grid-template-columns: repeat(2, 1fr);
@@ -218,7 +328,7 @@
     
     <!-- Form Body -->
     <div class="ticket-form-body">
-      <form action="{{ route('tickets.store') }}" method="POST">
+      <form action="{{ route('tickets.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         
         <!-- Title -->
@@ -289,12 +399,12 @@
           <label class="form-label">Priority Level</label>
           <div class="priority-options">
             <div class="priority-option">
-              <input type="radio" id="priority_low" name="priority" value="low" {{ old('priority', 'normal') == 'low' ? 'checked' : '' }}>
+              <input type="radio" id="priority_low" name="priority" value="low" {{ old('priority', 'medium') == 'low' ? 'checked' : '' }}>
               <label for="priority_low" class="priority-label low">Low</label>
             </div>
             <div class="priority-option">
-              <input type="radio" id="priority_normal" name="priority" value="normal" {{ old('priority', 'normal') == 'normal' ? 'checked' : '' }}>
-              <label for="priority_normal" class="priority-label normal">Normal</label>
+              <input type="radio" id="priority_medium" name="priority" value="medium" {{ old('priority', 'medium') == 'medium' ? 'checked' : '' }}>
+              <label for="priority_medium" class="priority-label normal">Medium</label>
             </div>
             <div class="priority-option">
               <input type="radio" id="priority_high" name="priority" value="high" {{ old('priority') == 'high' ? 'checked' : '' }}>
@@ -320,6 +430,27 @@
           >{{ old('description') }}</textarea>
           <p class="form-help">Include any relevant details, error messages, or steps to reproduce the issue</p>
           @error('description')
+            <p class="form-help" style="color: #ef4444;">{{ $message }}</p>
+          @enderror
+        </div>
+        
+        <!-- Attachments Upload -->
+        <div class="form-group">
+          <label class="form-label">Attachments (Optional)</label>
+          <div class="attachment-upload-area" id="attachmentDropZone">
+            <input type="file" id="attachmentInput" name="attachments[]" multiple accept="image/*,.pdf,.doc,.docx,.zip" class="attachment-file-input">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+            </svg>
+            <div class="upload-text">Click to upload or drag and drop</div>
+            <div class="upload-hint">Images, PDF, DOC, ZIP (Max 10MB each)</div>
+          </div>
+          <div class="attachment-preview-grid" id="attachmentPreview"></div>
+          <div id="selectedFilesInfo" style="margin-top: 8px; font-size: 13px; color: #64748b;"></div>
+          @error('attachments')
+            <p class="form-help" style="color: #ef4444;">{{ $message }}</p>
+          @enderror
+          @error('attachments.*')
             <p class="form-help" style="color: #ef4444;">{{ $message }}</p>
           @enderror
         </div>
@@ -382,3 +513,62 @@
   </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('attachmentInput');
+    const previewGrid = document.getElementById('attachmentPreview');
+    const filesInfo = document.getElementById('selectedFilesInfo');
+    
+    // Handle file input change
+    fileInput.addEventListener('change', function() {
+        showPreviews();
+    });
+    
+    function showPreviews() {
+        previewGrid.innerHTML = '';
+        
+        if (!fileInput.files || fileInput.files.length === 0) {
+            filesInfo.innerHTML = '';
+            return;
+        }
+        
+        filesInfo.innerHTML = `<strong>${fileInput.files.length} file(s) selected</strong>`;
+        
+        Array.from(fileInput.files).forEach((file, index) => {
+            const item = document.createElement('div');
+            item.className = 'attachment-preview-item';
+            
+            const isImage = file.type.startsWith('image/');
+            
+            if (isImage) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    item.innerHTML = `
+                        <img src="${e.target.result}" alt="${file.name}">
+                        <div class="file-name" title="${file.name}">${file.name}</div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                const ext = file.name.split('.').pop().toLowerCase();
+                let icon = '📄';
+                if (ext === 'pdf') icon = '📕';
+                else if (['doc', 'docx'].includes(ext)) icon = '📘';
+                else if (ext === 'zip') icon = '📦';
+                
+                item.innerHTML = `
+                    <div class="file-icon">
+                        <span style="font-size: 40px;">${icon}</span>
+                    </div>
+                    <div class="file-name" title="${file.name}">${file.name}</div>
+                `;
+            }
+            
+            previewGrid.appendChild(item);
+        });
+    }
+});
+</script>
+@endpush

@@ -22,10 +22,14 @@ use Illuminate\Support\Facades\Storage;
 
 class QuotationController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.view quotation'))) {
-            return redirect()->back()->with('error', 'Permission denied.');
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+        
+        if (!(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.view quotation'))) {
+            return redirect()->route('dashboard')->with('error', 'Permission denied.');
         }
         
         try {
@@ -361,7 +365,7 @@ class QuotationController extends Controller
         }
     }
 
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.create quotation'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -674,20 +678,28 @@ class QuotationController extends Controller
     }
     
 
-    public function show(int $id): View
+    public function show(int $id): View|RedirectResponse
     {
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.view quotation'))) {
-            return redirect()->back()->with('error', 'Permission denied.');
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+        
+        if (!(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.view quotation'))) {
+            return redirect()->route('quotations.index')->with('error', 'Permission denied.');
         }
         
         $quotation = Quotation::findOrFail($id);
         return view('quotations.show', compact('quotation'));
     }
 
-    public function edit(int $id): View
+    public function edit(int $id): View|RedirectResponse
     {
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.edit quotation'))) {
-            return redirect()->back()->with('error', 'Permission denied.');
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+        
+        if (!(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.edit quotation'))) {
+            return redirect()->route('quotations.index')->with('error', 'Permission denied.');
         }
         
         $quotation = Quotation::findOrFail($id);
@@ -697,8 +709,12 @@ class QuotationController extends Controller
 
     public function update(Request $request, int $id): RedirectResponse
     {
-        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.edit quotation'))) {
-            return redirect()->back()->with('error', 'Permission denied.');
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+        
+        if (!(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.edit quotation'))) {
+            return redirect()->route('quotations.index')->with('error', 'Permission denied.');
         }
         
         try {
@@ -1053,7 +1069,7 @@ class QuotationController extends Controller
         }
     }
 
-    public function createFromInquiry(int $id): View
+    public function createFromInquiry(int $id): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.create quotation'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -1238,7 +1254,7 @@ class QuotationController extends Controller
         return $this->generateContractPdf($id);
     }
 
-    public function followUp(int $id): View
+    public function followUp(int $id): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.follow up'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -1358,7 +1374,7 @@ class QuotationController extends Controller
         return $templates;
     }
 
-    public function templateList(int $id): View
+    public function templateList(int $id): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Quotations Management.template list'))) {
             return redirect()->back()->with('error', 'Permission denied.');

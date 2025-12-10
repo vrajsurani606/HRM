@@ -29,7 +29,7 @@ class TicketComment extends Model
     public function getAttachmentUrlAttribute()
     {
         if ($this->attachment_path) {
-            return asset('public/storage/' . ltrim($this->attachment_path, '/'));
+            return storage_asset($this->attachment_path);
         }
         return null;
     }

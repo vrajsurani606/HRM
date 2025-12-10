@@ -4,7 +4,7 @@
             <div class="hidden lg:flex items-center justify-center p-8 bg-gradient-to-br from-blue-600 to-purple-700">
                 <div class="w-full h-full max-w-4xl max-h-[90vh] flex items-center justify-center">
                     <lottie-player
-                    src="{{ asset('lottie/register-animation.json') }}"
+                    src="{{ asset('public/lottie/register-animation.json') }}"
                     background="transparent"
                     speed="1"
                     loop
@@ -88,7 +88,7 @@
                                 <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                             </div>
 
-                            <button type="submit" class="w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200">
+                            <button type="submit" style="width: 100%; height: 48px; border-radius: 12px; background: linear-gradient(to right, #2563eb, #9333ea); color: white; font-weight: 600; font-size: 16px; border: none; cursor: pointer; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transition: all 0.2s ease;" onmouseover="this.style.background='linear-gradient(to right, #1d4ed8, #7c3aed)'; this.style.transform='scale(1.02)'" onmouseout="this.style.background='linear-gradient(to right, #2563eb, #9333ea)'; this.style.transform='scale(1)'">
                                 Create Account
                             </button>
 

@@ -352,6 +352,8 @@ require __DIR__.'/auth.php';
 
 // Ticket Workflow Routes
 Route::middleware(['auth'])->prefix('tickets')->group(function () {
+    Route::get('{ticket}/json', [\App\Http\Controllers\TicketController::class, 'getJson'])->name('tickets.json');
+    Route::get('{ticket}/print', [\App\Http\Controllers\TicketController::class, 'print'])->name('tickets.print');
     Route::post('{ticket}/assign', [\App\Http\Controllers\TicketController::class, 'assign'])->name('tickets.assign');
     Route::post('{ticket}/complete', [\App\Http\Controllers\TicketController::class, 'complete'])->name('tickets.complete');
     Route::post('{ticket}/confirm', [\App\Http\Controllers\TicketController::class, 'confirm'])->name('tickets.confirm');

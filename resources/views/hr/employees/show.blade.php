@@ -170,14 +170,14 @@
           <label class="hrp-label">Password:</label>
           <div class="info-value" style="display:flex;align-items:center;gap:8px">
             <input type="password" id="emp-password-{{ $employee->id }}" value="{{ $employee->plain_password }}" readonly style="border:1px solid #e5e7eb;background:#f9fafb;padding:8px 12px;border-radius:8px;flex:1;outline:none">
-            <button type="button" onclick="toggleEmpPassword({{ $employee->id }})" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Show/Hide Password">
+            <button type="button" onclick="toggleEmpPassword({{ $employee->id }})" style="background:#3b82f6;border:none;border-radius:6px;padding:8px 12px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;" title="Show/Hide Password">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" id="emp-eye-icon-{{ $employee->id }}">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
-            <button type="button" onclick="copyEmpPassword('{{ $employee->plain_password }}')" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Copy Password">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button type="button" onclick="copyEmpPassword('{{ $employee->plain_password }}')" style="background:#10b981;border:none;border-radius:6px;padding:8px 12px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;" title="Copy Password">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>

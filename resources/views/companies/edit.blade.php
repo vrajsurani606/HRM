@@ -195,7 +195,7 @@
             <div class="upload-pill Rectangle-29" onclick="document.getElementById('sopInput').click()">
               <div class="choose" style="font-size: 14px;">Choose File</div>
               <div class="filename" id="sopFileName" style="font-size: 14px;">{{ $company->sop_upload ? basename($company->sop_upload) : 'No File Chosen' }}</div>
-              <input id="sopInput" name="sop_upload" type="file" style="display: none;" onchange="updateFileName(this, 'sopFileName')" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+              <input id="sopInput" name="sop_upload" type="file" style="display: none;" onchange="validateSopFileEdit(this)" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
             </div>
             @if($company->sop_upload)
               @php
@@ -220,6 +220,7 @@
                 </div>
               </div>
             @endif
+            <small id="sopErrorEdit" class="hrp-error" style="display: none;"></small>
             @error('sop_upload')<small class="hrp-error">{{ $message }}</small>@enderror
             <small class="text-gray-500 text-xs block mt-1">Accepted formats: PDF, DOC, DOCX, JPG, JPEG, PNG (Max: 5MB)</small>
           </div>
@@ -229,7 +230,7 @@
             <div class="upload-pill Rectangle-29" onclick="document.getElementById('quotationInput').click()">
               <div class="choose" style="font-size: 14px;">Choose File</div>
               <div class="filename" id="quotationFileName" style="font-size: 14px;">{{ $company->quotation_upload ? basename($company->quotation_upload) : 'No File Chosen' }}</div>
-              <input id="quotationInput" name="quotation_upload" type="file" style="display: none;" onchange="updateFileName(this, 'quotationFileName')" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+              <input id="quotationInput" name="quotation_upload" type="file" style="display: none;" onchange="validateQuotationFileEdit(this)" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
             </div>
             @if($company->quotation_upload)
               @php
@@ -254,6 +255,7 @@
                 </div>
               </div>
             @endif
+            <small id="quotationErrorEdit" class="hrp-error" style="display: none;"></small>
             @error('quotation_upload')<small class="hrp-error">{{ $message }}</small>@enderror
             <small class="text-gray-500 text-xs block mt-1">Accepted formats: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG (Max: 5MB)</small>
           </div>
@@ -320,13 +322,24 @@
           </div>
           <div style="margin-bottom: 8px;">
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Logo</label>
-            <input name="company_logo" type="file" class="hrp-input Rectangle-29" style="padding: 8px 12px; font-size: 14px; line-height: 1.5;">
+            <div class="upload-pill Rectangle-29" onclick="document.getElementById('logoInputEdit').click()" style="cursor: pointer;">
+              <div class="choose" style="font-size: 14px;">Choose File</div>
+              <div class="filename" id="logoFileNameEdit" style="font-size: 14px;">No File Chosen</div>
+              <input id="logoInputEdit" name="company_logo" type="file" accept=".jpeg,.jpg,.png" style="display: none;" onchange="validateLogoFileEdit(this)">
+            </div>
             @if($company->company_logo)
-              <div class="mt-2">
-                <img src="{{ storage_asset('' . $company->company_logo) }}" alt="Company Logo" style="max-width: 100px; max-height: 100px;">
+              <div class="mt-2" id="currentLogoEdit">
+                <p style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Current Logo:</p>
+                <img src="{{ storage_asset('' . $company->company_logo) }}" alt="Company Logo" style="max-width: 100px; max-height: 100px; border-radius: 8px; border: 2px solid #e5e7eb;">
               </div>
             @endif
+            <div id="logoPreviewEdit" style="margin-top: 10px; display: none;">
+              <p style="font-size: 12px; color: #10b981; margin-bottom: 4px;">New Logo Preview:</p>
+              <img id="logoPreviewImgEdit" src="" alt="Logo Preview" style="max-width: 150px; max-height: 100px; border-radius: 8px; border: 2px solid #10b981;">
+            </div>
+            <small id="logoErrorEdit" class="hrp-error" style="display: none;"></small>
             @error('company_logo')<small class="hrp-error">{{ $message }}</small>@enderror
+            <small class="text-gray-500 text-xs" style="display: block; margin-top: 4px;">Accepted formats: JPEG, JPG, PNG (Max: 2MB)</small>
           </div>
           
           <div style="margin-bottom: 8px;">
@@ -402,6 +415,159 @@
 
 @push('scripts')
 <script>
+// SOP FILE VALIDATION FUNCTION FOR EDIT
+function validateSopFileEdit(input) {
+    const sopFileName = document.getElementById('sopFileName');
+    const sopError = document.getElementById('sopErrorEdit');
+    
+    // Reset error
+    sopError.style.display = 'none';
+    sopError.textContent = '';
+    
+    if (!input.files || !input.files[0]) {
+        sopFileName.textContent = 'No File Chosen';
+        return;
+    }
+    
+    const file = input.files[0];
+    const fileName = file.name;
+    const fileSize = file.size;
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedExtensions = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+    
+    // Get file extension
+    const extension = fileName.split('.').pop().toLowerCase();
+    
+    // Validate file type
+    if (!allowedExtensions.includes(extension)) {
+        sopError.textContent = 'Invalid file type. Only PDF, DOC, DOCX, JPG, JPEG, and PNG files are allowed.';
+        sopError.style.display = 'block';
+        input.value = '';
+        sopFileName.textContent = 'No File Chosen';
+        return;
+    }
+    
+    // Validate file size
+    if (fileSize > maxSize) {
+        const sizeMB = (fileSize / 1024 / 1024).toFixed(2);
+        sopError.textContent = `File size (${sizeMB}MB) exceeds the maximum allowed size of 5MB.`;
+        sopError.style.display = 'block';
+        input.value = '';
+        sopFileName.textContent = 'No File Chosen';
+        return;
+    }
+    
+    // Update filename display
+    sopFileName.textContent = fileName;
+}
+
+// QUOTATION FILE VALIDATION FUNCTION FOR EDIT
+function validateQuotationFileEdit(input) {
+    const quotationFileName = document.getElementById('quotationFileName');
+    const quotationError = document.getElementById('quotationErrorEdit');
+    
+    // Reset error
+    quotationError.style.display = 'none';
+    quotationError.textContent = '';
+    
+    if (!input.files || !input.files[0]) {
+        quotationFileName.textContent = 'No File Chosen';
+        return;
+    }
+    
+    const file = input.files[0];
+    const fileName = file.name;
+    const fileSize = file.size;
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'];
+    
+    // Get file extension
+    const extension = fileName.split('.').pop().toLowerCase();
+    
+    // Validate file type
+    if (!allowedExtensions.includes(extension)) {
+        quotationError.textContent = 'Invalid file type. Only PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, and PNG files are allowed.';
+        quotationError.style.display = 'block';
+        input.value = '';
+        quotationFileName.textContent = 'No File Chosen';
+        return;
+    }
+    
+    // Validate file size
+    if (fileSize > maxSize) {
+        const sizeMB = (fileSize / 1024 / 1024).toFixed(2);
+        quotationError.textContent = `File size (${sizeMB}MB) exceeds the maximum allowed size of 5MB.`;
+        quotationError.style.display = 'block';
+        input.value = '';
+        quotationFileName.textContent = 'No File Chosen';
+        return;
+    }
+    
+    // Update filename display
+    quotationFileName.textContent = fileName;
+}
+
+// LOGO FILE VALIDATION FUNCTION FOR EDIT
+function validateLogoFileEdit(input) {
+    const logoFileName = document.getElementById('logoFileNameEdit');
+    const logoPreview = document.getElementById('logoPreviewEdit');
+    const logoPreviewImg = document.getElementById('logoPreviewImgEdit');
+    const logoError = document.getElementById('logoErrorEdit');
+    
+    // Reset error
+    logoError.style.display = 'none';
+    logoError.textContent = '';
+    
+    if (!input.files || !input.files[0]) {
+        logoFileName.textContent = 'No File Chosen';
+        logoPreview.style.display = 'none';
+        return;
+    }
+    
+    const file = input.files[0];
+    const fileName = file.name;
+    const fileSize = file.size;
+    const fileType = file.type;
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const allowedExtensions = ['jpeg', 'jpg', 'png'];
+    
+    // Get file extension
+    const extension = fileName.split('.').pop().toLowerCase();
+    
+    // Validate file type
+    if (!allowedTypes.includes(fileType) && !allowedExtensions.includes(extension)) {
+        logoError.textContent = 'Invalid file type. Only JPEG, JPG, and PNG files are allowed.';
+        logoError.style.display = 'block';
+        input.value = '';
+        logoFileName.textContent = 'No File Chosen';
+        logoPreview.style.display = 'none';
+        return;
+    }
+    
+    // Validate file size
+    if (fileSize > maxSize) {
+        const sizeMB = (fileSize / 1024 / 1024).toFixed(2);
+        logoError.textContent = `File size (${sizeMB}MB) exceeds the maximum allowed size of 2MB.`;
+        logoError.style.display = 'block';
+        input.value = '';
+        logoFileName.textContent = 'No File Chosen';
+        logoPreview.style.display = 'none';
+        return;
+    }
+    
+    // Update filename display
+    logoFileName.textContent = fileName;
+    
+    // Show image preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        logoPreviewImg.src = e.target.result;
+        logoPreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
 // STATE-CITY DEPENDENT DROPDOWN DATA
 const stateCityData = {
     'andhra_pradesh': [
