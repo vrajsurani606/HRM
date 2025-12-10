@@ -161,8 +161,12 @@
         <div class="info-value">{{ display_mobile($employee->mobile_no) ?: 'N/A' }}</div>
       </div>
       <div>
-        <label class="hrp-label">Email:</label>
+        <label class="hrp-label">Login Email ID:</label>
         <div class="info-value">{{ $employee->email }}</div>
+      </div>
+      <div>
+        <label class="hrp-label">Personal Email:</label>
+        <div class="info-value">{{ $employee->personal_email ?: 'N/A' }}</div>
       </div>
       <div>
         <label class="hrp-label">Position:</label>

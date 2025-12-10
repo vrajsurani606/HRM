@@ -117,6 +117,7 @@ class EmployeeController extends Controller
         $data = $request->validate([
             'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:employees,email',
+            'personal_email' => 'nullable|email|max:255',
             'gender' => 'nullable|in:male,female,other',
             'date_of_birth' => 'nullable|date',
             'marital_status' => 'nullable|in:single,married,other',
@@ -218,6 +219,7 @@ class EmployeeController extends Controller
             'code' => 'nullable|string|max:100',
             'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:employees,email',
+            'personal_email' => 'nullable|email|max:255',
             'mobile_no' => 'nullable|string|max:30',
             'address' => 'nullable|string',
             'position' => 'nullable|string|max:190',
@@ -417,6 +419,7 @@ class EmployeeController extends Controller
             'status' => 'nullable|in:active,inactive',
             'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:employees,email,'.$employee->id,
+            'personal_email' => 'nullable|email|max:255',
             'gender' => 'nullable|in:male,female,other',
             'date_of_birth' => 'nullable|date',
             'marital_status' => 'nullable|in:single,married,other',
