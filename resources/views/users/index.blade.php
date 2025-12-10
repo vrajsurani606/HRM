@@ -9,18 +9,12 @@
       @endcan
     </div>
     <div class="employee-grid">
-      @php
-        $staticImages = [
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
-          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
-          'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
-          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face',
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face'
-        ];
-      @endphp
-
       @forelse($users as $user)
+        @php
+          // Get employee record if exists for better photo
+          $employee = \App\Models\Employee::where('email', $user->email)->first();
+          $photoUrl = $employee ? $employee->profile_photo_url : $user->profile_photo_url;
+        @endphp
         <div class="emp-card">
           <div class="card-header">
             @php($badgeText = optional($user->roles->first())->name ?? 'User')
@@ -54,8 +48,10 @@
 
           <div class="profile-section">
             <div class="profile-image">
-              @php($imageIndex = $loop->index % count($staticImages))
-              <img src="{{ $staticImages[$imageIndex] }}" alt="{{ $user->name }}">
+              <img src="{{ $photoUrl }}" alt="{{ $user->name }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="profile-initials" style="display:none; width:100%; height:100%; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; font-weight:700; font-size:24px; align-items:center; justify-content:center; border-radius:50%;">
+                {{ strtoupper(substr($user->name, 0, 2)) }}
+              </div>
             </div>
             <div class="profile-info">
               <h3 class="profile-name">{{ $user->name }}</h3>
