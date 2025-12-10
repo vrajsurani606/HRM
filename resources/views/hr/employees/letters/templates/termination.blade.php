@@ -1,12 +1,15 @@
+@php
+    $employee = $letter->employee;
+@endphp
 <div class="letter-header">
     <div style="margin-bottom: 15px;"><b>Ref No.:</b> {{ $letter->reference_number }}</div>
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
         <div class="recipient" style="flex: 1;">
             <div><b>To,</b></div>
-            <div>{{ ($letter->employee->gender == 'Female' || $letter->employee->gender == 'female') ? 'Ms.' : 'Mr.' }} {{ $letter->employee->name }}</div>
-            <div>{{ $letter->employee->designation ?? $letter->employee->position ?? 'Employee' }}</div>
-            @if($letter->employee->address)
-            <div>{{ $letter->employee->address }}</div>
+            <div>{{ (($employee->gender ?? '') == 'Female' || ($employee->gender ?? '') == 'female') ? 'Ms.' : 'Mr.' }} {{ $employee->name ?? 'N/A' }}</div>
+            <div>{{ $employee->designation ?? $employee->position ?? 'Employee' }}</div>
+            @if($employee && $employee->address)
+            <div>{{ $employee->address }}</div>
             @endif
         </div>
         <div class="letter-meta" style="text-align: right;">
@@ -18,7 +21,7 @@
 <div class="subject">Subject: Termination Letter</div>
 
 <div class="body">
-<p>Dear <b>{{ $letter->employee->name }}</b>,</p>
+<p>Dear <b>{{ $employee->name ?? 'Employee' }}</b>,</p>
 
 @if($letter->use_default_content ?? true)
     <p>This letter is to formally notify you that your employment with <span class="company">{{ $company_name }}</span> will be terminated effective <b>{{ $letter->end_date ? $letter->end_date->format('F d, Y') : '_______________' }}</b>, due to consistently low performance despite prior discussions and performance improvement plans.</p>

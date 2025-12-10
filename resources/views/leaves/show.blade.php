@@ -22,7 +22,7 @@
                 <div>
                     <h3 style="font-size: 14px; color: #6b7280; margin: 0 0 8px 0; font-weight: 600;">Employee</h3>
                     <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111;">
-                        {{ $leave->employee->name }}
+                        {{ $leave->employee->name ?? 'N/A' }}
                     </p>
                 </div>
 
@@ -114,7 +114,10 @@
                 </div>
 
                 <!-- Actions -->
-                @if($leave->status === 'pending' && $leave->employee_id === auth()->user()->employee->id)
+                @php
+                    $authEmployee = \App\Models\Employee::where('user_id', auth()->id())->first();
+                @endphp
+                @if($leave->status === 'pending' && $authEmployee && $leave->employee_id === $authEmployee->id)
                 <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 10px;">
                     <form action="{{ route('leaves.cancel', $leave) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this leave request?');">
                         @csrf

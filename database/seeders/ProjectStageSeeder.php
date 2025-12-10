@@ -22,20 +22,6 @@ class ProjectStageSeeder extends Seeder
         }
 
         // Sample projects
-        $projects = [
-            ['name' => 'MVTY Dham Web', 'stage_id' => 1, 'due_date' => '2025-12-17', 'total_tasks' => 4, 'completed_tasks' => 0],
-            ['name' => 'MVTY Dham Web', 'stage_id' => 2, 'total_tasks' => 4, 'completed_tasks' => 0],
-            ['name' => 'NABL Software', 'stage_id' => 2, 'total_tasks' => 22, 'completed_tasks' => 5],
-            ['name' => 'Social Media POST', 'stage_id' => 2, 'total_tasks' => 22, 'completed_tasks' => 5],
-            ['name' => 'Social Media POST', 'stage_id' => 2, 'total_tasks' => 22, 'completed_tasks' => 5],
-            ['name' => 'MVTY Dham Web', 'stage_id' => 3, 'total_tasks' => 4, 'completed_tasks' => 0],
-            ['name' => 'Chitri Software', 'stage_id' => 3, 'total_tasks' => 22, 'completed_tasks' => 5],
-            ['name' => 'Om Her Bhole App', 'stage_id' => 3, 'total_tasks' => 17, 'completed_tasks' => 12],
-            ['name' => 'MVTY Dham App', 'stage_id' => 4, 'total_tasks' => 4, 'completed_tasks' => 4],
-        ];
-
-        foreach ($projects as $project) {
-            Project::firstOrCreate($project);
-        }
+        
     }
 }

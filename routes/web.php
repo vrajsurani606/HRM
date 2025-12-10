@@ -274,30 +274,6 @@ Route::middleware('auth')->group(function () {
     // Projects Resource (MUST be AFTER specific routes)
     Route::resource('projects', ProjectController::class);
     Route::post('project-stages-old', [ProjectController::class, 'storeStage'])->name('project-stages-old.store');
-    
-    // Test route for debugging
-    Route::get('test-materials-api', function() {
-        $materials = \App\Models\Material::with('reports')->get();
-        return response()->json([
-            'success' => true,
-            'message' => 'API is working!',
-            'materials_count' => $materials->count(),
-            'materials' => $materials
-        ]);
-    });
-    
-    // Test route with project ID (no model binding)
-    Route::get('test-project-materials/{id}', function($id) {
-        $project = \App\Models\Project::findOrFail($id);
-        $materials = \App\Models\Material::with('reports')->get();
-        return response()->json([
-            'success' => true,
-            'message' => 'Project materials API working!',
-            'project_id' => $project->id,
-            'project_name' => $project->name,
-            'materials_count' => $materials->count()
-        ]);
-    });
 
     // Performa & Invoices
     Route::get('performas/export', [PerformaController::class, 'export'])->name('performas.export');

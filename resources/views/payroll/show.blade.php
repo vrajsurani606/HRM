@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salary Slip - {{ $payroll->employee->name }}</title>
+    <title>Salary Slip - {{ $payroll->employee->name ?? 'Employee' }}</title>
     <style>
         @page { 
             size: A4 portrait; 
@@ -296,7 +296,7 @@
         <table class="info-table">
             <tr>
                 <td>Employee Name</td>
-                <td><strong style="color: #1e40af;">{{ strtoupper($payroll->employee->name) }}</strong></td>
+                <td><strong style="color: #1e40af;">{{ strtoupper($payroll->employee->name ?? 'N/A') }}</strong></td>
                 <td>Employee Code</td>
                 <td>{{ $payroll->employee->code ?? 'N/A' }}</td>
             </tr>
@@ -511,7 +511,7 @@
             <div class="signature-box">
                 <div class="signature-line"></div>
                 <div class="signature-label">Employee Signature</div>
-                <div style="font-size: 9pt; color: #6b7280;">{{ $payroll->employee->name }}</div>
+                <div style="font-size: 9pt; color: #6b7280;">{{ $payroll->employee->name ?? 'N/A' }}</div>
             </div>
             <div class="signature-box">
                 <div class="signature-line"></div>

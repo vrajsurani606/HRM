@@ -36,13 +36,6 @@ class QuotationController extends Controller
                 $perPage = 10;
             }
             
-            // Debug logging - remove after testing
-            \Log::info('Quotation pagination debug', [
-                'requested_per_page' => $request->get('per_page'),
-                'final_per_page' => $perPage,
-                'all_params' => $request->all()
-            ]);
-            
             // Ensure per_page is always set in request for consistency
             $request->merge(['per_page' => $perPage]);
             
@@ -106,18 +99,7 @@ class QuotationController extends Controller
             // Force per_page to be correct in pagination object
             $quotations->withPath($request->url())->appends(array_merge($request->query(), ['per_page' => $perPage]));
             
-            // Temporary debug - remove after testing
-            if ($request->get('debug')) {
-                dd([
-                    'per_page_requested' => $request->get('per_page'),
-                    'per_page_final' => $perPage,
-                    'total_records' => $quotations->total(),
-                    'current_page' => $quotations->currentPage(),
-                    'last_page' => $quotations->lastPage(),
-                    'records_on_this_page' => $quotations->count(),
-                    'all_request_params' => $request->all()
-                ]);
-            }
+
             
             // Check for orphaned quotations (customer_id points to deleted company)
             $orphanedQuotations = [];
@@ -410,7 +392,6 @@ class QuotationController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
-        //dd($request->all());
         // Filter out empty service rows
         $services1 = [
             'description' => [],
@@ -435,9 +416,6 @@ class QuotationController extends Controller
             }
             $request->merge(['services_1' => $services1]);
         }
-
-        // Debug: Uncomment to see filtered data
-        // dd($request->all());
 
         try {
             // Generate next quotation code

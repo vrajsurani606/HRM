@@ -8,7 +8,7 @@ $background_url = asset('letters/back.png');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salary Certificate - {{ $letter->employee->name }}</title>
+    <title>Salary Certificate - {{ $letter->employee->name ?? 'Employee' }}</title>
     <style>
         body, html { margin:0 !important; padding:0 !important; font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif !important; }
         @page { margin: 0; }
@@ -72,16 +72,17 @@ $background_url = asset('letters/back.png');
                 <div><b>To Whom It May Concern,</b></div>
             </div>
             <div class="subject">Subject: {{ $letter->title }}</div>
+            @php $employee = $letter->employee; @endphp
             <div class="body">
-                <p>This is to certify that <b>{{ $letter->employee->name }}</b> is a confirmed employee of <span class="company">{{ $company_name }}</span>.</p>
+                <p>This is to certify that <b>{{ $employee->name ?? 'N/A' }}</b> is a confirmed employee of <span class="company">{{ $company_name }}</span>.</p>
                 
                 <p><b>Employee Details:</b></p>
                 <ul>
-                    <li><b>Employee Name:</b> {{ $letter->employee->name }}</li>
-                    <li><b>Employee ID:</b> {{ $letter->employee->employee_id }}</li>
-                    <li><b>Designation:</b> {{ $letter->employee->designation ?? 'Employee' }}</li>
-                    <li><b>Department:</b> {{ $letter->employee->department ?? 'As assigned' }}</li>
-                    <li><b>Date of Joining:</b> {{ $letter->employee->date_of_joining ? $letter->employee->date_of_joining->format('d-m-Y') : 'As per records' }}</li>
+                    <li><b>Employee Name:</b> {{ $employee->name ?? 'N/A' }}</li>
+                    <li><b>Employee ID:</b> {{ $employee->employee_id ?? 'N/A' }}</li>
+                    <li><b>Designation:</b> {{ $employee->designation ?? 'Employee' }}</li>
+                    <li><b>Department:</b> {{ $employee->department ?? 'As assigned' }}</li>
+                    <li><b>Date of Joining:</b> {{ $employee && $employee->date_of_joining ? $employee->date_of_joining->format('d-m-Y') : 'As per records' }}</li>
                 </ul>
 
                 <p><b>Salary Details:</b></p>
