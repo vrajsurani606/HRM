@@ -189,7 +189,7 @@
                     <div>
                         <label class="hrp-label">End Date: <span class="text-red-500">*</span></label>
                         <input type="text" name="end_date" id="end_date" class="hrp-input Rectangle-29 date-picker" 
-                               placeholder="dd/mm/yyyy" value="{{ old('end_date', isset($letter)?optional($letter->end_date)->format('d/m/Y'):now()->format('d/m/Y')) }}" autocomplete="off">
+                               placeholder="dd/mm/yyyy" value="{{ old('end_date', isset($letter) && $letter->end_date ? $letter->end_date->format('d/m/Y') : now()->format('d/m/Y')) }}" autocomplete="off">
                         @error('end_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
@@ -202,10 +202,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="hrp-label">Termination Date (Last Working Day): <span class="text-red-500">*</span></label>
-                        <input type="text" name="end_date" id="termination_date" class="hrp-input Rectangle-29 date-picker" 
-                               placeholder="dd/mm/yyyy" value="{{ old('end_date', isset($letter)?optional($letter->end_date)->format('d/m/Y'):null) }}" autocomplete="off">
+                        <input type="text" name="termination_end_date" id="termination_date" class="hrp-input Rectangle-29 date-picker" 
+                               placeholder="dd/mm/yyyy" value="{{ old('termination_end_date', isset($letter)?optional($letter->end_date)->format('d/m/Y'):null) }}" autocomplete="off">
                         <small class="text-xs text-gray-500">Employee's last working day</small>
-                        @error('end_date')
+                        @error('termination_end_date')
                             <small class="hrp-error">{{ $message }}</small>
                         @enderror
                     </div>
@@ -722,6 +722,22 @@ $(document).on('change', 'select[name="type"]', function() {
 });
 // Trigger change event on page load to set initial state
 $('select[name="type"]').trigger('change');
+
+// Ensure end date is populated when editing experience letters
+$(document).ready(function() {
+    const letterType = $('select[name="type"]').val();
+    if (letterType === 'experience') {
+        // If we're editing and end_date field exists but is empty, set it to today
+        const endDateField = $('#end_date');
+        if (endDateField.length && !endDateField.val()) {
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            endDateField.val(dd + '/' + mm + '/' + yyyy);
+        }
+    }
+});
 
 $(document).ready(function() {
     // Initialize Summernote for Letter Content - Don't initialize on page load

@@ -12,12 +12,22 @@ class ProjectStageController extends Controller
 {
     public function index(): View
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.manage stages'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $stages = ProjectStage::withCount('projects')->orderBy('order')->get();
         return view('projects.stages.index', compact('stages'));
     }
 
     public function show(ProjectStage $stage): JsonResponse
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.manage stages'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         return response()->json([
             'success' => true,
             'stage' => $stage
@@ -26,6 +36,11 @@ class ProjectStageController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.create stage'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:project_stages,name',
             'color' => 'required|string|size:7',
@@ -48,6 +63,11 @@ class ProjectStageController extends Controller
 
     public function update(Request $request, ProjectStage $stage): JsonResponse
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.edit stage'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:project_stages,name,' . $stage->id,
             'color' => 'required|string|size:7',
@@ -65,6 +85,11 @@ class ProjectStageController extends Controller
 
     public function destroy(ProjectStage $stage): JsonResponse
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.delete stage'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         // Check if stage has projects
         if ($stage->projects()->count() > 0) {
             return response()->json([
@@ -83,6 +108,11 @@ class ProjectStageController extends Controller
 
     public function updateOrder(Request $request): JsonResponse
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.manage stages'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         try {
             \Log::info('Update order request received', ['data' => $request->all()]);
             

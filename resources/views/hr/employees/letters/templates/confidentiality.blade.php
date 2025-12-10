@@ -38,15 +38,7 @@
         {!! $letter->content !!}
     @endif
     
- @php
-    $cleanNotes = trim(strip_tags($letter->notes ?? ''));
-@endphp
-
-@if(!empty($cleanNotes))
-    <div class="note-rectangle">
-        <b>Note: {!! strip_tags($letter->notes) !!}</b>
-    </div>
-@endif
+ {{-- Notes are for internal use only and should not appear in printed letters --}}
 
 </div>
 

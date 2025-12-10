@@ -15,18 +15,24 @@ class LeaveController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Management.view leave') || auth()->user()->can('Leave Management.view own leave'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
         
-        // If admin/HR, show all leaves. Otherwise, show only user's leaves
-        if ($user->hasRole(['admin', 'hr'])) {
-            $leaves = Leave::with('employee')->orderBy('created_at', 'desc')->paginate(20);
-        } else {
-            $employee = Employee::where('user_id', $user->id)->first();
-            if (!$employee) {
+        $user = Auth::user();
+        $query = Leave::with('employee')->orderBy('created_at', 'desc');
+        
+        // Check if user is restricted to own data only (checkbox-based)
+        if (user_restricted_to_own_data()) {
+            $authEmployee = get_auth_employee();
+            if (!$authEmployee) {
                 return redirect()->back()->with('error', 'Employee profile not found.');
             }
-            $leaves = Leave::where('employee_id', $employee->id)->orderBy('created_at', 'desc')->paginate(20);
+            $query->where('employee_id', $authEmployee->id);
         }
+        
+        $leaves = $query->paginate(20);
 
         return view('leaves.index', compact('leaves'));
     }
@@ -36,6 +42,11 @@ class LeaveController extends Controller
      */
     public function create()
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Management.create leave'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $user = Auth::user();
         $employee = Employee::where('user_id', $user->id)->first();
         
@@ -119,6 +130,11 @@ class LeaveController extends Controller
      */
     public function store(Request $request)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Management.create leave'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $user = Auth::user();
         
         // Validate request
@@ -194,6 +210,11 @@ class LeaveController extends Controller
      */
     public function show(Leave $leave)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Management.view leave'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         return view('leaves.show', compact('leave'));
     }
 
@@ -202,6 +223,11 @@ class LeaveController extends Controller
      */
     public function update(Request $request, Leave $leave)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Management.edit leave'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $validated = $request->validate([
             'leave_type' => 'required|in:casual,medical,personal,company_holiday',
             'is_paid' => 'required|boolean',
@@ -230,6 +256,11 @@ class LeaveController extends Controller
      */
     public function destroy(Leave $leave)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Management.delete leave'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $leave->delete();
 
         if (request()->ajax() || request()->wantsJson()) {
@@ -281,6 +312,11 @@ class LeaveController extends Controller
      */
     public function approve(Request $request, Leave $leave)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Management.approve leave'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $leave->update([
             'status' => 'approved',
             'approved_by' => Auth::id(),
@@ -303,6 +339,11 @@ class LeaveController extends Controller
      */
     public function reject(Request $request, Leave $leave)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Management.reject leave'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $leave->update([
             'status' => 'rejected',
             'rejected_by' => Auth::id(),

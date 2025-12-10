@@ -29,12 +29,15 @@
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
-  display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   background: rgba(0, 0, 0, 0.5) !important;
   padding: 20px !important;
   overflow-y: auto !important;
+}
+
+.modal-overlay.show {
+  display: flex !important;
 }
 
 .modal-content {
@@ -1667,18 +1670,7 @@ document.getElementById('stageForm').addEventListener('submit', function(e) {
     });
 });
 
-// Project Modal Functions
-function openProjectModal(stageId) {
-    document.getElementById('projectStageId').value = stageId;
-    document.getElementById('projectModal').style.display = 'flex';
-    // Reset form
-    document.getElementById('projectForm').reset();
-    document.getElementById('projectStageId').value = stageId;
-}
-
-function closeProjectModal() {
-    document.getElementById('projectModal').style.display = 'none';
-}
+// Project Modal Functions - Removed duplicate, using the one at the end of file
 
 // Project creation
 document.getElementById('projectForm').addEventListener('submit', function(e) {

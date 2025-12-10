@@ -69,7 +69,7 @@
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
             <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_email ? $company->company_email : '-' }}</span>
           </div>
-          @can('Company Management.view company')
+          @can('Companies Management.view company')
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Password</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
@@ -99,7 +99,7 @@
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
             <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->company_employee_email ? $company->company_employee_email : '-' }}</span>
           </div>
-          @can('Company Management.view company')
+          @can('Companies Management.view company')
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Employee Password</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>

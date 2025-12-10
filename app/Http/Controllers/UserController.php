@@ -12,6 +12,11 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Users Management.view user'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         // Get per_page from request, default to 12
         $perPage = $request->get('per_page', 12);
         $users = User::with('roles')->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
@@ -20,12 +25,22 @@ class UserController extends Controller
 
     public function create()
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Users Management.create user'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $roles = Role::all();
         return view('users.create', compact('roles'));
     }
 
     public function store(Request $request)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Users Management.create user'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
@@ -51,11 +66,21 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Users Management.view user'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         return view('users.show', compact('user'));
     }
 
     public function edit(User $user)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Users Management.edit user'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $roles = Role::all();
         
         // Get all permissions grouped by module
@@ -74,6 +99,11 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Users Management.edit user'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
@@ -109,6 +139,11 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Users Management.delete user'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully');
     }

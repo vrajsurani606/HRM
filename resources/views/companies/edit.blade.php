@@ -347,7 +347,7 @@
               <input name="company_password" id="company_password" type="text" placeholder="Leave blank to keep current password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;" autocomplete="new-password">
               <button type="button" onclick="generateCompanyPassword()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
             </div>
-            @can('Company Management.edit company')
+            @can('Companies Management.edit company')
               @if($company->company_password)
               <small style="color:#6b7280;font-size:12px;display:block;margin-top:4px">Current: <strong>{{ $company->company_password }}</strong></small>
               @endif
@@ -375,7 +375,7 @@
               <input name="company_employee_password" id="company_employee_password" type="text" placeholder="Leave blank to keep current password" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5; padding-right: 100px;" autocomplete="new-password">
               <button type="button" onclick="generateEmployeePasswordEdit()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
             </div>
-            @can('Company Management.edit company')
+            @can('Companies Management.edit company')
               @if($company->company_employee_password)
               <small style="color:#6b7280;font-size:12px;display:block;margin-top:4px">Current: <strong>{{ $company->company_employee_password }}</strong></small>
               @endif

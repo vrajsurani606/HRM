@@ -17,18 +17,21 @@ class RoleSeeder extends Seeder
             // Super Admin - Full access to everything
             'super-admin' => [
                 'description' => 'Super Administrator with full access',
+                'dashboard_type' => 'admin',
                 'permissions' => $allPermissions,
             ],
 
             // Admin - Full access to everything (same as super-admin)
             'admin' => [
                 'description' => 'Administrator with most access',
+                'dashboard_type' => 'admin',
                 'permissions' => $allPermissions,
             ],
 
             // HR - Employee management, payroll, attendance, leads, events, reports
             'hr' => [
                 'description' => 'HR Manager with employee and payroll access',
+                'dashboard_type' => 'hr',
                 'permissions' => [
                     // Dashboard
                     'Dashboard.view dashboard',
@@ -79,6 +82,8 @@ class RoleSeeder extends Seeder
                     'Attendance Management.create attendance',
                     'Attendance Management.edit attendance',
                     'Attendance Management.delete attendance',
+                    'Attendance Management.view attendance report',
+                    'Attendance Management.export attendance report',
                     
                     // Leave Management - Full access
                     'Leave Management.view leave',
@@ -90,6 +95,21 @@ class RoleSeeder extends Seeder
                     'Leave Management.reject leave',
                     'Leave Management.view own leave',
                     'Leave Management.cancel leave',
+                    
+                    // Leave Approval Management - Full access
+                    'Leave Approval Management.view leave approval',
+                    'Leave Approval Management.create leave approval',
+                    'Leave Approval Management.edit leave approval',
+                    'Leave Approval Management.delete leave approval',
+                    'Leave Approval Management.approve leave',
+                    'Leave Approval Management.reject leave',
+                    
+                    // Company Holidays Management - Full access
+                    'Company Holidays Management.view holiday',
+                    'Company Holidays Management.create holiday',
+                    'Company Holidays Management.edit holiday',
+                    'Company Holidays Management.delete holiday',
+                    'Company Holidays Management.manage holiday',
                     
                     // Events Management - Full access
                     'Events Management.view event',
@@ -130,12 +150,20 @@ class RoleSeeder extends Seeder
                     'Tickets Management.edit ticket',
                     'Tickets Management.view comments',
                     'Tickets Management.create comment',
+                    
+                    // Users Management - View only
+                    'Users Management.view user',
+                    
+                    // Roles Management - View only
+                    'Roles Management.view role',
                 ],
             ],
 
             // Employee - Limited access to own data and basic features
             'employee' => [
                 'description' => 'Regular employee with limited access',
+                'restrict_to_own_data' => true,
+                'dashboard_type' => 'employee',
                 'permissions' => [
                     // Dashboard
                     'Dashboard.view dashboard',
@@ -156,6 +184,13 @@ class RoleSeeder extends Seeder
                     'Leave Management.view own leave',
                     'Leave Management.create leave',
                     'Leave Management.cancel leave',
+                    
+                    // Leave Approval - View own leave requests and create new
+                    'Leave Approval Management.view leave approval',
+                    'Leave Approval Management.create leave approval',
+                    
+                    // Company Holidays - View only
+                    'Company Holidays Management.view holiday',
                     
                     // Events - View only
                     'Events Management.view event',
@@ -188,6 +223,7 @@ class RoleSeeder extends Seeder
             // Receptionist - Inquiry management, basic company view, events
             'receptionist' => [
                 'description' => 'Receptionist with inquiry and basic access',
+                'dashboard_type' => 'receptionist',
                 'permissions' => [
                     // Dashboard
                     'Dashboard.view dashboard',
@@ -208,6 +244,13 @@ class RoleSeeder extends Seeder
                     'Leave Management.view own leave',
                     'Leave Management.create leave',
                     'Leave Management.cancel leave',
+                    
+                    // Leave Approval - View own leave requests and create new
+                    'Leave Approval Management.view leave approval',
+                    'Leave Approval Management.create leave approval',
+                    
+                    // Company Holidays - View only
+                    'Company Holidays Management.view holiday',
                     
                     // Inquiries Management - Full access
                     'Inquiries Management.view inquiry',
@@ -250,6 +293,8 @@ class RoleSeeder extends Seeder
             // Customer - Very limited access, mainly tickets and own projects
             'customer' => [
                 'description' => 'Customer with very limited access',
+                'restrict_to_own_data' => true,
+                'dashboard_type' => 'customer',
                 'permissions' => [
                     // Dashboard
                     'Dashboard.view dashboard',
@@ -303,8 +348,18 @@ class RoleSeeder extends Seeder
         foreach ($roles as $roleName => $roleData) {
             $role = Role::firstOrCreate(
                 ['name' => $roleName, 'guard_name' => 'web'],
-                ['description' => $roleData['description']]
+                [
+                    'description' => $roleData['description'],
+                    'restrict_to_own_data' => $roleData['restrict_to_own_data'] ?? false,
+                    'dashboard_type' => $roleData['dashboard_type'] ?? 'admin',
+                ]
             );
+            
+            // Update settings if role already exists
+            $role->update([
+                'restrict_to_own_data' => $roleData['restrict_to_own_data'] ?? false,
+                'dashboard_type' => $roleData['dashboard_type'] ?? 'admin',
+            ]);
             
             // Filter permissions to only include existing ones
             $validPermissions = array_intersect($roleData['permissions'], $allPermissions);

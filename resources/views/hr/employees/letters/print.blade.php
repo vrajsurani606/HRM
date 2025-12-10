@@ -81,7 +81,7 @@ if ($contentLength > 3000) {
     .letter-meta { 
         display:flex; 
         justify-content:space-between; 
-        font-size:14px; 
+        font-size:13px; 
         color:#222; 
         font-weight:400;
         font-family: 'Poppins', sans-serif !important;
@@ -90,7 +90,7 @@ if ($contentLength > 3000) {
         font-weight: 700 !important;
     }
     .recipient { 
-        font-size:14px; 
+        font-size:13px; 
         color:#222; 
         line-height:1.5;
         font-family: 'Poppins', sans-serif !important;
@@ -100,7 +100,7 @@ if ($contentLength > 3000) {
         font-weight: 700 !important;
     }
     .subject { 
-        font-size:16px; 
+        font-size:15px; 
         font-weight:700 !important; 
         color:#222; 
         text-align:center; 
@@ -108,7 +108,7 @@ if ($contentLength > 3000) {
         font-family: 'Poppins', sans-serif !important;
     }
     .body { 
-        font-size:15px; 
+        font-size:14px; 
         color:#222; 
         line-height:1.7; 
         text-align:justify;
@@ -145,7 +145,7 @@ if ($contentLength > 3000) {
     }
     
     .signature { 
-        font-size:14px; 
+        font-size:13px; 
         color:#222; 
         text-align:left; 
         margin-top:16px; 
@@ -158,11 +158,11 @@ if ($contentLength > 3000) {
     }
     .signature .name { 
         font-weight:700 !important; 
-        font-size:15px;
+        font-size:14px;
         font-family: 'Poppins', sans-serif !important;
     }
     .signature .company { 
-        font-size:14px; 
+        font-size:13px; 
         color:#456DB5; 
         font-weight:700 !important;
         font-family: 'Poppins', sans-serif !important;
@@ -175,7 +175,7 @@ if ($contentLength > 3000) {
         border-left: 4px solid #456DB5;
         padding: 10px 14px;
         margin: 12px 0;
-        font-size: 13px;
+        font-size: 12px;
         border-radius: 4px;
         page-break-inside: avoid;
         font-family: 'Poppins', sans-serif !important;
@@ -360,15 +360,7 @@ if ($contentLength > 3000) {
                     <p>Dear <b>{{ $employee->name }}</b>,</p>
                     <p style="font-size:13px; font-weight:700;">Letter type not supported.</p>
                     
-                    @php
-                        $cleanNotes = trim(strip_tags($letter->notes ?? ''));
-                    @endphp
-                    
-                    @if(!empty($cleanNotes))
-                        <div class="note-rectangle">
-                            <b>Note: {!! strip_tags($letter->notes) !!}</b>
-                        </div>
-                    @endif
+                    {{-- Notes are for internal use only and should not appear in printed letters --}}
                 </div>
                 <div class="signature">
                     <div><b>Sincerely,</b></div>

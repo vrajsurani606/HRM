@@ -106,15 +106,7 @@
         
         <p>We look forward to your positive response and to welcoming you to our team.</p>
         
-        @php
-            $cleanNotes = trim(strip_tags($letter->notes ?? ''));
-        @endphp
-        
-        @if(!empty($cleanNotes))
-            <div class="note-rectangle">
-                <b>Note: {!! strip_tags($letter->notes) !!}</b>
-            </div>
-        @endif
+        {{-- Notes are for internal use only and should not appear in printed letters --}}
         
         <div class="signature-section">
             <p>Sincerely,</p>

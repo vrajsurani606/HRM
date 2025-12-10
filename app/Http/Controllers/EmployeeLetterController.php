@@ -10,12 +10,22 @@ class EmployeeLetterController extends Controller
 {
     public function index()
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $letters = EmployeeLetter::with('employee')->latest()->paginate(10);
         return view('employee-letters.index', compact('letters'));
     }
 
     public function create()
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters create'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $employees = Employee::select('id', 'name')->get();
         $letterTypes = EmployeeLetter::getLetterTypes();
         return view('employee-letters.create', compact('employees', 'letterTypes'));
@@ -23,6 +33,11 @@ class EmployeeLetterController extends Controller
 
     public function store(Request $request)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters create'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'letter_type' => 'required|in:' . implode(',', array_keys(EmployeeLetter::getLetterTypes())),
@@ -39,12 +54,22 @@ class EmployeeLetterController extends Controller
 
     public function show(EmployeeLetter $employeeLetter)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters view'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $employeeLetter->load('employee');
         return view('employee-letters.show', compact('employeeLetter'));
     }
 
     public function edit(EmployeeLetter $employeeLetter)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters edit'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $employees = Employee::select('id', 'name')->get();
         $letterTypes = EmployeeLetter::getLetterTypes();
         return view('employee-letters.edit', compact('employeeLetter', 'employees', 'letterTypes'));
@@ -52,6 +77,11 @@ class EmployeeLetterController extends Controller
 
     public function update(Request $request, EmployeeLetter $employeeLetter)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters edit'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'letter_type' => 'required|in:' . implode(',', array_keys(EmployeeLetter::getLetterTypes())),
@@ -67,6 +97,11 @@ class EmployeeLetterController extends Controller
 
     public function destroy(EmployeeLetter $employeeLetter)
     {
+        // Permission check
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Employees Management.letters delete'))) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+        
         $employeeLetter->delete();
         return redirect()->route('employee-letters.index')->with('success', 'Letter deleted successfully');
     }

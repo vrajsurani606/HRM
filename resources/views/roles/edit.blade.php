@@ -24,6 +24,38 @@
             @error('description')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
         </div>
+        
+        {{-- Dashboard Type Selection --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" style="margin-top:12px;">
+          <div>
+            <label class="hrp-label">Dashboard Type<span style="color:#ef4444"> *</span></label>
+            <select name="dashboard_type" class="hrp-input Rectangle-29" required>
+              <option value="admin" {{ old('dashboard_type', $role->dashboard_type) == 'admin' ? 'selected' : '' }}>Admin Dashboard (Full Access)</option>
+              <option value="employee" {{ old('dashboard_type', $role->dashboard_type) == 'employee' ? 'selected' : '' }}>Employee Dashboard</option>
+              <option value="customer" {{ old('dashboard_type', $role->dashboard_type) == 'customer' ? 'selected' : '' }}>Customer/Client Dashboard</option>
+              <option value="hr" {{ old('dashboard_type', $role->dashboard_type) == 'hr' ? 'selected' : '' }}>HR Dashboard</option>
+              <option value="receptionist" {{ old('dashboard_type', $role->dashboard_type) == 'receptionist' ? 'selected' : '' }}>Receptionist Dashboard</option>
+            </select>
+            <p style="margin:4px 0 0; font-size:11px; color:#6b7280;">Select which dashboard users with this role will see after login</p>
+            @error('dashboard_type')<small class="hrp-error">{{ $message }}</small>@enderror
+          </div>
+          <div>
+            {{-- Data Access Restriction --}}
+            <div class="data-access-panel" style="padding:12px 15px; background:#fef3c7; border:1px solid #f59e0b; border-radius:8px; height:100%;">
+              <div style="display:flex; align-items:center; justify-content:space-between; height:100%;">
+                <div>
+                  <div class="hrp-label" style="margin:0; color:#92400e;">Data Access Restriction</div>
+                  <p style="margin:4px 0 0; font-size:11px; color:#78350f;">Users can only view their own data</p>
+                </div>
+                <label class="custom-checkbox" style="margin:0;">
+                  <input type="checkbox" name="restrict_to_own_data" value="1" {{ old('restrict_to_own_data', $role->restrict_to_own_data) ? 'checked' : '' }}>
+                  <div class="checkbox-box"><span class="checkmark">✓</span></div>
+                  Only Own Data
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="permissions-panel">
           <div class="permissions-header" style="display:flex;align-items:center;justify-content:space-between">
             <div class="hrp-label" style="margin:0">Manage Permissions</div>
