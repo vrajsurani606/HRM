@@ -11,7 +11,7 @@ use Illuminate\View\View;
 
 class InvoiceController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Invoices Management.view invoice'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -229,7 +229,7 @@ class InvoiceController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    public function convertForm(int $proformaId): View
+    public function convertForm(int $proformaId): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Proformas Management.convert proforma'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -435,7 +435,7 @@ class InvoiceController extends Controller
         }
     }
 
-    public function show(int $id): View
+    public function show(int $id): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Invoices Management.view invoice'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -445,7 +445,7 @@ class InvoiceController extends Controller
         return view('invoices.show', compact('invoice'));
     }
 
-    public function edit(int $id): View
+    public function edit(int $id): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Invoices Management.edit invoice'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -490,7 +490,7 @@ class InvoiceController extends Controller
         }
     }
 
-    public function print(int $id): View
+    public function print(int $id): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Invoices Management.print invoice'))) {
             return redirect()->back()->with('error', 'Permission denied.');

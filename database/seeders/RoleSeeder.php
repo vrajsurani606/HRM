@@ -124,12 +124,34 @@ class RoleSeeder extends Seeder
                     'Rules Management.view rules',
                     'Rules Management.manage rules',
                     
-                    // Tickets - View and create for HR issues
+                    // Tickets Management - Full access for HR
+                    'Tickets Management.manage ticket',
                     'Tickets Management.view ticket',
                     'Tickets Management.create ticket',
                     'Tickets Management.edit ticket',
+                    'Tickets Management.delete ticket',
+                    'Tickets Management.export ticket',
+                    'Tickets Management.print ticket',
+                    'Tickets Management.assign ticket',
+                    'Tickets Management.reassign ticket',
+                    'Tickets Management.change status',
+                    'Tickets Management.change priority',
+                    'Tickets Management.change work status',
                     'Tickets Management.view comments',
                     'Tickets Management.create comment',
+                    'Tickets Management.edit comment',
+                    'Tickets Management.delete comment',
+                    'Tickets Management.view attachments',
+                    'Tickets Management.upload attachment',
+                    'Tickets Management.download attachment',
+                    'Tickets Management.delete attachment',
+                    'Tickets Management.view history',
+                    'Tickets Management.close ticket',
+                    'Tickets Management.reopen ticket',
+                    'Tickets Management.complete ticket',
+                    'Tickets Management.confirm resolution',
+                    'Tickets Management.view internal comments',
+                    'Tickets Management.create internal comment',
                 ],
             ],
 
@@ -161,13 +183,16 @@ class RoleSeeder extends Seeder
                     'Events Management.view event',
                     'Events Management.view event image',
                     
-                    // Tickets - Create and view own tickets
+                    // Tickets Management - Employee access (assigned tickets only)
                     'Tickets Management.view ticket',
                     'Tickets Management.create ticket',
                     'Tickets Management.view comments',
                     'Tickets Management.create comment',
                     'Tickets Management.view attachments',
                     'Tickets Management.upload attachment',
+                    'Tickets Management.download attachment',
+                    'Tickets Management.complete ticket',
+                    'Tickets Management.print ticket',
                     
                     // Projects - View assigned projects and tasks
                     'Projects Management.view project',
@@ -236,11 +261,16 @@ class RoleSeeder extends Seeder
                     'Events Management.view event',
                     'Events Management.view event image',
                     
-                    // Tickets - Create and view
+                    // Tickets Management - Receptionist access
                     'Tickets Management.view ticket',
                     'Tickets Management.create ticket',
+                    'Tickets Management.edit ticket',
                     'Tickets Management.view comments',
                     'Tickets Management.create comment',
+                    'Tickets Management.view attachments',
+                    'Tickets Management.upload attachment',
+                    'Tickets Management.download attachment',
+                    'Tickets Management.print ticket',
                     
                     // Rules - View
                     'Rules Management.view rules',
@@ -262,7 +292,7 @@ class RoleSeeder extends Seeder
                     'Events Management.view event',
                     'Events Management.view event image',
                     
-                    // Tickets - Create and manage own tickets
+                    // Tickets Management - Customer access (own tickets only)
                     'Tickets Management.view ticket',
                     'Tickets Management.create ticket',
                     'Tickets Management.edit ticket',
@@ -271,6 +301,8 @@ class RoleSeeder extends Seeder
                     'Tickets Management.view attachments',
                     'Tickets Management.upload attachment',
                     'Tickets Management.download attachment',
+                    'Tickets Management.close ticket',
+                    'Tickets Management.print ticket',
                     
                     // Projects - View assigned projects
                     'Projects Management.view project',

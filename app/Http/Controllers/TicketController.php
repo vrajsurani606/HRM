@@ -12,6 +12,15 @@ class TicketController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        $isEmployee = $user->hasRole('employee') || $user->hasRole('Employee');
+        $isCustomer = $user->hasRole('customer');
+        
+        // Allow admins, employees, and customers to view tickets
+        if (!$isAdmin && !$isEmployee && !$isCustomer) {
+            abort(403, 'Unauthorized to view tickets.');
+        }
+        
         $query = Ticket::with(['assignedEmployee', 'opener', 'company', 'project']);
 
         // Super-admin and HR can see all tickets
@@ -118,12 +127,36 @@ class TicketController extends Controller
         $user = auth()->user();
         $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
         $isEmployee = $user->hasRole('employee') || $user->hasRole('Employee');
+        $isCustomer = $user->hasRole('customer');
+        
+        // Check basic permission - allow customers to view their own tickets
+        if (!$isAdmin && !$isEmployee && !$isCustomer) {
+            abort(403, 'Unauthorized to view tickets.');
+        }
         
         if (!$isAdmin) {
             // Check access: customers can only view their company's tickets
             if ($user->hasRole('customer') && $user->company_id) {
                 $company = $user->company;
-                if ($company && $ticket->company != $company->company_name && $ticket->customer != ($company->name ?? $user->name)) {
+                // Customer can view if:
+                // 1. Ticket company matches their company name, OR
+                // 2. Ticket customer matches their name, OR  
+                // 3. Ticket was opened by them
+                $canView = false;
+                
+                if ($company && $ticket->company == $company->company_name) {
+                    $canView = true;
+                }
+                
+                if ($ticket->customer == $user->name) {
+                    $canView = true;
+                }
+                
+                if ($ticket->opened_by == $user->id) {
+                    $canView = true;
+                }
+                
+                if (!$canView) {
                     abort(403, 'Unauthorized access to this ticket.');
                 }
             } elseif ($isEmployee) {
@@ -155,13 +188,97 @@ class TicketController extends Controller
         return view('tickets.show', compact('ticket', 'isAdmin', 'isEmployee'));
     }
 
+    /**
+     * Get ticket data as JSON for AJAX requests
+     */
+    public function getJson(Ticket $ticket)
+    {
+        $user = auth()->user();
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        $isEmployee = $user->hasRole('employee') || $user->hasRole('Employee');
+        $isCustomer = $user->hasRole('customer');
+        
+        // Check basic permission
+        if (!$isAdmin && !$isEmployee && !$isCustomer) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized to view tickets.'], 403);
+        }
+        
+        if (!$isAdmin) {
+            // Check access: customers can only view their company's tickets
+            if ($user->hasRole('customer') && $user->company_id) {
+                $company = $user->company;
+                $canView = false;
+                
+                if ($company && $ticket->company == $company->company_name) {
+                    $canView = true;
+                }
+                
+                if ($ticket->customer == $user->name) {
+                    $canView = true;
+                }
+                
+                if ($ticket->opened_by == $user->id) {
+                    $canView = true;
+                }
+                
+                if (!$canView) {
+                    return response()->json(['success' => false, 'message' => 'Unauthorized access to this ticket.'], 403);
+                }
+            } elseif ($isEmployee) {
+                $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+                if (!$employee) {
+                    $employee = \App\Models\Employee::where('email', $user->email)->first();
+                }
+                if (!$employee || $ticket->assigned_to != $employee->id) {
+                    return response()->json(['success' => false, 'message' => 'Unauthorized access to this ticket.'], 403);
+                }
+            } else {
+                return response()->json(['success' => false, 'message' => 'Unauthorized access to this ticket.'], 403);
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'ticket' => $ticket
+        ]);
+    }
+
     public function create()
     {
+        $user = auth()->user();
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        $isCustomer = $user->hasRole('customer');
+        
+        // Allow admins and customers to create tickets
+        if (!$isAdmin && !$isCustomer) {
+            abort(403, 'Unauthorized to create tickets.');
+        }
+        
         return view('tickets.create');
     }
 
     public function store(Request $request)
     {
+        \Log::info('=== TICKET STORE CALLED ===', [
+            'has_files' => $request->hasFile('attachments'),
+            'all_files' => array_keys($request->allFiles()),
+            'content_type' => $request->header('Content-Type'),
+        ]);
+        
+        $user = auth()->user();
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        $isCustomer = $user->hasRole('customer');
+        
+        // Allow admins and customers to create tickets
+        if (!$isAdmin && !$isCustomer) {
+            abort(403, 'Unauthorized to create tickets.');
+        }
+        if (!auth()->user()->can('Tickets Management.create ticket')) {
+            return $request->expectsJson()
+                ? response()->json(['success' => false, 'message' => 'Unauthorized to create tickets'], 403)
+                : back()->with('error', 'Unauthorized to create tickets');
+        }
+        
         $user = auth()->user();
         $isCustomer = $user->hasRole('customer');
         
@@ -218,21 +335,38 @@ class TicketController extends Controller
 
         $ticket = Ticket::create($validated);
 
-        // Handle attachment if provided
-        \Log::info('Ticket Store - Checking for attachment', [
-            'has_file' => $request->hasFile('attachment'),
+        // Handle multiple attachments if provided
+        \Log::info('Ticket Store - Checking for attachments', [
+            'has_attachments' => $request->hasFile('attachments'),
+            'has_single_attachment' => $request->hasFile('attachment'),
             'all_files' => $request->allFiles(),
-            'has_attachment_input' => $request->has('attachment'),
         ]);
         
-        if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
+        $attachmentPaths = [];
+        
+        // Handle multiple attachments (new format)
+        if ($request->hasFile('attachments')) {
+            $files = $request->file('attachments');
             
-            \Log::info('Ticket Store - File found', [
-                'original_name' => $file->getClientOriginalName(),
-                'size' => $file->getSize(),
-                'mime' => $file->getMimeType(),
+            // Validate files
+            $request->validate([
+                'attachments.*' => 'file|mimes:jpeg,jpg,png,gif,webp,pdf,doc,docx,zip|max:10240', // 10MB max per file
             ]);
+            
+            foreach ($files as $file) {
+                $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+                $attachmentPath = $file->storeAs('ticket_attachments', $filename, 'public');
+                $attachmentPaths[] = $attachmentPath;
+                
+                \Log::info('Ticket Store - Multiple file stored', [
+                    'path' => $attachmentPath,
+                    'original_name' => $file->getClientOriginalName(),
+                ]);
+            }
+        }
+        // Handle single attachment (backward compatibility)
+        elseif ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
             
             // Validate file
             $request->validate([
@@ -241,18 +375,28 @@ class TicketController extends Controller
             
             $filename = time() . '_' . $file->getClientOriginalName();
             $attachmentPath = $file->storeAs('ticket_attachments', $filename, 'public');
+            $attachmentPaths[] = $attachmentPath;
             
-            \Log::info('Ticket Store - File stored', [
+            \Log::info('Ticket Store - Single file stored', [
                 'path' => $attachmentPath,
             ]);
+        }
+        
+        // Save attachments to ticket
+        if (!empty($attachmentPaths)) {
+            // For backward compatibility, save first attachment in 'attachment' field
+            $ticket->attachment = $attachmentPaths[0];
             
-            // Save attachment to ticket
-            $ticket->attachment = $attachmentPath;
+            // Save all attachments in new 'attachments' field
+            $ticket->attachments = $attachmentPaths;
             $ticket->save();
             
-            \Log::info('Ticket Store - Attachment saved to ticket');
+            \Log::info('Ticket Store - Attachments saved to ticket', [
+                'count' => count($attachmentPaths),
+                'paths' => $attachmentPaths
+            ]);
         } else {
-            \Log::info('Ticket Store - No attachment file found');
+            \Log::info('Ticket Store - No attachment files found');
         }
 
         if ($request->wantsJson() || $request->ajax()) {
@@ -268,13 +412,40 @@ class TicketController extends Controller
 
     public function edit(Ticket $ticket)
     {
+        // Check permission
+        if (!auth()->user()->can('Tickets Management.edit ticket')) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized to edit tickets.'], 403);
+            }
+            abort(403, 'Unauthorized to edit tickets.');
+        }
+        
         $user = auth()->user();
         $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
         
         if (!$isAdmin) {
-            // Check access
+            // Check access: customers can only edit their company's tickets
             if ($user->hasRole('customer') && $user->company_id) {
-                if ($ticket->company_id != $user->company_id) {
+                $company = $user->company;
+                // Customer can edit if:
+                // 1. Ticket company matches their company name, OR
+                // 2. Ticket customer matches their name, OR  
+                // 3. Ticket was opened by them
+                $canEdit = false;
+                
+                if ($company && $ticket->company == $company->company_name) {
+                    $canEdit = true;
+                }
+                
+                if ($ticket->customer == $user->name) {
+                    $canEdit = true;
+                }
+                
+                if ($ticket->opened_by == $user->id) {
+                    $canEdit = true;
+                }
+                
+                if (!$canEdit) {
                     abort(403, 'Unauthorized access to this ticket.');
                 }
             } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
@@ -303,13 +474,40 @@ class TicketController extends Controller
 
     public function update(Request $request, Ticket $ticket)
     {
+        // Check permission
+        if (!auth()->user()->can('Tickets Management.edit ticket')) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized to edit tickets.'], 403);
+            }
+            return back()->with('error', 'Unauthorized to edit tickets.');
+        }
+        
         $user = auth()->user();
         $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
         
         if (!$isAdmin) {
-            // Check access
+            // Check access: customers can only update their company's tickets
             if ($user->hasRole('customer') && $user->company_id) {
-                if ($ticket->company_id != $user->company_id) {
+                $company = $user->company;
+                // Customer can update if:
+                // 1. Ticket company matches their company name, OR
+                // 2. Ticket customer matches their name, OR  
+                // 3. Ticket was opened by them
+                $canUpdate = false;
+                
+                if ($company && $ticket->company == $company->company_name) {
+                    $canUpdate = true;
+                }
+                
+                if ($ticket->customer == $user->name) {
+                    $canUpdate = true;
+                }
+                
+                if ($ticket->opened_by == $user->id) {
+                    $canUpdate = true;
+                }
+                
+                if (!$canUpdate) {
                     abort(403, 'Unauthorized access to this ticket.');
                 }
             } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
@@ -382,6 +580,14 @@ class TicketController extends Controller
 
     public function destroy(Ticket $ticket): RedirectResponse|JsonResponse
     {
+        // Check permission
+        if (!auth()->user()->can('Tickets Management.delete ticket')) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized to delete tickets.'], 403);
+            }
+            return back()->with('error', 'Unauthorized to delete tickets.');
+        }
+        
         $user = auth()->user();
         $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
         
@@ -416,11 +622,12 @@ class TicketController extends Controller
      */
     public function assign(Request $request, Ticket $ticket)
     {
-        $user = auth()->user();
-        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
-        
-        if (!$isAdmin) {
-            abort(403, 'Only administrators can assign tickets.');
+        // Check permission
+        if (!auth()->user()->can('Tickets Management.assign ticket')) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized to assign tickets.'], 403);
+            }
+            abort(403, 'Unauthorized to assign tickets.');
         }
         
         $validated = $request->validate([
@@ -440,6 +647,14 @@ class TicketController extends Controller
      */
     public function complete(Request $request, Ticket $ticket)
     {
+        // Check permission
+        if (!auth()->user()->can('Tickets Management.complete ticket')) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized to complete tickets.'], 403);
+            }
+            abort(403, 'Unauthorized to complete tickets.');
+        }
+        
         $user = auth()->user();
         $employee = \App\Models\Employee::where('user_id', $user->id)->first();
         
@@ -502,17 +717,12 @@ class TicketController extends Controller
      */
     public function confirm(Request $request, Ticket $ticket)
     {
-        $user = auth()->user();
-        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
-        
-        if (!$isAdmin) {
+        // Check permission
+        if (!auth()->user()->can('Tickets Management.confirm resolution')) {
             if ($request->wantsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Only administrators can confirm ticket resolution.'
-                ], 403);
+                return response()->json(['success' => false, 'message' => 'Unauthorized to confirm ticket resolution.'], 403);
             }
-            abort(403, 'Only administrators can confirm ticket resolution.');
+            abort(403, 'Unauthorized to confirm ticket resolution.');
         }
         
         if (!$ticket->canBeConfirmed()) {
@@ -528,7 +738,7 @@ class TicketController extends Controller
         $ticket->update([
             'status' => Ticket::STATUS_RESOLVED,
             'confirmed_at' => now(),
-            'confirmed_by' => $user->id,
+            'confirmed_by' => auth()->id(),
         ]);
         
         if ($request->wantsJson() || $request->ajax()) {
@@ -547,13 +757,12 @@ class TicketController extends Controller
      */
     public function updateCompletion(Request $request, Ticket $ticket)
     {
-        $user = auth()->user();
-        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
-        
-        if (!$isAdmin) {
+        // Check permission
+        if (!auth()->user()->can('Tickets Management.edit ticket') && 
+            !auth()->user()->can('Tickets Management.manage ticket')) {
             return response()->json([
                 'success' => false,
-                'message' => 'Only administrators can update completion data.'
+                'message' => 'Unauthorized to update completion data.'
             ], 403);
         }
         
@@ -603,13 +812,11 @@ class TicketController extends Controller
      */
     public function deleteCompletionImage(Request $request, Ticket $ticket)
     {
-        $user = auth()->user();
-        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
-        
-        if (!$isAdmin) {
+        // Check permission
+        if (!auth()->user()->can('Tickets Management.delete attachment')) {
             return response()->json([
                 'success' => false,
-                'message' => 'Only administrators can delete completion images.'
+                'message' => 'Unauthorized to delete completion images.'
             ], 403);
         }
         
@@ -647,6 +854,14 @@ class TicketController extends Controller
      */
     public function close(Request $request, Ticket $ticket)
     {
+        // Check permission
+        if (!auth()->user()->can('Tickets Management.close ticket')) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized to close tickets.'], 403);
+            }
+            abort(403, 'Unauthorized to close tickets.');
+        }
+        
         $user = auth()->user();
         $isCustomer = $user->hasRole('customer');
         
@@ -679,15 +894,15 @@ class TicketController extends Controller
             abort(403, 'You can only close your own tickets.');
         }
         
-        // Only resolved tickets can be closed by customers
-        if ($ticket->status !== Ticket::STATUS_RESOLVED) {
+        // Only open or resolved tickets can be closed by customers
+        if (!in_array($ticket->status, [Ticket::STATUS_OPEN, Ticket::STATUS_RESOLVED])) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Only resolved tickets can be closed. Please wait for admin confirmation.'
+                    'message' => 'Only open or resolved tickets can be closed.'
                 ], 400);
             }
-            return back()->with('error', 'Only resolved tickets can be closed.');
+            return back()->with('error', 'Only open or resolved tickets can be closed.');
         }
         
         $validated = $request->validate([
@@ -717,6 +932,19 @@ class TicketController extends Controller
      */
     public function addComment(Request $request, Ticket $ticket)
     {
+        $user = auth()->user();
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        $isEmployee = $user->hasRole('employee') || $user->hasRole('Employee');
+        $isCustomer = $user->hasRole('customer');
+        
+        // Allow admins, employees, and customers to add comments
+        if (!$isAdmin && !$isEmployee && !$isCustomer) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized to add comments.'], 403);
+            }
+            abort(403, 'Unauthorized to add comments.');
+        }
+        
         \Log::info('=== ADD COMMENT METHOD CALLED ===', [
             'ticket_id' => $ticket->id,
             'has_file' => $request->hasFile('attachment'),
@@ -731,15 +959,51 @@ class TicketController extends Controller
         // Check access
         if (!$isAdmin) {
             if ($user->hasRole('customer') && $user->company_id) {
-                if ($ticket->company_id != $user->company_id) {
+                $company = $user->company;
+                // Customer can comment if:
+                // 1. Ticket company_id matches their company_id, OR
+                // 2. Ticket company name matches their company name, OR
+                // 3. Ticket customer matches their name, OR
+                // 4. Ticket was opened by them
+                $canComment = false;
+                
+                if ($ticket->company_id && $ticket->company_id == $user->company_id) {
+                    $canComment = true;
+                }
+                
+                if ($company && $ticket->company == $company->company_name) {
+                    $canComment = true;
+                }
+                
+                if ($ticket->customer == $user->name) {
+                    $canComment = true;
+                }
+                
+                if ($ticket->opened_by == $user->id) {
+                    $canComment = true;
+                }
+                
+                if (!$canComment) {
+                    if ($request->ajax()) {
+                        return response()->json(['success' => false, 'message' => 'Unauthorized access to this ticket.'], 403);
+                    }
                     abort(403, 'Unauthorized access to this ticket.');
                 }
             } elseif ($isEmployee) {
                 $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+                if (!$employee) {
+                    $employee = \App\Models\Employee::where('email', $user->email)->first();
+                }
                 if (!$employee || $ticket->assigned_to != $employee->id) {
+                    if ($request->ajax()) {
+                        return response()->json(['success' => false, 'message' => 'Unauthorized access to this ticket.'], 403);
+                    }
                     abort(403, 'Unauthorized access to this ticket.');
                 }
             } else {
+                if ($request->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Unauthorized access to this ticket.'], 403);
+                }
                 abort(403, 'Unauthorized access to this ticket.');
             }
         }
@@ -749,6 +1013,14 @@ class TicketController extends Controller
             'is_internal' => 'nullable|boolean',
             'attachment' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,pdf|max:10240', // 10MB max
         ]);
+        
+        // Check permission for internal comments
+        if ($validated['is_internal'] && !auth()->user()->can('Tickets Management.create internal comment')) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized to create internal comments.'], 403);
+            }
+            abort(403, 'Unauthorized to create internal comments.');
+        }
         
         // Customers can never post internal comments
         if ($user->hasRole('customer')) {
@@ -793,5 +1065,61 @@ class TicketController extends Controller
         }
         
         return back()->with('success', 'Comment added successfully');
+    }
+    
+    /**
+     * Print ticket details
+     */
+    public function print(Ticket $ticket)
+    {
+        // Check permission
+        if (!auth()->user()->can('Tickets Management.print ticket') && 
+            !auth()->user()->can('Tickets Management.view ticket')) {
+            abort(403, 'Unauthorized to print tickets.');
+        }
+        
+        $user = auth()->user();
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        
+        // Check access for non-admin users
+        if (!$isAdmin) {
+            if ($user->hasRole('customer') && $user->company_id) {
+                $company = $user->company;
+                $canView = false;
+                
+                if ($company && $ticket->company == $company->company_name) {
+                    $canView = true;
+                }
+                
+                if ($ticket->customer == $user->name || $ticket->opened_by == $user->id) {
+                    $canView = true;
+                }
+                
+                if (!$canView) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
+                $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+                if (!$employee || $ticket->assigned_to != $employee->id) {
+                    abort(403, 'Unauthorized access to this ticket.');
+                }
+            } else {
+                abort(403, 'Unauthorized access to this ticket.');
+            }
+        }
+        
+        // Load relationships
+        $ticket->load([
+            'comments.user',
+            'assignedEmployee',
+            'opener',
+            'completedBy',
+            'confirmedBy',
+            'closedBy',
+            'company',
+            'project'
+        ]);
+        
+        return view('tickets.print', compact('ticket'));
     }
 }

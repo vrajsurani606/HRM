@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CompanyController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.view company'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -77,7 +77,7 @@ class CompanyController extends Controller
         return view('companies.index', compact('companies'));
     }
 
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.create company'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -100,25 +100,25 @@ class CompanyController extends Controller
             'company_name' => ['required', 'string', 'max:190'],
             'gst_no' => ['nullable', 'string', 'max:50', 'regex:/^[0-9A-Z]{15}$/'],
             'pan_no' => ['nullable', 'string', 'max:20', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/'],
-            'company_address' => ['required', 'string', 'max:500'],
-            'state' => ['required', 'string', 'max:50'],
-            'city' => ['required', 'string', 'max:50'],
-            'contact_person_name' => ['required', 'string', 'max:100'],
-            'contact_person_mobile' => ['required', 'string', 'regex:/^[6-9]\d{9}$/'],
-            'contact_person_position' => ['required', 'string', 'max:100'],
+            'company_address' => ['nullable', 'string', 'max:500'],
+            'state' => ['nullable', 'string', 'max:50'],
+            'city' => ['nullable', 'string', 'max:50'],
+            'contact_person_name' => ['nullable', 'string', 'max:100'],
+            'contact_person_mobile' => ['nullable', 'string', 'regex:/^[6-9]\d{9}$/'],
+            'contact_person_position' => ['nullable', 'string', 'max:100'],
             'company_email' => ['required', 'email', 'max:100', 'unique:companies,company_email'],
             'company_password' => ['required', 'string', 'min:6', 'confirmed'],
             'company_phone' => ['nullable', 'string', 'regex:/^[0-9+\-\s]{10,15}$/'],
-            'company_type' => ['required', 'string', 'max:50'],
+            'company_type' => ['nullable', 'string', 'max:50'],
             'other_details' => ['nullable', 'string', 'max:1000'],
             'company_logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'sop_upload' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:5120'],
             'quotation_upload' => ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png', 'max:5120'],
             'scope_link' => ['nullable', 'url', 'max:255'],
             'company_employee_email' => ['nullable', 'email', 'max:100', 'different:company_email'],
-            'person_name_1' => ['required', 'string', 'max:100'],
-            'person_number_1' => ['required', 'string', 'regex:/^[6-9]\d{9}$/'],
-            'person_position_1' => ['required', 'string', 'max:100'],
+            'person_name_1' => ['nullable', 'string', 'max:100'],
+            'person_number_1' => ['nullable', 'string', 'regex:/^[6-9]\d{9}$/'],
+            'person_position_1' => ['nullable', 'string', 'max:100'],
             'person_name_2' => ['nullable', 'string', 'max:100'],
             'person_number_2' => ['nullable', 'string', 'regex:/^[6-9]\d{9}$/'],
             'person_position_2' => ['nullable', 'string', 'max:100'],
@@ -126,20 +126,31 @@ class CompanyController extends Controller
             'person_number_3' => ['nullable', 'string', 'regex:/^[6-9]\d{9}$/'],
             'person_position_3' => ['nullable', 'string', 'max:100'],
         ], [
-            'gst_no.regex' => 'The GST number must be a valid 15-digit alphanumeric code',
+            'company_name.required' => 'Company name is required',
+            'company_name.max' => 'Company name must not exceed 190 characters',
+            'gst_no.regex' => 'The GST number must be a valid 15-digit alphanumeric code (e.g., 22ABCDE1234F1Z5)',
             'pan_no.regex' => 'The PAN number must be in the format: AAAAA9999A',
-            'contact_person_mobile.regex' => 'Please enter a valid 10-digit mobile number',
-            'company_phone.regex' => 'Please enter a valid phone number',
-            'company_password.min' => 'The password must be at least 8 characters',
+            'contact_person_mobile.regex' => 'Please enter a valid 10-digit mobile number starting with 6-9',
+            'company_phone.regex' => 'Please enter a valid phone number (10-15 digits)',
+            'company_email.required' => 'Company email is required',
+            'company_email.email' => 'Please enter a valid email address',
+            'company_email.unique' => 'This email is already registered with another company',
+            'company_password.required' => 'Password is required',
+            'company_password.min' => 'The password must be at least 6 characters',
             'company_password.confirmed' => 'The password confirmation does not match',
             'company_employee_email.different' => 'Employee email must be different from company email',
-            'company_logo.mimes' => 'The company logo must be a file of type: jpeg, png, jpg',
-            'company_logo.max' => 'The company logo must not be greater than 2MB',
+            'company_employee_email.email' => 'Please enter a valid employee email address',
+            'company_logo.image' => 'The company logo must be an image file',
+            'company_logo.mimes' => 'The company logo must be a JPEG, JPG, or PNG file',
+            'company_logo.max' => 'The company logo must not exceed 2MB in size',
+            'sop_upload.file' => 'The SOP upload must be a valid file',
+            'sop_upload.mimes' => 'The SOP file must be a PDF, DOC, DOCX, JPG, JPEG, or PNG file',
+            'sop_upload.max' => 'The SOP file must not exceed 5MB in size',
+            'quotation_upload.file' => 'The quotation upload must be a valid file',
+            'quotation_upload.mimes' => 'The quotation file must be a PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, or PNG file',
+            'quotation_upload.max' => 'The quotation file must not exceed 5MB in size',
             'scope_link.url' => 'Please enter a valid URL for the scope link',
-            'person_name_1.required' => 'Person 1 name is required',
-            'person_number_1.required' => 'Person 1 mobile number is required',
             'person_number_1.regex' => 'Please enter a valid 10-digit mobile number for Person 1',
-            'person_position_1.required' => 'Person 1 position is required',
             'person_number_2.regex' => 'Please enter a valid 10-digit mobile number for Person 2',
             'person_number_3.regex' => 'Please enter a valid 10-digit mobile number for Person 3',
         ]);
@@ -277,7 +288,7 @@ class CompanyController extends Controller
 
     }
 
-    public function show(CompanyModel $company): View
+    public function show(CompanyModel $company): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.view company'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -351,7 +362,7 @@ class CompanyController extends Controller
         ));
     }
 
-    public function edit(CompanyModel $company): View
+    public function edit(CompanyModel $company): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Companies Management.edit company'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -371,25 +382,25 @@ class CompanyController extends Controller
             'company_name' => ['required', 'string', 'max:190'],
             'gst_no' => ['nullable', 'string', 'max:50', 'regex:/^[0-9A-Z]{15}$/'],
             'pan_no' => ['nullable', 'string', 'max:20', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/'],
-            'company_address' => ['required', 'string', 'max:500'],
-            'state' => ['required', 'string', 'max:50'],
-            'city' => ['required', 'string', 'max:50'],
-            'contact_person_name' => ['required', 'string', 'max:100'],
-            'contact_person_mobile' => ['required', 'string', 'regex:/^[6-9]\d{9}$/'],
-            'contact_person_position' => ['required', 'string', 'max:100'],
+            'company_address' => ['nullable', 'string', 'max:500'],
+            'state' => ['nullable', 'string', 'max:50'],
+            'city' => ['nullable', 'string', 'max:50'],
+            'contact_person_name' => ['nullable', 'string', 'max:100'],
+            'contact_person_mobile' => ['nullable', 'string', 'regex:/^[6-9]\d{9}$/'],
+            'contact_person_position' => ['nullable', 'string', 'max:100'],
             'company_email' => ['required', 'email', 'max:100', 'unique:companies,company_email,' . $company->id],
             'company_phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-\s()]*$/'],
-            'company_type' => ['required', 'string', 'max:50'],
+            'company_type' => ['nullable', 'string', 'max:50'],
             'other_details' => ['nullable', 'string', 'max:1000'],
             'scope_link' => ['nullable', 'url', 'max:255'],
             'company_logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'sop_upload' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:5120'],
             'quotation_upload' => ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png', 'max:5120'],
-            'company_password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'company_password' => ['nullable', 'string', 'min:6', 'confirmed'],
             'company_employee_email' => ['nullable', 'email', 'max:100', 'different:company_email'],
-            'person_name_1' => ['required', 'string', 'max:100'],
-            'person_number_1' => ['required', 'string', 'regex:/^[6-9]\d{9}$/'],
-            'person_position_1' => ['required', 'string', 'max:100'],
+            'person_name_1' => ['nullable', 'string', 'max:100'],
+            'person_number_1' => ['nullable', 'string', 'regex:/^[6-9]\d{9}$/'],
+            'person_position_1' => ['nullable', 'string', 'max:100'],
             'person_name_2' => ['nullable', 'string', 'max:100'],
             'person_number_2' => ['nullable', 'string', 'regex:/^[6-9]\d{9}$/'],
             'person_position_2' => ['nullable', 'string', 'max:100'],
@@ -397,20 +408,32 @@ class CompanyController extends Controller
             'person_number_3' => ['nullable', 'string', 'regex:/^[6-9]\d{9}$/'],
             'person_position_3' => ['nullable', 'string', 'max:100'],
         ], [
-            'gst_no.regex' => 'The GST number must be a valid 15-digit alphanumeric code',
+            'unique_code.required' => 'Unique code is required',
+            'unique_code.unique' => 'This unique code is already in use',
+            'company_name.required' => 'Company name is required',
+            'company_name.max' => 'Company name must not exceed 190 characters',
+            'gst_no.regex' => 'The GST number must be a valid 15-digit alphanumeric code (e.g., 22ABCDE1234F1Z5)',
             'pan_no.regex' => 'The PAN number must be in the format: AAAAA9999A',
-            'contact_person_mobile.regex' => 'Please enter a valid 10-digit mobile number',
+            'contact_person_mobile.regex' => 'Please enter a valid 10-digit mobile number starting with 6-9',
             'company_phone.regex' => 'Please enter a valid phone number',
-            'company_password.min' => 'The password must be at least 8 characters',
+            'company_email.required' => 'Company email is required',
+            'company_email.email' => 'Please enter a valid email address',
+            'company_email.unique' => 'This email is already registered with another company',
+            'company_password.min' => 'The password must be at least 6 characters',
             'company_password.confirmed' => 'The password confirmation does not match',
             'company_employee_email.different' => 'Employee email must be different from company email',
-            'company_logo.mimes' => 'The company logo must be a file of type: jpeg, png, jpg',
-            'company_logo.max' => 'The company logo must not be greater than 2MB',
+            'company_employee_email.email' => 'Please enter a valid employee email address',
+            'company_logo.image' => 'The company logo must be an image file',
+            'company_logo.mimes' => 'The company logo must be a JPEG, JPG, or PNG file',
+            'company_logo.max' => 'The company logo must not exceed 2MB in size',
+            'sop_upload.file' => 'The SOP upload must be a valid file',
+            'sop_upload.mimes' => 'The SOP file must be a PDF, DOC, DOCX, JPG, JPEG, or PNG file',
+            'sop_upload.max' => 'The SOP file must not exceed 5MB in size',
+            'quotation_upload.file' => 'The quotation upload must be a valid file',
+            'quotation_upload.mimes' => 'The quotation file must be a PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, or PNG file',
+            'quotation_upload.max' => 'The quotation file must not exceed 5MB in size',
             'scope_link.url' => 'Please enter a valid URL for the scope link',
-            'person_name_1.required' => 'Person 1 name is required',
-            'person_number_1.required' => 'Person 1 mobile number is required',
             'person_number_1.regex' => 'Please enter a valid 10-digit mobile number for Person 1',
-            'person_position_1.required' => 'Person 1 position is required',
             'person_number_2.regex' => 'Please enter a valid 10-digit mobile number for Person 2',
             'person_number_3.regex' => 'Please enter a valid 10-digit mobile number for Person 3',
         ]);

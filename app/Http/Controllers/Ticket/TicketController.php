@@ -123,31 +123,82 @@ class TicketController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        $user = auth()->user();
+        $isCustomer = $user->hasRole('customer');
+        
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'customer' => 'required|string|max:255',
-            'status' => 'required|in:open,needs_approval,in_progress,resolved,closed',
+            'customer' => $isCustomer ? 'nullable' : 'required|string|max:255',
+            'status' => 'nullable|in:open,needs_approval,in_progress,resolved,closed',
+            'priority' => 'nullable|in:low,medium,normal,high,urgent',
             'work_status' => 'nullable|in:not_assigned,in_progress,completed,on_hold',
             'assigned_to' => 'nullable|exists:employees,id',
             'category' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
+            'ticket_type' => 'nullable|string|max:100',
+            'project_id' => 'nullable|exists:projects,id',
+            'attachments.*' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,pdf,doc,docx,zip|max:10240',
         ]);
 
+        // Auto-set company and customer for customers
+        $customerName = $request->customer;
+        $companyName = $request->company;
+        $companyId = null;
+        
+        if ($isCustomer && $user->company_id) {
+            $companyId = $user->company_id;
+            $company = $user->company;
+            if ($company) {
+                $companyName = $company->company_name;
+                $customerName = $user->name;
+            }
+        }
+
+        // Convert "normal" to "medium" for backward compatibility
+        $priority = $request->priority ?: 'medium';
+        if ($priority === 'normal') {
+            $priority = 'medium';
+        }
+        
         $ticket = Ticket::create([
             'ticket_no' => 'TKT-' . str_pad((Ticket::max('id') ?? 0) + 1, 5, '0', STR_PAD_LEFT),
             'title' => $request->title,
             'subject' => $request->title,
             'description' => $request->description,
-            'customer' => $request->customer,
-            'status' => $request->status,
+            'customer' => $customerName,
+            'status' => $request->status ?: 'open',
+            'priority' => $priority,
             'work_status' => $request->work_status ?: 'not_assigned',
             'assigned_to' => $request->assigned_to,
             'category' => $request->category,
-            'company' => $request->company,
+            'company' => $companyName,
+            'company_id' => $companyId,
+            'ticket_type' => $request->ticket_type,
+            'project_id' => $request->project_id,
             'opened_by' => auth()->id(),
             'opened_at' => now(),
         ]);
+
+        // Handle multiple attachments
+        $attachmentPaths = [];
+        
+        if ($request->hasFile('attachments')) {
+            $files = $request->file('attachments');
+            
+            foreach ($files as $file) {
+                $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+                $attachmentPath = $file->storeAs('ticket_attachments', $filename, 'public');
+                $attachmentPaths[] = $attachmentPath;
+            }
+        }
+        
+        // Save attachments to ticket
+        if (!empty($attachmentPaths)) {
+            $ticket->attachment = $attachmentPaths[0];
+            $ticket->attachments = $attachmentPaths;
+            $ticket->save();
+        }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -337,24 +388,39 @@ class TicketController extends Controller
         $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|required|string',
-            'customer' => 'sometimes|required|string|max:255',
-            'status' => 'sometimes|required|in:open,needs_approval,in_progress,resolved,closed',
+            'customer' => 'nullable|string|max:255',
+            'status' => 'nullable|in:open,assigned,needs_approval,in_progress,completed,resolved,closed',
+            'priority' => 'nullable|in:low,medium,normal,high,urgent',
             'work_status' => 'nullable|in:not_assigned,in_progress,completed,on_hold',
             'assigned_to' => 'nullable|exists:employees,id',
             'category' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
+            'ticket_type' => 'nullable|string|max:100',
+            'resolution_notes' => 'nullable|string',
         ]);
+
+        // Convert "normal" to "medium" for backward compatibility
+        $priority = $request->priority;
+        if ($priority === 'normal') {
+            $priority = 'medium';
+        }
 
         $ticket->update($request->only([
             'title', 'subject', 'description', 'customer', 'status', 
-            'work_status', 'assigned_to', 'category', 'company'
+            'work_status', 'assigned_to', 'category', 'company', 'ticket_type', 'resolution_notes'
         ]));
+        
+        // Update priority separately
+        if ($priority) {
+            $ticket->priority = $priority;
+        }
 
         // If title is updated, also update subject
         if ($request->has('title')) {
             $ticket->subject = $request->title;
-            $ticket->save();
         }
+        
+        $ticket->save();
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([

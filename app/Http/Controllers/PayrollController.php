@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Payroll;
 use App\Models\Employee;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PayrollController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.view payroll'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -102,7 +103,7 @@ class PayrollController extends Controller
     /**
      * Show bulk salary generation form
      */
-    public function bulkForm(): View
+    public function bulkForm(): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.bulk generate payroll'))) {
             return redirect()->back()->with('error', 'Permission denied.');
@@ -302,7 +303,7 @@ class PayrollController extends Controller
         return redirect()->route('payroll.index')->with('success', $msg);
     }
 
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
         if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Payroll Management.create payroll'))) {
             return redirect()->back()->with('error', 'Permission denied.');
