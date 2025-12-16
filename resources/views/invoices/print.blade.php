@@ -385,8 +385,10 @@
                     <div class="party-heading">From</div>
                     <div class="party-details">
                         <p><strong>CHITRI ENLARGE SOFT IT HUB PVT. LTD.</strong></p>
-                        <p>401/B, RISE ON PLAZA, SARKHEJ JAKAT NAKA,</p>
-                        <p>SURAT, 390006.</p>
+                        {{-- <p>401/B, RISE ON PLAZA, SARKHEJ JAKAT NAKA,</p>
+                        <p>SURAT, 390006.</p> --}}
+                        <p>244/45, Raj Imperia, Near Sarthana Police Station,</p>
+                        <p>Vraj Chowk, Simada, Surat - 395006.</p>
                         @if($invoice->invoice_type === 'gst')
                         <p>GST. NO.: 24AAMCC4413E1Z1</p>
                         @endif

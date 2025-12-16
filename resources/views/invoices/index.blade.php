@@ -25,7 +25,6 @@
   </button>
   <div class="filter-right">
     @can('Invoices Management.export invoice')
-      <a href="{{ route('invoices.export', request()->only(['search','invoice_type','from_date','to_date'])) }}" class="pill-btn pill-success">Excel</a>
       <a href="{{ route('invoices.export.csv', request()->only(['search','invoice_type','from_date','to_date'])) }}" class="pill-btn pill-success">CSV</a>
     @endcan
   </div>
