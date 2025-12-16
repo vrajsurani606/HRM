@@ -208,6 +208,7 @@ if ($contentLength > 3000) {
         }
         
         .print-btn { display:none !important; }
+        div[style*="position: fixed"] { display:none !important; }
         body { background:none; margin:0; padding:0; }
         
         .offer-container { 
@@ -298,7 +299,35 @@ if ($contentLength > 3000) {
     $needsPageBreak = $lineCount > 17;
 @endphp
 
-<button class="print-btn" onclick="window.print()">Print</button>
+<div style="position: fixed; right: 24px; top: 20px; z-index: 9999; display: flex; gap: 10px;">
+    <button class="print-btn" onclick="goBack()" style="background: #6b7280;">
+        <i class="fas fa-arrow-left" style="margin-right: 5px;"></i> Back
+    </button>
+    <button class="print-btn" onclick="window.print()">
+        <i class="fas fa-print" style="margin-right: 5px;"></i> Print
+    </button>
+</div>
+<script>
+function goBack() {
+    // Check if there's a specific redirect URL in the query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectTo = urlParams.get('redirect_to');
+    
+    if (redirectTo) {
+        window.location.href = redirectTo;
+    } else if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        // Go back to previous page if it's from the same domain
+        window.history.back();
+    } else {
+        // Default: go to employee letters index
+        @if(isset($employee) && $employee)
+        window.location.href = "{{ route('employees.letters.index', $employee) }}";
+        @else
+        window.history.back();
+        @endif
+    }
+}
+</script>
 
 <div class="offer-container" id="page1">
     <div class="bg-cover"><img src="{{ $background_url }}" alt="" /></div>

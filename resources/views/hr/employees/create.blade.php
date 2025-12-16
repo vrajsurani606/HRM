@@ -94,7 +94,7 @@
 
         <div>
           <label class="hrp-label">Date of Birth:</label>
-          <input name="date_of_birth" value="{{ old('date_of_birth') }}" class="hrp-input Rectangle-29 date-picker" type="text" placeholder="dd/mm/yyyy" autocomplete="off">
+          <input name="date_of_birth" id="date_of_birth" value="{{ old('date_of_birth') }}" class="hrp-input Rectangle-29 dob-picker" type="text" placeholder="dd/mm/yyyy" autocomplete="off">
           @error('date_of_birth')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
 
@@ -139,14 +139,16 @@ $(document).ready(function() {
         showButtonPanel: true
     });
     
-    // For date of birth - wider year range (18-70 years old)
-    $('input[name="date_of_birth"]').datepicker({
+    // For date of birth - disable future dates and show years from 1950 to current year
+    var currentYear = new Date().getFullYear();
+    $('#date_of_birth').datepicker({
         dateFormat: 'dd/mm/yy',
         changeMonth: true,
         changeYear: true,
-        yearRange: '-70:-18',
-        maxDate: '-18y',
-        showButtonPanel: true
+        yearRange: '1950:' + currentYear,
+        maxDate: 0, // Disable future dates (0 = today)
+        showButtonPanel: true,
+        defaultDate: '-25y' // Default to 25 years ago when opening
     });
 });
 
