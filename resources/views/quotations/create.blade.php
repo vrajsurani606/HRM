@@ -813,48 +813,99 @@
 <div class="Rectangle-30 hrp-compact">
 
   <div class="hrp-form" style="margin: 30px 0;">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 mb-4">
-      <div>
-        <label class="hrp-label">Custom Terms & Conditions</label>
-        <div style="margin-bottom: 15px;">
-          <textarea name="custom_terms_text" id="custom_terms_text" class="Rectangle-29" rows="4" placeholder="Enter custom terms and conditions (one per line)" style="width: 100%; resize: vertical;">{{ old('custom_terms_text', isset($quotation) && is_array($quotation->custom_terms_and_conditions) ? implode("\n", $quotation->custom_terms_and_conditions) : '') }}</textarea>
-          <small class="text-gray-500">Enter each term on a new line</small>
+    <!-- Custom Terms & Conditions and Prepared By Section -->
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+      <h4 style="font-size: 16px; font-weight: 600; color: #1e293b; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14,2 14,8 20,8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10,9 9,9 8,9"></polyline>
+        </svg>
+        Additional Information
+      </h4>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Left Column -->
+        <div>
+          <div style="margin-bottom: 20px;">
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">
+              Custom Terms & Conditions
+            </label>
+            <textarea 
+              name="custom_terms_text" 
+              id="custom_terms_text" 
+              class="hrp-input Rectangle-29" 
+              rows="4" 
+              placeholder="Enter custom terms and conditions (one per line)" 
+              style="width: 100%; resize: vertical; font-size: 14px; line-height: 1.5;">{{ old('custom_terms_text', isset($quotation) && is_array($quotation->custom_terms_and_conditions) ? implode("\n", $quotation->custom_terms_and_conditions) : '') }}</textarea>
+            <small class="text-gray-500" style="font-size: 12px; margin-top: 4px; display: block;">Enter each term on a new line</small>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">
+              Mobile No.
+            </label>
+            <input
+              class="hrp-input Rectangle-29"
+              name="mobile_no"
+              type="tel"
+              inputmode="numeric"
+              pattern="\d{10}"
+              maxlength="10"
+              value="{{ old('mobile_no') }}"
+              placeholder="Enter 10 digit mobile number"
+              style="font-size: 14px; line-height: 1.5;"
+            />
+            @error('mobile_no')<small class="hrp-error">{{ $message }}</small>@enderror
+          </div>
         </div>
-      </div>
-      <div>
-        <label class="hrp-label">Prepared By:</label>
-        <input class="Rectangle-29" name="prepared_by" placeholder="Enter Name" value="{{ old('prepared_by') }}">
-        @error('prepared_by')<small class="hrp-error">{{ $message }}</small>@enderror
-      </div>
-      <div>
-        <label class="hrp-label">Prepared By Gender:</label>
-        <select class="Rectangle-29 Rectangle-29-select @error('prepared_by_gender') is-invalid @enderror" name="prepared_by_gender">
-          <option value="">Select Gender</option>
-          <option value="Male" {{ old('prepared_by_gender') == 'Male' ? 'selected' : '' }}>Male</option>
-          <option value="Female" {{ old('prepared_by_gender') == 'Female' ? 'selected' : '' }}>Female</option>
-        </select>
-        @error('prepared_by_gender')<small class="hrp-error">{{ $message }}</small>@enderror
-      </div>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-      <div>
-        <label class="hrp-label">Mobile No.</label>
-        <input
-          class="hrp-input Rectangle-29"
-          name="mobile_no"
-          type="tel"
-          inputmode="numeric"
-          pattern="\d{10}"
-          maxlength="10"
-          value="{{ old('mobile_no') }}"
-          placeholder="Enter 10 digit mobile number"
-        />
-        @error('mobile_no')<small class="hrp-error">{{ $message }}</small>@enderror
-      </div>
-      <div>
-        <label class="hrp-label">Company Name:</label>
-        <input class="Rectangle-29" name="footer_company_name" value="{{ old('footer_company_name', 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)') }}">
-        @error('footer_company_name')<small class="hrp-error">{{ $message }}</small>@enderror
+        
+        <!-- Right Column -->
+        <div>
+          <div style="margin-bottom: 20px;">
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">
+              Prepared By
+            </label>
+            <input 
+              class="hrp-input Rectangle-29" 
+              name="prepared_by" 
+              placeholder="Enter Name" 
+              value="{{ old('prepared_by') }}"
+              style="font-size: 14px; line-height: 1.5;">
+            @error('prepared_by')<small class="hrp-error">{{ $message }}</small>@enderror
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">
+              Prepared By Gender
+            </label>
+            <div class="relative">
+              <select 
+                class="hrp-input Rectangle-29 @error('prepared_by_gender') is-invalid @enderror" 
+                name="prepared_by_gender"
+                style="padding-right: 32px; appearance: none; background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; cursor: pointer; width: 100%; font-size: 14px; line-height: 1.5; background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%236b7280\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'/%3E%3C/svg%3E');">
+                <option value="">Select Gender</option>
+                <option value="Male" {{ old('prepared_by_gender') == 'Male' ? 'selected' : '' }}>Male</option>
+                <option value="Female" {{ old('prepared_by_gender') == 'Female' ? 'selected' : '' }}>Female</option>
+              </select>
+            </div>
+            @error('prepared_by_gender')<small class="hrp-error">{{ $message }}</small>@enderror
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">
+              Company Name
+            </label>
+            <input 
+              class="hrp-input Rectangle-29" 
+              name="footer_company_name" 
+              value="{{ old('footer_company_name', 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)') }}"
+              style="font-size: 14px; line-height: 1.5;">
+            @error('footer_company_name')<small class="hrp-error">{{ $message }}</small>@enderror
+          </div>
+        </div>
       </div>
     </div>
   </div>
