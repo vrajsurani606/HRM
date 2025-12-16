@@ -280,6 +280,7 @@ Route::middleware('auth')->group(function () {
     // Project Overview (MUST be before resource routes)
     Route::get('projects/{project}/overview', [ProjectController::class, 'overview'])->name('projects.overview');
     Route::patch('projects/{project}/stage', [ProjectController::class, 'updateProjectStage'])->name('projects.update-stage');
+    Route::post('projects/update-positions', [ProjectController::class, 'updatePositions'])->name('projects.update-positions');
     
     // Projects Resource (MUST be AFTER specific routes)
     Route::resource('projects', ProjectController::class);

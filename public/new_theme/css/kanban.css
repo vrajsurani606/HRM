@@ -167,6 +167,22 @@
   overflow: hidden;
 }
 
+/* Ensure kanban-cards takes available space and add button stays at bottom */
+.kanban-column .kanban-cards {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Add button styling when outside kanban-cards */
+.kanban-column > .inline-add-card-trigger {
+  flex-shrink: 0;
+}
+
+.kanban-column > .inline-add-card-form {
+  flex-shrink: 0;
+}
+
 
 
 
@@ -1171,4 +1187,20 @@ button[onclick^="insertEmoji"]:hover {
 button[onclick="sendChatMessage()"]:hover {
   background: #059669 !important;
   transform: scale(1.02);
+}
+
+
+/* Drop Indicator for Drag and Drop */
+.drop-indicator {
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 2px;
+  margin: 8px 0;
+  pointer-events: none;
+  animation: dropIndicatorPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes dropIndicatorPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }

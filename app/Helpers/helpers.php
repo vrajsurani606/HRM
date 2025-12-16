@@ -13,26 +13,6 @@ if (!function_exists('storage_asset')) {
      */
     function storage_asset($path)
     {
-        if (empty($path)) {
-            return '';
-        }
-        
-        $path = ltrim($path, '/');
-        
-        // Check if storage symlink exists in public folder
-        $symlinkPath = public_path('storage');
-        $publicStoragePath = public_path('public/storage');
-        
-        // If public/storage directory exists (subdirectory installation)
-        if (is_dir($publicStoragePath) || is_link($publicStoragePath)) {
-            return asset('public/storage/' . $path);
-        }
-        
-        // If storage symlink exists directly in public (standard Laravel)
-        if (is_dir($symlinkPath) || is_link($symlinkPath)) {
-            return asset('storage/' . $path);
-        }
-        
         // Fallback: try public/storage first for subdirectory installations
         return asset('public/storage/' . $path);
     }
