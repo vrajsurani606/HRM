@@ -124,6 +124,15 @@ class TicketController extends Controller
 
     public function show(Ticket $ticket)
     {
+        // Redirect to index page with view parameter (popup will open automatically)
+        return redirect()->route('tickets.index', ['view' => $ticket->id]);
+    }
+    
+    /**
+     * Show ticket details page (legacy - kept for backward compatibility)
+     */
+    public function showPage(Ticket $ticket)
+    {
         $user = auth()->user();
         $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
         $isEmployee = $user->hasRole('employee') || $user->hasRole('Employee');
@@ -237,9 +246,36 @@ class TicketController extends Controller
             }
         }
         
+        // Load the assigned employee relationship
+        $ticket->load('assignedEmployee');
+        
         return response()->json([
             'success' => true,
-            'ticket' => $ticket
+            'ticket' => [
+                'id' => $ticket->id,
+                'ticket_no' => $ticket->ticket_no,
+                'title' => $ticket->title,
+                'subject' => $ticket->subject,
+                'description' => $ticket->description,
+                'status' => $ticket->status,
+                'priority' => $ticket->priority,
+                'category' => $ticket->category,
+                'ticket_type' => $ticket->ticket_type,
+                'customer' => $ticket->customer,
+                'company' => $ticket->company,
+                'assigned_to' => $ticket->assigned_to,
+                'assigned_employee' => $ticket->assignedEmployee ? [
+                    'id' => $ticket->assignedEmployee->id,
+                    'name' => $ticket->assignedEmployee->name,
+                    'photo_path' => $ticket->assignedEmployee->photo_path,
+                ] : null,
+                'resolution_notes' => $ticket->resolution_notes,
+                'attachments' => $ticket->attachments,
+                'created_at' => $ticket->created_at,
+                'updated_at' => $ticket->updated_at,
+                'opened_by' => $ticket->opened_by,
+                'project_id' => $ticket->project_id,
+            ]
         ]);
     }
 
@@ -288,7 +324,6 @@ class TicketController extends Controller
             'description' => 'required|string',
             'priority' => 'nullable|in:low,medium,high,urgent',
             'status' => 'nullable|in:open,assigned,pending,needs_approval,in_progress,completed,resolved,closed',
-            'work_status' => 'nullable|in:not_assigned,in_progress,on_hold,completed',
             'ticket_type' => 'nullable|string|max:100',
             'category' => 'nullable|string|max:255',
             'company' => $isCustomer ? 'nullable' : 'nullable|string|max:255',
@@ -469,25 +504,40 @@ class TicketController extends Controller
             ]);
         }
         
-        return view('tickets.edit', compact('ticket'));
+        // Redirect to index page with edit parameter (popup will open automatically)
+        return redirect()->route('tickets.index', ['edit' => $ticket->id]);
     }
 
     public function update(Request $request, Ticket $ticket)
     {
-        // Check permission
-        if (!auth()->user()->can('Tickets Management.edit ticket')) {
+        $user = auth()->user();
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        $isEmployee = $user->hasRole('employee') || $user->hasRole('Employee');
+        $isCustomer = $user->hasRole('customer');
+        
+        // Check if employee is assigned to this ticket
+        $isAssignedEmployee = false;
+        if ($isEmployee) {
+            $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+            if (!$employee) {
+                $employee = \App\Models\Employee::where('email', $user->email)->first();
+            }
+            $isAssignedEmployee = $employee && $ticket->assigned_to == $employee->id;
+        }
+        
+        // Check permission - admins, assigned employees, or users with edit permission
+        $hasEditPermission = $isAdmin || $isAssignedEmployee || $user->can('Tickets Management.edit ticket');
+        
+        if (!$hasEditPermission) {
             if ($request->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Unauthorized to edit tickets.'], 403);
             }
             return back()->with('error', 'Unauthorized to edit tickets.');
         }
         
-        $user = auth()->user();
-        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
-        
-        if (!$isAdmin) {
+        if (!$isAdmin && !$isAssignedEmployee) {
             // Check access: customers can only update their company's tickets
-            if ($user->hasRole('customer') && $user->company_id) {
+            if ($isCustomer && $user->company_id) {
                 $company = $user->company;
                 // Customer can update if:
                 // 1. Ticket company matches their company name, OR
@@ -508,17 +558,15 @@ class TicketController extends Controller
                 }
                 
                 if (!$canUpdate) {
-                    abort(403, 'Unauthorized access to this ticket.');
-                }
-            } elseif ($user->hasRole('employee') || $user->hasRole('Employee')) {
-                $employee = \App\Models\Employee::where('user_id', $user->id)->first();
-                if (!$employee) {
-                    $employee = \App\Models\Employee::where('email', $user->email)->first();
-                }
-                if (!$employee || $ticket->assigned_to != $employee->id) {
+                    if ($request->ajax()) {
+                        return response()->json(['success' => false, 'message' => 'Unauthorized access to this ticket.'], 403);
+                    }
                     abort(403, 'Unauthorized access to this ticket.');
                 }
             } else {
+                if ($request->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Unauthorized access to this ticket.'], 403);
+                }
                 abort(403, 'Unauthorized access to this ticket.');
             }
         }
@@ -528,7 +576,6 @@ class TicketController extends Controller
             'description' => 'nullable|string',
             'priority' => 'nullable|in:low,medium,high,urgent',
             'status' => 'nullable|in:open,assigned,pending,needs_approval,in_progress,completed,resolved,closed',
-            'work_status' => 'nullable|in:not_assigned,in_progress,on_hold,completed',
             'category' => 'nullable|string|max:255',
             'ticket_type' => 'nullable|string|max:100',
             'company' => 'nullable|string|max:255',
@@ -550,9 +597,6 @@ class TicketController extends Controller
         // Auto-update status when assigning employee
         if (isset($validated['assigned_to']) && $validated['assigned_to'] && in_array($ticket->status, ['open', 'assigned'])) {
             $validated['status'] = 'in_progress';
-            if (!isset($validated['work_status'])) {
-                $validated['work_status'] = 'in_progress';
-            }
         }
 
         $ticket->update($validated);
@@ -575,7 +619,7 @@ class TicketController extends Controller
             ]);
         }
 
-        return redirect()->route('tickets.show', $ticket)->with('success', 'Ticket updated successfully');
+        return redirect()->route('tickets.index', ['view' => $ticket->id])->with('success', 'Ticket updated successfully');
     }
 
     public function destroy(Ticket $ticket): RedirectResponse|JsonResponse
@@ -694,7 +738,6 @@ class TicketController extends Controller
         
         $ticket->update([
             'status' => Ticket::STATUS_COMPLETED,
-            'work_status' => 'completed',
             'completed_at' => now(),
             'completed_by' => $employee->id,
             'resolution_notes' => $validated['resolution_notes'] ?? 'Completed',
@@ -925,6 +968,60 @@ class TicketController extends Controller
         }
         
         return back()->with('success', 'Ticket closed successfully. Thank you for your feedback!');
+    }
+    
+    /**
+     * Get comments for a ticket (AJAX)
+     */
+    public function getComments(Ticket $ticket)
+    {
+        $user = auth()->user();
+        $isAdmin = $user->hasRole('super-admin') || $user->hasRole('hr') || $user->hasRole('admin');
+        $isEmployee = $user->hasRole('employee') || $user->hasRole('Employee');
+        $isCustomer = $user->hasRole('customer');
+        
+        // Check basic permission
+        if (!$isAdmin && !$isEmployee && !$isCustomer) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+        
+        // Check access based on role
+        if (!$isAdmin) {
+            if ($isCustomer && $user->company_id) {
+                $company = $user->company;
+                $canView = false;
+                
+                if ($company && $ticket->company == $company->company_name) {
+                    $canView = true;
+                }
+                if ($ticket->customer == $user->name) {
+                    $canView = true;
+                }
+                if ($ticket->opened_by == $user->id) {
+                    $canView = true;
+                }
+                
+                if (!$canView) {
+                    return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+                }
+            } elseif ($isEmployee) {
+                $employee = \App\Models\Employee::where('user_id', $user->id)->first();
+                if (!$employee) {
+                    $employee = \App\Models\Employee::where('email', $user->email)->first();
+                }
+                if (!$employee || $ticket->assigned_to != $employee->id) {
+                    return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+                }
+            }
+        }
+        
+        // Load comments with user relationship
+        $comments = $ticket->comments()->with('user')->orderBy('created_at', 'asc')->get();
+        
+        return response()->json([
+            'success' => true,
+            'comments' => $comments
+        ]);
     }
     
     /**

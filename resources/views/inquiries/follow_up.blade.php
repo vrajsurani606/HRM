@@ -89,16 +89,18 @@
   </div>
 </div>
 
+<div class="followup-section">
 <div class="Rectangle-30 hrp-compact" style="margin-bottom: 16px;">
-  <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #111827;">Previous Followup List</h3>
-  <div style="font-size:12px;color:#4b5563;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:16px;">
-    <div><strong>Action:</strong> <span style="background:#2196f3;color:#ffffff;border-radius:999px;padding:2px 10px;font-size:11px;">MAKE CONFIRM</span> = pending, click to confirm.</div>
+  <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600; color: #111827;">Previous Followup List</h3>
+  <div style="font-size:12px;color:#4b5563;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:16px;">
+    <div><strong>Action:</strong> <span style="background:#2196f3;color:#fff;border-radius:999px;padding:2px 10px;font-size:11px;">MAKE CONFIRM</span> = pending</div>
     <div><strong>Is Confirm:</strong> <span style="color:#16a34a;font-weight:600;">Confirmed</span>, <span style="color:#dc2626;font-weight:600;">No</span></div>
     <div><strong>Demo Status:</strong> <span style="color:#2563eb;font-weight:600;">Scheduled</span>, <span style="color:#16a34a;font-weight:600;">Done</span>, <span style="color:#dc2626;font-weight:600;">No</span></div>
   </div>
-  <div style="max-height: 260px; overflow-y: auto; overflow-x: hidden; border-radius: 8px; border: 1px solid #e5e7eb;">
+  @if($followUps->count() > 0)
+  <div style="{{ $followUps->count() > 5 ? 'max-height: 220px; overflow-y: auto;' : '' }} overflow-x: auto; border-radius: 6px; border: 1px solid #e5e7eb;">
     <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none followup-table" style="margin:0; border-radius:0;">
-      <table>
+      <table style="min-width: 1100px; width: 100%;">
       <thead>
         <tr>
           <th>Serial No.</th>
@@ -110,12 +112,12 @@
           <th>Demo Status</th>
           <th>Scheduled Demo Date</th>
           <th>Scheduled Demo Time</th>
-          <th></th>Demo Date &amp; Time</th>
+          <th>Demo Date &amp; Time</th>
           <th>Code</th>
         </tr>
       </thead>
       <tbody>
-        @forelse($followUps as $index => $followUp)
+        @foreach($followUps as $index => $followUp)
         <tr data-followup-id="{{ $followUp->id }}" @if($followUp->is_confirm) style="background:#ecfdf3;" @endif>
           <td>{{ $index + 1 }}</td>
           <td>
@@ -160,15 +162,17 @@
           </td>
           <td>{{ $inquiry->unique_code }}</td>
         </tr>
-        @empty
-        <tr>
-          <td colspan="9" style="text-align:center;">No follow-ups found</td>
-        </tr>
-        @endforelse
+        @endforeach
       </tbody>
       </table>
     </div>
   </div>
+  @else
+  <div style="border-radius: 4px; border: 1px solid #e5e7eb; padding: 12px; text-align: center; color: #6b7280; font-size: 12px;">
+    No follow-ups found
+  </div>
+  @endif
+</div>
 </div>
 
 <div class="Rectangle-30 hrp-compact">
@@ -193,7 +197,7 @@
     </div>
     <div>
       <label class="hrp-label">Next Follow Up Date:</label>
-      <input type="text" class="hrp-input Rectangle-29 date-picker" name="next_followup_date" value="{{ old('next_followup_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" />
+      <input type="text" class="hrp-input Rectangle-29 followup-date-picker" name="next_followup_date" value="{{ old('next_followup_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" />
       @error('next_followup_date')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
@@ -211,7 +215,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Scheduled Demo Date:</label>
-          <input type="text" class="hrp-input Rectangle-29 date-picker" name="scheduled_demo_date" value="{{ old('scheduled_demo_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" />
+          <input type="text" class="hrp-input Rectangle-29 followup-date-picker" name="scheduled_demo_date" value="{{ old('scheduled_demo_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" />
           @error('scheduled_demo_date')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
@@ -273,10 +277,44 @@
 
 @push('styles')
 <style>
+  .followup-section {
+    margin-bottom: 16px !important;
+  }
+  .followup-section .Rectangle-30 {
+    min-height: auto !important;
+    height: auto !important;
+    padding: 16px !important;
+  }
+  .JV-datatble.followup-table {
+    margin: 0 !important;
+    min-height: auto !important;
+  }
+  .JV-datatble.followup-table table {
+    margin-bottom: 0 !important;
+  }
   .JV-datatble.followup-table td:first-child {
     display: table-cell !important;
     align-items: initial;
     gap: 0;
+  }
+  .JV-datatble.followup-table th,
+  .JV-datatble.followup-table td {
+    padding: 8px 10px !important;
+    font-size: 13px !important;
+    white-space: nowrap;
+  }
+  .JV-datatble.followup-table th {
+    font-size: 12px !important;
+    font-weight: 600;
+    background: #f3f4f6 !important;
+    color: #374151;
+  }
+  .JV-datatble.followup-table tbody tr {
+    height: auto !important;
+  }
+  .JV-datatble.followup-table .make-confirm-btn {
+    padding: 4px 12px !important;
+    font-size: 11px !important;
   }
 </style>
 @endpush
@@ -288,10 +326,30 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-// Initialize jQuery datepicker with dd/mm/yyyy format (same as quotation)
+// Initialize jQuery datepicker with dd/mm/yyyy format
+// minDate: 0 prevents selecting past dates (only today and future dates allowed)
 $(document).ready(function() {
-    $('.date-picker').datepicker({
+    // Initialize follow-up date pickers with minDate restriction (no past dates)
+    $('.followup-date-picker').datepicker({
         dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '0:+10',
+        minDate: 0, // Prevent selecting past dates
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({
+                    marginTop: '2px',
+                    marginLeft: '0px'
+                });
+            }, 0);
+        }
+    });
+    
+    // Initialize regular date pickers (allow past dates for demo_date)
+    $('.date-picker').datepicker({
+        dateFormat: 'dd/mm/yy',
         changeMonth: true,
         changeYear: true,
         yearRange: '-10:+10',
@@ -341,9 +399,13 @@ $(document).ready(function() {
           if(dateInput.value){
             var parts = dateInput.value.split('/');
             if(parts.length === 3){
-              var day = parts[0];
-              var month = parts[1];
+              var day = parts[0].padStart(2, '0');
+              var month = parts[1].padStart(2, '0');
               var year = parts[2];
+              // Handle 2-digit year (convert to 4-digit)
+              if(year.length === 2){
+                year = '20' + year;
+              }
               dateInput.value = year + '-' + month + '-' + day;
             }
           }

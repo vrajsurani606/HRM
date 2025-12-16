@@ -98,7 +98,7 @@ class DashboardController extends Controller
                 'subtitle' => $ticket->customer ?? 'Customer',
                 'time' => Carbon::parse($ticket->created_at)->diffForHumans(),
                 'timestamp' => $ticket->created_at->timestamp,
-                'link' => route('tickets.show', $ticket->id),
+                'link' => route('tickets.index', ['view' => $ticket->id]),
             ];
         }
         
@@ -244,11 +244,12 @@ class DashboardController extends Controller
         }
 
         // ========== NOTES - DYNAMIC FROM DATABASE ==========
-        $users = Employee::select('id', 'name', 'photo_path')->orderBy('name')->get()->map(function($emp) {
+        $users = Employee::with('user:id,chat_color')->select('id', 'name', 'photo_path', 'user_id')->orderBy('name')->get()->map(function($emp) {
             return [
                 'id' => $emp->id, 
                 'name' => $emp->name,
-                'photo' => $emp->profile_photo_url
+                'photo' => $emp->profile_photo_url,
+                'chat_color' => $emp->user->chat_color ?? null
             ];
         })->toArray();
 

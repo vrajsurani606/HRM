@@ -35,6 +35,144 @@
     @stack('styles')
 </head>
 <body class="skin-red sidebar-collapse macos-theme">
+
+<!-- Global Page Loader -->
+<div id="globalPageLoader" class="global-loader">
+  <div class="loader-content">
+    <div class="loader-spinner">
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+    </div>
+    <div class="loader-text">Loading...</div>
+  </div>
+</div>
+
+<style>
+/* Global Page Loader Styles */
+.global-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.global-loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 28px 36px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.loader-spinner {
+  position: relative;
+  width: 50px;
+  height: 50px;
+}
+
+.spinner-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.spinner-ring:nth-child(1) {
+  border-top-color: #3b82f6;
+  animation-delay: -0.45s;
+}
+
+.spinner-ring:nth-child(2) {
+  border-top-color: #10b981;
+  animation-delay: -0.3s;
+  width: 75%;
+  height: 75%;
+  top: 12.5%;
+  left: 12.5%;
+}
+
+.spinner-ring:nth-child(3) {
+  border-top-color: #f59e0b;
+  animation-delay: -0.15s;
+  width: 50%;
+  height: 50%;
+  top: 25%;
+  left: 25%;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loader-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: 0.3px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .loader-content {
+    background: rgba(30, 41, 59, 0.98);
+  }
+  .loader-text {
+    color: #e5e7eb;
+  }
+}
+
+/* Global Modal Styles - Prevent overlapping with dock */
+[style*="position: fixed"][style*="z-index: 9999"],
+[style*="position: fixed"][style*="z-index:9999"],
+.modal-overlay,
+.ticket-view-modal-overlay,
+.swal2-container {
+  padding-bottom: 80px !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure modal content is properly centered and doesn't overflow */
+[style*="position: fixed"][style*="z-index: 9999"] > div:first-child,
+[style*="position: fixed"][style*="z-index:9999"] > div:first-child {
+  max-height: calc(100vh - 120px) !important;
+  margin: auto !important;
+}
+
+/* SweetAlert specific fix */
+.swal2-popup {
+  margin-bottom: 40px !important;
+}
+
+.swal2-container.swal2-center {
+  padding-bottom: 80px !important;
+}
+</style>
+
 <div class="wrapper mac-glass-bg">
 
     <!-- Single rounded window -->
@@ -89,7 +227,9 @@
         @if(auth()->user()->can('Events Management.view event') || auth()->user()->can('Events Management.manage event'))
           <a class="dock-item" data-section="events-mgmt" href="{{ route('events.index') }}" title="Events Mgmt."><img src="{{ asset('Doc_icon/Event Management..png') }}" alt="Events Mgmt." /></a>
         @endif
-        <a class="dock-item" data-section="rules-regulations" href="{{ route('rules.index') }}" title="Rules & Regulations" target="_blank" rel="noopener"><img src="{{ asset('Doc_icon/Rules & Regulations.png') }}" alt="Rules & Regulations" /></a>
+        @if(auth()->user()->can('Rules Management.view rules') || auth()->user()->can('Rules Management.manage rules'))
+          <a class="dock-item" data-section="rules-regulations" href="{{ route('rules.index') }}" title="Rules & Regulations" target="_blank" rel="noopener"><img src="{{ asset('Doc_icon/Rules & Regulations.png') }}" alt="Rules & Regulations" /></a>
+        @endif
     </div>
 
 </div>
@@ -701,9 +841,108 @@
 <!-- Password Toggle Script -->
 <script src="{{ asset('js/password-toggle.js') }}"></script>
 <script src="{{ asset('js/live-search.js') }}"></script>
-<script src="{{ asset('js/mobile-number-limit.js') }}"></script>
+<script src="{{ asset('js/mobile-number-limit.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('js/state-city-dropdown.js') }}"></script>
 
 @stack('scripts')
 <!-- Toastr initialization is handled in partials/flash.blade.php -->
+
+<!-- Global Page Loader Script -->
+<script>
+(function() {
+  var loader = document.getElementById('globalPageLoader');
+  if (!loader) return;
+  
+  // Hide loader when page is fully loaded
+  function hideLoader() {
+    setTimeout(function() {
+      loader.classList.add('hidden');
+    }, 300);
+  }
+  
+  // Show loader
+  function showLoader() {
+    loader.classList.remove('hidden');
+  }
+  
+  // Hide on page load
+  if (document.readyState === 'complete') {
+    hideLoader();
+  } else {
+    window.addEventListener('load', hideLoader);
+  }
+  
+  // Show loader on form submit
+  document.addEventListener('submit', function(e) {
+    var form = e.target;
+    // Skip AJAX forms
+    if (form.hasAttribute('data-ajax') || form.hasAttribute('data-no-loader')) return;
+    // Skip forms with target="_blank"
+    if (form.target === '_blank') return;
+    showLoader();
+  });
+  
+  // Show loader on link click (navigation)
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('a');
+    if (!link) return;
+    // Skip if has data-no-loader attribute
+    if (link.hasAttribute('data-no-loader')) return;
+    // Skip external links, anchors, javascript:, mailto:, tel:
+    var href = link.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+    // Skip target="_blank" links
+    if (link.target === '_blank') return;
+    // Skip download links
+    if (link.hasAttribute('download')) return;
+    // Skip export/excel/pdf download links
+    if (href && (href.includes('export') || href.includes('excel') || href.includes('download') || href.includes('pdf'))) {
+      // For downloads, show loader briefly then hide after 2 seconds
+      showLoader();
+      setTimeout(hideLoader, 2000);
+      return;
+    }
+    // Skip if modifier key pressed (new tab)
+    if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+    showLoader();
+  });
+  
+  // Hide loader on back/forward navigation
+  window.addEventListener('pageshow', function(e) {
+    if (e.persisted) {
+      hideLoader();
+    }
+  });
+  
+  // Hide loader when SweetAlert is shown
+  if (typeof Swal !== 'undefined') {
+    document.addEventListener('click', function() {
+      setTimeout(function() {
+        if (document.querySelector('.swal2-container')) {
+          hideLoader();
+        }
+      }, 100);
+    });
+  }
+  
+  // Observer to detect SweetAlert popup and hide loader
+  var swalObserver = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.addedNodes.length) {
+        mutation.addedNodes.forEach(function(node) {
+          if (node.classList && (node.classList.contains('swal2-container') || node.classList.contains('swal2-popup'))) {
+            hideLoader();
+          }
+        });
+      }
+    });
+  });
+  swalObserver.observe(document.body, { childList: true, subtree: true });
+  
+  // Expose globally for manual control
+  window.showPageLoader = showLoader;
+  window.hidePageLoader = hideLoader;
+})();
+</script>
 </body>
 </html>

@@ -910,7 +910,7 @@
               @forelse(($recentTickets ?? []) as $idx => $t)
                 <tr data-ticket-id="{{ $t['id'] ?? '' }}">
                   <td class="action-icons" style="display: flex; gap: 6px;">
-                    <a href="{{ route('tickets.show', $t['id'] ?? 1) }}" class="action-icon view" title="View Ticket" style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #eff6ff; border-radius: 6px; border: none;">
+                    <a href="{{ route('tickets.index', ['view' => $t['id'] ?? 1]) }}" class="action-icon view" title="View Ticket" style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #eff6ff; border-radius: 6px; border: none;">
                       <img src="{{ asset('action_icon/view.svg') }}" alt="view" style="width: 16px; height: 16px;">
                     </a>
                     <form action="{{ route('tickets.destroy', $t['id'] ?? 1) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this ticket?');">
@@ -1235,12 +1235,23 @@
       <div class="modal-body">
         <div class="employee-grid" id="employeeGrid">
           @foreach(($users ?? []) as $user)
-            <div class="employee-card" data-id="{{ $user['id'] }}" data-name="{{ $user['name'] }}">
+            @php
+              $chatColor = $user['chat_color'] ?? ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#ef4444', '#06b6d4', '#84cc16'][$user['id'] % 8];
+              $initials = strtoupper(substr($user['name'], 0, 1));
+              $hasPhoto = !empty($user['photo']) && !str_contains($user['photo'], 'ui-avatars.com');
+            @endphp
+            <div class="employee-card" data-id="{{ $user['id'] }}" data-name="{{ $user['name'] }}" data-color="{{ $chatColor }}">
               <div class="employee-checkbox">
                 <input type="checkbox" id="emp_{{ $user['id'] }}" value="{{ $user['id'] }}">
               </div>
-              <div class="employee-avatar">
-                <img src="{{ $user['photo'] }}" alt="{{ $user['name'] }}" onerror="this.src='{{ asset('new_theme/dist/img/avatar.png') }}'">
+              <div class="employee-avatar" style="background: {{ $chatColor }}; box-shadow: 0 2px 8px rgba(0,0,0,0.12);">
+                @if($hasPhoto)
+                  <div style="width: 68px; height: 68px; border-radius: 50%; overflow: hidden; border: 2px solid white;">
+                    <img src="{{ $user['photo'] }}" alt="{{ $user['name'] }}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:28px;\'>{{ $initials }}</div>';">
+                  </div>
+                @else
+                  <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 28px;">{{ $initials }}</div>
+                @endif
               </div>
               <div class="employee-name">{{ $user['name'] }}</div>
             </div>

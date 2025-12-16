@@ -141,13 +141,13 @@
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">City</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $quotation->city ?? '-' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $quotation->city == 'other' ? ($quotation->city_other ?: 'Other') : ucwords(str_replace('_', ' ', $quotation->city ?? '-')) }}</span>
           </div>
           @if($quotation->state)
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">State</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $quotation->state }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $quotation->state == 'other' ? ($quotation->state_other ?: 'Other') : ucwords(str_replace('_', ' ', $quotation->state)) }}</span>
           </div>
           @endif
           <div style="display: flex; align-items: center; padding: 8px 0px;">

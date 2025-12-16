@@ -156,7 +156,6 @@ class RoleSeeder extends Seeder
                     'Tickets Management.reassign ticket',
                     'Tickets Management.change status',
                     'Tickets Management.change priority',
-                    'Tickets Management.change work status',
                     'Tickets Management.view comments',
                     'Tickets Management.create comment',
                     
@@ -320,10 +319,6 @@ class RoleSeeder extends Seeder
                     'Profile Management.view own profile',
                     'Profile Management.edit own profile',
                     
-                    // Events - View public events
-                    'Events Management.view event',
-                    'Events Management.view event image',
-                    
                     // Tickets Management - Customer access (own tickets only)
                     'Tickets Management.view ticket',
                     'Tickets Management.create ticket',
@@ -335,15 +330,6 @@ class RoleSeeder extends Seeder
                     'Tickets Management.download attachment',
                     'Tickets Management.close ticket',
                     'Tickets Management.print ticket',
-                    
-                    // Projects - View assigned projects
-                    'Projects Management.view project',
-                    'Projects Management.project overview',
-                    'Projects Management.view tasks',
-                    'Projects Management.view comments',
-                    'Projects Management.create comment',
-                    'Projects Management.view attachments',
-                    'Projects Management.download attachment',
                     
                     // Quotations - View own quotations
                     'Quotations Management.view quotation',

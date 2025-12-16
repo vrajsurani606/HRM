@@ -541,18 +541,6 @@
       <div class="stat-value" id="statDaysLeft">-</div>
       <div class="stat-label">Days Remaining</div>
     </div>
-
-    <div class="stat-card">
-      <div class="stat-header">
-        <div class="stat-icon purple">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-          </svg>
-        </div>
-      </div>
-      <div class="stat-value" id="statBudget">$0</div>
-      <div class="stat-label">Budget</div>
-    </div>
   </div>
 
   <!-- Tabs -->

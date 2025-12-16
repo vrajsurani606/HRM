@@ -113,6 +113,21 @@ class InquiryController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        // Convert date from dd/mm/yyyy to Y-m-d format before validation
+        if ($request->has('inquiry_date') && !empty($request->inquiry_date)) {
+            $dateValue = $request->inquiry_date;
+            // Check if date is in dd/mm/yyyy format
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $dateValue)) {
+                try {
+                    $request->merge([
+                        'inquiry_date' => Carbon::createFromFormat('d/m/Y', $dateValue)->format('Y-m-d')
+                    ]);
+                } catch (\Exception $e) {
+                    // Keep original value, validation will fail
+                }
+            }
+        }
+        
         $validated = $request->validate([
             'inquiry_date'    => ['required','date'],
             'company_name'    => ['required','string','max:255'],
@@ -122,7 +137,9 @@ class InquiryController extends Controller
             // 10-digit Indian mobile numbers (same idea as hiring mobile_no)
             'company_phone'   => ['required','regex:/^\d{10}$/'],
             'city'            => ['required','string','max:255'],
+            'city_other'      => ['nullable','string','max:255'],
             'state'           => ['required','string','max:255'],
+            'state_other'     => ['nullable','string','max:255'],
             'contact_mobile'  => ['required','regex:/^\d{10}$/'],
             'contact_name'    => ['required','string','max:255'],
             'scope_link'      => ['nullable','url','max:255'],
@@ -186,6 +203,21 @@ class InquiryController extends Controller
         
         $inquiry = Inquiry::findOrFail($id);
         
+        // Convert date from dd/mm/yyyy to Y-m-d format before validation
+        if ($request->has('inquiry_date') && !empty($request->inquiry_date)) {
+            $dateValue = $request->inquiry_date;
+            // Check if date is in dd/mm/yyyy format
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $dateValue)) {
+                try {
+                    $request->merge([
+                        'inquiry_date' => Carbon::createFromFormat('d/m/Y', $dateValue)->format('Y-m-d')
+                    ]);
+                } catch (\Exception $e) {
+                    // Keep original value, validation will fail
+                }
+            }
+        }
+        
         $validated = $request->validate([
             'unique_code' => 'required|string|unique:inquiries,unique_code,' . $id,
             'inquiry_date'    => ['required','date'],
@@ -195,7 +227,9 @@ class InquiryController extends Controller
             'email'           => ['required','email','max:255'],
             'company_phone'   => ['required','regex:/^\d{10}$/'],
             'city'            => ['required','string','max:255'],
+            'city_other'      => ['nullable','string','max:255'],
             'state'           => ['required','string','max:255'],
+            'state_other'     => ['nullable','string','max:255'],
             'contact_mobile'  => ['required','regex:/^\d{10}$/'],
             'contact_name'    => ['required','string','max:255'],
             'scope_link'      => ['nullable','url','max:255'],
@@ -351,6 +385,24 @@ class InquiryController extends Controller
         }
         
         $inquiry = Inquiry::findOrFail($id);
+        
+        // Convert date fields from dd/mm/yyyy to Y-m-d before validation
+        $dateFields = ['next_followup_date', 'scheduled_demo_date', 'demo_date'];
+        foreach ($dateFields as $field) {
+            if ($request->has($field) && $request->$field) {
+                $dateValue = $request->$field;
+                // Try to parse dd/mm/yyyy format
+                if (preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $dateValue)) {
+                    try {
+                        $request->merge([
+                            $field => Carbon::createFromFormat('d/m/Y', $dateValue)->format('Y-m-d')
+                        ]);
+                    } catch (\Exception $e) {
+                        // Keep original value if parsing fails
+                    }
+                }
+            }
+        }
         
         $validated = $request->validate([
             'followup_date' => 'required|string',

@@ -23,6 +23,7 @@
       <option value="">All Status</option>
       <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
       <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
+      <option value="hold" {{ request('status') == 'hold' ? 'selected' : '' }}>Hold</option>
       <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
     </select>
 
@@ -132,6 +133,7 @@
                   $statusColors = [
                     'pending' => ['bg' => '#fef3c7', 'text' => '#92400e'],
                     'paid' => ['bg' => '#d1fae5', 'text' => '#065f46'],
+                    'hold' => ['bg' => '#dbeafe', 'text' => '#1e40af'],
                     'cancelled' => ['bg' => '#fee2e2', 'text' => '#991b1b'],
                   ];
                   $statusColor = $statusColors[$payroll->status] ?? ['bg' => '#f3f4f6', 'text' => '#6b7280'];

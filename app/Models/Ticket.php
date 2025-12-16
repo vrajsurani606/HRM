@@ -25,7 +25,6 @@ class Ticket extends Model
         'assigned_to',
         'opened_by',
         'opened_at',
-        'work_status',
         'category',
         'customer',
         'title',

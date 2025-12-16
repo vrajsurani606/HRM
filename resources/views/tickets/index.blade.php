@@ -1,6 +1,16 @@
 @extends('layouts.macos')
 @section('page_title', 'Ticket Support')
 
+@php
+  // Define employee ID for JavaScript use
+  $isEmployeeUser = auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee');
+  $currentEmployeeId = null;
+  if ($isEmployeeUser) {
+    $emp = \App\Models\Employee::where('user_id', auth()->id())->first();
+    $currentEmployeeId = $emp ? $emp->id : null;
+  }
+@endphp
+
 @section('content')
 <div class="hrp-content">
   <!-- Filters -->
@@ -236,8 +246,8 @@
 </div>
 
 <!-- Add/Edit Ticket Modal -->
-<div id="ticketModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
-  <div style="background: white; border-radius: 15px; padding: 30px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+<div id="ticketModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; padding-bottom: 80px;">
+  <div style="background: white; border-radius: 15px; padding: 30px; max-width: 600px; width: 90%; max-height: calc(100vh - 120px); overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3); margin: auto;">
     <h3 id="modalTitle" style="margin: 0 0 20px 0; font-size: 22px; font-weight: 700;">Add Ticket</h3>
     
     <form id="ticketForm" onsubmit="submitTicket(event)" enctype="multipart/form-data">
@@ -261,18 +271,6 @@
                 <option value="completed">Completed</option>
                 <option value="resolved">Resolved</option>
                 <option value="closed">Closed</option>
-              </select>
-            </div>
-          @endif
-          
-          @if($isAdmin)
-            <div>
-              <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Work Status</label>
-              <select name="work_status" id="ticket_work_status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
-                <option value="not_assigned">Not Assigned</option>
-                <option value="in_progress">In Progress</option>
-                <option value="on_hold">On Hold</option>
-                <option value="completed">Completed</option>
               </select>
             </div>
           @endif
@@ -531,6 +529,230 @@ function clearTicketFiles() {
   </div>
 </div>
 
+<!-- View Ticket Modal -->
+<div id="viewTicketModal" class="ticket-view-modal-overlay" style="display: none;">
+  <div class="ticket-view-modal-container">
+    <!-- Modal Header -->
+    <div class="ticket-view-modal-header">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div id="viewTicketStatusBadge" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase;"></div>
+        <div id="viewTicketPriorityBadge" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase;"></div>
+      </div>
+      <button onclick="closeViewTicketModal()" style="background: none; border: none; cursor: pointer; color: #64748b; font-size: 28px; line-height: 1; padding: 4px; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a'" onmouseout="this.style.background='none'; this.style.color='#64748b'">&times;</button>
+    </div>
+    
+    <!-- Modal Body - Two Column Layout -->
+    <div class="ticket-view-modal-body">
+      <!-- LEFT COLUMN - Ticket Details -->
+      <div class="ticket-view-left-column">
+        <!-- Ticket Title & ID -->
+        <div style="margin-bottom: 24px;">
+          <div style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 6px;">
+            <span id="viewTicketNo">Ticket #TKT-00001</span>
+            <span style="margin: 0 8px;">•</span>
+            <span id="viewTicketCreatedAt">Created Dec 15, 2025</span>
+          </div>
+          <h2 id="viewTicketTitle" style="font-size: 24px; font-weight: 700; color: #0f172a; margin: 0; line-height: 1.3;"></h2>
+        </div>
+        
+        <!-- Info Cards Grid -->
+        @php
+          $isCustomerUser = auth()->user()->hasRole('customer');
+        @endphp
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+          @if(!$isCustomerUser)
+          <div style="padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Customer
+            </div>
+            <div id="viewTicketCustomer" style="font-size: 15px; font-weight: 600; color: #0f172a;">-</div>
+          </div>
+          @endif
+          <div style="padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Company
+            </div>
+            <div id="viewTicketCompany" style="font-size: 15px; font-weight: 600; color: #0f172a;">-</div>
+          </div>
+          <div style="padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              Category
+            </div>
+            <div id="viewTicketCategory" style="font-size: 15px; font-weight: 600; color: #0f172a;">-</div>
+          </div>
+          @if($isCustomerUser)
+          <div style="padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Priority
+            </div>
+            <div id="viewTicketPriorityCard" style="font-size: 15px; font-weight: 600; color: #0f172a;">-</div>
+          </div>
+          @else
+          <div style="padding: 16px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 12px; border: 1px solid #bfdbfe;">
+            <div style="font-size: 11px; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Assigned To
+            </div>
+            <div id="viewTicketAssignedTo" style="font-size: 15px; font-weight: 600; color: #1e40af;">Not assigned</div>
+          </div>
+          @endif
+        </div>
+        
+        <!-- Description Section -->
+        <div style="margin-bottom: 24px;">
+          <div style="font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Description
+          </div>
+          <div id="viewTicketDescription" style="padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 14px; color: #374151; line-height: 1.7; white-space: pre-wrap; min-height: 80px;"></div>
+        </div>
+        
+        <!-- Resolution Notes Section (if exists) -->
+        <div id="viewTicketResolutionSection" style="display: none; margin-bottom: 24px;">
+          <div style="font-size: 13px; font-weight: 700; color: #065f46; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Resolution Notes
+          </div>
+          <div id="viewTicketResolutionNotes" style="padding: 16px; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 12px; border-left: 4px solid #10b981; font-size: 14px; color: #064e3b; line-height: 1.7;"></div>
+        </div>
+        
+        <!-- Attachments Section -->
+        <div id="viewTicketAttachmentsSection" style="display: none; margin-bottom: 24px;">
+          <div style="font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            Attachments
+            <span id="viewTicketAttachmentCount" style="background: #e5e7eb; padding: 2px 8px; border-radius: 10px; font-size: 11px;">0</span>
+          </div>
+          <div id="viewTicketAttachments" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;"></div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div id="viewTicketActionButtons" style="display: flex; gap: 12px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+          @php
+            $canEditTicket = auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.edit ticket') || $isEmployeeUser;
+          @endphp
+          <!-- Edit button - shown for admins always, for employees only if assigned (controlled via JS) -->
+          <button id="viewTicketEditBtn" onclick="editTicketFromView()" style="display: {{ $canEditTicket ? 'flex' : 'none' }}; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; align-items: center; gap: 8px; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit Ticket
+          </button>
+          <button onclick="closeViewTicketModal()" style="padding: 10px 20px; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+            Close
+          </button>
+        </div>
+      </div>
+      
+      <!-- RIGHT COLUMN - Chat Section -->
+      <div class="ticket-view-right-column">
+        <!-- Chat Header with Tabs for Admin -->
+        <div style="border-bottom: 1px solid #e5e7eb; background: white; flex-shrink: 0;">
+          @if(auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr') || auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee'))
+          <!-- Tab Navigation for Admin/Employee -->
+          <div style="display: flex; border-bottom: 1px solid #e5e7eb;">
+            <button id="chatTabExternal" onclick="switchChatTab('external')" style="flex: 1; padding: 12px 16px; background: white; border: none; border-bottom: 3px solid #3b82f6; cursor: pointer; font-size: 13px; font-weight: 600; color: #3b82f6; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              Customer Chat
+            </button>
+            <button id="chatTabInternal" onclick="switchChatTab('internal')" style="flex: 1; padding: 12px 16px; background: #f8fafc; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 13px; font-weight: 600; color: #64748b; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              Internal Notes
+              <span id="internalNotesCount" style="background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; display: none;">0</span>
+            </button>
+          </div>
+          @endif
+          <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <h3 id="chatSectionTitle" style="margin: 0; font-size: 15px; font-weight: 600; color: #1f2937;">Discussion</h3>
+            </div>
+            <button onclick="refreshTicketComments()" style="padding: 5px 10px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; color: #64748b; display: flex; align-items: center; gap: 4px;" title="Refresh">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+              </svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+        
+        <!-- Chat Messages Container -->
+        <div id="ticketChatMessages" style="flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0;">
+          <!-- Empty State -->
+          <div id="ticketChatEmptyState" style="text-align: center; padding: 40px 20px;">
+            <div style="width: 60px; height: 60px; margin: 0 auto 12px; background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </div>
+            <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #1f2937;">No Messages Yet</h4>
+            <p style="margin: 0; font-size: 12px; color: #6b7280;">Start the conversation!</p>
+          </div>
+        </div>
+        
+        <!-- Attachment Preview Area -->
+        <div id="ticketChatAttachmentPreview" style="display: none; padding: 8px 16px; background: #f0fdf4; border-top: 1px solid #bbf7d0; flex-shrink: 0;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div id="ticketChatAttachmentThumb" style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; border: 2px solid #22c55e; flex-shrink: 0;"></div>
+            <div style="flex: 1; min-width: 0;">
+              <div id="ticketChatAttachmentName" style="font-size: 13px; font-weight: 600; color: #166534; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
+              <div id="ticketChatAttachmentSize" style="font-size: 11px; color: #16a34a;"></div>
+            </div>
+            <button onclick="clearChatAttachment()" style="padding: 6px; background: #fee2e2; border: none; border-radius: 6px; cursor: pointer; color: #dc2626;" title="Remove">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Chat Input Area -->
+        <div style="padding: 12px 16px; background: white; border-top: 1px solid #e5e7eb; flex-shrink: 0;">
+          <!-- File Input (hidden) -->
+          <input type="file" id="ticketChatFileInput" accept="image/*,.pdf" style="display: none;" onchange="handleChatFileSelect(this)">
+          
+          <div style="display: flex; align-items: flex-end; gap: 8px;">
+            <!-- Attachment Button -->
+            <button onclick="document.getElementById('ticketChatFileInput').click()" style="width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9; border: 1px solid #e2e8f0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0;" title="Attach file" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+            </button>
+            
+            <textarea id="ticketChatInput" placeholder="Type your message..." rows="1" style="flex: 1; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 20px; background: #f9fafb; color: #1f2937; font-size: 14px; outline: none; resize: none; min-height: 40px; max-height: 80px; font-family: inherit; transition: border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e5e7eb'" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendTicketComment(); }"></textarea>
+            
+            <button onclick="sendTicketComment()" style="width: 40px; height: 40px; border-radius: 50%; background: #3b82f6; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; flex-shrink: 0;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+          
+          @if(auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr') || auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee'))
+          <div style="display: flex; align-items: center; gap: 8px; padding-top: 8px;">
+            <label id="internalNoteLabel" style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #64748b; cursor: pointer;">
+              <input type="checkbox" id="ticketInternalComment" style="width: 13px; height: 13px; cursor: pointer;">
+              <span>🔒 Internal note (hidden from customer)</span>
+            </label>
+          </div>
+          @endif
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 function openAddTicketModal() {
   document.getElementById('modalTitle').textContent = 'Add Ticket';
@@ -695,9 +917,6 @@ function editTicket(id) {
       const statusField = document.getElementById('ticket_status');
       if (statusField) statusField.value = ticket.status || 'open';
       
-      const workStatusField = document.getElementById('ticket_work_status');
-      if (workStatusField) workStatusField.value = ticket.work_status || 'not_assigned';
-      
       const assignedToField = document.getElementById('ticket_assigned_to');
       if (assignedToField) assignedToField.value = ticket.assigned_to || '';
       
@@ -815,8 +1034,566 @@ function showExistingAttachments(attachments) {
   preview.innerHTML = previewHTML;
 }
 
+// Current ticket ID for chat
+let currentViewTicketId = null;
+let ticketChatPollingInterval = null;
+
 function viewTicket(id) {
-  window.location.href = `{{ url('tickets') }}/${id}`;
+  currentViewTicketId = id;
+  
+  // Show modal immediately
+  const modal = document.getElementById('viewTicketModal');
+  modal.style.display = 'flex';
+  
+  // Fetch ticket data
+  fetch(`{{ url('tickets') }}/${id}/json`, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success && data.ticket) {
+      populateViewTicketModal(data.ticket);
+      loadTicketComments(id);
+      startTicketChatPolling(id);
+    } else {
+      closeViewTicketModal();
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Could not load ticket data' });
+      } else {
+        alert('Error loading ticket data');
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    closeViewTicketModal();
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Error loading ticket data' });
+    } else {
+      alert('Error loading ticket data');
+    }
+  });
+}
+
+function closeViewTicketModal() {
+  document.getElementById('viewTicketModal').style.display = 'none';
+  currentViewTicketId = null;
+  stopTicketChatPolling();
+  
+  // Reset chat state
+  currentChatTab = 'external';
+  allTicketComments = [];
+  clearChatAttachment();
+  
+  // Reset tab UI if tabs exist
+  const externalTab = document.getElementById('chatTabExternal');
+  const internalTab = document.getElementById('chatTabInternal');
+  if (externalTab && internalTab) {
+    switchChatTab('external');
+  }
+}
+
+function populateViewTicketModal(ticket) {
+  const isCustomer = {{ auth()->user()->hasRole('customer') ? 'true' : 'false' }};
+  
+  // Status colors
+  const statusColors = {
+    'open': { bg: '#dbeafe', color: '#1e40af', icon: '🔵' },
+    'assigned': { bg: '#ede9fe', color: '#5b21b6', icon: '👤' },
+    'in_progress': { bg: '#fef3c7', color: '#92400e', icon: '⏳' },
+    'completed': { bg: '#ffedd5', color: '#9a3412', icon: '✅' },
+    'resolved': { bg: '#d1fae5', color: '#065f46', icon: '✓' },
+    'closed': { bg: '#f3f4f6', color: '#374151', icon: '🔒' }
+  };
+  
+  const priorityColors = {
+    'low': { bg: '#d1fae5', color: '#065f46', icon: '🟢' },
+    'medium': { bg: '#fef3c7', color: '#92400e', icon: '🟡' },
+    'high': { bg: '#fed7aa', color: '#9a3412', icon: '🟠' },
+    'urgent': { bg: '#fee2e2', color: '#991b1b', icon: '🔴' }
+  };
+  
+  // For customers, show "completed" as "in_progress"
+  let displayStatus = ticket.status || 'open';
+  if (isCustomer && displayStatus === 'completed') {
+    displayStatus = 'in_progress';
+  }
+  
+  const status = statusColors[displayStatus] || statusColors['open'];
+  const priority = priorityColors[ticket.priority] || priorityColors['medium'];
+  
+  // Update status badge
+  const statusBadge = document.getElementById('viewTicketStatusBadge');
+  statusBadge.innerHTML = `${status.icon} ${displayStatus.replace('_', ' ')}`;
+  statusBadge.style.background = status.bg;
+  statusBadge.style.color = status.color;
+  
+  // Update priority badge
+  const priorityBadge = document.getElementById('viewTicketPriorityBadge');
+  priorityBadge.innerHTML = `${priority.icon} ${ticket.priority || 'medium'}`;
+  priorityBadge.style.background = priority.bg;
+  priorityBadge.style.color = priority.color;
+  
+  // Update ticket info
+  document.getElementById('viewTicketNo').textContent = `Ticket #${ticket.ticket_no || ticket.id}`;
+  document.getElementById('viewTicketTitle').textContent = ticket.title || ticket.subject || 'No Title';
+  document.getElementById('viewTicketCreatedAt').textContent = ticket.created_at ? 
+    `Created ${new Date(ticket.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : '';
+  
+  // Update info cards (check if elements exist - some are hidden for customers)
+  const customerEl = document.getElementById('viewTicketCustomer');
+  if (customerEl) customerEl.textContent = ticket.customer || 'N/A';
+  
+  document.getElementById('viewTicketCompany').textContent = ticket.company || 'N/A';
+  document.getElementById('viewTicketCategory').textContent = ticket.category || ticket.ticket_type || 'General';
+  
+  // Update priority card for customers
+  const priorityCardEl = document.getElementById('viewTicketPriorityCard');
+  if (priorityCardEl) {
+    const priorityText = (ticket.priority || 'medium').charAt(0).toUpperCase() + (ticket.priority || 'medium').slice(1);
+    priorityCardEl.innerHTML = `<span style="color: ${priority.color};">${priority.icon} ${priorityText}</span>`;
+  }
+  
+  // Update assigned to (only for non-customers)
+  const assignedToEl = document.getElementById('viewTicketAssignedTo');
+  if (assignedToEl && ticket.assigned_employee) {
+    assignedToEl.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 11px;">
+          ${ticket.assigned_employee.name ? ticket.assigned_employee.name.charAt(0).toUpperCase() : '?'}
+        </div>
+        <span>${ticket.assigned_employee.name || 'Unknown'}</span>
+      </div>
+    `;
+  } else if (assignedToEl) {
+    assignedToEl.textContent = 'Not assigned';
+  }
+  
+  // Update description
+  document.getElementById('viewTicketDescription').textContent = ticket.description || 'No description provided.';
+  
+  // Update resolution notes
+  const resolutionSection = document.getElementById('viewTicketResolutionSection');
+  if (ticket.resolution_notes) {
+    document.getElementById('viewTicketResolutionNotes').textContent = ticket.resolution_notes;
+    resolutionSection.style.display = 'block';
+  } else {
+    resolutionSection.style.display = 'none';
+  }
+  
+  // Update attachments
+  const attachmentsSection = document.getElementById('viewTicketAttachmentsSection');
+  const attachmentsContainer = document.getElementById('viewTicketAttachments');
+  
+  if (ticket.attachments && ticket.attachments.length > 0) {
+    document.getElementById('viewTicketAttachmentCount').textContent = ticket.attachments.length;
+    
+    let attachmentsHtml = '';
+    ticket.attachments.forEach((att, i) => {
+      const fileName = att.split('/').pop();
+      const ext = fileName.split('.').pop().toLowerCase();
+      const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+      const imgUrl = getStorageUrl(att);
+      
+      if (isImage) {
+        attachmentsHtml += `
+          <a href="${imgUrl}" target="_blank" style="display: block; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; transition: all 0.2s; background: white;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'" onmouseout="this.style.boxShadow='none'">
+            <img src="${imgUrl}" alt="Attachment ${i+1}" style="width: 100%; height: 100px; object-fit: cover;">
+            <div style="padding: 8px; font-size: 11px; color: #64748b; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: #f8fafc;">🖼️ ${fileName}</div>
+          </a>
+        `;
+      } else {
+        attachmentsHtml += `
+          <a href="${imgUrl}" target="_blank" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 12px; border: 1px solid #e5e7eb; border-radius: 10px; text-decoration: none; transition: all 0.2s; background: white;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'" onmouseout="this.style.boxShadow='none'">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="${ext === 'pdf' ? '#dc2626' : '#3b82f6'}" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <div style="margin-top: 8px; font-size: 11px; color: #64748b; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;">${ext === 'pdf' ? '📄' : '📎'} ${fileName}</div>
+          </a>
+        `;
+      }
+    });
+    
+    attachmentsContainer.innerHTML = attachmentsHtml;
+    attachmentsSection.style.display = 'block';
+  } else {
+    attachmentsSection.style.display = 'none';
+  }
+  
+  // Handle edit button visibility for employees
+  const editBtn = document.getElementById('viewTicketEditBtn');
+  const isAdmin = {{ auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr') ? 'true' : 'false' }};
+  const isEmployee = {{ auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee') ? 'true' : 'false' }};
+  const currentEmployeeId = {{ $currentEmployeeId ?? 'null' }};
+  
+  if (editBtn) {
+    if (isAdmin) {
+      // Admins can always edit
+      editBtn.style.display = 'flex';
+    } else if (isEmployee && currentEmployeeId && ticket.assigned_to == currentEmployeeId) {
+      // Employees can edit only if assigned to them
+      editBtn.style.display = 'flex';
+    } else if (!isAdmin && !isEmployee) {
+      // Customers - hide edit button (they use the main form)
+      editBtn.style.display = 'none';
+    }
+  }
+}
+
+function loadTicketComments(ticketId) {
+  fetch(`{{ url('tickets') }}/${ticketId}/comments`, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      renderTicketComments(data.comments || []);
+    }
+  })
+  .catch(error => {
+    console.error('Error loading comments:', error);
+  });
+}
+
+// Store all comments for tab filtering
+let allTicketComments = [];
+let currentChatTab = 'external';
+let selectedChatFile = null;
+
+function renderTicketComments(comments) {
+  allTicketComments = comments;
+  const container = document.getElementById('ticketChatMessages');
+  const emptyState = document.getElementById('ticketChatEmptyState');
+  const isAdmin = {{ auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr') ? 'true' : 'false' }};
+  const isEmployee = {{ auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee') ? 'true' : 'false' }};
+  const isCustomer = {{ auth()->user()->hasRole('customer') ? 'true' : 'false' }};
+  const currentUserId = {{ auth()->id() }};
+  
+  // Filter comments based on current tab and user role
+  let visibleComments = comments;
+  if (isCustomer) {
+    visibleComments = comments.filter(c => !c.is_internal);
+  } else if (isAdmin || isEmployee) {
+    // Filter based on current tab
+    if (currentChatTab === 'internal') {
+      visibleComments = comments.filter(c => c.is_internal);
+    } else {
+      visibleComments = comments.filter(c => !c.is_internal);
+    }
+    
+    // Update internal notes count
+    const internalCount = comments.filter(c => c.is_internal).length;
+    const countBadge = document.getElementById('internalNotesCount');
+    if (countBadge) {
+      if (internalCount > 0) {
+        countBadge.textContent = internalCount;
+        countBadge.style.display = 'inline';
+      } else {
+        countBadge.style.display = 'none';
+      }
+    }
+  }
+  
+  if (visibleComments.length === 0) {
+    emptyState.style.display = 'block';
+    emptyState.querySelector('h4').textContent = currentChatTab === 'internal' ? 'No Internal Notes' : 'No Messages Yet';
+    emptyState.querySelector('p').textContent = currentChatTab === 'internal' ? 'Add internal notes for your team' : 'Start the conversation!';
+    // Remove all messages except empty state
+    Array.from(container.children).forEach(child => {
+      if (child.id !== 'ticketChatEmptyState') {
+        child.remove();
+      }
+    });
+    return;
+  }
+  
+  emptyState.style.display = 'none';
+  
+  // Clear existing messages (except empty state)
+  Array.from(container.children).forEach(child => {
+    if (child.id !== 'ticketChatEmptyState') {
+      child.remove();
+    }
+  });
+  
+  // Render comments
+  visibleComments.forEach(comment => {
+    const isOwn = comment.user_id === currentUserId;
+    const userName = comment.user ? comment.user.name : 'Unknown';
+    const userInitial = userName.charAt(0).toUpperCase();
+    const chatColor = comment.user && comment.user.chat_color ? comment.user.chat_color : '#6366f1';
+    const timeAgo = comment.created_at ? getTimeAgo(new Date(comment.created_at)) : '';
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.style.cssText = `display: flex; gap: 10px; ${isOwn ? 'flex-direction: row-reverse;' : ''} animation: slideIn 0.3s ease;`;
+    
+    let internalBadge = '';
+    if (comment.is_internal && (isAdmin || isEmployee)) {
+      internalBadge = `<span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; background: #fef3c7; color: #92400e; border-radius: 4px; font-size: 9px; font-weight: 600; margin-left: 6px;">🔒 Internal</span>`;
+    }
+    
+    // Build attachment HTML if exists
+    let attachmentHtml = '';
+    if (comment.attachment_path) {
+      const isImage = comment.attachment_type && comment.attachment_type.startsWith('image/');
+      const attachmentUrl = getStorageUrl(comment.attachment_path);
+      
+      if (isImage) {
+        attachmentHtml = `
+          <div style="margin-top: 8px;">
+            <a href="${attachmentUrl}" target="_blank" style="display: block; border-radius: 8px; overflow: hidden; max-width: 200px;">
+              <img src="${attachmentUrl}" alt="${comment.attachment_name || 'Attachment'}" style="width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px;">
+            </a>
+            <div style="font-size: 10px; color: ${isOwn ? 'rgba(255,255,255,0.8)' : '#64748b'}; margin-top: 4px;">📷 ${comment.attachment_name || 'Image'}</div>
+          </div>
+        `;
+      } else {
+        attachmentHtml = `
+          <div style="margin-top: 8px;">
+            <a href="${attachmentUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: ${isOwn ? 'rgba(255,255,255,0.2)' : '#f1f5f9'}; border-radius: 8px; text-decoration: none; color: ${isOwn ? 'white' : '#3b82f6'}; font-size: 12px; font-weight: 500;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              </svg>
+              ${comment.attachment_name || 'Download File'}
+            </a>
+          </div>
+        `;
+      }
+    }
+    
+    messageDiv.innerHTML = `
+      <div style="width: 32px; height: 32px; border-radius: 50%; background: ${chatColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px; flex-shrink: 0;">
+        ${userInitial}
+      </div>
+      <div style="max-width: 80%; ${isOwn ? 'text-align: right;' : ''}">
+        <div style="font-size: 11px; color: #64748b; margin-bottom: 3px;">
+          <span style="font-weight: 600; color: #374151;">${userName}</span>
+          ${internalBadge}
+          <span style="margin-left: 6px;">${timeAgo}</span>
+        </div>
+        <div style="padding: 10px 14px; background: ${isOwn ? '#3b82f6' : (comment.is_internal ? '#fef3c7' : 'white')}; color: ${isOwn ? 'white' : '#1f2937'}; border-radius: ${isOwn ? '14px 14px 4px 14px' : '14px 14px 14px 4px'}; font-size: 13px; line-height: 1.5; box-shadow: 0 1px 3px rgba(0,0,0,0.08); ${comment.is_internal && !isOwn ? 'border: 1px solid #fbbf24;' : ''} text-align: left;">
+          ${escapeHtml(comment.comment)}
+          ${attachmentHtml}
+        </div>
+      </div>
+    `;
+    
+    container.appendChild(messageDiv);
+  });
+  
+  // Scroll to bottom
+  container.scrollTop = container.scrollHeight;
+}
+
+// Tab switching function
+function switchChatTab(tab) {
+  currentChatTab = tab;
+  
+  const externalTab = document.getElementById('chatTabExternal');
+  const internalTab = document.getElementById('chatTabInternal');
+  const chatTitle = document.getElementById('chatSectionTitle');
+  const internalCheckbox = document.getElementById('ticketInternalComment');
+  const internalLabel = document.getElementById('internalNoteLabel');
+  
+  if (tab === 'external') {
+    if (externalTab) {
+      externalTab.style.background = 'white';
+      externalTab.style.borderBottomColor = '#3b82f6';
+      externalTab.style.color = '#3b82f6';
+    }
+    if (internalTab) {
+      internalTab.style.background = '#f8fafc';
+      internalTab.style.borderBottomColor = 'transparent';
+      internalTab.style.color = '#64748b';
+    }
+    if (chatTitle) chatTitle.textContent = 'Customer Chat';
+    if (internalCheckbox) internalCheckbox.checked = false;
+    if (internalLabel) internalLabel.style.display = 'flex';
+  } else {
+    if (internalTab) {
+      internalTab.style.background = 'white';
+      internalTab.style.borderBottomColor = '#f59e0b';
+      internalTab.style.color = '#f59e0b';
+    }
+    if (externalTab) {
+      externalTab.style.background = '#f8fafc';
+      externalTab.style.borderBottomColor = 'transparent';
+      externalTab.style.color = '#64748b';
+    }
+    if (chatTitle) chatTitle.textContent = 'Internal Notes';
+    if (internalCheckbox) internalCheckbox.checked = true;
+    if (internalLabel) internalLabel.style.display = 'none';
+  }
+  
+  // Re-render comments with new filter
+  renderTicketComments(allTicketComments);
+}
+
+// File attachment handling
+function handleChatFileSelect(input) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB');
+      input.value = '';
+      return;
+    }
+    
+    selectedChatFile = file;
+    
+    // Show preview
+    const previewContainer = document.getElementById('ticketChatAttachmentPreview');
+    const thumbContainer = document.getElementById('ticketChatAttachmentThumb');
+    const nameEl = document.getElementById('ticketChatAttachmentName');
+    const sizeEl = document.getElementById('ticketChatAttachmentSize');
+    
+    nameEl.textContent = file.name;
+    sizeEl.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+    
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        thumbContainer.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      thumbContainer.innerHTML = `
+        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #fee2e2;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+      `;
+    }
+    
+    previewContainer.style.display = 'block';
+  }
+}
+
+function clearChatAttachment() {
+  selectedChatFile = null;
+  document.getElementById('ticketChatFileInput').value = '';
+  document.getElementById('ticketChatAttachmentPreview').style.display = 'none';
+}
+
+function sendTicketComment() {
+  const input = document.getElementById('ticketChatInput');
+  const comment = input.value.trim();
+  
+  // Allow sending if there's a comment OR a file attachment
+  if ((!comment && !selectedChatFile) || !currentViewTicketId) return;
+  
+  const isInternalCheckbox = document.getElementById('ticketInternalComment');
+  const isInternal = isInternalCheckbox ? isInternalCheckbox.checked : false;
+  
+  const formData = new FormData();
+  formData.append('comment', comment || (selectedChatFile ? '📎 Attachment' : ''));
+  formData.append('is_internal', isInternal ? '1' : '0');
+  
+  // Add file attachment if selected
+  if (selectedChatFile) {
+    formData.append('attachment', selectedChatFile);
+  }
+  
+  // Disable send button while sending
+  const sendBtn = document.querySelector('#viewTicketModal button[onclick="sendTicketComment()"]');
+  if (sendBtn) {
+    sendBtn.disabled = true;
+    sendBtn.style.opacity = '0.6';
+  }
+  
+  fetch(`{{ url('tickets') }}/${currentViewTicketId}/comments`, {
+    method: 'POST',
+    headers: {
+      'X-CSRF-TOKEN': '{{ csrf_token() }}',
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      input.value = '';
+      clearChatAttachment();
+      // Don't reset internal checkbox if we're on internal tab
+      if (isInternalCheckbox && currentChatTab !== 'internal') {
+        isInternalCheckbox.checked = false;
+      }
+      loadTicketComments(currentViewTicketId);
+    } else {
+      alert('Error sending message: ' + (data.message || 'Unknown error'));
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Error sending message');
+  })
+  .finally(() => {
+    // Re-enable send button
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.style.opacity = '1';
+    }
+  });
+}
+
+function refreshTicketComments() {
+  if (currentViewTicketId) {
+    loadTicketComments(currentViewTicketId);
+  }
+}
+
+function startTicketChatPolling(ticketId) {
+  stopTicketChatPolling();
+  ticketChatPollingInterval = setInterval(() => {
+    if (currentViewTicketId === ticketId) {
+      loadTicketComments(ticketId);
+    }
+  }, 10000); // Poll every 10 seconds
+}
+
+function stopTicketChatPolling() {
+  if (ticketChatPollingInterval) {
+    clearInterval(ticketChatPollingInterval);
+    ticketChatPollingInterval = null;
+  }
+}
+
+function editTicketFromView() {
+  // Save the ID before closing modal (closeViewTicketModal resets currentViewTicketId to null)
+  const ticketId = currentViewTicketId;
+  if (ticketId) {
+    closeViewTicketModal();
+    editTicket(ticketId);
+  }
+}
+
+function getTimeAgo(date) {
+  const seconds = Math.floor((new Date() - date) / 1000);
+  
+  if (seconds < 60) return 'just now';
+  if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+  if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+  if (seconds < 604800) return Math.floor(seconds / 86400) + 'd ago';
+  
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 function deleteTicket(id) {
@@ -911,7 +1688,6 @@ function submitAssignment(event) {
   updateData.append('_method', 'PUT');
   updateData.append('assigned_to', employeeId);
   updateData.append('status', 'in_progress'); // Change status to in_progress
-  updateData.append('work_status', 'in_progress'); // Set work status
   
   fetch(`{{ url('tickets') }}/${ticketId}`, {
     method: 'POST',
@@ -1736,6 +2512,42 @@ document.addEventListener('DOMContentLoaded', function() {
       filterForm.submit();
     });
   });
+  
+  // Auto-open edit modal if 'edit' parameter is present in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const editTicketId = urlParams.get('edit');
+  if (editTicketId) {
+    // Remove the edit parameter from URL without reload
+    const newUrl = window.location.pathname + window.location.search.replace(/[?&]edit=\d+/, '').replace(/^&/, '?');
+    window.history.replaceState({}, document.title, newUrl === window.location.pathname + '?' ? window.location.pathname : newUrl);
+    
+    // Open edit modal
+    setTimeout(() => editTicket(parseInt(editTicketId)), 300);
+  }
+  
+  // Auto-open view/show popup if 'view' parameter is present in URL
+  const viewTicketId = urlParams.get('view');
+  if (viewTicketId) {
+    // Remove the view parameter from URL without reload
+    let cleanUrl = window.location.search.replace(/[?&]view=\d+/, '');
+    cleanUrl = cleanUrl.replace(/^&/, '?');
+    const newUrl = window.location.pathname + (cleanUrl === '?' ? '' : cleanUrl);
+    window.history.replaceState({}, document.title, newUrl || window.location.pathname);
+    
+    // Open view popup
+    setTimeout(() => viewTicket(parseInt(viewTicketId)), 300);
+  }
+  
+  // Auto-open edit completion modal if 'edit_completion' parameter is present
+  const editCompletionId = urlParams.get('edit_completion');
+  if (editCompletionId) {
+    // Remove the parameter from URL
+    const newUrl = window.location.pathname + window.location.search.replace(/[?&]edit_completion=\d+/, '').replace(/^&/, '?');
+    window.history.replaceState({}, document.title, newUrl === window.location.pathname + '?' ? window.location.pathname : newUrl);
+    
+    // Open edit completion modal
+    setTimeout(() => editCompletionData(parseInt(editCompletionId)), 300);
+  }
 });
 </script>
 @endsection
@@ -1768,6 +2580,121 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @push('styles')
 <style>
+  /* Chat animations */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* ========== VIEW TICKET MODAL STYLES ========== */
+  .ticket-view-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    backdrop-filter: blur(4px);
+  }
+  
+  .ticket-view-modal-container {
+    background: white;
+    border-radius: 16px;
+    max-width: 1400px;
+    width: 95%;
+    height: calc(100vh - 100px); /* Leave space for dock */
+    max-height: 850px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .ticket-view-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0;
+  }
+  
+  .ticket-view-modal-body {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+  }
+  
+  .ticket-view-left-column {
+    padding: 20px;
+    overflow-y: auto;
+    border-right: 1px solid #e5e7eb;
+  }
+  
+  .ticket-view-right-column {
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+    overflow: hidden;
+  }
+  
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .ticket-view-modal-container {
+      height: calc(100vh - 140px);
+      max-height: none;
+    }
+    
+    .ticket-view-modal-body {
+      grid-template-columns: 1fr;
+      overflow-y: auto;
+    }
+    
+    .ticket-view-left-column {
+      border-right: none;
+      border-bottom: 1px solid #e5e7eb;
+      max-height: none;
+      overflow: visible;
+    }
+    
+    .ticket-view-right-column {
+      min-height: 350px;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .ticket-view-modal-overlay {
+      padding: 0;
+    }
+    
+    .ticket-view-modal-container {
+      width: 100%;
+      max-width: 100%;
+      height: calc(100vh - 80px);
+      border-radius: 0;
+    }
+  }
+  
+  /* Chat tab hover effects */
+  #chatTabExternal:hover, #chatTabInternal:hover {
+    background: #f1f5f9 !important;
+  }
+
   /* Filter Layout Fix */
   .filter-right {
     display: flex;
@@ -1806,6 +2733,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   .pill-btn {
     order: 4;
+  }
+  
+  /* Chat tab hover effects */
+  #chatTabExternal:hover, #chatTabInternal:hover {
+    background: #f1f5f9 !important;
   }
 </style>
 @endpush

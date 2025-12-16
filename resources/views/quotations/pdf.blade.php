@@ -318,8 +318,8 @@
                         </div>
                         
                         <div style="font-size: 20px; margin-top: 40px; margin-bottom: 16px; color: #1a1a1a; font-weight: 600;">Sincerely,</div>
-                        <div style="font-size: 17px; margin-bottom: 8px; font-weight: 600; color: #2d3748;">MR. CHINTAN KACHHADIYA</div>
-                        <div style="font-size: 17px; margin-bottom: 8px; font-weight: 600; color: #2d3748;">CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)</div>
+                        <div style="font-size: 17px; margin-bottom: 8px; font-weight: 600; color: #2d3748;">{{ ($quotation->prepared_by_gender == 'Female') ? 'Miss' : 'Mr.' }} {{ strtoupper($quotation->prepared_by ?? 'CHINTAN KACHHADIYA') }}</div>
+                        <div style="font-size: 17px; margin-bottom: 8px; font-weight: 600; color: #2d3748;">{{ $quotation->own_company_name ?? 'CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)' }}</div>
                         <div style="font-size: 17px; font-weight: 600; color: #2d3748;">
                             (+91) 72763 23999
                         </div>
@@ -652,7 +652,7 @@
                                         <div style="padding: 25px;">
                                             <div style="margin-bottom: 25px;">
                                                 <label style="display: block; font-size: 15px; color: #555; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Authorized Signatory</label>
-                                                <p style="font-size: 19px; color: #2c3e50; margin: 0; font-weight: 600; border-bottom: 2px solid #3B86B3; padding-bottom: 8px; display: inline-block;">MR. {{ $quotation->prepared_by ?? 'CHINTAN KACHHADIYA' }}</p>
+                                                <p style="font-size: 19px; color: #2c3e50; margin: 0; font-weight: 600; border-bottom: 2px solid #3B86B3; padding-bottom: 8px; display: inline-block;">{{ ($quotation->prepared_by_gender == 'Female') ? 'Miss' : 'Mr.' }} {{ $quotation->prepared_by ?? 'CHINTAN KACHHADIYA' }}</p>
                                             </div>
                                             <div style="border: 2px dashed rgb(190, 190, 190); height: 100px; margin: 30px 0; background: rgba(59,134,179,0.03); border-radius: 12px;"></div>
                                             <div style="margin-top: 25px;">
@@ -671,7 +671,7 @@
                                         <div style="padding: 25px;">
                                             <div style="margin-bottom: 25px;">
                                                 <label style="display: block; font-size: 15px; color: #555; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Authorized Signatory</label>
-                                                <p style="font-size: 19px; color: #2c3e50; margin: 0; font-weight: 600; border-bottom: 2px solid #3B86B3; padding-bottom: 8px; display: inline-block;">MR. {{ $quotation->contact_person_1 }}</p>
+                                                <p style="font-size: 19px; color: #2c3e50; margin: 0; font-weight: 600; border-bottom: 2px solid #3B86B3; padding-bottom: 8px; display: inline-block;">{{ ($quotation->contact_gender_1 == 'Female') ? 'Miss' : 'Mr.' }} {{ $quotation->contact_person_1 }}</p>
                                             </div>
                                             <div style="border: 2px dashed rgb(190, 190, 190); height: 100px; margin: 30px 0; background: rgba(59,134,179,0.03); border-radius: 12px;"></div>
                                             <div style="margin-top: 25px;">
@@ -763,7 +763,7 @@
                         Let's Get Started!
                     </div>
                     <div style="font-size: 16px; color: #ffffff; line-height: 1.8; margin-bottom: 8px;">
-                        <strong>Contact Person:</strong> {{ $quotation->prepared_by ?? 'MR. CHINTAN KACHHADIYA' }}
+                        <strong>Contact Person:</strong> {{ ($quotation->prepared_by_gender == 'Female') ? 'Miss.' : 'Mr.' }} {{ $quotation->prepared_by ?? 'CHINTAN KACHHADIYA' }}
                     </div>
                     <div style="font-size: 16px; color: #ffffff; line-height: 1.8; margin-bottom: 8px;">
                         <strong>Phone:</strong> 

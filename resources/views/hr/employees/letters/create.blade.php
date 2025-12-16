@@ -607,6 +607,8 @@ $(document).on('change', 'select[name="type"]', function() {
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value === 'termination') {
         terminationFields.classList.remove('hidden');
+        universalFields.classList.remove('hidden');
+        standardFields.classList.remove('hidden');
         submitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Letter';
     } else if (this.value === 'warning') {
         document.getElementById('warningFields').classList.remove('hidden');
@@ -694,7 +696,8 @@ $(document).on('change', 'select[name="type"]', function() {
     if (this.value === 'other' && otherSubjField) {
         otherSubjField.setAttribute('name', 'subject');
         otherSubjField.setAttribute('required', 'required');
-    } else if (this.value && this.value !== '' && this.value !== 'warning' && this.value !== 'termination' && universalSubjField) {
+    } else if (this.value && this.value !== '' && this.value !== 'warning' && universalSubjField) {
+        // Show subject field for all types except 'other' and 'warning' (including termination)
         universalSubjField.setAttribute('name', 'subject');
         // Subject is optional for most letter types
     }

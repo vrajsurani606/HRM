@@ -14,6 +14,103 @@
     transform: translateY(0) scale(1);
   }
 }
+
+/* Date-time picker animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtask datetime badge styles */
+.subtask-datetime-display {
+  transition: all 0.2s ease;
+}
+.subtask-datetime-display:hover {
+  transform: translateY(-1px);
+}
+
+/* Date/time input styling for picker */
+#subtask-datetime-picker input[type="date"],
+#subtask-datetime-picker input[type="time"] {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+#subtask-datetime-picker input[type="date"]::-webkit-datetime-edit,
+#subtask-datetime-picker input[type="time"]::-webkit-datetime-edit {
+  color: #000000 !important;
+}
+#subtask-datetime-picker input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+#subtask-datetime-picker input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+  color: #000000 !important;
+}
+#subtask-datetime-picker input[type="date"]::-webkit-datetime-edit-text,
+#subtask-datetime-picker input[type="time"]::-webkit-datetime-edit-text {
+  color: #6b7280 !important;
+}
+#subtask-datetime-picker input[type="date"]::-webkit-datetime-edit-month-field,
+#subtask-datetime-picker input[type="date"]::-webkit-datetime-edit-day-field,
+#subtask-datetime-picker input[type="date"]::-webkit-datetime-edit-year-field,
+#subtask-datetime-picker input[type="time"]::-webkit-datetime-edit-hour-field,
+#subtask-datetime-picker input[type="time"]::-webkit-datetime-edit-minute-field,
+#subtask-datetime-picker input[type="time"]::-webkit-datetime-edit-ampm-field {
+  color: #000000 !important;
+  font-weight: 600;
+}
+#subtask-datetime-picker input[type="date"]::-webkit-calendar-picker-indicator,
+#subtask-datetime-picker input[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  filter: invert(0.3);
+}
+#subtask-datetime-picker input[type="date"]::-webkit-calendar-picker-indicator:hover,
+#subtask-datetime-picker input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Chat animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes newMessagePop {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes typingBounce {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 .member-card:hover {
   border-color: #267bf5 !important;
   background: #f0f9ff !important;
@@ -33,9 +130,10 @@
   justify-content: center !important;
   background: rgba(0, 0, 0, 0.5) !important;
   padding: 20px !important;
-  overflow-y: auto !important;
+  overflow: hidden !important;
 }
 
+.modal-overlay[style*="display: flex"],
 .modal-overlay.show {
   display: flex !important;
 }
@@ -44,13 +142,234 @@
   position: relative;
   z-index: 2147483647 !important;
   margin: auto !important;
-  max-height: calc(100vh - 100px) !important;
-  overflow-y: auto !important;
+  display: flex;
+  flex-direction: column;
+}
+
+/* View Project Modal specific styles */
+#viewProjectModal .modal-content {
+  max-height: 90vh !important;
+  overflow: hidden !important;
 }
 
 /* jQuery UI Datepicker z-index fix for modals */
 .ui-datepicker {
-  z-index: 10001 !important;
+  z-index: 2147483650 !important;
+}
+
+/* Custom colored checkbox for task completion */
+.task-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  background: white;
+  position: relative;
+  transition: all 0.2s;
+}
+.task-checkbox:checked {
+  border-color: var(--completed-color, #10b981);
+  background: var(--completed-color, #10b981);
+}
+.task-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+}
+.subtask-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid #d1d5db;
+  border-radius: 3px;
+  background: white;
+  position: relative;
+  transition: all 0.2s;
+}
+.subtask-checkbox:checked {
+  border-color: var(--completed-color, #10b981);
+  background: var(--completed-color, #10b981);
+}
+.subtask-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* Completed-by avatar shown next to checkbox */
+.completed-by-avatar {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.completed-by-avatar:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.completed-by-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+}
+.completed-by-avatar .avatar-fallback {
+  width: 100%;
+  height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  border-radius: 50%;
+}
+.completed-by-avatar[data-tooltip] {
+  position: relative;
+}
+.completed-by-avatar[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 99999;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  pointer-events: none;
+}
+.completed-by-avatar[data-tooltip]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1f2937;
+  z-index: 99999;
+  pointer-events: none;
+}
+.subtask-completed-avatar {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.subtask-completed-avatar:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.subtask-completed-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+}
+.subtask-completed-avatar .avatar-fallback {
+  width: 100%;
+  height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  border-radius: 50%;
+}
+.subtask-completed-avatar[data-tooltip] {
+  position: relative;
+}
+.subtask-completed-avatar[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 99999;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  pointer-events: none;
+}
+.subtask-completed-avatar[data-tooltip]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1f2937;
+  z-index: 99999;
+  pointer-events: none;
+}
+/* Checkbox wrapper for proper alignment */
+.checkbox-avatar-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 /* Form Input Styling */
@@ -551,16 +870,88 @@
 .kanban-board.hidden {
   display: none;
 }
+
+/* Sortable Table Headers */
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  white-space: nowrap;
+}
+
+.sortable:hover {
+  background: #f3f4f6;
+}
+
+.sort-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  opacity: 0.4;
+  vertical-align: middle;
+}
+
+.sortable:hover .sort-icon {
+  opacity: 0.7;
+}
+
+.sortable.asc .sort-icon,
+.sortable.desc .sort-icon {
+  opacity: 1;
+  color: #3b82f6;
+}
+
+.sortable.asc .sort-icon svg path:last-child {
+  opacity: 0.3;
+}
+
+.sortable.desc .sort-icon svg path:first-child {
+  opacity: 0.3;
+}
 </style>
 @endpush
 @section('content')
 <div class="hrp-content">
-  <!-- Header with search and controls -->
-  <div class="kanban-header">
-    <div class="search-container">
-      <input type="text" class="kanban-search live-search" placeholder="Type to search..">
-    </div>
-    <div class="header-controls">
+  <!-- Filters -->
+  <div class="jv-filter" id="projectFilters">
+    <select class="filter-pill" id="filterStage" onchange="applyProjectFilters()">
+      <option value="">All Stages</option>
+      @foreach($stages as $stage)
+        <option value="{{ $stage->id }}">{{ $stage->name }}</option>
+      @endforeach
+    </select>
+
+    <select class="filter-pill" id="filterStatus" onchange="applyProjectFilters()">
+      <option value="">All Status</option>
+      <option value="active">Active</option>
+      <option value="on_hold">On Hold</option>
+      <option value="completed">Completed</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+
+    <select class="filter-pill" id="filterPriority" onchange="applyProjectFilters()">
+      <option value="">All Priority</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+
+    <select class="filter-pill" id="filterCompany" onchange="applyProjectFilters()">
+      <option value="">All Companies</option>
+      @foreach($companies as $company)
+        <option value="{{ $company->id }}">{{ $company->company_name }}</option>
+      @endforeach
+    </select>
+
+    <button type="button" class="filter-search" onclick="resetProjectFilters()" title="Reset Filters">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+      </svg>
+    </button>
+
+    <div class="filter-right">
+      <input type="text" id="projectSearch" class="filter-pill live-search" placeholder="Search projects..." onkeyup="applyProjectFilters()">
+
       <!-- View Toggle Buttons -->
       <div class="view-toggle-group">
         <button class="view-toggle-btn active" data-view="kanban" title="Kanban View">
@@ -569,6 +960,7 @@
             <rect x="14" y="3" width="7" height="10" rx="1"></rect>
           </svg>
         </button>
+        {{-- Grid View Hidden
         <button class="view-toggle-btn" data-view="grid" title="Grid View">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="7" rx="1"></rect>
@@ -577,6 +969,7 @@
             <rect x="14" y="14" width="7" height="7" rx="1"></rect>
           </svg>
         </button>
+        --}}
         <button class="view-toggle-btn" data-view="list" title="List View">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="8" y1="6" x2="21" y2="6"></line>
@@ -588,8 +981,9 @@
           </svg>
         </button>
       </div>
+
       @can('Projects Management.manage project')
-        <button class="create-stage-btn" onclick="window.location.href='{{ route('project-stages.index') }}'" title="Manage Project Stages" style="background: #6b7280;">
+        <button type="button" class="pill-btn" onclick="window.location.href='{{ route('project-stages.index') }}'" title="Manage Project Stages" style="background: #6b7280; color: white;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M12 1v6m0 6v6"></path>
@@ -598,10 +992,9 @@
         </button>
       @endcan
       @can('Projects Management.create project')
-        <button class="create-stage-btn" onclick="openProjectModal()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <button type="button" class="pill-btn pill-success" onclick="openProjectModal()">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
           </svg>
           Create Project
         </button>
@@ -618,7 +1011,7 @@
           <span>{{ $stage->name }}</span>
         </div>
         @can('Projects Management.create project')
-          <button class="add-card-btn" onclick="openProjectModal({{ $stage->id }})">
+          <button class="add-card-btn" onclick="toggleInlineAddCard({{ $stage->id }})">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -658,65 +1051,83 @@
           </div>
           <div class="card-meta">
             <div class="card-stats">
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
-                </svg>
-              </span>
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <polyline points="9,11 12,14 15,11" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <line x1="12" y1="2" x2="12" y2="14" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </span>
+              @if($project->total_tasks > 0)
               <span class="task-count">{{ $project->completed_tasks }}/{{ $project->total_tasks }}</span>
+              @endif
             </div>
             <div class="card-avatars">
               @php
-                $colors = ['#4F46E5', '#059669', '#DC2626', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
                 $displayLimit = 3;
+                $fallbackColors = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#ef4444', '#06b6d4', '#84cc16'];
               @endphp
               @if($project->members->count() > 0)
                 @foreach($project->members->take($displayLimit) as $index => $member)
                   @php
                     $initials = get_user_initials($member->name);
-                    $bgColor = $colors[$member->id % count($colors)];
+                    // Use member's chat_color, fallback to random color
+                    $userColor = $member->chat_color ?? $fallbackColors[$member->id % count($fallbackColors)];
                     
                     // Get employee for this user to check for photo
                     $employee = \App\Models\Employee::where('user_id', $member->id)->first();
-                    $photoUrl = $employee ? $employee->profile_photo_url : $member->profile_photo_url;
+                    $hasPhoto = $employee && !empty($employee->photo_path);
                   @endphp
-                  <div class="avatar" style="background: {{ $bgColor }}; overflow: hidden;" title="{{ $member->name }}">
-                    @if($employee && $employee->photo_path)
-                      <img src="{{ $photoUrl }}" alt="{{ $member->name }}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='{{ $initials }}';">
+                  <div class="avatar" data-tooltip="{{ $member->name }}" style="background: {{ $hasPhoto ? '#f3f4f6' : $userColor }}; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.12); border: 2px solid {{ $userColor }};">
+                    @if($hasPhoto)
+                      <img src="{{ storage_asset($employee->photo_path) }}" alt="{{ $member->name }}" style="width: 100%; height: 100%; object-fit: cover;" onerror="var p=this.parentElement; this.style.display='none'; p.style.background='{{ $userColor }}'; p.innerHTML='{{ $initials }}';">
                     @else
                       {{ $initials }}
                     @endif
                   </div>
                 @endforeach
                 @if($project->members->count() > $displayLimit)
-                  <div class="avatar" style="background: #6B7280;" title="{{ $project->members->count() - $displayLimit }} more members">+{{ $project->members->count() - $displayLimit }}</div>
+                  <div class="avatar" data-tooltip="{{ $project->members->count() - $displayLimit }} more members" style="background: #6B7280;">+{{ $project->members->count() - $displayLimit }}</div>
                 @endif
-              @else
-                <div class="avatar" style="background: #9CA3AF;" title="No members assigned">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
-                </div>
               @endif
             </div>
           </div>
         </div>
         @endforeach
+
+        <!-- Inline Add Card Form (Trello Style) -->
+        @can('Projects Management.create project')
+        <div class="inline-add-card-form" id="inlineAddCard-{{ $stage->id }}" style="display: none;">
+          <div class="inline-card-input-wrapper">
+            <textarea 
+              class="inline-card-title-input" 
+              id="inlineCardTitle-{{ $stage->id }}" 
+              placeholder="Enter a title for this project..."
+              rows="2"
+              onkeydown="handleInlineCardKeydown(event, {{ $stage->id }})"
+            ></textarea>
+          </div>
+          <div class="inline-card-actions">
+            <button type="button" class="inline-add-btn" onclick="submitInlineCard({{ $stage->id }})">
+              Add project
+            </button>
+            <button type="button" class="inline-close-btn" onclick="closeInlineAddCard({{ $stage->id }})">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Add Card Button (Trello Style) -->
+        <button class="inline-add-card-trigger" id="addCardTrigger-{{ $stage->id }}" onclick="toggleInlineAddCard({{ $stage->id }})">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add a project
+        </button>
+        @endcan
       </div>
     </div>
     @endforeach
   </div>
 
-  <!-- Grid View -->
+  {{-- Grid View Hidden
   <div class="projects-grid-view">
     @forelse($projects as $project)
       <div class="project-grid-card" onclick="viewProject({{ $project->id }}, event)">
@@ -732,6 +1143,7 @@
         @endif
         
         <div class="project-grid-meta">
+          @if($project->total_tasks > 0)
           <div class="project-grid-progress">
             <div class="project-grid-progress-text">
               {{ $project->completed_tasks }}/{{ $project->total_tasks }} Tasks
@@ -740,6 +1152,7 @@
               <div class="project-grid-progress-fill" style="width: {{ $project->progress }}%"></div>
             </div>
           </div>
+          @endif
           
           <div class="project-grid-actions" onclick="event.stopPropagation()">
             @can('Projects Management.view project')
@@ -783,26 +1196,83 @@
       <div class="text-center py-3" style="grid-column: 1/-1;">No projects found</div>
     @endforelse
   </div>
+  --}}
 
   <!-- List View -->
   <div class="projects-list-view">
     <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
-      <table>
+      <table id="projectListTable">
         <thead>
           <tr>
             <th style="width: 120px;">Actions</th>
-            <th>Sr.No.</th>
-            <th>Project Name</th>
-            <th>Company</th>
-            <th>Stage</th>
-            <th>Progress</th>
-            <th>Due Date</th>
-            <th>Priority</th>
+            <th class="sortable" data-sort="srno" data-type="number" style="cursor: pointer;">
+              Sr.No.
+              <span class="sort-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 10l5-5 5 5M7 14l5 5 5-5"/>
+                </svg>
+              </span>
+            </th>
+            <th class="sortable" data-sort="name" data-type="string" style="cursor: pointer;">
+              Project Name
+              <span class="sort-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 10l5-5 5 5M7 14l5 5 5-5"/>
+                </svg>
+              </span>
+            </th>
+            <th class="sortable" data-sort="company" data-type="string" style="cursor: pointer;">
+              Company
+              <span class="sort-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 10l5-5 5 5M7 14l5 5 5-5"/>
+                </svg>
+              </span>
+            </th>
+            <th class="sortable" data-sort="stage" data-type="string" style="cursor: pointer;">
+              Stage
+              <span class="sort-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 10l5-5 5 5M7 14l5 5 5-5"/>
+                </svg>
+              </span>
+            </th>
+            <th class="sortable" data-sort="progress" data-type="number" style="cursor: pointer;">
+              Progress
+              <span class="sort-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 10l5-5 5 5M7 14l5 5 5-5"/>
+                </svg>
+              </span>
+            </th>
+            <th class="sortable" data-sort="duedate" data-type="date" style="cursor: pointer;">
+              Due Date
+              <span class="sort-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 10l5-5 5 5M7 14l5 5 5-5"/>
+                </svg>
+              </span>
+            </th>
+            <th class="sortable" data-sort="priority" data-type="priority" style="cursor: pointer;">
+              Priority
+              <span class="sort-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 10l5-5 5 5M7 14l5 5 5-5"/>
+                </svg>
+              </span>
+            </th>
           </tr>
         </thead>
         <tbody>
           @forelse($projects as $index => $project)
-            <tr>
+            <tr data-project-id="{{ $project->id }}" 
+                data-srno="{{ $index + 1 }}"
+                data-name="{{ strtolower($project->name) }}"
+                data-company="{{ strtolower($project->company->company_name ?? '') }}"
+                data-stage="{{ strtolower($project->stage->name ?? '') }}"
+                data-progress="{{ $project->progress }}"
+                data-duedate="{{ $project->due_date ? $project->due_date->format('Y-m-d') : '9999-12-31' }}"
+                data-priority="{{ $project->priority ?? 'medium' }}">
               <td>
                 <div class="action-icons">
                   @can('Projects Management.view project')
@@ -811,17 +1281,19 @@
                   @can('Projects Management.edit project')
                     <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon" onclick="editProject({{ $project->id }})" title="Edit Project" style="cursor:pointer;">
                   @endcan
+                  {{-- Overview Button Hidden
                   @can('Projects Management.view project')
                     <a href="{{ url('/projects') }}/{{ $project->id }}/overview" title="Project Overview">
                       <img src="{{ asset('action_icon/view_temp_list.svg') }}" alt="Overview" class="action-icon">
                     </a>
                   @endcan
+                  --}}
                   @can('Projects Management.delete project')
                     <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon" onclick="deleteProject({{ $project->id }})" title="Delete Project" style="cursor:pointer;">
                   @endcan
                 </div>
               </td>
-              <td>{{ $index + 1 }}</td>
+              <td class="srno-cell">{{ $index + 1 }}</td>
               <td>
                 <span class="project-list-name" onclick="viewProject({{ $project->id }}, event)">
                   {{ $project->name }}
@@ -973,11 +1445,6 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="projectBudget">Budget</label>
-          <input type="number" id="projectBudget" name="budget" class="form-input" placeholder="0.00" step="0.01" min="0">
-        </div>
-
         <div class="form-actions">
           <button type="button" onclick="closeProjectModal()" class="btn-cancel">Cancel</button>
           <button type="submit" class="btn-create">Create Project</button>
@@ -1051,11 +1518,6 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="editProjectBudget">Budget</label>
-          <input type="number" id="editProjectBudget" name="budget" class="form-input" placeholder="0.00" step="0.01" min="0">
-        </div>
-
         <div class="form-actions">
           <button type="button" onclick="closeEditProjectModal()" class="btn-cancel">Cancel</button>
           <button type="submit" class="btn-create">Update Project</button>
@@ -1066,9 +1528,9 @@
 
   <!-- View Project Modal -->
   <div id="viewProjectModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 1400px; width: 95%; max-height: calc(100vh - 120px); overflow-y: auto; border-radius: 16px; padding: 0; background: white; margin: 60px auto;">
+    <div class="modal-content" style="max-width: 1400px; width: 95%; max-height: 90vh; overflow: hidden; border-radius: 16px; padding: 0; background: white; margin: 40px auto;">
       <!-- Stage Badge -->
-      <div style="padding: 14px 20px; border-bottom: 1px solid #f0f0f0;">
+      <div style="padding: 14px 20px; border-bottom: 1px solid #f0f0f0; flex-shrink: 0;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <div style="display: flex; align-items: center; gap: 6px;">
             <span style="color: #d4a574; font-size: 14px;">📋</span>
@@ -1079,10 +1541,10 @@
       </div>
 
       <!-- Project Content - Two Column Layout -->
-      <div style="display: grid; grid-template-columns: 1fr 400px; gap: 0; height: calc(90vh - 60px);">
+      <div style="display: grid; grid-template-columns: 1fr 380px; gap: 0; height: calc(90vh - 80px); overflow: hidden;">
         
         <!-- LEFT COLUMN - Tasks -->
-        <div style="padding: 20px 24px 24px; overflow-y: auto; border-right: 1px solid #e5e7eb;">
+        <div style="padding: 20px 24px 24px; overflow-y: auto; overflow-x: hidden; border-right: 1px solid #e5e7eb; max-height: 100%;">
         <!-- Title -->
         <div style="margin-bottom: 16px;">
           <h2 id="viewProjectTitle" style="font-size: 24px; font-weight: 600; margin: 0; color: #000;"></h2>
@@ -1090,13 +1552,7 @@
         
         <!-- Action Buttons -->
         <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
-          <button onclick="toggleAddTaskBox()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Add Task
-          </button>
+          
           
           <button id="dueDateButton" onclick="openProjectDueDatePicker()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1105,6 +1561,16 @@
             </svg>
             <span id="dueDateText">Due Date</span>
           </button>
+
+          @can('Projects Management.create task')
+          <button onclick="toggleAddTaskBox()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Manually Assign
+          </button>
+          
           <button onclick="openMaterialsModalInKanban()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 11l3 3L22 4"></path>
@@ -1112,6 +1578,7 @@
             </svg>
             Auto Assign
           </button>
+          @endcan
           <!-- <button  style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: #10b981; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; color: white; transition: all 0.2s; font-weight: 600;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 11l3 3L22 4"></path>
@@ -1120,9 +1587,15 @@
             Assign Materials
           </button> -->
           
-          <!-- Members Section (inline, no border) -->
-          <div style="display: flex; align-items: center; gap: 8px; padding: 0;">
-            <span style="color: #000; font-size: 13px; font-weight: 500;">Members</span>
+          <!-- Members Section -->
+          <div style="display: inline-flex; align-items: center; gap: 8px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; font-size: 13px; color: #000;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span style="font-weight: 500;">Members</span>
             <div id="projectMembersAvatars" style="display: flex; align-items: center; gap: 4px;">
               <!-- Member avatars will be added here -->
             </div>
@@ -1153,6 +1626,7 @@
 
         <!-- Tasks Section -->
         <div>
+          @can('Projects Management.create task')
           <!-- Add Task Form (Hidden by default) -->
           <div id="addTaskBox" style="display: none; margin-bottom: 16px; background: #fafafa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px;">
             <div style="margin-bottom: 12px;">
@@ -1163,18 +1637,7 @@
               <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">Description</label>
               <textarea id="newTaskDescription" placeholder="Task details (optional)..." style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none; min-height: 60px; resize: vertical;"></textarea>
             </div>
-            <div style="margin-bottom: 12px;">
-              <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                Assign To Employee
-              </label>
-              <select id="newTaskAssignedTo" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none;">
-                <option value="">Select Employee (Optional)</option>
-              </select>
-            </div>
+            <!-- Tasks are visible to all project members - no assignment needed -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
               <div>
                 <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">
@@ -1204,6 +1667,7 @@
               <button onclick="saveNewTask()" style="padding: 8px 16px; background: #10b981; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; color: white; font-weight: 600;">Add Task</button>
             </div>
           </div>
+          @endcan
 
           <!-- Tasks Container -->
           <div id="tasksContainer">
@@ -1214,48 +1678,50 @@
         <!-- End LEFT COLUMN -->
         
         <!-- RIGHT COLUMN - Group Chat -->
-        <div style="display: flex; flex-direction: column; background: #f9fafb;">
+        <div style="display: flex; flex-direction: column; background: #f8fafc; height: 100%; overflow: hidden;">
           <!-- Chat Header -->
-          <div style="padding: 20px; border-bottom: 1px solid #e5e7eb; background: white;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                </svg>
-                <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #000;">Group Chat</h3>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Chat Messages -->
-          <div id="chatMessages" style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;">
-            <!-- Messages will be added here -->
-            <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 13px;">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" style="margin: 0 auto 10px;">
+          <div style="padding: 16px 20px; border-bottom: 1px solid #e5e7eb; background: white; flex-shrink: 0;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               </svg>
-              <p style="margin: 0;">Start a conversation with your team</p>
+              <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #1f2937;">Group Chat</h3>
             </div>
           </div>
           
-          <!-- Chat Input -->
-          <div style="padding: 16px; background: white; border-top: 1px solid #e5e7eb;">
-            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-              <button onclick="formatText('bold')" title="Bold" style="padding: 6px 10px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: all 0.2s;">B</button>
-              <button onclick="formatText('italic')" title="Italic" style="padding: 6px 10px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 4px; cursor: pointer; font-style: italic; font-size: 13px; transition: all 0.2s;">I</button>
-              <button onclick="formatText('underline')" title="Underline" style="padding: 6px 10px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 4px; cursor: pointer; text-decoration: underline; font-size: 13px; transition: all 0.2s;">U</button>
-              <button onclick="insertEmoji('👍')" title="Thumbs up" style="padding: 6px 10px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 4px; cursor: pointer; font-size: 13px; transition: all 0.2s;">👍</button>
-              <button onclick="insertEmoji('❤️')" title="Heart" style="padding: 6px 10px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 4px; cursor: pointer; font-size: 13px; transition: all 0.2s;">❤️</button>
-              <button onclick="insertEmoji('🎉')" title="Party" style="padding: 6px 10px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 4px; cursor: pointer; font-size: 13px; transition: all 0.2s;">🎉</button>
+          <!-- Chat Messages Container -->
+          <div id="chatMessages" style="flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0;">
+            <!-- Empty State -->
+            <div id="chatEmptyState" style="text-align: center; padding: 40px 20px;">
+              <div style="width: 70px; height: 70px; margin: 0 auto 16px; background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </div>
+              <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 600; color: #1f2937;">No Messages Yet</h4>
+              <p style="margin: 0; font-size: 13px; color: #6b7280;">Start the conversation with your team!</p>
             </div>
-            <div style="display: flex; gap: 8px;">
-              <textarea id="chatInput" placeholder="Type a message..." style="flex: 1; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none; resize: none; min-height: 60px; font-family: inherit;" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendChatMessage(); }"></textarea>
-              <button onclick="sendChatMessage()" style="padding: 10px 20px; background: #10b981; border: none; border-radius: 6px; cursor: pointer; color: white; font-weight: 600; font-size: 13px; align-self: flex-end; transition: all 0.2s;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          </div>
+          
+          <!-- Chat Input Area -->
+          <div style="padding: 12px 16px; background: white; border-top: 1px solid #e5e7eb; flex-shrink: 0;">
+            <div style="display: flex; align-items: flex-end; gap: 10px;">
+              <textarea id="chatInput" placeholder="Type here to discuss with the team..." rows="1" style="flex: 1; padding: 12px 16px; border: 1px solid #e5e7eb; border-radius: 24px; background: #f9fafb; color: #1f2937; font-size: 14px; outline: none; resize: none; min-height: 44px; max-height: 100px; font-family: inherit; transition: border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e5e7eb'" oninput="handleChatTyping()" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendChatMessage(); }"></textarea>
+              <button onclick="sendChatMessage()" style="width: 44px; height: 44px; border-radius: 50%; background: #3b82f6; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; flex-shrink: 0;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                   <line x1="22" y1="2" x2="11" y2="13"></line>
                   <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                 </svg>
               </button>
+            </div>
+            <div style="display: flex; gap: 6px; padding-top: 10px;">
+              <button onclick="formatText('bold')" title="Bold" style="padding: 5px 10px; background: transparent; border: none; cursor: pointer; font-weight: bold; font-size: 14px; color: #6b7280; border-radius: 4px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">B</button>
+              <button onclick="formatText('italic')" title="Italic" style="padding: 5px 10px; background: transparent; border: none; cursor: pointer; font-style: italic; font-size: 14px; color: #6b7280; border-radius: 4px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">I</button>
+              <button onclick="formatText('strikethrough')" title="Strikethrough" style="padding: 5px 10px; background: transparent; border: none; cursor: pointer; text-decoration: line-through; font-size: 14px; color: #6b7280; border-radius: 4px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">S</button>
+              <span style="width: 1px; background: #e5e7eb; margin: 0 4px;"></span>
+              <button onclick="insertEmoji('👍')" title="Thumbs up" style="padding: 5px 8px; background: transparent; border: none; cursor: pointer; font-size: 14px; border-radius: 4px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">👍</button>
+              <button onclick="insertEmoji('❤️')" title="Heart" style="padding: 5px 8px; background: transparent; border: none; cursor: pointer; font-size: 14px; border-radius: 4px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">❤️</button>
+              <button onclick="insertEmoji('🎉')" title="Party" style="padding: 5px 8px; background: transparent; border: none; cursor: pointer; font-size: 14px; border-radius: 4px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">🎉</button>
             </div>
           </div>
         </div>
@@ -1266,9 +1732,9 @@
   </div>
 
   <!-- Add Member Modal -->
-  <div id="addMemberModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10001; align-items: center; justify-content: center;">
-    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);" onclick="closeAddMemberModal()"></div>
-    <div style="position: relative; background: white; border-radius: 16px; width: 90%; max-width: 800px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out;">
+  <div id="addMemberModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2147483648; align-items: center; justify-content: center;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 2147483648;" onclick="closeAddMemberModal()"></div>
+    <div style="position: relative; background: white; border-radius: 16px; width: 90%; max-width: 800px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out; z-index: 2147483649;">
       <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #e2e8f0;">
         <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 8px;">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1375,8 +1841,13 @@ function initializeViewSwitching() {
     const gridView = document.querySelector('.projects-grid-view');
     const listView = document.querySelector('.projects-list-view');
     
-    // Load saved view preference
-    const savedView = localStorage.getItem('projectView') || 'kanban';
+    // Load saved view preference - default to kanban if grid is hidden
+    let savedView = localStorage.getItem('projectView') || 'kanban';
+    // If grid view is hidden and saved view is grid, switch to kanban
+    if (!gridView && savedView === 'grid') {
+        savedView = 'kanban';
+        localStorage.setItem('projectView', 'kanban');
+    }
     switchView(savedView);
     
     viewButtons.forEach(button => {
@@ -1393,10 +1864,10 @@ function initializeViewSwitching() {
             btn.classList.toggle('active', btn.dataset.view === view);
         });
         
-        // Show/hide views
-        kanbanView.classList.toggle('hidden', view !== 'kanban');
-        gridView.classList.toggle('active', view === 'grid');
-        listView.classList.toggle('active', view === 'list');
+        // Show/hide views - add null checks
+        if (kanbanView) kanbanView.classList.toggle('hidden', view !== 'kanban');
+        if (gridView) gridView.classList.toggle('active', view === 'grid');
+        if (listView) listView.classList.toggle('active', view === 'list');
         
         // Fix overflow for list/grid views (enable vertical scroll)
         const hrpContent = document.querySelector('.hrp-content');
@@ -1914,6 +2385,153 @@ let taskCounter = 0;
 let employeesListForTasks = [];
 let tasksDataStore = {}; // Store task data for editing
 
+// Current user info for task completion tracking
+@php
+    $currentAuthUser = auth()->user();
+    $currentUserPhotoPath = '';
+    
+    // Try to get photo from employee relationship
+    if ($currentAuthUser->employee && $currentAuthUser->employee->photo_path) {
+        $currentUserPhotoPath = storage_asset($currentAuthUser->employee->photo_path);
+    }
+    // Fallback: Try to find employee by matching user_id
+    elseif (!$currentAuthUser->employee) {
+        $employeeByUserId = \App\Models\Employee::where('user_id', $currentAuthUser->id)->first();
+        if ($employeeByUserId && $employeeByUserId->photo_path) {
+            $currentUserPhotoPath = storage_asset($employeeByUserId->photo_path);
+        }
+    }
+@endphp
+const currentUser = {
+    id: {{ auth()->id() }},
+    name: "{{ $currentAuthUser->name }}",
+    chat_color: "{{ $currentAuthUser->chat_color ?? '#10b981' }}",
+    photo_path: "{{ $currentUserPhotoPath }}"
+};
+
+// Permission flags for task management
+const canCreateTask = {{ auth()->user()->can('Projects Management.create task') ? 'true' : 'false' }};
+const canEditTask = {{ auth()->user()->can('Projects Management.edit task') ? 'true' : 'false' }};
+const canDeleteTask = {{ auth()->user()->can('Projects Management.delete task') ? 'true' : 'false' }};
+const canManageMembers = {{ auth()->user()->can('Projects Management.edit project') ? 'true' : 'false' }};
+// Only employees cannot uncheck completed tasks - all other roles can uncheck
+const canUncheckTask = {{ !auth()->user()->hasRole('employee') ? 'true' : 'false' }};
+
+// Helper function to show confirmation dialog
+function showConfirmDialog(title, message, confirmText = 'Confirm', cancelText = 'Cancel') {
+    return new Promise((resolve) => {
+        // Create modal overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 999999;';
+        
+        // Create modal content
+        overlay.innerHTML = `
+            <div style="background: white; border-radius: 12px; padding: 24px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalSlideIn 0.2s ease-out;">
+                <h3 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 600; color: #1f2937;">${title}</h3>
+                <p style="margin: 0 0 24px 0; font-size: 14px; color: #6b7280; line-height: 1.5;">${message}</p>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button id="confirmDialogCancel" style="padding: 10px 20px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; color: #374151; transition: all 0.2s;">${cancelText}</button>
+                    <button id="confirmDialogConfirm" style="padding: 10px 20px; background: #10b981; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: white; transition: all 0.2s;">${confirmText}</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        
+        // Handle button clicks
+        overlay.querySelector('#confirmDialogConfirm').onclick = () => {
+            document.body.removeChild(overlay);
+            resolve(true);
+        };
+        
+        overlay.querySelector('#confirmDialogCancel').onclick = () => {
+            document.body.removeChild(overlay);
+            resolve(false);
+        };
+        
+        // Close on overlay click
+        overlay.onclick = (e) => {
+            if (e.target === overlay) {
+                document.body.removeChild(overlay);
+                resolve(false);
+            }
+        };
+    });
+}
+
+// Helper function to get initials from name
+function getInitials(name) {
+    if (!name) return '?';
+    // Clean name - remove anything in parentheses and special characters
+    let cleanName = name.replace(/\s*\([^)]*\)/g, '').replace(/[^a-zA-Z\s]/g, '').trim();
+    const parts = cleanName.split(' ').filter(p => p.length > 0);
+    if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    if (parts.length === 1 && parts[0].length >= 2) {
+        return parts[0].substring(0, 2).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+}
+
+// Helper function to create avatar HTML for completed tasks/subtasks
+// Now accepts extra info: completedAt (datetime string), dueDate, dueTime
+function createCompletedAvatar(userName, userColor, photoPath, isSubtask = false, completedAt = null, dueDate = null, dueTime = null) {
+    const initials = getInitials(userName);
+    const avatarClass = isSubtask ? 'subtask-completed-avatar' : 'completed-by-avatar';
+    const fontSize = isSubtask ? 8 : 9;
+    const size = isSubtask ? 20 : 22;
+    const borderWidth = 2;
+    
+    // Build tooltip content
+    let tooltipLines = [`✓ Done by ${userName}`];
+    
+    // Add completion date/time if available
+    if (completedAt) {
+        const completedDate = new Date(completedAt);
+        const formattedCompletedDate = completedDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        const formattedCompletedTime = completedDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true });
+        tooltipLines.push(`📅 ${formattedCompletedDate} at ${formattedCompletedTime}`);
+    }
+    
+    // Add due date/time if available
+    if (dueDate) {
+        let formattedDueDate = dueDate;
+        // Try to parse if it's a date string
+        try {
+            const dueDateObj = new Date(dueDate);
+            if (!isNaN(dueDateObj.getTime())) {
+                formattedDueDate = dueDateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            }
+        } catch(e) {}
+        let dueText = `⏰ Due: ${formattedDueDate}`;
+        if (dueTime) {
+            const [hours, minutes] = dueTime.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            dueText += ` at ${hour12}:${minutes} ${ampm}`;
+        }
+        tooltipLines.push(dueText);
+    }
+    
+    const tooltipText = tooltipLines.join(' | ');
+    
+    // Check if photoPath is valid (not empty string, null, or undefined)
+    const hasPhoto = photoPath && photoPath.trim() !== '';
+    
+    if (hasPhoto) {
+        // Photo with colored border ring - image displayed with fallback to initials
+        return `<div class="${avatarClass}" data-tooltip="${tooltipText}" title="${userName}" style="border: ${borderWidth}px solid ${userColor}; background: #f3f4f6; width: ${size}px; height: ${size}px;">
+            <img src="${photoPath}" alt="${userName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="avatar-fallback" style="display: none; width: 100%; height: 100%; background: ${userColor}; font-size: ${fontSize}px; align-items: center; justify-content: center; color: white; font-weight: 700; border-radius: 50%;">${initials}</div>
+        </div>`;
+    } else {
+        // Initials on colored background
+        return `<div class="${avatarClass}" data-tooltip="${tooltipText}" title="${userName}" style="background: ${userColor}; width: ${size}px; height: ${size}px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: ${fontSize}px;">${initials}</div>`;
+    }
+}
+
 // Load employees list for task assignment
 async function loadEmployeesForTasks() {
     try {
@@ -1926,17 +2544,6 @@ async function loadEmployeesForTasks() {
         const data = await response.json();
         if (data.success && data.employees) {
             employeesListForTasks = data.employees;
-            // Populate the select dropdown
-            const select = document.getElementById('newTaskAssignedTo');
-            if (select) {
-                select.innerHTML = '<option value="">Select Employee (Optional)</option>';
-                data.employees.forEach(emp => {
-                    const option = document.createElement('option');
-                    option.value = emp.id;
-                    option.textContent = emp.name;
-                    select.appendChild(option);
-                });
-            }
         }
     } catch (error) {
         console.error('Error loading employees:', error);
@@ -1959,7 +2566,6 @@ function cancelAddTask() {
     document.getElementById('addTaskBox').style.display = 'none';
     document.getElementById('newTaskTitle').value = '';
     document.getElementById('newTaskDescription').value = '';
-    document.getElementById('newTaskAssignedTo').value = '';
     document.getElementById('newTaskDueDate').value = '';
     document.getElementById('newTaskDueTime').value = '';
 }
@@ -1973,20 +2579,26 @@ function saveNewTask() {
     taskCounter++;
     const taskId = 'task-' + taskCounter;
     
+    // Build delete button based on permission
+    const deleteButtonHTML = canDeleteTask ? `
+        <button onclick="deleteTask('${taskId}')" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; transition: all 0.2s;" title="Delete task">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+        </button>` : '';
+    
     const taskHTML = `
         <div id="${taskId}" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
             <!-- Task Header -->
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                <input type="checkbox" onchange="toggleTaskComplete('${taskId}')" style="width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;">
+                <div class="checkbox-avatar-wrapper">
+                    <input type="checkbox" class="task-checkbox" onchange="toggleTaskComplete('${taskId}')">
+                </div>
                 <div style="flex: 1;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div class="task-title" style="font-size: 15px; font-weight: 600; color: #000;">${taskTitle}</div>
-                        <button onclick="deleteTask('${taskId}')" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; transition: all 0.2s;" title="Delete task">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                        </button>
+                        ${deleteButtonHTML}
                     </div>
                 </div>
             </div>
@@ -2015,6 +2627,7 @@ function saveNewTask() {
                     <!-- Subtasks will be added here -->
                 </div>
                 
+                ${canCreateTask ? `
                 <!-- Add Subtask Box (Hidden) -->
                 <div id="${taskId}-subtask-box" style="display: none; margin-bottom: 12px;">
                     <input type="text" id="${taskId}-subtask-input" placeholder="Enter subtask name..." style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none; margin-bottom: 10px;">
@@ -2032,31 +2645,7 @@ function saveNewTask() {
                     </svg>
                     Add an item
                 </button>
-            </div>
-                    
-                    <!-- Subtasks Container -->
-                    <div id="${taskId}-subtasks" style="margin-bottom: 10px;">
-                        <!-- Subtasks will be added here -->
-                    </div>
-                    
-                    <!-- Add Subtask Box (Hidden) -->
-                    <div id="${taskId}-subtask-box" style="display: none; margin-bottom: 10px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 5px; padding: 10px;">
-                        <input type="text" id="${taskId}-subtask-input" placeholder="Enter subtask..." style="width: 100%; padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 4px; background: white; color: #000; font-size: 12px; outline: none; margin-bottom: 8px;" onkeypress="if(event.key === 'Enter') saveSubtask('${taskId}')">
-                        <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                            <button onclick="cancelAddSubtask('${taskId}')" style="padding: 5px 12px; background: white; border: 1px solid #e5e7eb; border-radius: 4px; cursor: pointer; font-size: 12px; color: #000;">Cancel</button>
-                            <button onclick="saveSubtask('${taskId}')" style="padding: 5px 12px; background: #10b981; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; color: white; font-weight: 600;">Add</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Add More Button -->
-                    <button onclick="toggleAddSubtask('${taskId}')" style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 12px; color: #000; transition: all 0.2s;">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                        Add more
-                    </button>
-                </div>
+                ` : ''}
             </div>
         </div>
     `;
@@ -2074,14 +2663,19 @@ function saveNewTask() {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json'
         },
-        body: JSON.stringify({
-            title: taskTitle,
-            description: document.getElementById('newTaskDescription').value.trim(),
-            assigned_to: document.getElementById('newTaskAssignedTo').value || null,
-            due_date: document.getElementById('newTaskDueDate').value || null,
-            due_time: document.getElementById('newTaskDueTime').value || null,
-            parent_id: null
-        })
+        body: (() => {
+            const dueDateVal = document.getElementById('newTaskDueDate').value;
+            const dueTimeVal = document.getElementById('newTaskDueTime').value;
+            console.log('Due Date Value:', dueDateVal, 'Type:', typeof dueDateVal);
+            console.log('Due Time Value:', dueTimeVal, 'Type:', typeof dueTimeVal);
+            return JSON.stringify({
+                title: taskTitle,
+                description: document.getElementById('newTaskDescription').value.trim() || null,
+                due_date: dueDateVal && dueDateVal.trim() !== '' ? dueDateVal : null,
+                due_time: dueTimeVal && dueTimeVal.trim() !== '' ? dueTimeVal : null,
+                parent_id: null
+            });
+        })()
     })
     .then(response => response.json())
     .then(data => {
@@ -2094,7 +2688,6 @@ function saveNewTask() {
             // Clear all inputs and hide the form
             document.getElementById('newTaskTitle').value = '';
             document.getElementById('newTaskDescription').value = '';
-            document.getElementById('newTaskAssignedTo').value = '';
             document.getElementById('newTaskDueDate').value = '';
             document.getElementById('newTaskDueTime').value = '';
             document.getElementById('addTaskBox').style.display = 'none';
@@ -2110,44 +2703,98 @@ function saveNewTask() {
 
 async function toggleTaskComplete(taskId) {
     const taskElement = document.getElementById(taskId);
-    const checkbox = taskElement.querySelector('input[type="checkbox"]');
+    let checkbox = taskElement.querySelector('input.task-checkbox');
+    const existingAvatar = taskElement.querySelector('.completed-by-avatar');
     const titleElement = taskElement.querySelector('.task-title');
-    const isCompleted = checkbox.checked;
     
-    // Update UI immediately
+    // Determine current state from checkbox
+    const isCompleted = checkbox ? checkbox.checked : false;
+    
+    // If trying to uncheck (mark as not done), check permission
+    if (!isCompleted && !canUncheckTask) {
+        checkbox.checked = true; // Revert the checkbox
+        toastr.warning('Only admin or authorized users can unmark completed tasks.');
+        return;
+    }
+    
+    // Show confirmation popup when marking as done
+    if (isCompleted) {
+        const confirmed = await showConfirmDialog('Mark as Done', 'Are you sure you want to mark this task as done?', 'Mark Done', 'Cancel');
+        if (!confirmed) {
+            checkbox.checked = false; // Revert the checkbox
+            return;
+        }
+    }
+    
+    // Update UI immediately with user's color
     if (isCompleted) {
         titleElement.style.textDecoration = 'line-through';
         titleElement.style.color = '#9ca3af';
         taskElement.style.background = '#f0fdf4';
+        checkbox.style.setProperty('--completed-color', currentUser.chat_color);
+        
+        // Add avatar next to checkbox inside the wrapper
+        if (!existingAvatar) {
+            const avatarHTML = createCompletedAvatar(currentUser.name, currentUser.chat_color, currentUser.photo_path, false);
+            // Insert into wrapper div
+            const wrapper = checkbox.closest('.checkbox-avatar-wrapper');
+            if (wrapper) {
+                wrapper.insertAdjacentHTML('beforeend', avatarHTML);
+            } else {
+                checkbox.insertAdjacentHTML('afterend', avatarHTML);
+            }
+        }
     } else {
         titleElement.style.textDecoration = 'none';
         titleElement.style.color = '#000';
         taskElement.style.background = 'white';
-    }
-    
-    // If checking the main task, automatically check all subtasks
-    if (isCompleted) {
-        const subtasksContainer = document.getElementById(taskId + '-subtasks');
-        const subtaskCheckboxes = subtasksContainer.querySelectorAll('input[type="checkbox"]');
+        checkbox.style.removeProperty('--completed-color');
         
-        // Check all subtasks
-        for (const subtaskCheckbox of subtaskCheckboxes) {
-            if (!subtaskCheckbox.checked) {
-                subtaskCheckbox.checked = true;
-                const subtaskElement = subtaskCheckbox.closest('[id^="' + taskId + '-sub-"]');
-                if (subtaskElement) {
+        // Remove avatar if exists
+        if (existingAvatar) {
+            existingAvatar.remove();
+        }
+        
+        // If unchecking the main task, automatically uncheck all subtasks
+        const subtasksContainer = document.getElementById(taskId + '-subtasks');
+        if (subtasksContainer) {
+            const subtaskElements = subtasksContainer.querySelectorAll('[id^="' + taskId + '-sub-"]');
+            
+            // Uncheck all subtasks
+            for (const subtaskElement of subtaskElements) {
+                const subtaskCheckbox = subtaskElement.querySelector('input.subtask-checkbox');
+                const existingSubtaskAvatar = subtaskElement.querySelector('.subtask-completed-avatar');
+                const doneByInfo = subtaskElement.querySelector('.subtask-done-by');
+                
+                // Skip if already unchecked
+                if (subtaskCheckbox && !subtaskCheckbox.checked) continue;
+                
+                if (subtaskCheckbox) {
                     const subtaskId = subtaskElement.id;
-                    // Update subtask UI
+                    
+                    // Update subtask UI - remove completed styling
                     const textElement = subtaskElement.querySelector('.subtask-text');
                     if (textElement) {
-                        textElement.style.textDecoration = 'line-through';
-                        textElement.style.color = '#9ca3af';
+                        textElement.style.textDecoration = 'none';
+                        textElement.style.color = '#374151';
                     }
-                    subtaskElement.style.borderLeftColor = '#10b981';
+                    subtaskElement.style.borderLeftColor = '#e5e7eb';
+                    subtaskCheckbox.checked = false;
+                    subtaskCheckbox.style.removeProperty('--completed-color');
                     
-                    // Save subtask to database
+                    // Remove avatar if exists
+                    if (existingSubtaskAvatar) {
+                        existingSubtaskAvatar.remove();
+                    }
+                    
+                    // Remove "Done by" info if exists
+                    if (doneByInfo) {
+                        doneByInfo.remove();
+                    }
+                    
+                    // Save subtask to database (uncheck)
                     const subtaskDbId = subtaskId.split('-sub-')[1];
-                    await fetch(`{{ url('/projects') }}/${currentProjectId}/tasks/${subtaskDbId}`, {
+                    fetch(`{{ url('/projects') }}/${currentProjectId}/tasks/${subtaskDbId}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -2155,9 +2802,66 @@ async function toggleTaskComplete(taskId) {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
                         },
-                        body: JSON.stringify({ is_completed: true })
+                        body: JSON.stringify({ is_completed: false })
                     }).catch(err => console.error('Error updating subtask:', err));
                 }
+            }
+        }
+    }
+    
+    // If checking the main task, automatically check all subtasks
+    if (isCompleted) {
+        const subtasksContainer = document.getElementById(taskId + '-subtasks');
+        const subtaskElements = subtasksContainer.querySelectorAll('[id^="' + taskId + '-sub-"]');
+        
+        // Check all subtasks
+        for (const subtaskElement of subtaskElements) {
+            const subtaskCheckbox = subtaskElement.querySelector('input.subtask-checkbox');
+            const existingSubtaskAvatar = subtaskElement.querySelector('.subtask-completed-avatar');
+            
+            // Skip if already completed
+            if (subtaskCheckbox && subtaskCheckbox.checked) continue;
+            
+            if (subtaskCheckbox) {
+                const subtaskId = subtaskElement.id;
+                
+                // Update subtask UI
+                const textElement = subtaskElement.querySelector('.subtask-text');
+                if (textElement) {
+                    textElement.style.textDecoration = 'line-through';
+                    textElement.style.color = '#9ca3af';
+                }
+                subtaskElement.style.borderLeftColor = currentUser.chat_color;
+                subtaskCheckbox.checked = true;
+                subtaskCheckbox.style.setProperty('--completed-color', currentUser.chat_color);
+                
+                // Add avatar next to checkbox inside wrapper with current time
+                if (!existingSubtaskAvatar) {
+                    const completedAt = new Date().toISOString();
+                    const dueDateSpan = subtaskElement.querySelector(`[id$="-date"]`);
+                    const dueDate = dueDateSpan && dueDateSpan.textContent ? dueDateSpan.textContent : null;
+                    const avatarHTML = createCompletedAvatar(currentUser.name, currentUser.chat_color, currentUser.photo_path, true, completedAt, dueDate, null);
+                    // Insert into wrapper div
+                    const wrapper = subtaskCheckbox.closest('.checkbox-avatar-wrapper');
+                    if (wrapper) {
+                        wrapper.insertAdjacentHTML('beforeend', avatarHTML);
+                    } else {
+                        subtaskCheckbox.insertAdjacentHTML('afterend', avatarHTML);
+                    }
+                }
+                
+                // Save subtask to database
+                const subtaskDbId = subtaskId.split('-sub-')[1];
+                await fetch(`{{ url('/projects') }}/${currentProjectId}/tasks/${subtaskDbId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ is_completed: true })
+                }).catch(err => console.error('Error updating subtask:', err));
             }
         }
     }
@@ -2188,7 +2892,7 @@ async function toggleTaskComplete(taskId) {
             // Update the kanban card task count
             updateKanbanCardTaskCount();
             if (typeof toastr !== 'undefined') {
-                toastr.success(isCompleted ? 'Task and all subtasks completed!' : 'Task reopened');
+                toastr.success(isCompleted ? 'Task and all subtasks marked as done!' : 'Task and all subtasks reopened!');
             }
         } else {
             // Revert checkbox on error
@@ -2221,47 +2925,294 @@ function cancelAddSubtask(taskId) {
     document.getElementById(taskId + '-subtask-input').value = '';
 }
 
-function toggleSubtaskDate(subtaskId) {
-    const dateInput = document.getElementById(subtaskId + '-date-input');
-    if (dateInput) {
-        dateInput.showPicker ? dateInput.showPicker() : dateInput.click();
+// Show date-time picker popup for subtask
+function showSubtaskDateTimePicker(subtaskId) {
+    // Remove any existing picker
+    const existingPicker = document.getElementById('subtask-datetime-picker');
+    if (existingPicker) existingPicker.remove();
+    
+    // Get current values
+    const dateValue = document.getElementById(subtaskId + '-date-value')?.value || '';
+    const timeValue = document.getElementById(subtaskId + '-time-value')?.value || '';
+    
+    // Get button position for popup placement
+    const subtaskElement = document.getElementById(subtaskId);
+    const rect = subtaskElement.getBoundingClientRect();
+    
+    // Calculate position - ensure popup stays within viewport
+    let top = rect.bottom + 8;
+    let left = rect.left;
+    
+    // Adjust if too close to bottom
+    if (top + 200 > window.innerHeight) {
+        top = rect.top - 200;
+    }
+    
+    // Adjust if too close to right
+    if (left + 320 > window.innerWidth) {
+        left = window.innerWidth - 330;
+    }
+    
+    // Create picker popup
+    const picker = document.createElement('div');
+    picker.id = 'subtask-datetime-picker';
+    picker.style.cssText = `
+        position: fixed;
+        top: ${top}px;
+        left: ${left}px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05);
+        padding: 20px;
+        z-index: 10000;
+        min-width: 320px;
+        animation: fadeIn 0.2s ease;
+    `;
+    
+    picker.innerHTML = `
+        <div style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                </div>
+                <div>
+                    <div style="font-weight: 700; color: #111827; font-size: 15px;">Set Due Date & Time</div>
+                    <div style="font-size: 11px; color: #6b7280;">Schedule when this subtask is due</div>
+                </div>
+            </div>
+            <button onclick="closeSubtaskDateTimePicker()" style="width: 28px; height: 28px; background: #f3f4f6; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+            <div style="flex: 1;">
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #374151; margin-bottom: 6px; font-weight: 600;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    Date
+                </label>
+                <input type="date" id="subtask-picker-date" value="${dateValue}" style="width: 100%; padding: 10px 12px; border: 2px solid #d1d5db; border-radius: 10px; font-size: 14px; font-weight: 600; color: #000000; outline: none; transition: all 0.2s; background: white;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99,102,241,0.15)'" onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'">
+            </div>
+            <div style="flex: 1;">
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #374151; margin-bottom: 6px; font-weight: 600;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 6v6l4 2"></path>
+                    </svg>
+                    Time
+                </label>
+                <input type="time" id="subtask-picker-time" value="${timeValue}" style="width: 100%; padding: 10px 12px; border: 2px solid #d1d5db; border-radius: 10px; font-size: 14px; font-weight: 600; color: #000000; outline: none; transition: all 0.2s; background: white;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99,102,241,0.15)'" onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'">
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end; padding-top: 12px; border-top: 1px solid #f3f4f6;">
+            <button onclick="clearSubtaskDateTime('${subtaskId}')" style="padding: 10px 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; font-size: 13px; cursor: pointer; color: #dc2626; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Clear
+            </button>
+            <button onclick="saveSubtaskDateTime('${subtaskId}')" style="padding: 10px 20px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border: none; border-radius: 8px; font-size: 13px; cursor: pointer; color: white; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(99,102,241,0.3);" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(99,102,241,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(99,102,241,0.3)'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Save
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(picker);
+    
+    // Close on click outside
+    setTimeout(() => {
+        document.addEventListener('click', closePickerOnClickOutside);
+    }, 100);
+}
+
+function closePickerOnClickOutside(e) {
+    const picker = document.getElementById('subtask-datetime-picker');
+    if (picker && !picker.contains(e.target) && !e.target.closest('[onclick*="showSubtaskDateTimePicker"]')) {
+        closeSubtaskDateTimePicker();
     }
 }
 
-function saveSubtaskDate(subtaskId) {
-    const dateInput = document.getElementById(subtaskId + '-date-input');
-    const dateDisplay = document.getElementById(subtaskId + '-date');
+function closeSubtaskDateTimePicker() {
+    const picker = document.getElementById('subtask-datetime-picker');
+    if (picker) picker.remove();
+    document.removeEventListener('click', closePickerOnClickOutside);
+}
+
+function clearSubtaskDateTime(subtaskId) {
+    // Extract subtask ID (format: task-123-sub-456)
+    const parts = subtaskId.split('-sub-');
+    const subtaskDbId = parts[1];
     
-    if (dateInput.value) {
-        // Extract subtask ID (format: task-123-sub-456)
-        const parts = subtaskId.split('-sub-');
-        const subtaskDbId = parts[1];
-        
-        // Save to database
-        fetch(`{{ url('/projects') }}/${currentProjectId}/tasks/${subtaskDbId}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                due_date: dateInput.value
-            })
+    // Save to database with null values
+    fetch(`{{ url('/projects') }}/${currentProjectId}/tasks/${subtaskDbId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            due_date: null,
+            due_time: null
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const date = new Date(dateInput.value);
-                const formatted = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-                dateDisplay.textContent = formatted;
-                dateDisplay.style.display = 'block';
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update hidden inputs
+            const dateInput = document.getElementById(subtaskId + '-date-value');
+            const timeInput = document.getElementById(subtaskId + '-time-value');
+            if (dateInput) dateInput.value = '';
+            if (timeInput) timeInput.value = '';
+            
+            // Update display
+            const display = document.getElementById(subtaskId + '-datetime');
+            if (display) {
+                display.textContent = '';
+                display.style.display = 'none';
             }
-        })
-        .catch(error => console.error('Error saving date:', error));
-    } else {
-        dateDisplay.style.display = 'none';
+            
+            closeSubtaskDateTimePicker();
+            toastr.success('Due date cleared');
+        }
+    })
+    .catch(error => {
+        console.error('Error clearing date:', error);
+        toastr.error('Failed to clear date');
+    });
+}
+
+function saveSubtaskDateTime(subtaskId) {
+    const dateInput = document.getElementById('subtask-picker-date');
+    const timeInput = document.getElementById('subtask-picker-time');
+    
+    const dateValue = dateInput?.value || '';
+    const timeValue = timeInput?.value || '';
+    
+    if (!dateValue) {
+        toastr.warning('Please select a date');
+        return;
     }
+    
+    // Extract subtask ID (format: task-123-sub-456)
+    const parts = subtaskId.split('-sub-');
+    const subtaskDbId = parts[1];
+    
+    // Save to database
+    fetch(`{{ url('/projects') }}/${currentProjectId}/tasks/${subtaskDbId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            due_date: dateValue,
+            due_time: timeValue || null
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update hidden inputs
+            const hiddenDate = document.getElementById(subtaskId + '-date-value');
+            const hiddenTime = document.getElementById(subtaskId + '-time-value');
+            if (hiddenDate) hiddenDate.value = dateValue;
+            if (hiddenTime) hiddenTime.value = timeValue;
+            
+            // Format display
+            const date = new Date(dateValue);
+            let displayText = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            
+            if (timeValue) {
+                const [hours, minutes] = timeValue.split(':');
+                const hour = parseInt(hours);
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const hour12 = hour % 12 || 12;
+                displayText += ` at ${hour12}:${minutes} ${ampm}`;
+            }
+            
+            // Check if overdue (compare with current date/time)
+            const now = new Date();
+            let dueDateTime = new Date(dateValue);
+            if (timeValue) {
+                const [h, m] = timeValue.split(':');
+                dueDateTime.setHours(parseInt(h), parseInt(m), 0, 0);
+            } else {
+                dueDateTime.setHours(23, 59, 59, 999);
+            }
+            
+            // Check if subtask is completed
+            const subtaskEl = document.getElementById(subtaskId);
+            const checkbox = subtaskEl?.querySelector('.subtask-checkbox');
+            const isCompleted = checkbox?.checked || false;
+            const isOverdue = !isCompleted && now > dueDateTime;
+            
+            // Set colors based on overdue status
+            const badgeBg = isOverdue ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)' : 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)';
+            const badgeBorder = isOverdue ? '#fecaca' : '#bae6fd';
+            const badgeColor = isOverdue ? '#dc2626' : '#0369a1';
+            const hoverBg = isOverdue ? 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)' : 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)';
+            const hoverBorder = isOverdue ? '#fca5a5' : '#7dd3fc';
+            
+            // Update display with styled badge
+            const display = document.getElementById(subtaskId + '-datetime');
+            if (display) {
+                display.innerHTML = `
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    ${displayText}
+                `;
+                display.style.cssText = `display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: ${badgeBg}; border: 1px solid ${badgeBorder}; border-radius: 20px; font-size: 11px; color: ${badgeColor}; font-weight: 600; flex-shrink: 0; white-space: nowrap; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);`;
+                display.dataset.overdue = isOverdue;
+                if (isOverdue) {
+                    display.classList.add('overdue');
+                } else {
+                    display.classList.remove('overdue');
+                }
+                display.onmouseover = function() { this.style.background = isOverdue ? 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)' : 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)'; this.style.borderColor = isOverdue ? '#fca5a5' : '#7dd3fc'; };
+                display.onmouseout = function() { this.style.background = isOverdue ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)' : 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)'; this.style.borderColor = isOverdue ? '#fecaca' : '#bae6fd'; };
+            }
+            
+            closeSubtaskDateTimePicker();
+            toastr.success('Due date & time saved');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving date:', error);
+        toastr.error('Failed to save date');
+    });
+}
+
+// Legacy function for backward compatibility
+function toggleSubtaskDate(subtaskId) {
+    showSubtaskDateTimePicker(subtaskId);
+}
+
+function saveSubtaskDate(subtaskId) {
+    // This function is now replaced by saveSubtaskDateTime
+    // Kept for backward compatibility
+    saveSubtaskDateTime(subtaskId);
 }
 
 function saveSubtask(taskId) {
@@ -2274,24 +3225,35 @@ function saveSubtask(taskId) {
     }
     
     const subtaskId = taskId + '-sub-' + Date.now();
+    
+    // Build timing button based on permission
+    const timingButtonHTML = canEditTask ? `
+        <button onclick="toggleSubtaskDate('${subtaskId}')" style="display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; padding: 0; flex-shrink: 0;" title="Add due date">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 6v6l4 2"></path>
+            </svg>
+        </button>` : '';
+    
+    // Build delete button based on permission
+    const deleteButtonHTML = canDeleteTask ? `
+        <button onclick="deleteSubtask('${subtaskId}', '${taskId}')" style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 5px; cursor: pointer; flex-shrink: 0; transition: all 0.2s;" title="Delete subtask">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+        </button>` : '';
+    
     const subtaskHTML = `
-        <div id="${subtaskId}" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-left: 3px solid #e5e7eb; margin-bottom: 6px; transition: all 0.2s;">
-            <button onclick="toggleSubtaskDate('${subtaskId}')" style="display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; padding: 0; flex-shrink: 0;" title="Add due date">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M12 6v6l4 2"></path>
-                </svg>
-            </button>
-            <input type="checkbox" onchange="toggleSubtaskComplete('${subtaskId}', '${taskId}')" style="width: 16px; height: 16px; cursor: pointer; flex-shrink: 0;">
+        <div id="${subtaskId}" style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-left: 3px solid #e5e7eb; margin-bottom: 6px; transition: all 0.2s;">
+            ${timingButtonHTML}
+            <div class="checkbox-avatar-wrapper">
+                <input type="checkbox" class="subtask-checkbox" onchange="toggleSubtaskComplete('${subtaskId}', '${taskId}')">
+            </div>
             <span class="subtask-text" style="font-size: 13px; color: #000; flex: 1;">${subtaskTitle}</span>
             <span id="${subtaskId}-date" style="font-size: 12px; color: #6b7280; flex-shrink: 0; display: none;"></span>
             <input type="date" id="${subtaskId}-date-input" style="position: absolute; opacity: 0; pointer-events: none;" onchange="saveSubtaskDate('${subtaskId}')">
-            <button onclick="deleteSubtask('${subtaskId}', '${taskId}')" style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 5px; cursor: pointer; flex-shrink: 0; transition: all 0.2s;" title="Delete subtask">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-            </button>
+            ${deleteButtonHTML}
         </div>
     `;
     
@@ -2346,20 +3308,79 @@ function saveSubtask(taskId) {
 
 async function toggleSubtaskComplete(subtaskId, taskId) {
     const subtaskElement = document.getElementById(subtaskId);
-    const checkbox = subtaskElement.querySelector('input[type="checkbox"]');
+    let checkbox = subtaskElement.querySelector('input.subtask-checkbox');
     const textElement = subtaskElement.querySelector('.subtask-text');
     
-    const isCompleted = checkbox.checked;
+    // Determine current state from checkbox
+    const isCompleted = checkbox ? checkbox.checked : false;
     
-    // Update UI immediately
+    // If trying to uncheck (mark as not done), check permission
+    if (!isCompleted && !canUncheckTask) {
+        checkbox.checked = true; // Revert the checkbox
+        toastr.warning('Only admin or authorized users can unmark completed tasks.');
+        return;
+    }
+    
+    // Show confirmation popup when marking as done
+    if (isCompleted) {
+        const confirmed = await showConfirmDialog('Mark as Done', 'Are you sure you want to mark this subtask as done?', 'Mark Done', 'Cancel');
+        if (!confirmed) {
+            checkbox.checked = false; // Revert the checkbox
+            return;
+        }
+    }
+    
+    // Update UI immediately with user's color
     if (isCompleted) {
         textElement.style.textDecoration = 'line-through';
         textElement.style.color = '#9ca3af';
-        subtaskElement.style.borderLeftColor = '#10b981';
+        subtaskElement.style.borderLeftColor = currentUser.chat_color;
+        checkbox.style.setProperty('--completed-color', currentUser.chat_color);
+        
+        const completedAt = new Date();
+        const formattedDate = completedAt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        const formattedTime = completedAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true });
+        
+        // Add "Done by" info - insert into the flex container (right side)
+        const existingDoneBy = subtaskElement.querySelector('.subtask-done-by');
+        if (!existingDoneBy) {
+            const initials = getInitials(currentUser.name);
+            const hasPhoto = currentUser.photo_path && currentUser.photo_path.trim() !== '';
+            
+            // Create profile avatar
+            let avatarHTML = '';
+            if (hasPhoto) {
+                avatarHTML = `<div style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; overflow: hidden; border: 2px solid ${currentUser.chat_color}; background: #f3f4f6; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                    <img src="${currentUser.photo_path}" alt="${currentUser.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div style="display: none; width: 100%; height: 100%; background: ${currentUser.chat_color}; align-items: center; justify-content: center; color: white; font-size: 8px; font-weight: 700;">${initials}</div>
+                </div>`;
+            } else {
+                avatarHTML = `<div style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; background: ${currentUser.chat_color}; display: flex; align-items: center; justify-content: center; color: white; font-size: 8px; font-weight: 700; flex-shrink: 0;">${initials}</div>`;
+            }
+            
+            const doneByHTML = `<span class="subtask-done-by" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: ${currentUser.chat_color}; font-weight: 600; white-space: nowrap;">
+                ${avatarHTML}
+                <span>Done by ${currentUser.name}</span>
+                <span style="color: #6b7280; font-weight: 400;">· ${formattedDate} at ${formattedTime}</span>
+            </span>`;
+            
+            // Find the flex container (div after subtask-text) and prepend the done-by info
+            const flexContainer = textElement.nextElementSibling;
+            if (flexContainer && flexContainer.tagName === 'DIV') {
+                flexContainer.insertAdjacentHTML('afterbegin', doneByHTML);
+            } else {
+                textElement.insertAdjacentHTML('afterend', doneByHTML);
+            }
+        }
     } else {
         textElement.style.textDecoration = 'none';
         textElement.style.color = '#000';
         subtaskElement.style.borderLeftColor = '#e5e7eb';
+        checkbox.style.removeProperty('--completed-color');
+        
+        // Remove "Done by" info
+        const doneByEl = subtaskElement.querySelector('.subtask-done-by');
+        if (doneByEl) doneByEl.remove();
     }
     
     // Save to database
@@ -2386,24 +3407,44 @@ async function toggleSubtaskComplete(subtaskId, taskId) {
             // Update progress
             updateTaskProgress(taskId);
             
-            // Check if all subtasks are now completed
+            // Check if all subtasks are now completed (check both checkboxes and avatars)
             const subtasksContainer = document.getElementById(taskId + '-subtasks');
-            const allSubtaskCheckboxes = subtasksContainer.querySelectorAll('input[type="checkbox"]');
-            const allCompleted = Array.from(allSubtaskCheckboxes).every(cb => cb.checked);
+            // Select only subtask container divs (not date spans or date inputs)
+            const subtaskElements = subtasksContainer.querySelectorAll('[id^="' + taskId + '-sub-"]:not([id$="-date"]):not([id$="-date-input"])');
+            const allCompleted = Array.from(subtaskElements).every(el => {
+                const checkbox = el.querySelector('input.subtask-checkbox');
+                const avatar = el.querySelector('.subtask-completed-avatar');
+                const doneBy = el.querySelector('.subtask-done-by');
+                return avatar !== null || doneBy !== null || (checkbox && checkbox.checked);
+            });
             
             // If all subtasks are completed, automatically check the main task
-            if (allCompleted && allSubtaskCheckboxes.length > 0) {
+            if (allCompleted && subtaskElements.length > 0) {
                 const taskElement = document.getElementById(taskId);
-                const mainTaskCheckbox = taskElement.querySelector('input[type="checkbox"]');
+                const mainTaskCheckbox = taskElement.querySelector('input.task-checkbox');
+                const existingMainAvatar = taskElement.querySelector('.completed-by-avatar');
                 
+                // Only update if not already completed
                 if (mainTaskCheckbox && !mainTaskCheckbox.checked) {
-                    mainTaskCheckbox.checked = true;
-                    
                     // Update main task UI
                     const titleElement = taskElement.querySelector('.task-title');
                     titleElement.style.textDecoration = 'line-through';
                     titleElement.style.color = '#9ca3af';
                     taskElement.style.background = '#f0fdf4';
+                    mainTaskCheckbox.checked = true;
+                    mainTaskCheckbox.style.setProperty('--completed-color', currentUser.chat_color);
+                    
+                    // Add avatar next to checkbox inside wrapper
+                    if (!existingMainAvatar) {
+                        const avatarHTML = createCompletedAvatar(currentUser.name, currentUser.chat_color, currentUser.photo_path, false);
+                        // Insert into wrapper div
+                        const wrapper = mainTaskCheckbox.closest('.checkbox-avatar-wrapper');
+                        if (wrapper) {
+                            wrapper.insertAdjacentHTML('beforeend', avatarHTML);
+                        } else {
+                            mainTaskCheckbox.insertAdjacentHTML('afterend', avatarHTML);
+                        }
+                    }
                     
                     // Save main task to database
                     const taskDbId = taskId.split('-')[1];
@@ -2427,10 +3468,18 @@ async function toggleSubtaskComplete(subtaskId, taskId) {
             // If unchecking a subtask, uncheck the main task too
             if (!isCompleted) {
                 const taskElement = document.getElementById(taskId);
-                const mainTaskCheckbox = taskElement.querySelector('input[type="checkbox"]');
+                const mainTaskCheckbox = taskElement.querySelector('input.task-checkbox');
+                const existingMainAvatar = taskElement.querySelector('.completed-by-avatar');
                 
+                // If main task is completed, uncheck it
                 if (mainTaskCheckbox && mainTaskCheckbox.checked) {
                     mainTaskCheckbox.checked = false;
+                    mainTaskCheckbox.style.removeProperty('--completed-color');
+                    
+                    // Remove avatar if exists
+                    if (existingMainAvatar) {
+                        existingMainAvatar.remove();
+                    }
                     
                     // Update main task UI
                     const titleElement = taskElement.querySelector('.task-title');
@@ -2483,9 +3532,17 @@ function toggleSubtasksSection(taskId) {
 
 function updateTaskProgress(taskId) {
     const subtasksContainer = document.getElementById(taskId + '-subtasks');
-    const checkboxes = subtasksContainer.querySelectorAll('input[type="checkbox"]');
-    const total = checkboxes.length;
-    const completed = Array.from(checkboxes).filter(cb => cb.checked).length;
+    // Select only subtask container divs (not date spans or date inputs)
+    const subtaskElements = subtasksContainer.querySelectorAll('[id^="' + taskId + '-sub-"]:not([id$="-date"]):not([id$="-date-input"])');
+    const total = subtaskElements.length;
+    
+    // Count completed subtasks (either has avatar/done-by section or checked checkbox)
+    const completed = Array.from(subtaskElements).filter(el => {
+        const avatar = el.querySelector('.subtask-completed-avatar');
+        const doneBySection = el.querySelector('.subtask-done-by');
+        const checkbox = el.querySelector('input.subtask-checkbox');
+        return avatar !== null || doneBySection !== null || (checkbox && checkbox.checked);
+    }).length;
     
     let percentage = 0;
     
@@ -2495,8 +3552,9 @@ function updateTaskProgress(taskId) {
     } else {
         // If no subtasks, check if the main task itself is completed
         const taskElement = document.getElementById(taskId);
-        const mainTaskCheckbox = taskElement.querySelector('input[type="checkbox"]');
-        percentage = mainTaskCheckbox && mainTaskCheckbox.checked ? 100 : 0;
+        const mainTaskAvatar = taskElement.querySelector('.completed-by-avatar');
+        const mainTaskCheckbox = taskElement.querySelector('input.task-checkbox');
+        percentage = mainTaskAvatar !== null || (mainTaskCheckbox && mainTaskCheckbox.checked) ? 100 : 0;
     }
     
     document.getElementById(taskId + '-progress-text').textContent = percentage + '%';
@@ -2514,9 +3572,40 @@ function updateKanbanCardTaskCount() {
     const tasksContainer = document.getElementById('tasksContainer');
     if (!tasksContainer) return;
     
-    const allTaskCheckboxes = tasksContainer.querySelectorAll('input[type="checkbox"]');
-    const totalTasks = allTaskCheckboxes.length;
-    const completedTasks = Array.from(allTaskCheckboxes).filter(cb => cb.checked).length;
+    // Count ALL task elements (main tasks + subtasks)
+    const mainTaskElements = tasksContainer.querySelectorAll('[id^="task-"]:not([id*="-sub-"]):not([id*="-subtasks"]):not([id*="-progress"]):not([id*="-subtask-"])');
+    // Select only subtask container divs (format: task-XXX-sub-YYY, not task-XXX-sub-YYY-date or task-XXX-sub-YYY-date-input)
+    const subtaskElements = tasksContainer.querySelectorAll('[id*="-sub-"]:not([id$="-date"]):not([id$="-date-input"])');
+    
+    let totalTasks = 0;
+    let completedTasks = 0;
+    
+    // Count main tasks
+    mainTaskElements.forEach(el => {
+        // Make sure it's a task element (has checkbox)
+        const checkbox = el.querySelector('input.task-checkbox');
+        if (checkbox) {
+            totalTasks++;
+            const avatar = el.querySelector('.completed-by-avatar');
+            if (avatar !== null || checkbox.checked) {
+                completedTasks++;
+            }
+        }
+    });
+    
+    // Count subtasks
+    subtaskElements.forEach(el => {
+        const checkbox = el.querySelector('input.subtask-checkbox');
+        if (checkbox) {
+            totalTasks++;
+            // Check for completion: either checkbox is checked or has avatar/done-by section
+            const avatar = el.querySelector('.subtask-completed-avatar');
+            const doneBySection = el.querySelector('.subtask-done-by');
+            if (avatar !== null || doneBySection !== null || checkbox.checked) {
+                completedTasks++;
+            }
+        }
+    });
     
     // Update the kanban card
     const kanbanCard = document.querySelector(`.kanban-card[data-project-id="${currentProjectId}"]`);
@@ -2538,13 +3627,6 @@ function editTaskInKanban(taskId) {
     
     const taskDbId = taskId.replace('task-', '');
     
-    // Build employees options
-    let employeesOptions = '<option value="">Select Employee (Optional)</option>';
-    employeesListForTasks.forEach(emp => {
-        const selected = task.assigned_to == emp.id ? 'selected' : '';
-        employeesOptions += `<option value="${emp.id}" ${selected}>${emp.name}</option>`;
-    });
-    
     Swal.fire({
         title: 'Edit Task',
         html: `
@@ -2557,12 +3639,7 @@ function editTaskInKanban(taskId) {
                     <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">Description</label>
                     <textarea id="editTaskDescription" placeholder="Task details..." style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none; min-height: 60px; resize: vertical;">${task.description || ''}</textarea>
                 </div>
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">Assign To Employee</label>
-                    <select id="editTaskAssignedTo" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none;">
-                        ${employeesOptions}
-                    </select>
-                </div>
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <div>
                         <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">Due Date</label>
@@ -2590,7 +3667,6 @@ function editTaskInKanban(taskId) {
             return {
                 title: title,
                 description: document.getElementById('editTaskDescription').value.trim(),
-                assigned_to: document.getElementById('editTaskAssignedTo').value || null,
                 due_date: document.getElementById('editTaskDueDate').value || null,
                 due_time: document.getElementById('editTaskDueTime').value || null
             };
@@ -2743,8 +3819,8 @@ function renderTaskFromDB(task) {
     const taskHTML = createTaskHTML(taskId, task.title);
     document.getElementById('tasksContainer').insertAdjacentHTML('beforeend', taskHTML);
     
-    // Add employee and time info if available
-    if (task.assigned_employee || task.due_date || task.description) {
+    // Add time info and description if available
+    if (task.due_date || task.description || task.completed_by_user) {
         const taskElement = document.getElementById(taskId);
         const titleDiv = taskElement.querySelector('.task-title');
         let infoHTML = '';
@@ -2753,17 +3829,30 @@ function renderTaskFromDB(task) {
             infoHTML += `<div style="font-size: 13px; color: #6b7280; margin-top: 4px;">${task.description}</div>`;
         }
         
-        if (task.assigned_employee || task.due_date) {
+        if (task.due_date || (task.is_completed && task.completed_by_user)) {
             infoHTML += '<div style="display: flex; gap: 12px; margin-top: 6px; font-size: 12px; color: #6b7280;">';
             
-            if (task.assigned_employee) {
+            // Show who completed the task with profile picture
+            if (task.is_completed && task.completed_by_user) {
+                const completedColor = task.completed_by_user.chat_color || '#10b981';
+                const userName = task.completed_by_user.name;
+                const userPhoto = task.completed_by_user.photo_path;
+                const initials = getInitials(userName);
+                
+                let miniAvatarHTML = '';
+                if (userPhoto && userPhoto.trim() !== '') {
+                    miniAvatarHTML = `<div style="width: 18px; height: 18px; min-width: 18px; border-radius: 50%; overflow: hidden; border: 2px solid ${completedColor}; background: #f3f4f6; flex-shrink: 0;">
+                        <img src="${userPhoto}" alt="${userName}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div style="display: none; width: 100%; height: 100%; background: ${completedColor}; align-items: center; justify-content: center; color: white; font-size: 7px; font-weight: 700;">${initials}</div>
+                    </div>`;
+                } else {
+                    miniAvatarHTML = `<div style="width: 18px; height: 18px; min-width: 18px; border-radius: 50%; background: ${completedColor}; display: flex; align-items: center; justify-content: center; color: white; font-size: 7px; font-weight: 700; flex-shrink: 0;">${initials}</div>`;
+                }
+                
                 infoHTML += `
-                    <span style="display: inline-flex; align-items: center; gap: 4px;">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        ${task.assigned_employee.name}
+                    <span style="display: inline-flex; align-items: center; gap: 5px; color: ${completedColor}; font-weight: 600;">
+                        ${miniAvatarHTML}
+                        Done by ${userName}
                     </span>
                 `;
             }
@@ -2830,12 +3919,30 @@ function renderTaskFromDB(task) {
         titleDiv.insertAdjacentHTML('afterend', infoHTML);
     }
     
-    // Set task completion state
+    // Set task completion state with user's avatar next to checkbox
     if (task.is_completed) {
         const taskElement = document.getElementById(taskId);
         const checkbox = taskElement.querySelector('input[type="checkbox"]');
         const titleElement = taskElement.querySelector('.task-title');
+        const completedByUser = task.completed_by_user;
+        const completedColor = completedByUser && completedByUser.chat_color ? completedByUser.chat_color : '#10b981';
+        
+        // Check the checkbox and set color
         checkbox.checked = true;
+        checkbox.style.setProperty('--completed-color', completedColor);
+        
+        // Add avatar next to checkbox
+        if (completedByUser) {
+            const avatarHTML = createCompletedAvatar(completedByUser.name, completedColor, completedByUser.photo_path, false);
+            // Insert into wrapper div
+            const wrapper = checkbox.closest('.checkbox-avatar-wrapper');
+            if (wrapper) {
+                wrapper.insertAdjacentHTML('beforeend', avatarHTML);
+            } else {
+                checkbox.insertAdjacentHTML('afterend', avatarHTML);
+            }
+        }
+        
         titleElement.style.textDecoration = 'line-through';
         titleElement.style.color = '#9ca3af';
         taskElement.style.background = '#f0fdf4';
@@ -2861,39 +3968,47 @@ function renderTaskFromDB(task) {
 // Render subtask from database
 function renderSubtaskFromDB(taskId, subtask) {
     const subtaskId = taskId + '-sub-' + subtask.id;
-    const subtaskHTML = createSubtaskHTML(subtaskId, taskId, subtask.title, subtask.due_date, subtask.is_completed);
+    const subtaskHTML = createSubtaskHTML(subtaskId, taskId, subtask.title, subtask.due_date, subtask.is_completed, subtask.completed_by_user, subtask.completed_at, subtask.due_time);
     document.getElementById(taskId + '-subtasks').insertAdjacentHTML('beforeend', subtaskHTML);
     
-    // Set completion state
-    if (subtask.is_completed) {
-        const checkbox = document.getElementById(subtaskId).querySelector('input[type="checkbox"]');
-        checkbox.checked = true;
-        toggleSubtaskComplete(subtaskId, taskId);
-    }
+    // Update progress without triggering toggle
+    updateTaskProgress(taskId);
 }
 
 // Helper function to create task HTML
 function createTaskHTML(taskId, title) {
+    // Build action buttons based on permissions
+    let actionButtons = '';
+    if (canEditTask) {
+        actionButtons += `
+            <button onclick="editTaskInKanban('${taskId}')" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; cursor: pointer; transition: all 0.2s;" title="Edit task">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+            </button>`;
+    }
+    if (canDeleteTask) {
+        actionButtons += `
+            <button onclick="deleteTask('${taskId}')" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; transition: all 0.2s;" title="Delete task">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            </button>`;
+    }
+    
     return `
         <div id="${taskId}" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                <input type="checkbox" onchange="toggleTaskComplete('${taskId}')" style="width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;">
+                <div class="checkbox-avatar-wrapper">
+                    <input type="checkbox" class="task-checkbox" onchange="toggleTaskComplete('${taskId}')">
+                </div>
                 <div style="flex: 1;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div class="task-title" style="font-size: 15px; font-weight: 600; color: #000;">${title}</div>
                         <div style="display: flex; gap: 8px;">
-                            <button onclick="editTaskInKanban('${taskId}')" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; cursor: pointer; transition: all 0.2s;" title="Edit task">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                </svg>
-                            </button>
-                            <button onclick="deleteTask('${taskId}')" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; transition: all 0.2s;" title="Delete task">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                </svg>
-                            </button>
+                            ${actionButtons}
                         </div>
                     </div>
                 </div>
@@ -2914,6 +4029,7 @@ function createTaskHTML(taskId, title) {
                     <span id="${taskId}-subtask-count">0 subtasks</span>
                 </button>
                 <div id="${taskId}-subtasks" style="display: none; margin-bottom: 12px;"></div>
+                ${canCreateTask ? `
                 <div id="${taskId}-subtask-box" style="display: none; margin-bottom: 12px;">
                     <input type="text" id="${taskId}-subtask-input" placeholder="Enter subtask name..." style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none; margin-bottom: 10px;">
                     <div style="display: flex; gap: 8px; justify-content: flex-end;">
@@ -2928,39 +4044,305 @@ function createTaskHTML(taskId, title) {
                     </svg>
                     Add an item
                 </button>
+                ` : ''}
             </div>
         </div>
     `;
 }
 
 // Helper function to create subtask HTML
-function createSubtaskHTML(subtaskId, taskId, title, dueDate, isCompleted) {
-    const dateDisplay = dueDate ? new Date(dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+function createSubtaskHTML(subtaskId, taskId, title, dueDate, isCompleted, completedByUser = null, completedAt = null, dueTime = null) {
+    // Convert isCompleted to boolean (handles 1, "1", true, etc.)
+    const completed = Boolean(isCompleted) || isCompleted === 1 || isCompleted === '1' || isCompleted === true;
     
-    return `
-        <div id="${subtaskId}" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-left: 3px solid #e5e7eb; margin-bottom: 6px; transition: all 0.2s;">
-            <button onclick="toggleSubtaskDate('${subtaskId}')" style="display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; padding: 0; flex-shrink: 0;" title="Add due date">
+    // Format date and time display
+    let dateTimeDisplay = '';
+    let isOverdue = false;
+    
+    if (dueDate) {
+        const date = new Date(dueDate);
+        dateTimeDisplay = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        if (dueTime) {
+            // Format time as 12-hour with AM/PM
+            const [hours, minutes] = dueTime.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            dateTimeDisplay += ` at ${hour12}:${minutes} ${ampm}`;
+        }
+        
+        // Build due datetime for comparison
+        let dueDateTime = new Date(dueDate);
+        if (dueTime) {
+            const [h, m] = dueTime.split(':');
+            dueDateTime.setHours(parseInt(h), parseInt(m), 0, 0);
+        } else {
+            dueDateTime.setHours(23, 59, 59, 999);
+        }
+        
+        // Check if overdue:
+        // - If NOT completed: compare with current time
+        // - If completed: compare with completion time (was it completed late?)
+        if (!completed) {
+            const now = new Date();
+            isOverdue = now > dueDateTime;
+        } else if (completedAt) {
+            // Task is completed - check if it was completed AFTER the due date (late completion)
+            const completedDateTime = new Date(completedAt);
+            isOverdue = completedDateTime > dueDateTime;
+        }
+    }
+    const completedColor = completedByUser && completedByUser.chat_color ? completedByUser.chat_color : '#10b981';
+    
+    // Build timing button based on permission (clock icon for date & time)
+    let timingButton = '';
+    if (canEditTask) {
+        timingButton = `
+            <button onclick="showSubtaskDateTimePicker('${subtaskId}')" style="display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; padding: 0; flex-shrink: 0;" title="Set due date & time">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <path d="M12 6v6l4 2"></path>
                 </svg>
-            </button>
-            <input type="checkbox" onchange="toggleSubtaskComplete('${subtaskId}', '${taskId}')" style="width: 16px; height: 16px; cursor: pointer; flex-shrink: 0;">
-            <span class="subtask-text" style="font-size: 13px; color: #000; flex: 1;">${title}</span>
-            <span id="${subtaskId}-date" style="font-size: 12px; color: #6b7280; flex-shrink: 0; ${dateDisplay ? '' : 'display: none;'}">${dateDisplay}</span>
-            <input type="date" id="${subtaskId}-date-input" style="position: absolute; opacity: 0; pointer-events: none;" onchange="saveSubtaskDate('${subtaskId}')">
+            </button>`;
+    }
+    
+    // Build delete button based on permission
+    let deleteButton = '';
+    if (canDeleteTask) {
+        deleteButton = `
             <button onclick="deleteSubtask('${subtaskId}', '${taskId}')" style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 5px; cursor: pointer; flex-shrink: 0; transition: all 0.2s;" title="Delete subtask">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
-            </button>
+            </button>`;
+    }
+    
+    // Build checkbox
+    let checkboxHTML = `<input type="checkbox" class="subtask-checkbox" ${completed ? 'checked' : ''} style="--completed-color: ${completedColor};" onchange="toggleSubtaskComplete('${subtaskId}', '${taskId}')">`;
+    
+    // Build "Done by" info for completed subtasks with profile picture (single avatar only)
+    let doneByHTML = '';
+    if (completed && completedByUser) {
+        const initials = getInitials(completedByUser.name);
+        const hasPhoto = completedByUser.photo_path && completedByUser.photo_path.trim() !== '';
+        
+        // Create profile avatar for "Done by" section
+        let avatarHTML = '';
+        if (hasPhoto) {
+            avatarHTML = `<div style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; overflow: hidden; border: 2px solid ${completedColor}; background: #f3f4f6; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                <img src="${completedByUser.photo_path}" alt="${completedByUser.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div style="display: none; width: 100%; height: 100%; background: ${completedColor}; align-items: center; justify-content: center; color: white; font-size: 8px; font-weight: 700;">${initials}</div>
+            </div>`;
+        } else {
+            avatarHTML = `<div style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; background: ${completedColor}; display: flex; align-items: center; justify-content: center; color: white; font-size: 8px; font-weight: 700; flex-shrink: 0;">${initials}</div>`;
+        }
+        
+        // Format completion date/time
+        let dateTimeHTML = '';
+        if (completedAt) {
+            const completedDate = new Date(completedAt);
+            const formattedDate = completedDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const formattedTime = completedDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true });
+            dateTimeHTML = `<span style="color: #6b7280; font-weight: 400;">· ${formattedDate} at ${formattedTime}</span>`;
+        }
+        
+        doneByHTML = `<span class="subtask-done-by" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: ${completedColor}; font-weight: 600; white-space: nowrap; margin-left: 4px;">
+            ${avatarHTML}
+            <span>Done by ${completedByUser.name}</span>
+            ${dateTimeHTML}
+        </span>`;
+    }
+    
+    // Build datetime badge with nice styling (red for overdue, blue for normal)
+    let dateTimeBadge = '';
+    if (dateTimeDisplay) {
+        // Overdue styling: red gradient, red border, red text
+        // Normal styling: blue gradient, blue border, blue text
+        const badgeBg = isOverdue ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)' : 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)';
+        const badgeBorder = isOverdue ? '#fecaca' : '#bae6fd';
+        const badgeColor = isOverdue ? '#dc2626' : '#0369a1';
+        const hoverBg = isOverdue ? 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)' : 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)';
+        const hoverBorder = isOverdue ? '#fca5a5' : '#7dd3fc';
+        
+        dateTimeBadge = `
+            <span id="${subtaskId}-datetime" class="subtask-datetime-display ${isOverdue ? 'overdue' : ''}" data-overdue="${isOverdue}" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: ${badgeBg}; border: 1px solid ${badgeBorder}; border-radius: 20px; font-size: 11px; color: ${badgeColor}; font-weight: 600; flex-shrink: 0; white-space: nowrap; cursor: ${canEditTask ? 'pointer' : 'default'}; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" ${canEditTask ? `onclick="showSubtaskDateTimePicker('${subtaskId}')" onmouseover="this.style.background='${hoverBg}'; this.style.borderColor='${hoverBorder}'" onmouseout="this.style.background='${badgeBg}'; this.style.borderColor='${badgeBorder}'"` : ''}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                ${dateTimeDisplay}
+            </span>`;
+    } else {
+        dateTimeBadge = `<span id="${subtaskId}-datetime" class="subtask-datetime-display" style="display: none;"></span>`;
+    }
+    
+    return `
+        <div id="${subtaskId}" style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-left: 3px solid ${completed ? completedColor : '#e5e7eb'}; margin-bottom: 6px; transition: all 0.2s;">
+            ${timingButton}
+            <div class="checkbox-avatar-wrapper" style="display: flex; align-items: center;">
+                ${checkboxHTML}
+            </div>
+            <span class="subtask-text" style="font-size: 13px; color: ${completed ? '#9ca3af' : '#000'}; ${completed ? 'text-decoration: line-through;' : ''}">${title}</span>
+            <div style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 0;">
+                ${doneByHTML}
+            </div>
+            ${dateTimeBadge}
+            <input type="hidden" id="${subtaskId}-date-value" value="${dueDate || ''}">
+            <input type="hidden" id="${subtaskId}-time-value" value="${dueTime || ''}">
+            ${deleteButton}
         </div>
     `;
 }
 
-// Group Chat Functions
+// Group Chat Functions - Real-time polling
+let chatPollingInterval = null;
+let lastMessageId = 0;
+let typingTimeout = null;
+let isTyping = false;
+let typingUsers = new Map(); // Track who is typing
+
+// Start polling for new messages
+function startChatPolling() {
+    // Clear any existing interval
+    stopChatPolling();
+    
+    // Poll every 2 seconds for new messages
+    chatPollingInterval = setInterval(() => {
+        if (currentProjectId) {
+            pollNewMessages();
+            pollTypingStatus();
+        }
+    }, 2000);
+    
+    console.log('Chat polling started');
+}
+
+// Stop polling
+function stopChatPolling() {
+    if (chatPollingInterval) {
+        clearInterval(chatPollingInterval);
+        chatPollingInterval = null;
+        console.log('Chat polling stopped');
+    }
+}
+
+// Poll for new messages only (not full reload)
+function pollNewMessages() {
+    if (!currentProjectId) return;
+    
+    fetch(`{{ url('/projects') }}/${currentProjectId}/comments/poll?last_id=${lastMessageId}`, {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.comments && data.comments.length > 0) {
+            const chatMessages = document.getElementById('chatMessages');
+            const emptyState = document.getElementById('chatEmptyState');
+            
+            // Hide empty state
+            if (emptyState) emptyState.style.display = 'none';
+            
+            // Add only new messages
+            data.comments.forEach(comment => {
+                // Check if message already exists
+                if (!document.querySelector(`[data-message-id="${comment.id}"]`)) {
+                    addMessageToChat(comment, true);
+                    if (comment.id > lastMessageId) {
+                        lastMessageId = comment.id;
+                    }
+                }
+            });
+        }
+    })
+    .catch(error => console.error('Error polling messages:', error));
+}
+
+// Poll typing status
+function pollTypingStatus() {
+    if (!currentProjectId) return;
+    
+    fetch(`{{ url('/projects') }}/${currentProjectId}/typing`, {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateTypingIndicator(data.typing_users || []);
+        }
+    })
+    .catch(error => {}); // Silently fail for typing status
+}
+
+// Update typing indicator UI
+function updateTypingIndicator(users) {
+    const indicator = document.getElementById('typingIndicator');
+    if (!indicator) return;
+    
+    // Filter out current user
+    const currentUserId = {{ auth()->id() }};
+    const otherUsers = users.filter(u => u.id !== currentUserId);
+    
+    if (otherUsers.length === 0) {
+        indicator.style.display = 'none';
+        return;
+    }
+    
+    indicator.style.display = 'flex';
+    const names = otherUsers.map(u => u.name.split(' ')[0]).join(', ');
+    const text = otherUsers.length === 1 
+        ? `${names} is typing...` 
+        : `${names} are typing...`;
+    
+    indicator.querySelector('.typing-text').textContent = text;
+}
+
+// Send typing status
+function sendTypingStatus(isTyping) {
+    if (!currentProjectId) return;
+    
+    fetch(`{{ url('/projects') }}/${currentProjectId}/typing`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ is_typing: isTyping })
+    }).catch(error => {}); // Silently fail
+}
+
+// Handle typing in chat input
+function handleChatTyping() {
+    if (!isTyping) {
+        isTyping = true;
+        sendTypingStatus(true);
+    }
+    
+    // Clear existing timeout
+    if (typingTimeout) {
+        clearTimeout(typingTimeout);
+    }
+    
+    // Stop typing after 2 seconds of inactivity
+    typingTimeout = setTimeout(() => {
+        isTyping = false;
+        sendTypingStatus(false);
+    }, 2000);
+}
+
 function loadComments(projectId) {
+    // Reset last message ID when loading new project
+    lastMessageId = 0;
+    
     fetch(`{{ url('/projects') }}/${projectId}/comments`, {
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -2971,18 +4353,44 @@ function loadComments(projectId) {
     .then(data => {
         if (data.success && data.comments) {
             const chatMessages = document.getElementById('chatMessages');
+            const emptyState = document.getElementById('chatEmptyState');
             
-            // Clear placeholder if messages exist
             if (data.comments.length > 0) {
+                // Hide empty state and clear container
+                if (emptyState) emptyState.style.display = 'none';
                 chatMessages.innerHTML = '';
+                
+                // Add typing indicator container
+                const typingIndicatorHTML = `
+                    <div id="typingIndicator" style="display: none; align-items: center; gap: 8px; padding: 8px 12px; color: #6b7280; font-size: 13px;">
+                        <div class="typing-dots" style="display: flex; gap: 3px;">
+                            <span style="width: 6px; height: 6px; background: #9ca3af; border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; animation-delay: 0s;"></span>
+                            <span style="width: 6px; height: 6px; background: #9ca3af; border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; animation-delay: 0.2s;"></span>
+                            <span style="width: 6px; height: 6px; background: #9ca3af; border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; animation-delay: 0.4s;"></span>
+                        </div>
+                        <span class="typing-text"></span>
+                    </div>
+                `;
                 
                 data.comments.forEach(comment => {
                     addMessageToChat(comment);
+                    if (comment.id > lastMessageId) {
+                        lastMessageId = comment.id;
+                    }
                 });
+                
+                // Add typing indicator at the end
+                chatMessages.insertAdjacentHTML('beforeend', typingIndicatorHTML);
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } else {
+                // Show empty state
+                if (emptyState) emptyState.style.display = 'block';
             }
             
-            // Scroll to bottom
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            // Start polling for new messages
+            startChatPolling();
         }
     })
     .catch(error => console.error('Error loading chat:', error));
@@ -3056,10 +4464,31 @@ function sendChatMessage() {
             const placeholder = chatMessages.querySelector('[style*="text-align: center"]');
             if (placeholder) {
                 chatMessages.innerHTML = '';
+                // Add typing indicator
+                const typingIndicatorHTML = `
+                    <div id="typingIndicator" style="display: none; align-items: center; gap: 8px; padding: 8px 12px; color: #6b7280; font-size: 13px;">
+                        <div class="typing-dots" style="display: flex; gap: 3px;">
+                            <span style="width: 6px; height: 6px; background: #9ca3af; border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; animation-delay: 0s;"></span>
+                            <span style="width: 6px; height: 6px; background: #9ca3af; border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; animation-delay: 0.2s;"></span>
+                            <span style="width: 6px; height: 6px; background: #9ca3af; border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; animation-delay: 0.4s;"></span>
+                        </div>
+                        <span class="typing-text"></span>
+                    </div>
+                `;
+                chatMessages.insertAdjacentHTML('beforeend', typingIndicatorHTML);
             }
             
             addMessageToChat(data.comment);
             input.value = '';
+            
+            // Update lastMessageId
+            if (data.comment.id > lastMessageId) {
+                lastMessageId = data.comment.id;
+            }
+            
+            // Stop typing indicator
+            isTyping = false;
+            sendTypingStatus(false);
             
             // Scroll to bottom
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -3076,54 +4505,143 @@ function sendChatMessage() {
     });
 }
 
-function addMessageToChat(comment) {
+function addMessageToChat(comment, isNewMessage = false) {
     const chatMessages = document.getElementById('chatMessages');
-    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
+    const currentUserId = {{ auth()->id() }};
     
-    // Use consistent color for same user
+    // Hide empty state
+    const emptyState = document.getElementById('chatEmptyState');
+    if (emptyState) emptyState.style.display = 'none';
+    
+    // Color mapping - converts hex color to bubble background/text
+    const colorToBubble = {
+        '#6366f1': { bg: '#e0e7ff', text: '#3730a3' },  // Indigo
+        '#10b981': { bg: '#dcfce7', text: '#166534' },  // Green
+        '#f59e0b': { bg: '#fef3c7', text: '#92400e' },  // Yellow/Amber
+        '#ec4899': { bg: '#fce7f3', text: '#9d174d' },  // Pink
+        '#8b5cf6': { bg: '#ede9fe', text: '#5b21b6' },  // Purple
+        '#ef4444': { bg: '#fee2e2', text: '#b91c1c' },  // Red
+        '#06b6d4': { bg: '#cffafe', text: '#0e7490' },  // Cyan
+        '#84cc16': { bg: '#ecfccb', text: '#4d7c0f' },  // Lime
+        '#f97316': { bg: '#ffedd5', text: '#c2410c' },  // Orange
+        '#14b8a6': { bg: '#ccfbf1', text: '#0f766e' },  // Teal
+        '#a855f7': { bg: '#f3e8ff', text: '#7c3aed' },  // Violet
+        '#3b82f6': { bg: '#dbeafe', text: '#1e40af' },  // Blue
+        '#eab308': { bg: '#fef9c3', text: '#a16207' },  // Yellow
+        '#e11d48': { bg: '#ffe4e6', text: '#be123c' },  // Rose
+        '#0ea5e9': { bg: '#e0f2fe', text: '#0369a1' },  // Sky
+    };
+    
     const userName = comment.user ? comment.user.name : 'User';
     const userId = comment.user ? comment.user.id : 0;
-    const color = colors[userId % colors.length];
-    const userInitial = userName.charAt(0).toUpperCase();
+    const isSent = userId === currentUserId;
+    const messageId = comment.id || 0;
+    
+    // Use user's assigned chat_color from database
+    const userColor = comment.user?.chat_color || '#6366f1';
+    const avatarColor = userColor;
+    const bubbleColor = colorToBubble[userColor] || { bg: '#e0e7ff', text: '#3730a3' };
+    
+    // Get initials (2 letters)
+    const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) || 'U';
     
     // Format time
     let timeDisplay = 'Just now';
+    let dateDisplay = '';
     if (comment.created_at) {
         const date = new Date(comment.created_at);
-        const now = new Date();
-        const diffMs = now - date;
-        const diffMins = Math.floor(diffMs / 60000);
-        
-        if (diffMins < 1) timeDisplay = 'Just now';
-        else if (diffMins < 60) timeDisplay = `${diffMins}m ago`;
-        else if (diffMins < 1440) timeDisplay = `${Math.floor(diffMins / 60)}h ago`;
-        else timeDisplay = date.toLocaleDateString();
+        timeDisplay = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        dateDisplay = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
     
+    // Check for user photo
+    const userPhoto = comment.user?.photo_path || null;
+    
+    // Create avatar HTML - photo or initials
+    let avatarHTML = '';
+    if (userPhoto) {
+        avatarHTML = `<div style="width: 36px; height: 36px; border-radius: 50%; border: 2px solid ${avatarColor}; overflow: hidden; flex-shrink: 0; background: #f3f4f6;">
+            <img src="${userPhoto}" alt="${escapeHtml(userName)}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div style="display: none; width: 100%; height: 100%; background: ${avatarColor}; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px;">${initials}</div>
+        </div>`;
+    } else {
+        avatarHTML = `<div style="width: 36px; height: 36px; border-radius: 50%; background: ${avatarColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px; flex-shrink: 0;">${initials}</div>`;
+    }
+    
+    // Animation for new messages from others
+    const animationStyle = isNewMessage && !isSent ? 'animation: newMessagePop 0.4s ease-out;' : 'animation: slideIn 0.3s ease-out;';
+    
     const messageHTML = `
-        <div style="display: flex; gap: 12px; animation: slideIn 0.3s ease-out;">
-            <div style="width: 36px; height: 36px; border-radius: 50%; background: ${color}; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px; flex-shrink: 0;">
-                ${userInitial}
-            </div>
-            <div style="flex: 1;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                    <span style="font-weight: 600; font-size: 13px; color: #000;">${userName}</span>
-                    <span style="font-size: 11px; color: #9ca3af;">${timeDisplay}</span>
+        <div data-message-id="${messageId}" style="display: flex; align-items: flex-end; gap: 10px; max-width: 85%; ${isSent ? 'align-self: flex-end; flex-direction: row-reverse;' : 'align-self: flex-start;'} ${animationStyle}">
+            ${avatarHTML}
+            <div>
+                <div style="font-size: 12px; font-weight: 600; margin-bottom: 4px; color: ${avatarColor};">${escapeHtml(userName)}</div>
+                <div style="padding: 12px 16px; border-radius: 18px; ${isSent ? 'border-bottom-right-radius: 4px;' : 'border-bottom-left-radius: 4px;'} background: ${bubbleColor.bg}; color: ${bubbleColor.text};">
+                    <p style="margin: 0; font-size: 14px; line-height: 1.5; white-space: pre-wrap;">${parseMarkdown(comment.message)}</p>
                 </div>
-                <div style="background: white; padding: 10px 14px; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                    <p style="margin: 0; font-size: 13px; color: #000; line-height: 1.5; white-space: pre-wrap;">${escapeHtml(comment.message)}</p>
-                </div>
+                <div style="font-size: 11px; color: #9ca3af; margin-top: 4px; text-align: ${isSent ? 'right' : 'left'};">${dateDisplay}, ${timeDisplay}</div>
             </div>
         </div>
     `;
     
-    chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+    // Insert before typing indicator if it exists
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.insertAdjacentHTML('beforebegin', messageHTML);
+    } else {
+        chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+    }
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Play notification sound for new messages from others
+    if (isNewMessage && !isSent) {
+        playNotificationSound();
+    }
+}
+
+// Play notification sound for new messages
+function playNotificationSound() {
+    try {
+        // Create a simple beep sound using Web Audio API
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        gainNode.gain.value = 0.1;
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.1);
+    } catch (e) {
+        // Silently fail if audio not supported
+    }
 }
 
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// Parse markdown formatting (bold, italic, strikethrough)
+function parseMarkdown(text) {
+    if (!text) return '';
+    let escaped = escapeHtml(text);
+    // Bold: **text**
+    escaped = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Italic: *text*
+    escaped = escaped.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    // Strikethrough: ~~text~~
+    escaped = escaped.replace(/~~(.+?)~~/g, '<del>$1</del>');
+    // Underline: __text__
+    escaped = escaped.replace(/__(.+?)__/g, '<u>$1</u>');
+    return escaped;
 }
 
 function insertEmoji(emoji) {
@@ -3143,22 +4661,31 @@ function formatText(format) {
     const end = input.selectionEnd;
     const selectedText = input.value.substring(start, end);
     
-    if (!selectedText) return;
-    
-    let formattedText = selectedText;
+    let prefix = '', suffix = '';
     switch(format) {
         case 'bold':
-            formattedText = `**${selectedText}**`;
+            prefix = suffix = '**';
             break;
         case 'italic':
-            formattedText = `*${selectedText}*`;
+            prefix = suffix = '*';
+            break;
+        case 'strikethrough':
+            prefix = suffix = '~~';
             break;
         case 'underline':
-            formattedText = `__${selectedText}__`;
+            prefix = suffix = '__';
             break;
     }
     
-    input.value = input.value.substring(0, start) + formattedText + input.value.substring(end);
+    if (selectedText) {
+        // Wrap selected text
+        input.value = input.value.substring(0, start) + prefix + selectedText + suffix + input.value.substring(end);
+        input.setSelectionRange(start + prefix.length, end + prefix.length);
+    } else {
+        // Insert markers at cursor position
+        input.value = input.value.substring(0, start) + prefix + suffix + input.value.substring(end);
+        input.setSelectionRange(start + prefix.length, start + prefix.length);
+    }
     input.focus();
 }
 
@@ -3202,7 +4729,6 @@ function editProject(projectId) {
             document.getElementById('editProjectDueDate').value = dueDate;
             document.getElementById('editProjectPriority').value = project.priority || 'medium';
             document.getElementById('editProjectStatus').value = project.status || 'active';
-            document.getElementById('editProjectBudget').value = project.budget || '';
             
             // Show modal
             document.getElementById('editProjectModal').style.display = 'flex';
@@ -3273,13 +4799,143 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Open Project Modal
+// ========================================
+// TRELLO-STYLE INLINE ADD CARD FUNCTIONS
+// ========================================
+
+// Toggle inline add card form
+function toggleInlineAddCard(stageId) {
+    // Close all other inline forms first
+    document.querySelectorAll('.inline-add-card-form').forEach(form => {
+        form.style.display = 'none';
+    });
+    document.querySelectorAll('.inline-add-card-trigger').forEach(trigger => {
+        trigger.style.display = 'flex';
+    });
+    
+    const form = document.getElementById(`inlineAddCard-${stageId}`);
+    const trigger = document.getElementById(`addCardTrigger-${stageId}`);
+    const input = document.getElementById(`inlineCardTitle-${stageId}`);
+    
+    if (form && trigger) {
+        form.style.display = 'block';
+        trigger.style.display = 'none';
+        
+        // Scroll the form into view
+        setTimeout(() => {
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            if (input) {
+                input.focus();
+                input.value = '';
+            }
+        }, 50);
+    }
+}
+
+// Close inline add card form
+function closeInlineAddCard(stageId) {
+    const form = document.getElementById(`inlineAddCard-${stageId}`);
+    const trigger = document.getElementById(`addCardTrigger-${stageId}`);
+    const input = document.getElementById(`inlineCardTitle-${stageId}`);
+    
+    if (form && trigger) {
+        form.style.display = 'none';
+        trigger.style.display = 'flex';
+        if (input) input.value = '';
+    }
+}
+
+// Handle keyboard events in inline card input
+function handleInlineCardKeydown(event, stageId) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        submitInlineCard(stageId);
+    } else if (event.key === 'Escape') {
+        closeInlineAddCard(stageId);
+    }
+}
+
+// Submit inline card (create project)
+function submitInlineCard(stageId) {
+    const input = document.getElementById(`inlineCardTitle-${stageId}`);
+    const title = input ? input.value.trim() : '';
+    
+    if (!title) {
+        input.focus();
+        toastr.warning('Please enter a project name');
+        return;
+    }
+    
+    // Show loading state
+    const addBtn = document.querySelector(`#inlineAddCard-${stageId} .inline-add-btn`);
+    const originalText = addBtn.textContent;
+    addBtn.textContent = 'Adding...';
+    addBtn.disabled = true;
+    
+    // Create project via AJAX
+    fetch('{{ route("projects.store") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            name: title,
+            stage_id: stageId,
+            priority: 'medium',
+            status: 'active'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            toastr.success('Project created successfully!');
+            // Reload page to show new project
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+        } else {
+            toastr.error(data.message || 'Failed to create project');
+            addBtn.textContent = originalText;
+            addBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        toastr.error('Failed to create project');
+        addBtn.textContent = originalText;
+        addBtn.disabled = false;
+    });
+}
+
+// Close inline forms when clicking outside
+document.addEventListener('click', function(event) {
+    const isInsideForm = event.target.closest('.inline-add-card-form');
+    const isAddButton = event.target.closest('.add-card-btn');
+    const isTrigger = event.target.closest('.inline-add-card-trigger');
+    
+    if (!isInsideForm && !isAddButton && !isTrigger) {
+        document.querySelectorAll('.inline-add-card-form').forEach(form => {
+            const stageId = form.id.replace('inlineAddCard-', '');
+            closeInlineAddCard(stageId);
+        });
+    }
+});
+
+// Open Project Modal (for header button with full options)
 function openProjectModal(stageId = null) {
     document.getElementById('projectForm').reset();
     if (stageId) {
         document.getElementById('projectStage').value = stageId;
     }
     document.getElementById('projectModal').style.display = 'flex';
+    
+    // Focus on title input
+    setTimeout(() => {
+        document.getElementById('projectName').focus();
+    }, 100);
 }
 
 // Close Project Modal
@@ -3291,6 +4947,12 @@ function closeProjectModal() {
 // Close View Project Modal
 function closeViewProjectModal() {
     document.getElementById('viewProjectModal').style.display = 'none';
+    // Stop chat polling when modal is closed
+    stopChatPolling();
+    // Clear typing status
+    if (currentProjectId) {
+        sendTypingStatus(false);
+    }
 }
 
 // Open Materials Modal in Kanban View
@@ -3680,10 +5342,12 @@ function addSelectedMembers() {
 
 function addMemberAvatar(member) {
     const membersContainer = document.getElementById('projectMembersAvatars');
-    const memberColors = ['#4F46E5', '#059669', '#DC2626', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6'];
-    const currentMembers = membersContainer.querySelectorAll('div').length;
-    const color = memberColors[currentMembers % memberColors.length];
-    const initial = member.name.charAt(0).toUpperCase();
+    const fallbackColors = ['#4F46E5', '#059669', '#DC2626', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6'];
+    const currentMembers = membersContainer.querySelectorAll('.avatar-wrapper').length;
+    
+    // Use member's chat_color if available, otherwise fallback
+    const userColor = member.chat_color || fallbackColors[member.id % fallbackColors.length];
+    const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
     
     // Remove the + button temporarily
     const addButton = membersContainer.querySelector('button');
@@ -3691,31 +5355,69 @@ function addMemberAvatar(member) {
         addButton.remove();
     }
     
-    // Add new member avatar
-    const avatar = document.createElement('div');
-    avatar.style.cssText = `width: 32px; height: 32px; border-radius: 50%; background: ${color}; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; border: 2px solid white; margin-left: ${currentMembers > 0 ? '-10px' : '0'}; cursor: pointer; position: relative;`;
-    avatar.title = member.name;
-    avatar.dataset.userId = member.id;
-    avatar.innerHTML = initial;
+    // Create wrapper for avatar
+    const avatarWrapper = document.createElement('div');
+    avatarWrapper.className = 'avatar-wrapper';
+    avatarWrapper.style.cssText = `position: relative; margin-left: ${currentMembers > 0 ? '-8px' : '0'};`;
     
-    // Add remove button on hover
-    avatar.addEventListener('mouseenter', function() {
+    // Check for photo
+    let photoPath = null;
+    if (member.employee && member.employee.photo_path) {
+        photoPath = `{{ asset('public/storage') }}/${member.employee.photo_path}`;
+    } else if (member.photo_path) {
+        photoPath = `{{ asset('public/storage') }}/${member.photo_path}`;
+    }
+    
+    // Add new member avatar with user's unique color as border
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.style.cssText = `width: 32px; height: 32px; border-radius: 50%; background: ${photoPath ? '#f3f4f6' : userColor}; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 600; border: 2px solid ${userColor}; cursor: pointer; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.12); margin-left: 0;`;
+    avatar.setAttribute('data-tooltip', member.name);
+    avatar.dataset.userId = member.id;
+    
+    // Set avatar content (photo or initials)
+    if (photoPath) {
+        const img = document.createElement('img');
+        img.src = photoPath;
+        img.alt = member.name;
+        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+        img.onerror = function() {
+            avatar.style.background = userColor;
+            avatar.innerHTML = initials;
+        };
+        avatar.appendChild(img);
+    } else {
+        avatar.textContent = initials;
+    }
+    
+    // Add tooltip and remove button on hover
+    avatarWrapper.addEventListener('mouseenter', function(e) {
+        // Show tooltip with member name
+        showMemberTooltip(e, member.name, avatarWrapper);
+        
+        // Add remove button
         const removeBtn = document.createElement('div');
-        removeBtn.style.cssText = 'position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white;';
+        removeBtn.className = 'member-remove-btn';
+        removeBtn.style.cssText = 'position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; z-index: 10;';
         removeBtn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
         removeBtn.onclick = (e) => {
             e.stopPropagation();
-            removeMember(member.id, avatar);
+            removeMember(member.id, avatarWrapper);
         };
-        avatar.appendChild(removeBtn);
+        avatarWrapper.appendChild(removeBtn);
     });
     
-    avatar.addEventListener('mouseleave', function() {
-        const removeBtn = avatar.querySelector('div');
+    avatarWrapper.addEventListener('mouseleave', function() {
+        // Hide tooltip
+        hideMemberTooltip();
+        
+        // Remove button
+        const removeBtn = avatarWrapper.querySelector('.member-remove-btn');
         if (removeBtn) removeBtn.remove();
     });
     
-    membersContainer.appendChild(avatar);
+    avatarWrapper.appendChild(avatar);
+    membersContainer.appendChild(avatarWrapper);
     
     // Re-add the + button
     if (addButton) {
@@ -3773,68 +5475,72 @@ function loadProjectMembers(projectId) {
             const membersContainer = document.getElementById('projectMembersAvatars');
             membersContainer.innerHTML = '';
             
-            const memberColors = ['#4F46E5', '#059669', '#DC2626', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6'];
+            const fallbackColors = ['#4F46E5', '#059669', '#DC2626', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6'];
             
             data.members.forEach((member, index) => {
-                const color = memberColors[member.id % memberColors.length];
+                // Use member's chat_color if available, otherwise fallback to array color
+                const userColor = member.chat_color || fallbackColors[member.id % fallbackColors.length];
                 const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
                 
-                // Debug: Log member data to see structure
-                console.log('Member data:', member);
-                
-                // Check for photo from employee data - try multiple paths
+                // Check for photo from employee data - use full URL from server
                 let photoPath = null;
-                if (member.employee && member.employee.photo_path) {
-                    photoPath = `{{ asset('public/storage') }}/${member.employee.photo_path}`;
-                    console.log('Found employee photo:', photoPath);
-                } else if (member.photo_path) {
-                    photoPath = `{{ asset('public/storage') }}/${member.photo_path}`;
-                    console.log('Found user photo:', photoPath);
+                if (member.photo_path) {
+                    photoPath = member.photo_path;
+                } else if (member.employee && member.employee.photo_path) {
+                    photoPath = member.employee.photo_path;
                 }
                 
-                const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=${color.substring(1)}&color=fff&size=32&bold=true`;
-                
-                // Create wrapper for avatar (no overflow hidden here)
+                // Create wrapper for avatar
                 const avatarWrapper = document.createElement('div');
-                avatarWrapper.style.cssText = `position: relative; margin-left: ${index > 0 ? '-10px' : '0'};`;
+                avatarWrapper.style.cssText = `position: relative; margin-left: ${index > 0 ? '-8px' : '0'};`;
                 
-                // Create avatar circle
+                // Create avatar circle with user's unique color as border
                 const avatar = document.createElement('div');
-                avatar.style.cssText = `width: 32px; height: 32px; border-radius: 50%; background: ${photoPath ? 'white' : color}; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; border: 2px solid white; cursor: pointer; overflow: hidden;`;
-                avatar.title = member.name;
+                avatar.className = 'avatar';
+                avatar.style.cssText = `width: 32px; height: 32px; border-radius: 50%; background: ${photoPath ? '#f3f4f6' : userColor}; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 600; border: 2px solid ${userColor}; cursor: pointer; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.12); margin-left: 0;`;
+                avatar.setAttribute('data-tooltip', member.name);
                 avatar.dataset.userId = member.id;
                 
                 // Set avatar content (photo or initials)
                 if (photoPath) {
-                    console.log('Setting photo for', member.name, ':', photoPath);
                     const img = document.createElement('img');
                     img.src = photoPath;
                     img.alt = member.name;
                     img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
                     img.onerror = function() {
-                        console.log('Photo failed to load, using default avatar');
-                        this.src = defaultAvatar;
+                        // On error, show initials with user color background
+                        avatar.style.background = userColor;
+                        avatar.innerHTML = initials;
                     };
                     avatar.appendChild(img);
                 } else {
-                    console.log('No photo found for', member.name, ', using initials:', initials);
                     avatar.textContent = initials;
                 }
                 
-                // Add remove button on hover (attached to wrapper, not avatar)
-                avatarWrapper.addEventListener('mouseenter', function() {
-                    const removeBtn = document.createElement('div');
-                    removeBtn.className = 'member-remove-btn';
-                    removeBtn.style.cssText = 'position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; z-index: 10;';
-                    removeBtn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-                    removeBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        removeMember(member.id, avatarWrapper);
-                    };
-                    avatarWrapper.appendChild(removeBtn);
+                // Add tooltip on hover (and remove button only if user has permission)
+                avatarWrapper.addEventListener('mouseenter', function(e) {
+                    // Show tooltip with member name
+                    showMemberTooltip(e, member.name, avatarWrapper);
+                    
+                    // Add remove button only if user has permission to manage members
+                    if (canManageMembers) {
+                        const removeBtn = document.createElement('div');
+                        removeBtn.className = 'member-remove-btn';
+                        removeBtn.style.cssText = 'position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; z-index: 10;';
+                        removeBtn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+                        removeBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            removeMember(member.id, avatarWrapper);
+                        };
+                        avatarWrapper.appendChild(removeBtn);
+                    }
                 });
                 
                 avatarWrapper.addEventListener('mouseleave', function() {
+                    // Hide tooltip
+                    hideMemberTooltip();
+                    
+                    // Remove button if exists
                     const removeBtn = avatarWrapper.querySelector('.member-remove-btn');
                     if (removeBtn) removeBtn.remove();
                 });
@@ -3843,19 +5549,320 @@ function loadProjectMembers(projectId) {
                 membersContainer.appendChild(avatarWrapper);
             });
             
-            // Add + button
-            const addButton = document.createElement('button');
-            addButton.onclick = openAddMemberModal;
-            addButton.style.cssText = 'width: 32px; height: 32px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border: 1px solid #d1d5db; cursor: pointer; margin-left: 6px; transition: all 0.2s;';
-            addButton.title = 'Add Member';
-            addButton.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>';
-            membersContainer.appendChild(addButton);
+            // Add + button only if user has permission to manage members
+            if (canManageMembers) {
+                const addButton = document.createElement('button');
+                addButton.onclick = openAddMemberModal;
+                addButton.style.cssText = 'width: 32px; height: 32px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border: 2px dashed #d1d5db; cursor: pointer; margin-left: 6px; transition: all 0.2s;';
+                addButton.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>';
+                
+                // Add tooltip for add button
+                addButton.addEventListener('mouseenter', function(e) {
+                    showMemberTooltip(e, 'Add Member', addButton);
+                });
+                addButton.addEventListener('mouseleave', hideMemberTooltip);
+                
+                membersContainer.appendChild(addButton);
+            }
+            
+            // If no members and no permission to add, show a message
+            if (data.members.length === 0 && !canManageMembers) {
+                const noMembersText = document.createElement('span');
+                noMembersText.style.cssText = 'color: #9ca3af; font-size: 12px; font-style: italic;';
+                noMembersText.textContent = 'No members assigned';
+                membersContainer.appendChild(noMembersText);
+            }
         }
     })
     .catch(error => {
         console.error('Error loading members:', error);
     });
 }
+
+// Tooltip functions for member avatars
+function showMemberTooltip(event, text, element) {
+    // Remove any existing tooltip
+    hideMemberTooltip();
+    
+    // Create tooltip element
+    const tooltip = document.createElement('div');
+    tooltip.id = 'member-tooltip';
+    tooltip.textContent = text;
+    tooltip.style.cssText = `
+        position: fixed;
+        padding: 6px 12px;
+        background: #1f2937;
+        color: white;
+        font-size: 12px;
+        font-weight: 500;
+        white-space: nowrap;
+        border-radius: 6px;
+        z-index: 999999;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+    `;
+    
+    document.body.appendChild(tooltip);
+    
+    // Position tooltip above the element
+    const rect = element.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    
+    tooltip.style.left = (rect.left + rect.width / 2 - tooltipRect.width / 2) + 'px';
+    tooltip.style.top = (rect.top - tooltipRect.height - 8) + 'px';
+    
+    // Show with animation
+    requestAnimationFrame(() => {
+        tooltip.style.opacity = '1';
+    });
+}
+
+function hideMemberTooltip() {
+    const tooltip = document.getElementById('member-tooltip');
+    if (tooltip) {
+        tooltip.remove();
+    }
+}
+
+// Project Filter Functions
+function applyProjectFilters() {
+    const stageFilter = document.getElementById('filterStage').value;
+    const statusFilter = document.getElementById('filterStatus').value;
+    const priorityFilter = document.getElementById('filterPriority').value;
+    const companyFilter = document.getElementById('filterCompany').value;
+    const searchQuery = document.getElementById('projectSearch').value.toLowerCase();
+    
+    // Filter Kanban Cards
+    const kanbanCards = document.querySelectorAll('.kanban-card');
+    kanbanCards.forEach(card => {
+        const projectId = card.dataset.projectId;
+        const projectData = getProjectData(projectId);
+        
+        if (!projectData) {
+            card.style.display = '';
+            return;
+        }
+        
+        let show = true;
+        
+        // Stage filter (for kanban, cards are already in their stage columns)
+        if (stageFilter && projectData.stage_id != stageFilter) {
+            show = false;
+        }
+        
+        // Status filter
+        if (statusFilter && projectData.status !== statusFilter) {
+            show = false;
+        }
+        
+        // Priority filter
+        if (priorityFilter && projectData.priority !== priorityFilter) {
+            show = false;
+        }
+        
+        // Company filter
+        if (companyFilter && projectData.company_id != companyFilter) {
+            show = false;
+        }
+        
+        // Search filter
+        if (searchQuery) {
+            const name = (projectData.name || '').toLowerCase();
+            const description = (projectData.description || '').toLowerCase();
+            const companyName = (projectData.company_name || '').toLowerCase();
+            if (!name.includes(searchQuery) && !description.includes(searchQuery) && !companyName.includes(searchQuery)) {
+                show = false;
+            }
+        }
+        
+        card.style.display = show ? '' : 'none';
+    });
+    
+    // Filter Grid Cards
+    const gridCards = document.querySelectorAll('.project-grid-card');
+    gridCards.forEach(card => {
+        const projectId = card.getAttribute('onclick')?.match(/viewProject\((\d+)/)?.[1];
+        const projectData = getProjectData(projectId);
+        
+        if (!projectData) {
+            card.style.display = '';
+            return;
+        }
+        
+        let show = true;
+        
+        if (stageFilter && projectData.stage_id != stageFilter) show = false;
+        if (statusFilter && projectData.status !== statusFilter) show = false;
+        if (priorityFilter && projectData.priority !== priorityFilter) show = false;
+        if (companyFilter && projectData.company_id != companyFilter) show = false;
+        
+        if (searchQuery) {
+            const name = (projectData.name || '').toLowerCase();
+            const description = (projectData.description || '').toLowerCase();
+            const companyName = (projectData.company_name || '').toLowerCase();
+            if (!name.includes(searchQuery) && !description.includes(searchQuery) && !companyName.includes(searchQuery)) {
+                show = false;
+            }
+        }
+        
+        card.style.display = show ? '' : 'none';
+    });
+    
+    // Filter List View Rows
+    const listRows = document.querySelectorAll('.projects-list-view tbody tr');
+    listRows.forEach(row => {
+        const projectId = row.dataset.projectId;
+        const projectData = getProjectData(projectId);
+        
+        if (!projectData) {
+            row.style.display = '';
+            return;
+        }
+        
+        let show = true;
+        
+        if (stageFilter && projectData.stage_id != stageFilter) show = false;
+        if (statusFilter && projectData.status !== statusFilter) show = false;
+        if (priorityFilter && projectData.priority !== priorityFilter) show = false;
+        if (companyFilter && projectData.company_id != companyFilter) show = false;
+        
+        if (searchQuery) {
+            const name = (projectData.name || '').toLowerCase();
+            const description = (projectData.description || '').toLowerCase();
+            const companyName = (projectData.company_name || '').toLowerCase();
+            if (!name.includes(searchQuery) && !description.includes(searchQuery) && !companyName.includes(searchQuery)) {
+                show = false;
+            }
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+    
+    // Show/hide kanban columns based on stage filter
+    const kanbanColumns = document.querySelectorAll('.kanban-column');
+    kanbanColumns.forEach(column => {
+        const columnStageId = column.dataset.stageId;
+        if (stageFilter) {
+            column.style.display = columnStageId == stageFilter ? '' : 'none';
+        } else {
+            column.style.display = '';
+        }
+    });
+}
+
+function resetProjectFilters() {
+    document.getElementById('filterStage').value = '';
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('filterPriority').value = '';
+    document.getElementById('filterCompany').value = '';
+    document.getElementById('projectSearch').value = '';
+    applyProjectFilters();
+}
+
+// Store project data for filtering
+const projectsData = {
+    @foreach($projects as $project)
+    '{{ $project->id }}': {
+        id: {{ $project->id }},
+        name: @json($project->name),
+        description: @json($project->description ?? ''),
+        stage_id: {{ $project->stage_id ?? 'null' }},
+        status: @json($project->status ?? 'active'),
+        priority: @json($project->priority ?? 'medium'),
+        company_id: {{ $project->company_id ?? 'null' }},
+        company_name: @json($project->company->company_name ?? '')
+    },
+    @endforeach
+};
+
+function getProjectData(projectId) {
+    return projectsData[projectId] || null;
+}
+
+// Table Sorting Functions
+let currentSort = { column: null, direction: 'asc' };
+
+function initTableSorting() {
+    const table = document.getElementById('projectListTable');
+    if (!table) return;
+    
+    const headers = table.querySelectorAll('th.sortable');
+    
+    headers.forEach(header => {
+        header.addEventListener('click', function() {
+            const sortKey = this.dataset.sort;
+            const sortType = this.dataset.type;
+            
+            // Toggle direction
+            if (currentSort.column === sortKey) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = sortKey;
+                currentSort.direction = 'asc';
+            }
+            
+            // Update header classes
+            headers.forEach(h => h.classList.remove('asc', 'desc'));
+            this.classList.add(currentSort.direction);
+            
+            // Sort the table
+            sortTable(table, sortKey, sortType, currentSort.direction);
+        });
+    });
+}
+
+function sortTable(table, sortKey, sortType, direction) {
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr[data-project-id]'));
+    
+    const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+    
+    rows.sort((a, b) => {
+        let aVal = a.dataset[sortKey] || '';
+        let bVal = b.dataset[sortKey] || '';
+        
+        let comparison = 0;
+        
+        switch(sortType) {
+            case 'number':
+                aVal = parseFloat(aVal) || 0;
+                bVal = parseFloat(bVal) || 0;
+                comparison = aVal - bVal;
+                break;
+            case 'date':
+                aVal = aVal || '9999-12-31';
+                bVal = bVal || '9999-12-31';
+                comparison = aVal.localeCompare(bVal);
+                break;
+            case 'priority':
+                aVal = priorityOrder[aVal] || 0;
+                bVal = priorityOrder[bVal] || 0;
+                comparison = aVal - bVal;
+                break;
+            default: // string
+                comparison = aVal.localeCompare(bVal);
+        }
+        
+        return direction === 'asc' ? comparison : -comparison;
+    });
+    
+    // Re-append rows in sorted order
+    rows.forEach((row, index) => {
+        tbody.appendChild(row);
+        // Update Sr.No.
+        const srnoCell = row.querySelector('.srno-cell');
+        if (srnoCell) {
+            srnoCell.textContent = index + 1;
+        }
+    });
+}
+
+// Initialize sorting on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initTableSorting();
+});
 </script>
 @endpush
 

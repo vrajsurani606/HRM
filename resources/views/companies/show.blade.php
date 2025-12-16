@@ -127,8 +127,15 @@
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company City</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->city ? $company->city : '-' }}</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->city == 'other' ? ($company->city_other ?: 'Other') : ($company->city ? ucwords(str_replace('_', ' ', $company->city)) : '-') }}</span>
           </div>
+          @if($company->state)
+          <div style="display: flex; align-items: center; padding: 8px 0px;">
+            <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company State</span>
+            <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
+            <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">{{ $company->state == 'other' ? ($company->state_other ?: 'Other') : ucwords(str_replace('_', ' ', $company->state)) }}</span>
+          </div>
+          @endif
         </div>
         </div>
       </div>
@@ -951,7 +958,6 @@
                 <th style="text-align: left; padding: 12px; font-weight: 600; color: #374151;">Serial No</th>
                 <th style="text-align: left; padding: 12px; font-weight: 600; color: #374151;">Ticket No</th>
                 <th style="text-align: left; padding: 12px; font-weight: 600; color: #374151;">Status</th>
-                <th style="text-align: left; padding: 12px; font-weight: 600; color: #374151;">Work Status</th>
                 <th style="text-align: left; padding: 12px; font-weight: 600; color: #374151;">Category</th>
                 <th style="text-align: left; padding: 12px; font-weight: 600; color: #374151;">Priority</th>
                 <th style="text-align: left; padding: 12px; font-weight: 600; color: #374151;">Title</th>
@@ -963,7 +969,7 @@
               <tr style="border-bottom: 1px solid #f3f4f6;">
                 <td style="padding: 12px; color: #374151;">{{ $index + 1 }}</td>
                 <td style="padding: 12px; color: #374151;">
-                  <a href="{{ route('tickets.show', $ticket->id) }}" style="color: #3b82f6; text-decoration: none;">
+                  <a href="{{ route('tickets.index', ['view' => $ticket->id]) }}" style="color: #3b82f6; text-decoration: none;">
                     {{ $ticket->ticket_no ?? '-' }}
                   </a>
                 </td>
@@ -979,18 +985,6 @@
                     $ticketStatusColor = $ticketStatusColors[strtolower($ticket->status ?? '')] ?? 'color: #374151;';
                   @endphp
                   <span style="{{ $ticketStatusColor }} font-weight: 600;">{{ ucfirst(str_replace('_', ' ', $ticket->status ?? 'N/A')) }}</span>
-                </td>
-                <td style="padding: 12px;">
-                  @php
-                    $workStatusColors = [
-                      'completed' => 'color: #22c55e;',
-                      'in_progress' => 'color: #3b82f6;',
-                      'work_not_assigned' => 'color: #f59e0b;',
-                      'not_started' => 'color: #f59e0b;',
-                    ];
-                    $workStatusColor = $workStatusColors[strtolower($ticket->work_status ?? '')] ?? 'color: #374151;';
-                  @endphp
-                  <span style="{{ $workStatusColor }}">{{ ucfirst(str_replace('_', ' ', $ticket->work_status ?? 'N/A')) }}</span>
                 </td>
                 <td style="padding: 12px; color: #374151;">{{ $ticket->category ?? '-' }}</td>
                 <td style="padding: 12px; color: #374151;">
@@ -1008,7 +1002,7 @@
                 <td style="padding: 12px; color: #374151;">{{ Str::limit($ticket->title ?? $ticket->subject, 25) }}</td>
                 <td style="padding: 12px;">
                   <div style="display: flex; gap: 4px; align-items: center;">
-                    <a href="{{ route('tickets.show', $ticket->id) }}" style="width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;" title="View">
+                    <a href="{{ route('tickets.index', ['view' => $ticket->id]) }}" style="width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;" title="View">
                       <img src="{{ asset('action_icon/show.svg') }}" alt="view" style="width: 14px; height: 14px;">
                     </a>
                   </div>

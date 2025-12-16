@@ -154,14 +154,15 @@
           var a = e.target.closest('a');
           if(!a) return;
           var li = a.parentElement;
-          if(!li || !li.matches('.hrp-menu-item[data-group]') || a.getAttribute('href') !== "#") return;
+          if(!li || !li.matches('.hrp-menu-item[data-group]:not(.hrp-sub)') || a.getAttribute('href') !== "#") return;
           e.preventDefault();
           
-          // Close all other open menus
-          var allMenuItems = document.querySelectorAll('.hrp-menu-item[data-group]');
-          allMenuItems.forEach(function(item){
-            if(item !== li && item.classList.contains('open')){
+          // Close all other open menus (remove both open and active-parent classes)
+          var allParentMenus = document.querySelectorAll('.hrp-menu-item[data-group]:not(.hrp-sub)');
+          allParentMenus.forEach(function(item){
+            if(item !== li){
               item.classList.remove('open');
+              item.classList.remove('active-parent');
               var link = item.querySelector('a');
               if(link) link.setAttribute('aria-expanded', 'false');
             }
@@ -171,9 +172,25 @@
           var isOpen = li.classList.toggle('open');
           a.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         }
+        
+        // On page load - ensure only one menu is open
         document.addEventListener('DOMContentLoaded', function(){
           var menu = document.querySelector('.hrp-menu');
           if(menu){ menu.addEventListener('click', onClick); }
+          
+          // Find the active menu (current page's parent)
+          var activeMenu = document.querySelector('.hrp-menu-item[data-group].active-parent:not(.hrp-sub)');
+          
+          // Close all other menus except the active one
+          var allParentMenus = document.querySelectorAll('.hrp-menu-item[data-group]:not(.hrp-sub)');
+          allParentMenus.forEach(function(item){
+            if(item !== activeMenu){
+              item.classList.remove('open');
+              item.classList.remove('active-parent');
+              var link = item.querySelector('a');
+              if(link) link.setAttribute('aria-expanded', 'false');
+            }
+          });
         });
       })();
     </script>

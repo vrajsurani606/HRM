@@ -51,7 +51,7 @@
       </div>
       <div>
         <label class="hrp-label">Mobile No.:</label>
-        <input class="hrp-input Rectangle-29" name="mobile_no" value="{{ old('mobile_no', $quotation->contact_number_1) }}" />
+        <input class="hrp-input Rectangle-29 allow-country-code" name="mobile_no" value="{{ old('mobile_no', $quotation->contact_number_1) }}" placeholder="e.g., +919876543210" />
       </div>
     </div>
 

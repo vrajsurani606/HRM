@@ -197,6 +197,11 @@ Route::middleware('auth')->group(function () {
     Route::get('hiring/{id}/offer/edit', [HiringController::class, 'offerEdit'])->name('hiring.offer.edit');
     Route::put('hiring/{id}/offer', [HiringController::class, 'offerUpdate'])->name('hiring.offer.update');
     
+    // Hiring Lead Status Actions
+    Route::post('hiring/{id}/accept', [HiringController::class, 'accept'])->name('hiring.accept');
+    Route::post('hiring/{id}/reject', [HiringController::class, 'reject'])->name('hiring.reject');
+    Route::post('hiring/{id}/hold', [HiringController::class, 'hold'])->name('hiring.hold');
+    
     // Inquiries
     Route::get('inquiries-export', [InquiryController::class, 'export'])->name('inquiries.export');
     Route::resource('inquiries', InquiryController::class)->only(['index','create','store','show','edit','update','destroy']);
@@ -260,6 +265,11 @@ Route::middleware('auth')->group(function () {
     // Project Comments (MUST be before resource routes)
     Route::get('projects/{project}/comments', [ProjectController::class, 'getComments'])->name('projects.comments.index');
     Route::post('projects/{project}/comments', [ProjectController::class, 'storeComment'])->name('projects.comments.store');
+    Route::get('projects/{project}/comments/poll', [ProjectController::class, 'pollComments'])->name('projects.comments.poll');
+    
+    // Project Typing Status (for real-time chat)
+    Route::get('projects/{project}/typing', [ProjectController::class, 'getTypingStatus'])->name('projects.typing.get');
+    Route::post('projects/{project}/typing', [ProjectController::class, 'setTypingStatus'])->name('projects.typing.set');
     
     // Project Members (MUST be before resource routes)
     Route::get('projects/{project}/members', [ProjectController::class, 'getMembers'])->name('projects.members.index');
@@ -354,6 +364,7 @@ require __DIR__.'/auth.php';
 Route::middleware(['auth'])->prefix('tickets')->group(function () {
     Route::get('{ticket}/json', [\App\Http\Controllers\TicketController::class, 'getJson'])->name('tickets.json');
     Route::get('{ticket}/print', [\App\Http\Controllers\TicketController::class, 'print'])->name('tickets.print');
+    Route::get('{ticket}/comments', [\App\Http\Controllers\TicketController::class, 'getComments'])->name('tickets.getComments');
     Route::post('{ticket}/assign', [\App\Http\Controllers\TicketController::class, 'assign'])->name('tickets.assign');
     Route::post('{ticket}/complete', [\App\Http\Controllers\TicketController::class, 'complete'])->name('tickets.complete');
     Route::post('{ticket}/confirm', [\App\Http\Controllers\TicketController::class, 'confirm'])->name('tickets.confirm');

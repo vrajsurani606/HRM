@@ -132,7 +132,6 @@ class TicketController extends Controller
             'customer' => $isCustomer ? 'nullable' : 'required|string|max:255',
             'status' => 'nullable|in:open,needs_approval,in_progress,resolved,closed',
             'priority' => 'nullable|in:low,medium,normal,high,urgent',
-            'work_status' => 'nullable|in:not_assigned,in_progress,completed,on_hold',
             'assigned_to' => 'nullable|exists:employees,id',
             'category' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
@@ -169,7 +168,6 @@ class TicketController extends Controller
             'customer' => $customerName,
             'status' => $request->status ?: 'open',
             'priority' => $priority,
-            'work_status' => $request->work_status ?: 'not_assigned',
             'assigned_to' => $request->assigned_to,
             'category' => $request->category,
             'company' => $companyName,
@@ -217,6 +215,19 @@ class TicketController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        // Redirect to index page with view parameter (popup will open automatically)
+        return redirect()->route('tickets.index', ['view' => $id]);
+    }
+    
+    /**
+     * Get ticket data as JSON for AJAX requests
+     */
+    public function getJson($id)
+    {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.view ticket'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
         $user = auth()->user();
         $ticket = Ticket::with(['assignedEmployee', 'comments.user'])->findOrFail($id);
         
@@ -228,7 +239,7 @@ class TicketController extends Controller
             if ($user->hasRole('customer') && $user->company_id) {
                 $company = $user->company;
                 if ($company && $ticket->company != $company->company_name && $ticket->customer != ($company->name ?? $user->name)) {
-                    abort(403, 'Unauthorized access to this ticket.');
+                    return response()->json(['success' => false, 'message' => 'Unauthorized access to this ticket.'], 403);
                 }
             } elseif ($isEmployee) {
                 $employee = \App\Models\Employee::where('user_id', $user->id)->first();
@@ -236,14 +247,17 @@ class TicketController extends Controller
                     $employee = \App\Models\Employee::where('email', $user->email)->first();
                 }
                 if (!$employee || $ticket->assigned_to != $employee->id) {
-                    abort(403, 'Unauthorized access to this ticket.');
+                    return response()->json(['success' => false, 'message' => 'Unauthorized access to this ticket.'], 403);
                 }
             } else {
-                abort(403, 'Unauthorized access to this ticket.');
+                return response()->json(['success' => false, 'message' => 'Unauthorized access to this ticket.'], 403);
             }
         }
         
-        return view('tickets.show', compact('ticket', 'isAdmin', 'isEmployee'));
+        return response()->json([
+            'success' => true,
+            'ticket' => $ticket
+        ]);
     }
 
     public function addComment(Request $request, $id)
@@ -349,7 +363,8 @@ class TicketController extends Controller
             ]);
         }
 
-        return view('tickets.edit', compact('ticket'));
+        // Redirect to index page with edit parameter (popup will open automatically)
+        return redirect()->route('tickets.index', ['edit' => $ticket->id]);
     }
 
     public function update(Request $request, $id)
@@ -391,7 +406,6 @@ class TicketController extends Controller
             'customer' => 'nullable|string|max:255',
             'status' => 'nullable|in:open,assigned,needs_approval,in_progress,completed,resolved,closed',
             'priority' => 'nullable|in:low,medium,normal,high,urgent',
-            'work_status' => 'nullable|in:not_assigned,in_progress,completed,on_hold',
             'assigned_to' => 'nullable|exists:employees,id',
             'category' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
@@ -407,7 +421,7 @@ class TicketController extends Controller
 
         $ticket->update($request->only([
             'title', 'subject', 'description', 'customer', 'status', 
-            'work_status', 'assigned_to', 'category', 'company', 'ticket_type', 'resolution_notes'
+            'assigned_to', 'category', 'company', 'ticket_type', 'resolution_notes'
         ]));
         
         // Update priority separately

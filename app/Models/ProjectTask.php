@@ -15,12 +15,15 @@ class ProjectTask extends Model
         'due_date',
         'due_time',
         'is_completed',
+        'completed_by',
+        'completed_at',
         'order'
     ];
 
     protected $casts = [
         'due_date' => 'date',
-        'is_completed' => 'boolean'
+        'is_completed' => 'boolean',
+        'completed_at' => 'datetime'
     ];
 
     public function project()
@@ -41,5 +44,10 @@ class ProjectTask extends Model
     public function assignedEmployee()
     {
         return $this->belongsTo(\App\Models\Employee::class, 'assigned_to');
+    }
+
+    public function completedByUser()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'completed_by');
     }
 }

@@ -18,6 +18,15 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    /**
+     * Available chat colors for users
+     */
+    public static $chatColors = [
+        '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', 
+        '#ef4444', '#06b6d4', '#84cc16', '#f97316', '#14b8a6',
+        '#a855f7', '#3b82f6', '#eab308', '#e11d48', '#0ea5e9'
+    ];
+
     protected $fillable = [
         'name',
         'email',
@@ -27,7 +36,23 @@ class User extends Authenticatable
         'address',
         'photo_path',
         'company_id',
+        'chat_color',
     ];
+
+    /**
+     * Boot the model
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        // Auto-assign chat color when creating new user
+        static::creating(function ($user) {
+            if (empty($user->chat_color)) {
+                $user->chat_color = self::$chatColors[rand(0, count(self::$chatColors) - 1)];
+            }
+        });
+    }
 
     /**
      * The attributes that should be hidden for serialization.

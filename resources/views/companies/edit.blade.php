@@ -14,12 +14,12 @@
               <input name="unique_code" value="{{ old('unique_code', $company->unique_code) }}" class="hrp-input Rectangle-29" readonly style="font-size: 14px; line-height: 1.5; background-color: #f3f4f6;">
             </div>
             <div>
-              <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">GST No</label>
+              <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">GST Number</label>
               <input name="gst_no" type="text" placeholder="e.g., 22ABCDE1234F1Z5" value="{{ old('gst_no', $company->gst_no) }}" class="hrp-input Rectangle-29" maxlength="15" style="text-transform: uppercase; font-size: 14px; line-height: 1.5;" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15)" pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9A-Z]{1}[Z]{1}[0-9A-Z]{1}" title="Enter valid 15-character GST No. (e.g., 22ABCDE1234F1Z5)">
               @error('gst_no')<small class="hrp-error">{{ $message }}</small>@enderror
             </div>
             <div>
-              <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Pan No</label>
+              <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">PAN Number</label>
               <input name="pan_no" type="text" placeholder="e.g., ABCDE1234F" value="{{ old('pan_no', $company->pan_no) }}" class="hrp-input Rectangle-29" maxlength="10" style="text-transform: uppercase; font-size: 14px; line-height: 1.5;" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10)" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" title="Enter valid 10-character PAN No. (e.g., ABCDE1234F)">
               @error('pan_no')<small class="hrp-error">{{ $message }}</small>@enderror
             </div>
@@ -110,6 +110,7 @@
                 <option value="jharkhand" {{ old('state', $company->state) == 'jharkhand' ? 'selected' : '' }}>Jharkhand</option>
                 <option value="karnataka" {{ old('state', $company->state) == 'karnataka' ? 'selected' : '' }}>Karnataka</option>
                 <option value="kerala" {{ old('state', $company->state) == 'kerala' ? 'selected' : '' }}>Kerala</option>
+                <option value="ladakh" {{ old('state', $company->state) == 'ladakh' ? 'selected' : '' }}>Ladakh</option>
                 <option value="madhya_pradesh" {{ old('state', $company->state) == 'madhya_pradesh' ? 'selected' : '' }}>Madhya Pradesh</option>
                 <option value="maharashtra" {{ old('state', $company->state) == 'maharashtra' ? 'selected' : '' }}>Maharashtra</option>
                 <option value="manipur" {{ old('state', $company->state) == 'manipur' ? 'selected' : '' }}>Manipur</option>
@@ -126,8 +127,15 @@
                 <option value="uttar_pradesh" {{ old('state', $company->state) == 'uttar_pradesh' ? 'selected' : '' }}>Uttar Pradesh</option>
                 <option value="uttarakhand" {{ old('state', $company->state) == 'uttarakhand' ? 'selected' : '' }}>Uttarakhand</option>
                 <option value="west_bengal" {{ old('state', $company->state) == 'west_bengal' ? 'selected' : '' }}>West Bengal</option>
+                {{-- Union Territories --}}
+                <option value="andaman_nicobar" {{ old('state', $company->state) == 'andaman_nicobar' ? 'selected' : '' }}>Andaman & Nicobar Islands</option>
+                <option value="chandigarh" {{ old('state', $company->state) == 'chandigarh' ? 'selected' : '' }}>Chandigarh</option>
+                <option value="dadra_nagar_haveli_daman_diu" {{ old('state', $company->state) == 'dadra_nagar_haveli_daman_diu' ? 'selected' : '' }}>Dadra & Nagar Haveli and Daman & Diu</option>
+                <option value="lakshadweep" {{ old('state', $company->state) == 'lakshadweep' ? 'selected' : '' }}>Lakshadweep</option>
+                <option value="puducherry" {{ old('state', $company->state) == 'puducherry' ? 'selected' : '' }}>Puducherry</option>
                 <option value="other" {{ old('state', $company->state) == 'other' ? 'selected' : '' }}>Other</option>
               </select>
+              <input type="text" name="state_other" id="state_other_input" class="hrp-input Rectangle-29" placeholder="Enter State Name" value="{{ old('state_other', $company->state_other ?? '') }}" style="display: {{ old('state', $company->state) == 'other' ? 'block' : 'none' }}; margin-top: 8px; font-size: 14px; line-height: 1.5;">
               @error('state')<small class="hrp-error">{{ $message }}</small>@enderror
             </div>
           </div>
@@ -152,6 +160,7 @@
                 <option value="" disabled selected>SELECT STATE FIRST</option>
               </select>
               <input type="hidden" id="old_city" value="{{ old('city', $company->city) }}">
+              <input type="text" name="city_other" id="city_other_input" class="hrp-input Rectangle-29" placeholder="Enter City Name" value="{{ old('city_other', $company->city_other ?? '') }}" style="display: {{ old('city', $company->city) == 'other' ? 'block' : 'none' }}; margin-top: 8px; font-size: 14px; line-height: 1.5;">
               @error('city')<small class="hrp-error">{{ $message }}</small>@enderror
             </div>
           </div>
@@ -197,26 +206,27 @@
               <div class="filename" id="sopFileName" style="font-size: 14px;">{{ $company->sop_upload ? basename($company->sop_upload) : 'No File Chosen' }}</div>
               <input id="sopInput" name="sop_upload" type="file" style="display: none;" onchange="validateSopFileEdit(this)" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
             </div>
-            @if($company->sop_upload)
+            @if($company->sop_upload && $company->sop_url)
               @php
-                $extension = strtolower(pathinfo($company->sop_upload, PATHINFO_EXTENSION));
-                $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-                $fileUrl = route('company.documents.view', ['type' => 'sop', 'filename' => basename($company->sop_upload)]);
+                $sopExtension = strtolower(pathinfo($company->sop_upload, PATHINFO_EXTENSION));
+                $sopIsImage = in_array($sopExtension, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
               @endphp
-              <div class="mt-2">
-                @if($isImage)
-                  <div class="mb-2">
-                    <img src="{{ $fileUrl }}" alt="SOP Preview" class="max-w-xs border rounded p-1">
+              <div style="margin-top: 10px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <p style="font-size: 12px; color: #64748b; margin: 0 0 8px 0; font-weight: 500;">Current SOP Document:</p>
+                @if($sopIsImage)
+                  <div style="margin-bottom: 10px;">
+                    <img src="{{ $company->sop_url }}" alt="SOP Preview" style="max-width: 150px; max-height: 100px; border-radius: 6px; border: 1px solid #e2e8f0;">
                   </div>
                 @endif
-                <div>
-                  <a href="{{ $fileUrl }}" target="_blank" class="inline-flex items-center text-blue-500 hover:underline text-sm">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <a href="{{ $company->sop_url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; color: #3b82f6; font-size: 13px; text-decoration: none;">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                     </svg>
-                    View Current File
+                    View File
                   </a>
-                  <span class="text-gray-500 text-xs ml-2">({{ Str::upper($extension) }})</span>
+                  <span style="color: #94a3b8; font-size: 12px;">({{ strtoupper($sopExtension) }})</span>
                 </div>
               </div>
             @endif
@@ -232,26 +242,27 @@
               <div class="filename" id="quotationFileName" style="font-size: 14px;">{{ $company->quotation_upload ? basename($company->quotation_upload) : 'No File Chosen' }}</div>
               <input id="quotationInput" name="quotation_upload" type="file" style="display: none;" onchange="validateQuotationFileEdit(this)" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
             </div>
-            @if($company->quotation_upload)
+            @if($company->quotation_upload && $company->quotation_url)
               @php
-                $extension = strtolower(pathinfo($company->quotation_upload, PATHINFO_EXTENSION));
-                $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-                $fileUrl = route('company.documents.view', ['type' => 'quotation', 'filename' => basename($company->quotation_upload)]);
+                $quotExtension = strtolower(pathinfo($company->quotation_upload, PATHINFO_EXTENSION));
+                $quotIsImage = in_array($quotExtension, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
               @endphp
-              <div class="mt-2">
-                @if($isImage)
-                  <div class="mb-2">
-                    <img src="{{ $fileUrl }}" alt="Quotation Preview" class="max-w-xs border rounded p-1">
+              <div style="margin-top: 10px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <p style="font-size: 12px; color: #64748b; margin: 0 0 8px 0; font-weight: 500;">Current Quotation Document:</p>
+                @if($quotIsImage)
+                  <div style="margin-bottom: 10px;">
+                    <img src="{{ $company->quotation_url }}" alt="Quotation Preview" style="max-width: 150px; max-height: 100px; border-radius: 6px; border: 1px solid #e2e8f0;">
                   </div>
                 @endif
-                <div>
-                  <a href="{{ $fileUrl }}" target="_blank" class="inline-flex items-center text-blue-500 hover:underline text-sm">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <a href="{{ $company->quotation_url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; color: #3b82f6; font-size: 13px; text-decoration: none;">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                     </svg>
-                    View Current File
+                    View File
                   </a>
-                  <span class="text-gray-500 text-xs ml-2">({{ Str::upper($extension) }})</span>
+                  <span style="color: #94a3b8; font-size: 12px;">({{ strtoupper($quotExtension) }})</span>
                 </div>
               </div>
             @endif
@@ -263,61 +274,75 @@
             
           </div>
 
-          <div class="md:col-span-2">
-            <h3 class="text-lg font-medium text-gray-700 mb-3" style="font-size: 16px; font-weight: 500; color: #374151; margin-bottom: 12px;">Additional Contact Persons</h3>
-          </div>
-
-          <div class="md:col-span-2 grid grid-cols-3 gap-5" style="margin-bottom: 12px;">
-            <div>
-              <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Person Name 1</label>
-              <input name="person_name_1" placeholder="Enter Person Name 1" value="{{ old('person_name_1', $company->person_name_1) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
-              @error('person_name_1')<small class="hrp-error">{{ $message }}</small>@enderror
-            </div>
-            <div>
-              <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Person Number 1</label>
-              <input name="person_number_1" type="tel" placeholder="Enter Person Number 1" value="{{ old('person_number_1', $company->person_number_1) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
-              @error('person_number_1')<small class="hrp-error">{{ $message }}</small>@enderror
-            </div>
-            <div>
-              <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Person Position 1</label>
-              <input name="person_position_1" placeholder="Enter Person Position 1" value="{{ old('person_position_1', $company->person_position_1) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
-              @error('person_position_1')<small class="hrp-error">{{ $message }}</small>@enderror
-            </div>
-          </div>
-
-          <div class="md:col-span-2 grid grid-cols-3 gap-5" style="margin-bottom: 12px;">
-            <div>
-              <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Person Name 2</label>
-              <input name="person_name_2" placeholder="Enter Person Name 2" value="{{ old('person_name_2', $company->person_name_2) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
-              @error('person_name_2')<small class="hrp-error">{{ $message }}</small>@enderror
-            </div>
-            <div>
-              <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Person Number 2</label>
-              <input name="person_number_2" type="tel" placeholder="Enter Person Number 2" value="{{ old('person_number_2', $company->person_number_2) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
-              @error('person_number_2')<small class="hrp-error">{{ $message }}</small>@enderror
-            </div>
-            <div>
-              <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Person Position 2</label>
-              <input name="person_position_2" placeholder="Enter Person Position 2" value="{{ old('person_position_2', $company->person_position_2) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
-              @error('person_position_2')<small class="hrp-error">{{ $message }}</small>@enderror
-            </div>
-          </div>
-
-          <div class="md:col-span-2 grid grid-cols-3 gap-5" style="margin-bottom: 12px;">
-            <div>
-              <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Person Name 3</label>
-              <input name="person_name_3" placeholder="Enter Person Name 3" value="{{ old('person_name_3', $company->person_name_3) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
-              @error('person_name_3')<small class="hrp-error">{{ $message }}</small>@enderror
-            </div>
-            <div>
-              <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Person Number 3</label>
-              <input name="person_number_3" type="tel" placeholder="Enter Person Number 3" value="{{ old('person_number_3', $company->person_number_3) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
-              @error('person_number_3')<small class="hrp-error">{{ $message }}</small>@enderror
-            </div>
-            <div>
-              <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Person Position 3</label>
-              <input name="person_position_3" placeholder="Enter Person Position 3" value="{{ old('person_position_3', $company->person_position_3) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
-              @error('person_position_3')<small class="hrp-error">{{ $message }}</small>@enderror
+          <!-- Additional Contact Persons Section -->
+          <div class="md:col-span-2" style="margin-top: 16px; margin-bottom: 8px;">
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+              <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                Additional Contact Persons
+              </h4>
+              
+              <!-- Person 1 -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px dashed #e2e8f0;">
+                <div>
+                  <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Person 1 - Name</label>
+                  <input name="person_name_1" placeholder="Enter Name" value="{{ old('person_name_1', $company->person_name_1) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
+                  @error('person_name_1')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                <div>
+                  <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Person 1 - Mobile</label>
+                  <input name="person_number_1" type="tel" inputmode="numeric" pattern="\d{10}" maxlength="10" placeholder="Enter Mobile Number" value="{{ old('person_number_1', $company->person_number_1) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
+                  @error('person_number_1')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                <div>
+                  <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Person 1 - Position</label>
+                  <input name="person_position_1" placeholder="Enter Position" value="{{ old('person_position_1', $company->person_position_1) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
+                  @error('person_position_1')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+              </div>
+              
+              <!-- Person 2 -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px dashed #e2e8f0;">
+                <div>
+                  <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Person 2 - Name</label>
+                  <input name="person_name_2" placeholder="Enter Name" value="{{ old('person_name_2', $company->person_name_2) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
+                  @error('person_name_2')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                <div>
+                  <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Person 2 - Mobile</label>
+                  <input name="person_number_2" type="tel" inputmode="numeric" pattern="\d{10}" maxlength="10" placeholder="Enter Mobile Number" value="{{ old('person_number_2', $company->person_number_2) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
+                  @error('person_number_2')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                <div>
+                  <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Person 2 - Position</label>
+                  <input name="person_position_2" placeholder="Enter Position" value="{{ old('person_position_2', $company->person_position_2) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
+                  @error('person_position_2')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+              </div>
+              
+              <!-- Person 3 -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                <div>
+                  <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Person 3 - Name</label>
+                  <input name="person_name_3" placeholder="Enter Name" value="{{ old('person_name_3', $company->person_name_3) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
+                  @error('person_name_3')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                <div>
+                  <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Person 3 - Mobile</label>
+                  <input name="person_number_3" type="tel" inputmode="numeric" pattern="\d{10}" maxlength="10" placeholder="Enter Mobile Number" value="{{ old('person_number_3', $company->person_number_3) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
+                  @error('person_number_3')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                <div>
+                  <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 13px;">Person 3 - Position</label>
+                  <input name="person_position_3" placeholder="Enter Position" value="{{ old('person_position_3', $company->person_position_3) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
+                  @error('person_position_3')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+              </div>
             </div>
           </div>
           <div style="margin-bottom: 8px;">
@@ -327,15 +352,15 @@
               <div class="filename" id="logoFileNameEdit" style="font-size: 14px;">No File Chosen</div>
               <input id="logoInputEdit" name="company_logo" type="file" accept=".jpeg,.jpg,.png" style="display: none;" onchange="validateLogoFileEdit(this)">
             </div>
-            @if($company->company_logo)
-              <div class="mt-2" id="currentLogoEdit">
-                <p style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Current Logo:</p>
-                <img src="{{ storage_asset('' . $company->company_logo) }}" alt="Company Logo" style="max-width: 100px; max-height: 100px; border-radius: 8px; border: 2px solid #e5e7eb;">
+            @if($company->company_logo && $company->logo_url)
+              <div style="margin-top: 10px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;" id="currentLogoEdit">
+                <p style="font-size: 12px; color: #64748b; margin: 0 0 8px 0; font-weight: 500;">Current Logo:</p>
+                <img src="{{ $company->logo_url }}" alt="Company Logo" style="max-width: 120px; max-height: 80px; border-radius: 6px; border: 1px solid #e2e8f0; object-fit: contain;">
               </div>
             @endif
-            <div id="logoPreviewEdit" style="margin-top: 10px; display: none;">
-              <p style="font-size: 12px; color: #10b981; margin-bottom: 4px;">New Logo Preview:</p>
-              <img id="logoPreviewImgEdit" src="" alt="Logo Preview" style="max-width: 150px; max-height: 100px; border-radius: 8px; border: 2px solid #10b981;">
+            <div id="logoPreviewEdit" style="margin-top: 10px; padding: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; display: none;">
+              <p style="font-size: 12px; color: #16a34a; margin: 0 0 8px 0; font-weight: 500;">New Logo Preview:</p>
+              <img id="logoPreviewImgEdit" src="" alt="Logo Preview" style="max-width: 120px; max-height: 80px; border-radius: 6px; border: 1px solid #bbf7d0; object-fit: contain;">
             </div>
             <small id="logoErrorEdit" class="hrp-error" style="display: none;"></small>
             @error('company_logo')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -568,323 +593,37 @@ function validateLogoFileEdit(input) {
     reader.readAsDataURL(file);
 }
 
-// STATE-CITY DEPENDENT DROPDOWN DATA
-const stateCityData = {
-    'andhra_pradesh': [
-        {value: 'visakhapatnam', label: 'Visakhapatnam'},
-        {value: 'vijayawada', label: 'Vijayawada'},
-        {value: 'guntur', label: 'Guntur'},
-        {value: 'nellore', label: 'Nellore'},
-        {value: 'kurnool', label: 'Kurnool'},
-        {value: 'tirupati', label: 'Tirupati'},
-        {value: 'rajahmundry', label: 'Rajahmundry'},
-        {value: 'kakinada', label: 'Kakinada'},
-        {value: 'anantapur', label: 'Anantapur'},
-        {value: 'other', label: 'Other'}
-    ],
-    'arunachal_pradesh': [
-        {value: 'itanagar', label: 'Itanagar'},
-        {value: 'naharlagun', label: 'Naharlagun'},
-        {value: 'pasighat', label: 'Pasighat'},
-        {value: 'other', label: 'Other'}
-    ],
-    'assam': [
-        {value: 'guwahati', label: 'Guwahati'},
-        {value: 'silchar', label: 'Silchar'},
-        {value: 'dibrugarh', label: 'Dibrugarh'},
-        {value: 'jorhat', label: 'Jorhat'},
-        {value: 'nagaon', label: 'Nagaon'},
-        {value: 'tinsukia', label: 'Tinsukia'},
-        {value: 'other', label: 'Other'}
-    ],
-    'bihar': [
-        {value: 'patna', label: 'Patna'},
-        {value: 'gaya', label: 'Gaya'},
-        {value: 'bhagalpur', label: 'Bhagalpur'},
-        {value: 'muzaffarpur', label: 'Muzaffarpur'},
-        {value: 'purnia', label: 'Purnia'},
-        {value: 'darbhanga', label: 'Darbhanga'},
-        {value: 'bihar_sharif', label: 'Bihar Sharif'},
-        {value: 'other', label: 'Other'}
-    ],
-    'chhattisgarh': [
-        {value: 'raipur', label: 'Raipur'},
-        {value: 'bhilai', label: 'Bhilai'},
-        {value: 'bilaspur', label: 'Bilaspur'},
-        {value: 'korba', label: 'Korba'},
-        {value: 'durg', label: 'Durg'},
-        {value: 'rajnandgaon', label: 'Rajnandgaon'},
-        {value: 'other', label: 'Other'}
-    ],
-    'delhi': [
-        {value: 'new_delhi', label: 'New Delhi'},
-        {value: 'delhi', label: 'Delhi'},
-        {value: 'noida', label: 'Noida'},
-        {value: 'gurgaon', label: 'Gurgaon'},
-        {value: 'faridabad', label: 'Faridabad'},
-        {value: 'ghaziabad', label: 'Ghaziabad'},
-        {value: 'other', label: 'Other'}
-    ],
-    'goa': [
-        {value: 'panaji', label: 'Panaji'},
-        {value: 'margao', label: 'Margao'},
-        {value: 'vasco_da_gama', label: 'Vasco da Gama'},
-        {value: 'mapusa', label: 'Mapusa'},
-        {value: 'ponda', label: 'Ponda'},
-        {value: 'other', label: 'Other'}
-    ],
-    'gujarat': [
-        {value: 'ahmedabad', label: 'Ahmedabad'},
-        {value: 'surat', label: 'Surat'},
-        {value: 'vadodara', label: 'Vadodara'},
-        {value: 'rajkot', label: 'Rajkot'},
-        {value: 'bhavnagar', label: 'Bhavnagar'},
-        {value: 'jamnagar', label: 'Jamnagar'},
-        {value: 'junagadh', label: 'Junagadh'},
-        {value: 'gandhinagar', label: 'Gandhinagar'},
-        {value: 'anand', label: 'Anand'},
-        {value: 'nadiad', label: 'Nadiad'},
-        {value: 'morbi', label: 'Morbi'},
-        {value: 'mehsana', label: 'Mehsana'},
-        {value: 'bharuch', label: 'Bharuch'},
-        {value: 'vapi', label: 'Vapi'},
-        {value: 'navsari', label: 'Navsari'},
-        {value: 'veraval', label: 'Veraval'},
-        {value: 'porbandar', label: 'Porbandar'},
-        {value: 'godhra', label: 'Godhra'},
-        {value: 'palanpur', label: 'Palanpur'},
-        {value: 'valsad', label: 'Valsad'},
-        {value: 'other', label: 'Other'}
-    ],
-    'haryana': [
-        {value: 'faridabad', label: 'Faridabad'},
-        {value: 'gurgaon', label: 'Gurgaon'},
-        {value: 'panipat', label: 'Panipat'},
-        {value: 'ambala', label: 'Ambala'},
-        {value: 'yamunanagar', label: 'Yamunanagar'},
-        {value: 'rohtak', label: 'Rohtak'},
-        {value: 'hisar', label: 'Hisar'},
-        {value: 'karnal', label: 'Karnal'},
-        {value: 'sonipat', label: 'Sonipat'},
-        {value: 'panchkula', label: 'Panchkula'},
-        {value: 'other', label: 'Other'}
-    ],
-    'himachal_pradesh': [
-        {value: 'shimla', label: 'Shimla'},
-        {value: 'mandi', label: 'Mandi'},
-        {value: 'solan', label: 'Solan'},
-        {value: 'dharamshala', label: 'Dharamshala'},
-        {value: 'kullu', label: 'Kullu'},
-        {value: 'manali', label: 'Manali'},
-        {value: 'other', label: 'Other'}
-    ],
-    'jammu_kashmir': [
-        {value: 'srinagar', label: 'Srinagar'},
-        {value: 'jammu', label: 'Jammu'},
-        {value: 'anantnag', label: 'Anantnag'},
-        {value: 'baramulla', label: 'Baramulla'},
-        {value: 'other', label: 'Other'}
-    ],
-    'jharkhand': [
-        {value: 'ranchi', label: 'Ranchi'},
-        {value: 'jamshedpur', label: 'Jamshedpur'},
-        {value: 'dhanbad', label: 'Dhanbad'},
-        {value: 'bokaro', label: 'Bokaro'},
-        {value: 'deoghar', label: 'Deoghar'},
-        {value: 'hazaribagh', label: 'Hazaribagh'},
-        {value: 'other', label: 'Other'}
-    ],
-    'karnataka': [
-        {value: 'bengaluru', label: 'Bengaluru'},
-        {value: 'mysuru', label: 'Mysuru'},
-        {value: 'hubli', label: 'Hubli'},
-        {value: 'mangaluru', label: 'Mangaluru'},
-        {value: 'belgaum', label: 'Belgaum'},
-        {value: 'gulbarga', label: 'Gulbarga'},
-        {value: 'davanagere', label: 'Davanagere'},
-        {value: 'bellary', label: 'Bellary'},
-        {value: 'shimoga', label: 'Shimoga'},
-        {value: 'tumkur', label: 'Tumkur'},
-        {value: 'other', label: 'Other'}
-    ],
-    'kerala': [
-        {value: 'thiruvananthapuram', label: 'Thiruvananthapuram'},
-        {value: 'kochi', label: 'Kochi'},
-        {value: 'kozhikode', label: 'Kozhikode'},
-        {value: 'thrissur', label: 'Thrissur'},
-        {value: 'kollam', label: 'Kollam'},
-        {value: 'kannur', label: 'Kannur'},
-        {value: 'alappuzha', label: 'Alappuzha'},
-        {value: 'palakkad', label: 'Palakkad'},
-        {value: 'other', label: 'Other'}
-    ],
-    'madhya_pradesh': [
-        {value: 'indore', label: 'Indore'},
-        {value: 'bhopal', label: 'Bhopal'},
-        {value: 'jabalpur', label: 'Jabalpur'},
-        {value: 'gwalior', label: 'Gwalior'},
-        {value: 'ujjain', label: 'Ujjain'},
-        {value: 'sagar', label: 'Sagar'},
-        {value: 'dewas', label: 'Dewas'},
-        {value: 'satna', label: 'Satna'},
-        {value: 'ratlam', label: 'Ratlam'},
-        {value: 'other', label: 'Other'}
-    ],
-    'maharashtra': [
-        {value: 'mumbai', label: 'Mumbai'},
-        {value: 'pune', label: 'Pune'},
-        {value: 'nagpur', label: 'Nagpur'},
-        {value: 'thane', label: 'Thane'},
-        {value: 'nashik', label: 'Nashik'},
-        {value: 'aurangabad', label: 'Aurangabad'},
-        {value: 'solapur', label: 'Solapur'},
-        {value: 'kolhapur', label: 'Kolhapur'},
-        {value: 'navi_mumbai', label: 'Navi Mumbai'},
-        {value: 'amravati', label: 'Amravati'},
-        {value: 'sangli', label: 'Sangli'},
-        {value: 'malegaon', label: 'Malegaon'},
-        {value: 'jalgaon', label: 'Jalgaon'},
-        {value: 'akola', label: 'Akola'},
-        {value: 'latur', label: 'Latur'},
-        {value: 'ahmednagar', label: 'Ahmednagar'},
-        {value: 'other', label: 'Other'}
-    ],
-    'manipur': [
-        {value: 'imphal', label: 'Imphal'},
-        {value: 'thoubal', label: 'Thoubal'},
-        {value: 'other', label: 'Other'}
-    ],
-    'meghalaya': [
-        {value: 'shillong', label: 'Shillong'},
-        {value: 'tura', label: 'Tura'},
-        {value: 'other', label: 'Other'}
-    ],
-    'mizoram': [
-        {value: 'aizawl', label: 'Aizawl'},
-        {value: 'lunglei', label: 'Lunglei'},
-        {value: 'other', label: 'Other'}
-    ],
-    'nagaland': [
-        {value: 'kohima', label: 'Kohima'},
-        {value: 'dimapur', label: 'Dimapur'},
-        {value: 'other', label: 'Other'}
-    ],
-    'odisha': [
-        {value: 'bhubaneswar', label: 'Bhubaneswar'},
-        {value: 'cuttack', label: 'Cuttack'},
-        {value: 'rourkela', label: 'Rourkela'},
-        {value: 'berhampur', label: 'Berhampur'},
-        {value: 'sambalpur', label: 'Sambalpur'},
-        {value: 'puri', label: 'Puri'},
-        {value: 'other', label: 'Other'}
-    ],
-    'punjab': [
-        {value: 'ludhiana', label: 'Ludhiana'},
-        {value: 'amritsar', label: 'Amritsar'},
-        {value: 'jalandhar', label: 'Jalandhar'},
-        {value: 'patiala', label: 'Patiala'},
-        {value: 'bathinda', label: 'Bathinda'},
-        {value: 'mohali', label: 'Mohali'},
-        {value: 'pathankot', label: 'Pathankot'},
-        {value: 'hoshiarpur', label: 'Hoshiarpur'},
-        {value: 'other', label: 'Other'}
-    ],
-    'rajasthan': [
-        {value: 'jaipur', label: 'Jaipur'},
-        {value: 'jodhpur', label: 'Jodhpur'},
-        {value: 'kota', label: 'Kota'},
-        {value: 'bikaner', label: 'Bikaner'},
-        {value: 'ajmer', label: 'Ajmer'},
-        {value: 'udaipur', label: 'Udaipur'},
-        {value: 'bhilwara', label: 'Bhilwara'},
-        {value: 'alwar', label: 'Alwar'},
-        {value: 'bharatpur', label: 'Bharatpur'},
-        {value: 'sikar', label: 'Sikar'},
-        {value: 'other', label: 'Other'}
-    ],
-    'sikkim': [
-        {value: 'gangtok', label: 'Gangtok'},
-        {value: 'namchi', label: 'Namchi'},
-        {value: 'other', label: 'Other'}
-    ],
-    'tamil_nadu': [
-        {value: 'chennai', label: 'Chennai'},
-        {value: 'coimbatore', label: 'Coimbatore'},
-        {value: 'madurai', label: 'Madurai'},
-        {value: 'tiruchirappalli', label: 'Tiruchirappalli'},
-        {value: 'salem', label: 'Salem'},
-        {value: 'tirunelveli', label: 'Tirunelveli'},
-        {value: 'tiruppur', label: 'Tiruppur'},
-        {value: 'erode', label: 'Erode'},
-        {value: 'vellore', label: 'Vellore'},
-        {value: 'thoothukudi', label: 'Thoothukudi'},
-        {value: 'other', label: 'Other'}
-    ],
-    'telangana': [
-        {value: 'hyderabad', label: 'Hyderabad'},
-        {value: 'warangal', label: 'Warangal'},
-        {value: 'nizamabad', label: 'Nizamabad'},
-        {value: 'karimnagar', label: 'Karimnagar'},
-        {value: 'khammam', label: 'Khammam'},
-        {value: 'ramagundam', label: 'Ramagundam'},
-        {value: 'secunderabad', label: 'Secunderabad'},
-        {value: 'other', label: 'Other'}
-    ],
-    'tripura': [
-        {value: 'agartala', label: 'Agartala'},
-        {value: 'other', label: 'Other'}
-    ],
-    'uttar_pradesh': [
-        {value: 'lucknow', label: 'Lucknow'},
-        {value: 'kanpur', label: 'Kanpur'},
-        {value: 'ghaziabad', label: 'Ghaziabad'},
-        {value: 'agra', label: 'Agra'},
-        {value: 'meerut', label: 'Meerut'},
-        {value: 'varanasi', label: 'Varanasi'},
-        {value: 'prayagraj', label: 'Prayagraj'},
-        {value: 'bareilly', label: 'Bareilly'},
-        {value: 'aligarh', label: 'Aligarh'},
-        {value: 'moradabad', label: 'Moradabad'},
-        {value: 'saharanpur', label: 'Saharanpur'},
-        {value: 'gorakhpur', label: 'Gorakhpur'},
-        {value: 'noida', label: 'Noida'},
-        {value: 'firozabad', label: 'Firozabad'},
-        {value: 'jhansi', label: 'Jhansi'},
-        {value: 'other', label: 'Other'}
-    ],
-    'uttarakhand': [
-        {value: 'dehradun', label: 'Dehradun'},
-        {value: 'haridwar', label: 'Haridwar'},
-        {value: 'roorkee', label: 'Roorkee'},
-        {value: 'haldwani', label: 'Haldwani'},
-        {value: 'rudrapur', label: 'Rudrapur'},
-        {value: 'kashipur', label: 'Kashipur'},
-        {value: 'rishikesh', label: 'Rishikesh'},
-        {value: 'other', label: 'Other'}
-    ],
-    'west_bengal': [
-        {value: 'kolkata', label: 'Kolkata'},
-        {value: 'howrah', label: 'Howrah'},
-        {value: 'durgapur', label: 'Durgapur'},
-        {value: 'asansol', label: 'Asansol'},
-        {value: 'siliguri', label: 'Siliguri'},
-        {value: 'bardhaman', label: 'Bardhaman'},
-        {value: 'malda', label: 'Malda'},
-        {value: 'kharagpur', label: 'Kharagpur'},
-        {value: 'other', label: 'Other'}
-    ],
-    'other': [
-        {value: 'other', label: 'Other'}
-    ]
-};
+// State-City data is loaded from external JS file (state-city-dropdown.js)
+// Using the global stateCityData variable
+
+// Function to toggle "Other" text input visibility
+function toggleOtherInput(selectElement, otherInput) {
+    if (!otherInput) return;
+    
+    if (selectElement.value === 'other') {
+        otherInput.style.display = 'block';
+        otherInput.required = selectElement.required;
+    } else {
+        otherInput.style.display = 'none';
+        otherInput.required = false;
+        otherInput.value = '';
+    }
+}
 
 // Function to populate cities based on selected state
 function populateCities(stateValue, selectedCity = null) {
     const citySelect = document.getElementById('city_select');
+    const cityOtherInput = document.getElementById('city_other_input');
     if (!citySelect) return;
     
     // Clear existing options
     citySelect.innerHTML = '<option value="" disabled selected>SELECT CITY</option>';
+    
+    // Hide city other input when state changes
+    if (cityOtherInput) {
+        cityOtherInput.style.display = 'none';
+        cityOtherInput.value = '';
+    }
     
     if (stateValue && stateCityData[stateValue]) {
         const cities = stateCityData[stateValue];
@@ -897,23 +636,48 @@ function populateCities(stateValue, selectedCity = null) {
             }
             citySelect.appendChild(option);
         });
+        
+        // If selected city is "other", show the other input
+        if (selectedCity === 'other' && cityOtherInput) {
+            cityOtherInput.style.display = 'block';
+        }
     }
 }
 
-// Initialize state-city dropdown on page load
+// Initialize state-city dropdown on page load with "Other" text box support
 document.addEventListener('DOMContentLoaded', function() {
     const stateSelect = document.getElementById('state_select');
+    const citySelect = document.getElementById('city_select');
+    const stateOtherInput = document.getElementById('state_other_input');
+    const cityOtherInput = document.getElementById('city_other_input');
     const oldCity = document.getElementById('old_city')?.value;
     
     if (stateSelect) {
-        // If state is already selected (e.g., from existing data or old input), populate cities
+        // If state is already selected (e.g., from existing data or old input), populate cities and show other inputs
         if (stateSelect.value) {
+            // Show state other input if "other" is selected
+            if (stateOtherInput) {
+                toggleOtherInput(stateSelect, stateOtherInput);
+            }
             populateCities(stateSelect.value, oldCity);
         }
         
-        // Add change event listener
+        // Add change event listener for state
         stateSelect.addEventListener('change', function() {
+            // Toggle state other input
+            if (stateOtherInput) {
+                toggleOtherInput(this, stateOtherInput);
+            }
             populateCities(this.value);
+        });
+    }
+    
+    // Add change event listener for city "Other" option
+    if (citySelect) {
+        citySelect.addEventListener('change', function() {
+            if (cityOtherInput) {
+                toggleOtherInput(this, cityOtherInput);
+            }
         });
     }
 });

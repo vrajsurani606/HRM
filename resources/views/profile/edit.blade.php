@@ -1,6 +1,10 @@
 @extends('layouts.macos')
 @section('page_title', 'Profile')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/empty-state.css') }}">
+@endpush
+
 @section('content')
   <!-- Tabs Section -->
   <div>
@@ -18,9 +22,7 @@
         
         <!-- Profile Info -->
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;background:#fbbf24;flex-shrink:0">
-            <img src="{{ $employee ? $employee->profile_photo_url : $user->profile_photo_url }}" style="width:100%;height:100%;object-fit:cover" alt="{{ $employee->name ?? $user->name }}">
-          </div>
+          <x-profile-avatar :user="$user" :employee="$employee" size="lg" />
           <div>
             <h2 style="font-size:24px;font-weight:700;color:#1e293b;margin:0 0 1px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">{{ $employee->name ?? $user->name }}</h2>
             <p style="color:#64748b;margin:0;font-size:13px;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">{{ $employee->position ?? '—' }}</p>
@@ -123,11 +125,8 @@
     <div id="personal" class="tab-content active" style="background:white;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);border:1px solid #e5e7eb;padding:30px;margin:12px 32px 24px">
       <div style="display:flex;gap:30px">
         <!-- Left Column - Profile Image -->
-        <div style="flex:0 0 200px">
-          <div style="width:200px;height:200px;border-radius:50%;overflow:hidden;background:#fbbf24;margin-bottom:20px">
-            <img src="{{ $employee ? $employee->profile_photo_url : $user->profile_photo_url }}"
-              style="width:100%;height:100%;object-fit:cover" alt="{{ $employee->name ?? $user->name }}">
-          </div>
+        <div style="flex:0 0 200px;text-align:center">
+          <x-profile-avatar :user="$user" :employee="$employee" size="3xl" class="profile-main-avatar" />
         </div>
 
         <!-- Right Column - Form -->
@@ -324,12 +323,20 @@
                   </span>
                 </td>
               </tr>
-            @empty
+          </tbody>
+           @empty
               <tr>
-                <td colspan="8" style="text-align:center;padding:40px;color:#6b7280">No payslips found</td>
+                <td colspan="8" class="empty-state-wrapper">
+                  <div class="empty-state-container">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="empty-state-icon">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="empty-state-title">No Payroll Records</div>
+                    <div class="empty-state-message">Your salary payments will appear here once processed and paid by HR.</div>
+                  </div>
+                </td>
               </tr>
             @endforelse
-          </tbody>
         </table>
       </div>
     </div>

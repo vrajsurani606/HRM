@@ -473,18 +473,23 @@ class QuotationController extends Controller
                 'pan_no' => ['nullable', 'string', 'max:50'],
                 'nature_of_work' => ['nullable', 'string', 'max:500'],
                 'city' => ['nullable', 'string', 'max:100'],
+                'city_other' => ['nullable', 'string', 'max:255'],
                 'state' => ['nullable', 'string', 'max:100'],
+                'state_other' => ['nullable', 'string', 'max:255'],
                 'address' => ['nullable', 'string', 'max:500'],
                 'scope_of_work' => ['nullable', 'string', 'max:1000'],
                 
                 // Contact Information
                 'contact_person_1' => ['required', 'string', 'max:255'],
+                'contact_gender_1' => ['nullable', 'string', 'in:Male,Female'],
                 'contact_number_1' => ['required', 'string', 'max:20'],
                 'position_1' => ['nullable', 'string', 'max:255'],
                 'contact_person_2' => ['nullable', 'string', 'max:255'],
+                'contact_gender_2' => ['nullable', 'string', 'in:Male,Female'],
                 'contact_number_2' => ['nullable', 'string', 'max:20'],
                 'position_2' => ['nullable', 'string', 'max:255'],
                 'contact_person_3' => ['nullable', 'string', 'max:255'],
+                'contact_gender_3' => ['nullable', 'string', 'in:Male,Female'],
                 'contact_number_3' => ['nullable', 'string', 'max:20'],
                 'position_3' => ['nullable', 'string', 'max:255'],
                 
@@ -505,6 +510,7 @@ class QuotationController extends Controller
                 
                 // Footer Information
                 'prepared_by' => ['nullable', 'string', 'max:255'],
+                'prepared_by_gender' => ['nullable', 'string', 'in:Male,Female'],
                 'mobile_no' => ['nullable', 'string', 'max:20'],
                 'footer_company_name' => ['nullable', 'string', 'max:255'],
                 
@@ -559,16 +565,21 @@ class QuotationController extends Controller
                 'company_type' => $validated['company_type'] ?? null,
                 'nature_of_work' => $validated['nature_of_work'] ?? null,
                 'city' => $validated['city'] ?? null,
+                'city_other' => $validated['city_other'] ?? null,
                 'state' => $validated['state'] ?? null,
+                'state_other' => $validated['state_other'] ?? null,
                 'scope_of_work' => $validated['scope_of_work'] ?? null,
                 'address' => $validated['address'] ?? null,
                 'contact_person_1' => $validated['contact_person_1'],
+                'contact_gender_1' => $validated['contact_gender_1'] ?? null,
                 'contact_number_1' => $validated['contact_number_1'],
                 'position_1' => $validated['position_1'] ?? null,
                 'contact_person_2' => $validated['contact_person_2'] ?? null,
+                'contact_gender_2' => $validated['contact_gender_2'] ?? null,
                 'contact_number_2' => $validated['contact_number_2'] ?? null,
                 'position_2' => $validated['position_2'] ?? null,
                 'contact_person_3' => $validated['contact_person_3'] ?? null,
+                'contact_gender_3' => $validated['contact_gender_3'] ?? null,
                 'contact_number_3' => $validated['contact_number_3'] ?? null,
                 'position_3' => $validated['position_3'] ?? null,
                 'contract_details' => $validated['contract_details'] ?? null,
@@ -583,6 +594,7 @@ class QuotationController extends Controller
                 'retention_percent' => $validated['retention_percent'] ?? 0,
                 'tentative_complete_date' => $validated['tentative_complete_date'] ?? null,
                 'prepared_by' => $validated['prepared_by'] ?? null,
+                'prepared_by_gender' => $validated['prepared_by_gender'] ?? null,
                 'mobile_no' => !empty($validated['mobile_no']) ? '+91' . $validated['mobile_no'] : null,
                 'own_company_name' => $validated['footer_company_name'] ?? 'CHITRI INFOTECH PVT LTD',
                 'remark' => $validated['remark'] ?? null,
@@ -739,7 +751,7 @@ class QuotationController extends Controller
                 }
             }
             
-            // Validate request data (same as create)
+            // Validate request data (same as create but with gender fields)
             $validated = $request->validate([
                 // Basic Information
                 'quotation_title' => ['required', 'string', 'max:255'],
@@ -758,18 +770,23 @@ class QuotationController extends Controller
                 'pan_no' => ['nullable', 'string', 'max:50'],
                 'nature_of_work' => ['nullable', 'string', 'max:500'],
                 'city' => ['nullable', 'string', 'max:100'],
+                'city_other' => ['nullable', 'string', 'max:255'],
                 'state' => ['nullable', 'string', 'max:100'],
+                'state_other' => ['nullable', 'string', 'max:255'],
                 'address' => ['nullable', 'string', 'max:500'],
                 'scope_of_work' => ['nullable', 'string', 'max:1000'],
                 
                 // Contact Information
                 'contact_person_1' => ['required', 'string', 'max:255'],
+                'contact_gender_1' => ['nullable', 'string', 'in:Male,Female'],
                 'contact_number_1' => ['required', 'string', 'max:20'],
                 'position_1' => ['nullable', 'string', 'max:255'],
                 'contact_person_2' => ['nullable', 'string', 'max:255'],
+                'contact_gender_2' => ['nullable', 'string', 'in:Male,Female'],
                 'contact_number_2' => ['nullable', 'string', 'max:20'],
                 'position_2' => ['nullable', 'string', 'max:255'],
                 'contact_person_3' => ['nullable', 'string', 'max:255'],
+                'contact_gender_3' => ['nullable', 'string', 'in:Male,Female'],
                 'contact_number_3' => ['nullable', 'string', 'max:20'],
                 'position_3' => ['nullable', 'string', 'max:255'],
                 
@@ -790,6 +807,7 @@ class QuotationController extends Controller
                 
                 // Footer Information
                 'prepared_by' => ['nullable', 'string', 'max:255'],
+                'prepared_by_gender' => ['nullable', 'string', 'in:Male,Female'],
                 'mobile_no' => ['nullable', 'string', 'max:20'],
                 'footer_company_name' => ['nullable', 'string', 'max:255'],
                 
@@ -837,16 +855,21 @@ class QuotationController extends Controller
                 'company_type' => $validated['company_type'] ?? null,
                 'nature_of_work' => $validated['nature_of_work'] ?? null,
                 'city' => $validated['city'] ?? null,
+                'city_other' => $validated['city_other'] ?? null,
                 'state' => $validated['state'] ?? null,
+                'state_other' => $validated['state_other'] ?? null,
                 'scope_of_work' => $validated['scope_of_work'] ?? null,
                 'address' => $validated['address'] ?? null,
                 'contact_person_1' => $validated['contact_person_1'],
+                'contact_gender_1' => $validated['contact_gender_1'] ?? null,
                 'contact_number_1' => $validated['contact_number_1'],
                 'position_1' => $validated['position_1'] ?? null,
                 'contact_person_2' => $validated['contact_person_2'] ?? null,
+                'contact_gender_2' => $validated['contact_gender_2'] ?? null,
                 'contact_number_2' => $validated['contact_number_2'] ?? null,
                 'position_2' => $validated['position_2'] ?? null,
                 'contact_person_3' => $validated['contact_person_3'] ?? null,
+                'contact_gender_3' => $validated['contact_gender_3'] ?? null,
                 'contact_number_3' => $validated['contact_number_3'] ?? null,
                 'position_3' => $validated['position_3'] ?? null,
                 'contract_details' => $validated['contract_details'] ?? null,
@@ -864,6 +887,7 @@ class QuotationController extends Controller
                 'tentative_complete_date' => $validated['tentative_complete_date'] ?? null,
                 'terms_tentative_complete_date' => $validated['tentative_complete_date_2'] ?? null,
                 'prepared_by' => $validated['prepared_by'] ?? null,
+                'prepared_by_gender' => $validated['prepared_by_gender'] ?? null,
                 'mobile_no' => !empty($validated['mobile_no']) ? '+91' . $validated['mobile_no'] : null,
                 'own_company_name' => $validated['footer_company_name'] ?? 'CHITRI INFOTECH PVT LTD',
                 'remark' => $validated['remark'] ?? null,

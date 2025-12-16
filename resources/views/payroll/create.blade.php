@@ -354,6 +354,7 @@
           @php($selStatus = old('status', isset($payroll)?$payroll->status:'pending'))
           <option value="pending" {{ $selStatus==='pending'?'selected':'' }}>Pending</option>
           <option value="paid" {{ $selStatus==='paid'?'selected':'' }}>Paid</option>
+          <option value="hold" {{ $selStatus==='hold'?'selected':'' }}>Hold</option>
           <option value="cancelled" {{ $selStatus==='cancelled'?'selected':'' }}>Cancelled</option>
         </select>
         @error('status')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -382,6 +383,21 @@
         <label class="hrp-label">Transaction ID / Reference:</label>
         <input name="transaction_id" id="transaction_id" value="{{ old('transaction_id', isset($payroll)?($payroll->transaction_id ?? ''):'') }}" placeholder="Enter Transaction ID or Reference Number" class="hrp-input Rectangle-29" form="payrollForm">
         @error('transaction_id')<small class="hrp-error">{{ $message }}</small>@enderror
+      </div>
+
+      <div id="attachmentField" class="md:col-span-2" style="display: none;">
+        <label class="hrp-label">Payment Attachment (Optional):</label>
+        <input type="file" name="attachment" id="attachment" class="hrp-input Rectangle-29" form="payrollForm" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+        <small style="color: #6b7280; font-size: 11px;">Supported: PDF, JPG, PNG, DOC, DOCX (Max 5MB)</small>
+        @if(isset($payroll) && $payroll->attachment)
+          <div style="margin-top: 8px;">
+            <a href="{{ asset($payroll->attachment) }}" target="_blank" style="color: #3b82f6; font-size: 13px; text-decoration: underline;">
+              <svg style="display: inline; width: 14px; height: 14px; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+              View Current Attachment
+            </a>
+          </div>
+        @endif
+        @error('attachment')<small class="hrp-error">{{ $message }}</small>@enderror
       </div>
 
       <div class="md:col-span-2">
@@ -441,14 +457,17 @@ function togglePaymentFields() {
     const paymentTypeField = document.getElementById('paymentTypeField');
     const paymentDateField = document.getElementById('paymentDateField');
     const transactionIdField = document.getElementById('transactionIdField');
+    const attachmentField = document.getElementById('attachmentField');
     
     if (status === 'paid') {
         paymentTypeField.style.display = 'block';
         paymentDateField.style.display = 'block';
+        attachmentField.style.display = 'block';
     } else {
         paymentTypeField.style.display = 'none';
         paymentDateField.style.display = 'none';
         transactionIdField.style.display = 'none';
+        attachmentField.style.display = 'none';
         document.getElementById('payment_method').value = '';
         document.getElementById('payment_date').value = '';
         document.getElementById('transaction_id').value = '';

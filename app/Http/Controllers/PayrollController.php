@@ -131,7 +131,7 @@ class PayrollController extends Controller
             'employee_ids' => 'nullable|array',
             'employee_ids.*' => 'integer|exists:employees,id',
             'all_employees' => 'nullable|boolean',
-            'status' => 'nullable|in:pending,paid,cancelled',
+            'status' => 'nullable|in:pending,paid,hold,cancelled',
             'payment_date' => 'nullable|date',
             'payment_method' => 'nullable|string',
         ]);
@@ -343,10 +343,11 @@ class PayrollController extends Controller
             'leave_deduction_days' => 'nullable|numeric|min:0',
             'payment_date' => 'nullable|date',
             'payment_method' => 'nullable|string',
-            'status' => 'required|in:pending,paid,cancelled',
+            'status' => 'required|in:pending,paid,hold,cancelled',
             'notes' => 'nullable|string',
             'total_working_days' => 'nullable|integer|min:1|max:31',
             'attended_working_days' => 'nullable|integer|min:0|max:31',
+            'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:5120',
         ]);
 
         try {
@@ -420,6 +421,14 @@ class PayrollController extends Controller
                 'status' => $request->status,
                 'notes' => $request->notes,
             ]);
+
+            // Handle attachment upload
+            if ($request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+                $filename = 'payroll_' . $payroll->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/payroll'), $filename);
+                $payroll->update(['attachment' => 'uploads/payroll/' . $filename]);
+            }
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -513,11 +522,25 @@ class PayrollController extends Controller
             'tax' => 'nullable|numeric|min:0',
             'payment_date' => 'nullable|date',
             'payment_method' => 'nullable|string',
-            'status' => 'required|in:pending,paid,cancelled',
+            'status' => 'required|in:pending,paid,hold,cancelled',
             'notes' => 'nullable|string',
             'total_working_days' => 'nullable|integer|min:1|max:31',
             'attended_working_days' => 'nullable|integer|min:0|max:31',
+            'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:5120',
         ]);
+
+        // Handle attachment upload
+        $attachmentPath = $payroll->attachment;
+        if ($request->hasFile('attachment')) {
+            // Delete old attachment if exists
+            if ($payroll->attachment && file_exists(public_path($payroll->attachment))) {
+                unlink(public_path($payroll->attachment));
+            }
+            $file = $request->file('attachment');
+            $filename = 'payroll_' . $payroll->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/payroll'), $filename);
+            $attachmentPath = 'uploads/payroll/' . $filename;
+        }
 
         // Calculate net salary with detailed breakdown
         // Ensure all values are positive (security fix)
@@ -569,6 +592,7 @@ class PayrollController extends Controller
             'payment_method' => $request->payment_method,
             'status' => $request->status,
             'notes' => $request->notes,
+            'attachment' => $attachmentPath,
         ]);
 
         if ($request->ajax() || $request->wantsJson()) {

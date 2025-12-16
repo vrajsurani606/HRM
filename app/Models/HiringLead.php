@@ -22,12 +22,23 @@ class HiringLead extends Model
         'resume_path',
         'gender',
         'status',
+        'reject_reason',
+        'status_changed_at',
+        'status_changed_by',
     ];
+
+    // Status constants
+    const STATUS_PENDING = 'pending';
+    const STATUS_ACCEPTED = 'accepted';
+    const STATUS_REJECTED = 'rejected';
+    const STATUS_HOLD = 'hold';
+    const STATUS_CONVERTED = 'converted';
 
     protected $casts = [
         'is_experience' => 'boolean',
         'experience_count' => 'decimal:1',
         'previous_salary' => 'decimal:2',
+        'status_changed_at' => 'datetime',
     ];
 
     public static function nextCode(string $prefix = 'CMS/LEAD/'): string

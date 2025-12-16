@@ -62,15 +62,14 @@ if ($contentLength > 3000) {
         print-color-adjust: exact;
     }
     
-    /* Content Area - Keep away from header (top 20%) and footer (bottom 20%) */
+    /* Content Area - Keep away from header and footer */
     .letter-content { 
         position:relative; z-index:1;
         width:100%; max-width:800px; margin:0 auto; 
-        /* Top padding: ~200px for header, Bottom padding: ~220px for footer */
-        padding: 200px 36px 220px 36px;
+        /* Reduced top padding for less space */
+        padding: 160px 36px 200px 36px;
         box-sizing:border-box;
         min-height: 100vh;
-
     }
     
     /* Letter Elements */
@@ -100,7 +99,7 @@ if ($contentLength > 3000) {
         font-weight: 700 !important;
     }
     .subject { 
-        font-size:15px; 
+        font-size:13px; 
         font-weight:700 !important; 
         color:#222; 
         text-align:center; 
@@ -108,7 +107,7 @@ if ($contentLength > 3000) {
         font-family: 'Poppins', sans-serif !important;
     }
     .body { 
-        font-size:14px; 
+        font-size:13px; 
         color:#222; 
         line-height:1.7; 
         text-align:justify;
@@ -158,7 +157,7 @@ if ($contentLength > 3000) {
     }
     .signature .name { 
         font-weight:700 !important; 
-        font-size:14px;
+        font-size:13px;
         font-family: 'Poppins', sans-serif !important;
     }
     .signature .company { 
@@ -188,7 +187,7 @@ if ($contentLength > 3000) {
     }
     .font-weight-bold { 
         font-weight: 700 !important; 
-        font-size: 14px;
+        font-size: 13px;
         font-family: 'Poppins', sans-serif !important;
     }
     .bullets-avoid-break { break-inside: avoid; page-break-inside: avoid; }
@@ -227,11 +226,8 @@ if ($contentLength > 3000) {
         }
         
         .letter-content { 
-            /* A4 height = 297mm = ~1123px
-               Header: 25% = ~280px
-               Footer: 20% = ~225px
-               Content: 55% = ~618px */
-            padding: 280px 30px 225px 30px;
+            /* Reduced top padding for less space above content */
+            padding: 200px 30px 200px 30px;
             min-height: 618px;
             overflow: visible !important;
         }
@@ -267,17 +263,46 @@ if ($contentLength > 3000) {
             margin:40px auto; box-shadow:0 4px 24px rgba(44,108,164,0.10); 
             position:relative; overflow:hidden; border:1.5px solid #dbe6f7; display:block;
         }
-        .letter-content { max-height:none !important; height:auto !important; overflow:visible !important; }
+        /* Screen view needs more top padding to avoid header overlap */
+        .letter-content { 
+            max-height:none !important; 
+            height:auto !important; 
+            overflow:visible !important;
+            padding-top: 200px !important;
+        }
         .break-section { margin-top:32px; }
+        
+        /* Page 2 styling for screen */
+        #page2 {
+            margin-top: 40px;
+        }
+        #page2 .letter-content {
+            padding-top: 200px !important;
+        }
     }
 </style>
 </head>
 <body>
+@php
+    // Count lines in content - each paragraph, list item counts as a line
+    $contentHtml = $letter->content ?? '';
+    $contentText = strip_tags($contentHtml);
+    $lineCount = substr_count($contentText, "\n") + 1;
+    
+    // Also count <p>, <li>, <br> tags as lines
+    $lineCount += substr_count($contentHtml, '<p>');
+    $lineCount += substr_count($contentHtml, '<li>');
+    $lineCount += substr_count($contentHtml, '<br');
+    
+    // Check if content needs page break (more than 17 lines)
+    $needsPageBreak = $lineCount > 17;
+@endphp
+
 <button class="print-btn" onclick="window.print()">Print</button>
 
-<div class="offer-container">
+<div class="offer-container" id="page1">
     <div class="bg-cover"><img src="{{ $background_url }}" alt="" /></div>
-    <div class="letter-content">
+    <div class="letter-content" id="content-page1">
         @switch($letter->type)
             @case('joining')
                 @include('hr.employees.letters.templates.joining')
@@ -373,6 +398,124 @@ if ($contentLength > 3000) {
         @endswitch
     </div>
 </div>
+
+{{-- Second page container for overflow content --}}
+<div class="offer-container" id="page2" style="display: none;">
+    <div class="bg-cover"><img src="{{ $background_url }}" alt="" /></div>
+    <div class="letter-content" id="content-page2">
+        {{-- Overflow content will be moved here by JavaScript --}}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const page1Content = document.getElementById('content-page1');
+    const page2 = document.getElementById('page2');
+    const page2Content = document.getElementById('content-page2');
+    
+    // Maximum 25 lines allowed on first page
+    const MAX_LINES_PAGE1 = 25;
+    
+    function countLines(element) {
+        let lineCount = 0;
+        
+        // Count paragraphs
+        const paragraphs = element.querySelectorAll('p');
+        lineCount += paragraphs.length;
+        
+        // Count list items
+        const listItems = element.querySelectorAll('li');
+        lineCount += listItems.length;
+        
+        // Count divs that are direct content (not containers)
+        const divs = element.querySelectorAll('.body > div, .recipient > div, .letter-meta > div');
+        lineCount += divs.length;
+        
+        // Add for header elements (Ref, To, Subject)
+        const letterHeader = element.querySelector('.letter-header');
+        if (letterHeader) lineCount += 5; // Ref, To, Name, Position, Address
+        
+        const subject = element.querySelector('.subject');
+        if (subject) lineCount += 1;
+        
+        const signature = element.querySelector('.signature');
+        if (signature) lineCount += 4; // Sincerely, Sign, Name, Company
+        
+        return lineCount;
+    }
+    
+    function splitContentByLines() {
+        const body = page1Content.querySelector('.body');
+        if (!body) return;
+        
+        // Get all line elements (p, li, div with text)
+        const allElements = [];
+        
+        // Collect paragraphs
+        body.querySelectorAll('p').forEach(el => allElements.push({el, type: 'p'}));
+        
+        // Collect list items
+        body.querySelectorAll('li').forEach(el => allElements.push({el, type: 'li'}));
+        
+        // Count header lines (Ref, To, Subject = approximately 6 lines)
+        const headerLines = 6;
+        // Count signature lines (4 lines)
+        const signatureLines = 4;
+        
+        // Available lines for body content
+        const availableBodyLines = MAX_LINES_PAGE1 - headerLines - signatureLines;
+        
+        // Count actual content lines in body
+        let bodyLineCount = 0;
+        const bodyChildren = Array.from(body.children);
+        
+        bodyChildren.forEach(child => {
+            if (child.tagName === 'P') bodyLineCount++;
+            if (child.tagName === 'UL' || child.tagName === 'OL') {
+                bodyLineCount += child.querySelectorAll('li').length;
+            }
+            if (child.tagName === 'DIV') bodyLineCount++;
+        });
+        
+        // If content exceeds available lines, split it
+        if (bodyLineCount > availableBodyLines) {
+            page2.style.display = 'block';
+            
+            let currentLineCount = 0;
+            let splitFound = false;
+            
+            bodyChildren.forEach((child, index) => {
+                if (splitFound) {
+                    // Move to page 2
+                    page2Content.appendChild(child.cloneNode(true));
+                    child.style.display = 'none';
+                } else {
+                    if (child.tagName === 'P') currentLineCount++;
+                    if (child.tagName === 'UL' || child.tagName === 'OL') {
+                        currentLineCount += child.querySelectorAll('li').length;
+                    }
+                    if (child.tagName === 'DIV') currentLineCount++;
+                    
+                    // Check if we've reached the limit (17 - header - signature = ~7 lines for body)
+                    if (currentLineCount >= availableBodyLines) {
+                        splitFound = true;
+                    }
+                }
+            });
+            
+            // Move signature to page 2
+            const signature = page1Content.querySelector('.signature');
+            if (signature) {
+                page2Content.appendChild(signature.cloneNode(true));
+                signature.style.display = 'none';
+            }
+        }
+    }
+    
+    // Run after content is rendered
+    setTimeout(splitContentByLines, 150);
+});
+</script>
 
 </body>
 </html>

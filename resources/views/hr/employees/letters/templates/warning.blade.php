@@ -2,22 +2,20 @@
     $employee = $letter->employee;
 @endphp
 <div class="letter-header">
-    <div style="margin-bottom: 15px;"><b>Ref No.:</b> {{ $letter->reference_number ?? 'REF001' }}</div>
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-        <div class="recipient" style="flex: 1;">
-            <div><b>To,</b></div>
-            <div>{{ (($employee->gender ?? '') == 'Female' || ($employee->gender ?? '') == 'female') ? 'Ms.' : 'Mr.' }} {{ $employee->name ?? 'N/A' }}</div>
-            <div>{{ $employee->designation ?? $employee->position ?? 'Employee' }}</div>
-            @if($employee && $employee->address)
-            <div>{{ $employee->address }}</div>
-            @endif
-        </div>
-        <div class="letter-meta" style="text-align: right;">
-            <div><b>Date:</b> {{ $letter->issue_date ? $letter->issue_date->format('d-m-Y') : date('d-m-Y') }}</div>
-        </div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; font-size: 13px;">
+        <div><b>Ref No.:</b> {{ $letter->reference_number ?? 'REF001' }}</div>
+        <div><b>Date:</b> {{ $letter->issue_date ? $letter->issue_date->format('d-m-Y') : date('d-m-Y') }}</div>
+    </div>
+    <div class="recipient" style="margin-bottom: 12px; font-size: 13px;">
+        <div><b>To,</b></div>
+        <div>{{ (($employee->gender ?? '') == 'Female' || ($employee->gender ?? '') == 'female') ? 'Ms.' : 'Mr.' }} {{ $employee->name ?? 'N/A' }}</div>
+        <div>{{ $employee->designation ?? $employee->position ?? 'Employee' }}</div>
+        @if($employee && $employee->address)
+        <div>{{ $employee->address }}</div>
+        @endif
     </div>
 </div>
-<div class="subject">Subject: Warning Notice</div>
+<div class="subject" style="font-size: 13px;">Subject: Warning Notice</div>
 <div class="body">
 <p>Dear <b>{{ $employee->name ?? 'Employee' }}</b>,</p>
 

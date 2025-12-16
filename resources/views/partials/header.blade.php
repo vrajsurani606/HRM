@@ -23,7 +23,7 @@
           $user = auth()->user();
           $employee = \App\Models\Employee::where('email', $user->email)->first();
         @endphp
-        <img class="hrp-avatar" src="{{ $employee ? $employee->profile_photo_url : $user->profile_photo_url }}" alt="{{ $user->name }}"/>
+        <x-profile-avatar :user="$user" :employee="$employee" size="md" />
         <div class="hrp-user-meta">
           <div class="hrp-user-email">{{ $user->email ?? 'user@example.com' }}</div>
           <div class="hrp-user-name">{{ $user->name ?? 'User' }}</div>

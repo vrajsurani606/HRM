@@ -35,11 +35,11 @@
 
     <div>
       <label class="hrp-label">City</label>
-      <div class="Rectangle-29">{{ $inquiry->city }}</div>
+      <div class="Rectangle-29">{{ $inquiry->city == 'other' ? ($inquiry->city_other ?: 'Other') : ucwords(str_replace('_', ' ', $inquiry->city)) }}</div>
     </div>
     <div>
       <label class="hrp-label">State</label>
-      <div class="Rectangle-29">{{ $inquiry->state }}</div>
+      <div class="Rectangle-29">{{ $inquiry->state == 'other' ? ($inquiry->state_other ?: 'Other') : ucwords(str_replace('_', ' ', $inquiry->state)) }}</div>
     </div>
 
     <div>

@@ -49,6 +49,7 @@ class Payroll extends Model
         'payment_remarks',
         'status',
         'notes',
+        'attachment',
     ];
 
     protected $casts = [

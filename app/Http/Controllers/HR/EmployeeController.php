@@ -42,6 +42,12 @@ class EmployeeController extends Controller
             }
         }
         
+        // Apply status filter - default to 'active' if not specified
+        $statusFilter = $request->get('status', 'active');
+        if ($statusFilter !== 'all') {
+            $query->where('status', $statusFilter);
+        }
+        
         // Apply filters
         if ($request->filled('name')) {
             $query->where('name', 'like', '%' . $request->name . '%');
@@ -53,6 +59,17 @@ class EmployeeController extends Controller
         
         if ($request->filled('code')) {
             $query->where('code', 'like', '%' . $request->code . '%');
+        }
+        
+        // Apply position group filter
+        if ($request->filled('position_group')) {
+            $positionGroups = config('positions.groups', []);
+            $selectedGroup = $request->position_group;
+            
+            if (isset($positionGroups[$selectedGroup])) {
+                $positionsInGroup = $positionGroups[$selectedGroup];
+                $query->whereIn('position', $positionsInGroup);
+            }
         }
         
         if ($request->filled('search')) {
@@ -70,9 +87,13 @@ class EmployeeController extends Controller
         $perPage = $request->get('per_page', 12);
         $employees = $query->orderByDesc('id')->paginate($perPage)->withQueryString();
         
+        // Get position groups for filter dropdown
+        $positionGroups = config('positions.groups', []);
+        
         return view('hr.employees.index', [
             'page_title' => 'Employee List',
             'employees'  => $employees,
+            'positionGroups' => $positionGroups,
         ]);
     }
 

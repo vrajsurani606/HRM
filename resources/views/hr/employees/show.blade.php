@@ -10,16 +10,7 @@
       </div>
       <div style="width:1px;height:36px;background:#e5e7eb"></div>
       <div style="display:flex;align-items:center;gap:8px">
-        <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;background:#fbbf24;flex-shrink:0">
-          @if($employee->photo_path)
-            <img src="{{ storage_asset(''.$employee->photo_path) }}" style="width:100%;height:100%;object-fit:cover" alt="{{ $employee->name }}">
-          @else
-            @php $initial = strtoupper(mb_substr((string)($employee->name ?? 'U'), 0, 1)); @endphp
-            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#fff;background:linear-gradient(135deg,#3b82f6,#9333ea);">
-              {{ $initial }}
-            </div>
-          @endif
-        </div>
+        <x-profile-avatar :employee="$employee" :user="$employee->user" size="lg" />
         <div>
           <h2 style="font-size:24px;font-weight:700;color:#1e293b;margin:0 0 1px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">{{ $employee->name }}</h2>
           <p style="color:#64748b;margin:0;font-size:13px;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">{{ $employee->position ?: 'N/A' }}</p>

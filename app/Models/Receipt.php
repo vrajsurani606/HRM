@@ -15,6 +15,7 @@ class Receipt extends Model
         'company_name',
         'invoice_type',
         'invoice_ids',
+        'partial_amounts',
         'received_amount',
         'payment_type',
         'narration',
@@ -24,6 +25,7 @@ class Receipt extends Model
     protected $casts = [
         'receipt_date' => 'date',
         'invoice_ids' => 'array',
+        'partial_amounts' => 'array',
         'received_amount' => 'decimal:2',
     ];
 

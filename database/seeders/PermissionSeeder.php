@@ -52,7 +52,7 @@ class PermissionSeeder extends Seeder
                 'manage diagnostics',
                 'view system passwords'
             ],
-            'Leave Management' => ['view leave', 'create leave', 'edit leave', 'delete leave', 'manage leave', 'approve leave', 'reject leave', 'view own leave', 'cancel leave'],
+            // 'Leave Management' => ['view leave', 'create leave', 'edit leave', 'delete leave', 'manage leave', 'approve leave', 'reject leave', 'view own leave', 'cancel leave'],
             'Users Management' => ['view user', 'create user', 'edit user', 'delete user', 'manage user'],
             'Roles Management' => ['view role', 'create role', 'edit role', 'delete role', 'manage role'],
             'Dashboard' => ['view dashboard', 'manage dashboard'],
@@ -89,7 +89,6 @@ class PermissionSeeder extends Seeder
                 'reassign ticket',
                 'change status',
                 'change priority',
-                'change work status',
                 'view comments',
                 'create comment',
                 'edit comment',

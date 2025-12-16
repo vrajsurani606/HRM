@@ -60,7 +60,9 @@
 .task-list-container { display: flex; flex-direction: column; gap: 12px; }
 .task-item-row { display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: white; border-radius: 8px; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 .task-item-row:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-.task-checkbox-input { width: 20px; height: 20px; cursor: pointer; }
+.task-checkbox-input { width: 20px; height: 20px; cursor: pointer; appearance: none; -webkit-appearance: none; border: 2px solid #d1d5db; border-radius: 4px; background: white; position: relative; transition: all 0.2s; }
+.task-checkbox-input:checked { border-color: var(--completed-color, #10b981); background: var(--completed-color, #10b981); }
+.task-checkbox-input:checked::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 12px; font-weight: bold; }
 .task-info-content { flex: 1; }
 .task-title-text { font-size: 14px; font-weight: 600; color: #1f2937; margin: 0 0 4px 0; }
 .task-meta-text { font-size: 12px; color: #6b7280; }
@@ -75,18 +77,27 @@
 .team-avatar-circle { width: 70px; height: 70px; border-radius: 50%; background: #3b82f6; color: white; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; margin: 0 auto 14px; }
 .team-name-text { font-size: 15px; font-weight: 600; color: #1f2937; margin: 0 0 6px 0; }
 .team-role-text { font-size: 13px; color: #6b7280; margin: 0; font-weight: 400; }
-.comment-list-container { display: flex; flex-direction: column; gap: 16px; }
-.comment-item-row { display: flex; gap: 14px; padding: 16px 20px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-.comment-avatar { width: 40px; height: 40px; border-radius: 50%; background: #3b82f6; color: white; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; flex-shrink: 0; }
-.comment-content { flex: 1; }
-.comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.comment-author { font-size: 14px; font-weight: 600; color: #1f2937; }
-.comment-date { font-size: 12px; color: #6b7280; }
-.comment-message { font-size: 14px; color: #4b5563; line-height: 1.5; }
-.comment-form { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 20px; }
-.comment-textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical; min-height: 80px; }
-.comment-submit-btn { margin-top: 12px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
-.comment-submit-btn:hover { background: #2563eb; }
+/* Group Chat Styles - Modern Bubble Design */
+.chat-container { display: flex; flex-direction: column; gap: 12px; padding: 20px; background: #f8fafc; border-radius: 12px; max-height: 500px; overflow-y: auto; }
+.chat-message { display: flex; align-items: flex-end; gap: 10px; max-width: 85%; }
+.chat-message.sent { align-self: flex-end; flex-direction: row-reverse; }
+.chat-message.received { align-self: flex-start; }
+.chat-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
+.chat-bubble { padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; color: #1f2937; position: relative; }
+.chat-message.received .chat-bubble { border-bottom-left-radius: 4px; }
+.chat-message.sent .chat-bubble { border-bottom-right-radius: 4px; background: #dcfce7 !important; }
+.chat-time { font-size: 11px; color: #9ca3af; margin-top: 4px; text-align: right; }
+.chat-sender-name { font-size: 12px; font-weight: 600; margin-bottom: 4px; color: inherit; opacity: 0.8; }
+.chat-input-container { display: flex; align-items: flex-end; gap: 12px; padding: 16px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-top: 16px; }
+.chat-input { flex: 1; padding: 12px 16px; border: 1px solid #e5e7eb; border-radius: 24px; font-size: 14px; resize: none; min-height: 44px; max-height: 120px; outline: none; transition: border-color 0.2s; }
+.chat-input:focus { border-color: #3b82f6; }
+.chat-input::placeholder { color: #9ca3af; }
+.chat-send-btn { width: 44px; height: 44px; border-radius: 50%; background: #3b82f6; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; flex-shrink: 0; }
+.chat-send-btn:hover { background: #2563eb; }
+.chat-send-btn:disabled { background: #d1d5db; cursor: not-allowed; }
+.chat-toolbar { display: flex; gap: 8px; padding: 8px 0; }
+.chat-toolbar-btn { padding: 6px 10px; background: transparent; border: none; cursor: pointer; font-size: 16px; color: #6b7280; border-radius: 4px; }
+.chat-toolbar-btn:hover { background: #f3f4f6; }
 @media (max-width: 768px) { .stats-grid-container { grid-template-columns: 1fr; } .charts-grid-layout { grid-template-columns: 1fr; } .project-header-top { flex-direction: column; align-items: flex-start; } }
 
 /* Custom SweetAlert Styles */
@@ -337,14 +348,6 @@
       <div class="stat-sublabel-text" id="statTasksCompleted">0 completed</div>
     </div>
     <div class="stat-card-item">
-      <div class="stat-icon-box green">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-      </div>
-      <div class="stat-value-text" id="statBudget">$0</div>
-      <div class="stat-label-text">Budget</div>
-      <div class="stat-sublabel-text" id="statBudgetUsed">Allocated</div>
-    </div>
-    <div class="stat-card-item">
       <div class="stat-icon-box orange">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
       </div>
@@ -414,10 +417,6 @@
         <div class="detail-card">
           <div class="detail-label">Due Date</div>
           <div class="detail-value" id="detailDueDate">-</div>
-        </div>
-        <div class="detail-card">
-          <div class="detail-label">Budget</div>
-          <div class="detail-value" id="detailBudget">$0</div>
         </div>
         <div class="detail-card">
           <div class="detail-label">Company</div>
@@ -555,12 +554,24 @@
     </div>
 
     <div class="tab-content-area" id="tab-comments">
-      <div class="comment-form" id="commentForm">
-        <textarea class="comment-textarea" id="commentMessage" placeholder="Write a comment..."></textarea>
-        <button class="comment-submit-btn" onclick="postComment()">Post Comment</button>
+      <div class="chat-container" id="commentList">
+        <p style="text-align: center; color: #6b7280; padding: 40px;">Loading chat...</p>
       </div>
-      <div class="comment-list-container" id="commentList">
-        <p style="text-align: center; color: #6b7280; padding: 40px;">Loading comments...</p>
+      <div class="chat-input-container" id="commentForm">
+        <textarea class="chat-input" id="commentMessage" placeholder="Type here to discuss with the team..." rows="1" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();postComment();}"></textarea>
+        <button class="chat-send-btn" onclick="postComment()" title="Send">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+      <div class="chat-toolbar">
+        <button class="chat-toolbar-btn" title="Bold" onclick="formatChatText('bold')"><b>B</b></button>
+        <button class="chat-toolbar-btn" title="Italic" onclick="formatChatText('italic')"><i>I</i></button>
+        <button class="chat-toolbar-btn" title="Strikethrough" onclick="formatChatText('strikethrough')"><s>S</s></button>
+        <button class="chat-toolbar-btn" title="Insert Emoji" onclick="insertChatEmoji('❤️')">❤️</button>
+        <button class="chat-toolbar-btn" title="Insert Emoji" onclick="insertChatEmoji('👍')">👍</button>
       </div>
     </div>
 
@@ -611,6 +622,13 @@ let tasksData = [];
 let membersData = [];
 let commentsData = [];
 let canAccessChat = false;
+
+// Current user info for task completion tracking
+const currentUser = {
+    id: {{ auth()->id() }},
+    name: "{{ auth()->user()->name }}",
+    chat_color: "{{ auth()->user()->chat_color ?? '#10b981' }}"
+};
 
 async function loadProjectData() {
     try {
@@ -769,7 +787,11 @@ function renderTasks() {
     let html = '';
     tasksData.forEach(task => {
         const isCompleted = task.is_completed;
-        const assignedEmployee = task.assigned_employee ? task.assigned_employee.name : 'Unassigned';
+        
+        // Get completed by user's color for checkbox
+        const completedByUser = task.completed_by_user;
+        const completedColor = completedByUser && completedByUser.chat_color ? completedByUser.chat_color : '#10b981';
+        const completedByName = completedByUser ? completedByUser.name : '';
         
         // Check if task is overdue
         let isOverdue = false;
@@ -817,17 +839,12 @@ function renderTasks() {
         }
         
         html += `<div class="task-item-row" style="background: ${isCompleted ? '#f0fdf4' : 'white'};">
-            <input type="checkbox" class="task-checkbox-input" ${isCompleted ? 'checked' : ''} onchange="toggleTask(${task.id}, this.checked)">
+            <input type="checkbox" class="task-checkbox-input" ${isCompleted ? 'checked' : ''} style="--completed-color: ${completedColor};" onchange="toggleTask(${task.id}, this.checked)" title="${isCompleted && completedByName ? 'Completed by ' + completedByName : ''}">
             <div class="task-info-content">
                 <h4 class="task-title-text" style="${isCompleted ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${escapeHtml(task.title)}</h4>
                 ${task.description ? `<p class="task-meta-text" style="margin-bottom: 4px;">${escapeHtml(task.description)}</p>` : ''}
                 <p class="task-meta-text">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                    <strong>Assigned to:</strong> ${assignedEmployee}
-                    <span style="margin: 0 8px;">•</span>
+                    ${isCompleted && completedByName ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${completedColor}" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg><strong style="color: ${completedColor};">Done by:</strong> <span style="color: ${completedColor}; font-weight: 600;">${escapeHtml(completedByName)}</span><span style="margin: 0 8px;">•</span>` : ''}
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${isOverdue ? '#dc2626' : 'currentColor'}" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
                         <circle cx="12" cy="12" r="10"></circle>
                         <polyline points="12 6 12 12 16 14"></polyline>
@@ -866,25 +883,28 @@ function renderTeamMembers() {
     let html = '';
     membersData.forEach(member => {
         const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#ec4899', '#f97316'];
-        const color = colors[member.id % colors.length];
+        // Use user's chat_color from database, fallback to random color
+        const chatColor = member.chat_color || ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#ef4444', '#06b6d4', '#84cc16'][member.id % 8];
         
         // Check for photo from employee data
         const photoPath = member.employee && member.employee.photo_path 
             ? `{{ asset('public/storage') }}/${member.employee.photo_path}`
             : null;
-        const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=${color.substring(1)}&color=fff&size=70&bold=true`;
         
-        // Build avatar content
+        // Build avatar content - photo with colored ring or initials on colored background
         let avatarContent = '';
         if (photoPath) {
-            avatarContent = `<img src="${photoPath}" alt="${escapeHtml(member.name)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='${defaultAvatar}';">`;
+            // Photo with colored ring effect
+            avatarContent = `<div style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; border: 2px solid white;">
+                <img src="${photoPath}" alt="${escapeHtml(member.name)}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:22px;\\'>${initials}</div>';">
+            </div>`;
         } else {
-            avatarContent = initials;
+            // Initials on colored background
+            avatarContent = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 26px;">${initials}</div>`;
         }
         
         html += `<div class="team-card-item">
-            <div class="team-avatar-circle" style="background: ${photoPath ? 'white' : color}; overflow: hidden; ${photoPath ? 'border: 3px solid #e5e7eb;' : ''}">${avatarContent}</div>
+            <div class="team-avatar-circle" style="background: ${chatColor}; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.12);">${avatarContent}</div>
             <h4 class="team-name-text">${escapeHtml(member.name)}</h4>
             <p class="team-role-text">${member.pivot?.role || 'Member'}</p>
         </div>`;
@@ -895,10 +915,15 @@ function renderTeamMembers() {
 function renderComments() {
     const container = document.getElementById('commentList');
     const commentForm = document.getElementById('commentForm');
+    const chatToolbar = document.querySelector('.chat-toolbar');
+    const currentUserId = {{ auth()->id() }};
     
     // Hide comment form if user doesn't have access
     if (commentForm) {
-        commentForm.style.display = canAccessChat ? 'block' : 'none';
+        commentForm.style.display = canAccessChat ? 'flex' : 'none';
+    }
+    if (chatToolbar) {
+        chatToolbar.style.display = canAccessChat ? 'flex' : 'none';
     }
     
     if (commentsData.length === 0) {
@@ -909,29 +934,116 @@ function renderComments() {
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     </svg>
                 </div>
-                <h3 style="font-size: 18px; font-weight: 700; color: #111827; margin: 0 0 8px 0;">No Comments Yet</h3>
-                <p style="font-size: 14px; color: #6b7280; margin: 0;">${canAccessChat ? 'Start the conversation by posting the first comment' : 'Only project members can view comments'}</p>
+                <h3 style="font-size: 18px; font-weight: 700; color: #111827; margin: 0 0 8px 0;">No Messages Yet</h3>
+                <p style="font-size: 14px; color: #6b7280; margin: 0;">${canAccessChat ? 'Start the conversation with your team!' : 'Only project members can view chat'}</p>
             </div>
         `;
         return;
     }
+    
+    // Color mapping - converts user's chat_color to bubble background/text
+    const colorToBubble = {
+        '#6366f1': { bg: '#e0e7ff', text: '#3730a3' },  // Indigo
+        '#10b981': { bg: '#dcfce7', text: '#166534' },  // Green
+        '#f59e0b': { bg: '#fef3c7', text: '#92400e' },  // Yellow/Amber
+        '#ec4899': { bg: '#fce7f3', text: '#9d174d' },  // Pink
+        '#8b5cf6': { bg: '#ede9fe', text: '#5b21b6' },  // Purple
+        '#ef4444': { bg: '#fee2e2', text: '#b91c1c' },  // Red
+        '#06b6d4': { bg: '#cffafe', text: '#0e7490' },  // Cyan
+        '#84cc16': { bg: '#ecfccb', text: '#4d7c0f' },  // Lime
+        '#f97316': { bg: '#ffedd5', text: '#c2410c' },  // Orange
+        '#14b8a6': { bg: '#ccfbf1', text: '#0f766e' },  // Teal
+        '#a855f7': { bg: '#f3e8ff', text: '#7c3aed' },  // Violet
+        '#3b82f6': { bg: '#dbeafe', text: '#1e40af' },  // Blue
+        '#eab308': { bg: '#fef9c3', text: '#a16207' },  // Yellow
+        '#e11d48': { bg: '#ffe4e6', text: '#be123c' },  // Rose
+        '#0ea5e9': { bg: '#e0f2fe', text: '#0369a1' },  // Sky
+    };
+    
     let html = '';
     commentsData.forEach(comment => {
+        const isSent = comment.user_id === currentUserId;
         const initials = comment.user?.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) || 'U';
-        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
-        const color = colors[comment.user_id % colors.length];
-        html += `<div class="comment-item-row">
-            <div class="comment-avatar" style="background: ${color};">${initials}</div>
-            <div class="comment-content">
-                <div class="comment-header">
-                    <span class="comment-author">${escapeHtml(comment.user?.name || 'User')}</span>
-                    <span class="comment-date">${new Date(comment.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+        
+        // Use user's assigned chat_color from database
+        const userColor = comment.user?.chat_color || '#6366f1';
+        const avatarColor = userColor;
+        const bubbleColor = colorToBubble[userColor] || { bg: '#e0e7ff', text: '#3730a3' };
+        
+        const timeStr = new Date(comment.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        const dateStr = new Date(comment.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        
+        html += `
+        <div class="chat-message ${isSent ? 'sent' : 'received'}">
+            <div class="chat-avatar" style="background: ${avatarColor};">${initials}</div>
+            <div>
+                <div class="chat-sender-name" style="color: ${avatarColor};">${escapeHtml(comment.user?.name || 'User')}</div>
+                <div class="chat-bubble" style="background: ${bubbleColor.bg}; color: ${bubbleColor.text};">
+                    ${parseMarkdown(comment.message)}
                 </div>
-                <p class="comment-message">${escapeHtml(comment.message)}</p>
+                <div class="chat-time">${dateStr}, ${timeStr}</div>
             </div>
         </div>`;
     });
     container.innerHTML = html;
+    
+    // Scroll to bottom
+    container.scrollTop = container.scrollHeight;
+}
+
+// Parse markdown formatting (bold, italic, strikethrough)
+function parseMarkdown(text) {
+    if (!text) return '';
+    let escaped = escapeHtml(text);
+    // Bold: **text**
+    escaped = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Italic: *text*
+    escaped = escaped.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    // Strikethrough: ~~text~~
+    escaped = escaped.replace(/~~(.+?)~~/g, '<del>$1</del>');
+    // Underline: __text__
+    escaped = escaped.replace(/__(.+?)__/g, '<u>$1</u>');
+    return escaped;
+}
+
+// Chat text formatting functions
+function formatChatText(format) {
+    const input = document.getElementById('commentMessage');
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    const selectedText = input.value.substring(start, end);
+    
+    let prefix = '', suffix = '';
+    switch(format) {
+        case 'bold':
+            prefix = suffix = '**';
+            break;
+        case 'italic':
+            prefix = suffix = '*';
+            break;
+        case 'strikethrough':
+            prefix = suffix = '~~';
+            break;
+    }
+    
+    if (selectedText) {
+        // Wrap selected text
+        input.value = input.value.substring(0, start) + prefix + selectedText + suffix + input.value.substring(end);
+        input.setSelectionRange(start + prefix.length, end + prefix.length);
+    } else {
+        // Insert markers at cursor position
+        input.value = input.value.substring(0, start) + prefix + suffix + input.value.substring(end);
+        input.setSelectionRange(start + prefix.length, start + prefix.length);
+    }
+    input.focus();
+}
+
+function insertChatEmoji(emoji) {
+    const input = document.getElementById('commentMessage');
+    const start = input.selectionStart;
+    input.value = input.value.substring(0, start) + emoji + input.value.substring(input.selectionEnd);
+    input.setSelectionRange(start + emoji.length, start + emoji.length);
+    input.focus();
 }
 
 async function postComment() {
@@ -960,7 +1072,9 @@ async function postComment() {
         if (response.ok) {
             document.getElementById('commentMessage').value = '';
             await loadComments();
-            if (typeof toastr !== 'undefined') toastr.success('Comment posted');
+            // Scroll chat to bottom after new message
+            const chatContainer = document.getElementById('commentList');
+            if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
         } else if (response.status === 403) {
             const data = await response.json();
             if (typeof toastr !== 'undefined') {
@@ -988,10 +1102,13 @@ async function toggleTask(taskId, isCompleted) {
             body: JSON.stringify({ is_completed: isCompleted })
         });
         if (response.ok) {
-            // Update task in local data
+            const data = await response.json();
+            // Update task in local data with completed_by_user info
             const task = tasksData.find(t => t.id === taskId);
             if (task) {
                 task.is_completed = isCompleted;
+                // Use response data or current user info for immediate UI update
+                task.completed_by_user = isCompleted ? (data.task?.completed_by_user || currentUser) : null;
             }
             
             // Update progress immediately
@@ -1270,7 +1387,6 @@ function updateProjectInfo() {
     // Update stats cards
     updateElement('statTotalTasks', totalTasks);
     updateElement('statTasksCompleted', completedTasks + ' completed');
-    updateElement('statBudget', projectData.budget ? '$' + parseFloat(projectData.budget).toLocaleString() : '$0');
     updateElement('statMembers', membersData.length);
     updateElement('statComments', commentsData.length);
     
@@ -1287,7 +1403,6 @@ function updateProjectInfo() {
     updateElement('detailPriority', (projectData.priority || 'medium').toUpperCase());
     updateElement('detailStartDate', formatDate(projectData.start_date));
     updateElement('detailDueDate', formatDate(projectData.due_date));
-    updateElement('detailBudget', projectData.budget ? '$' + parseFloat(projectData.budget).toLocaleString() : '$0');
     updateElement('detailCompany', projectData.company?.company_name || '-');
     
     // Update progress bars
@@ -1380,17 +1495,19 @@ async function addNewMember() {
         
         // Build employee cards grid
         const employeeCards = data.users.map(user => {
-            const colors = ['#4F46E5', '#059669', '#DC2626', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6'];
-            const color = colors[user.id % colors.length];
+            // Use user's chat_color from database, fallback to random color
+            const chatColor = user.chat_color || ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#ef4444', '#06b6d4', '#84cc16'][user.id % 8];
             const initial = user.name.charAt(0).toUpperCase();
             
             // Determine avatar display (photo or initial) - photo_path comes directly from API
             const photoPath = user.photo_path ? `{{ asset('public/storage') }}/${user.photo_path}` : null;
-            const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=${color.substring(1)}&color=fff&size=64&bold=true`;
             
+            // Build avatar - photo with colored ring or initials on colored background
             let avatarContent = '';
             if (photoPath) {
-                avatarContent = `<img src="${photoPath}" alt="${escapeHtml(user.name)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='${defaultAvatar}';">`;
+                avatarContent = `<div style="width: 54px; height: 54px; border-radius: 50%; overflow: hidden; border: 2px solid white;">
+                    <img src="${photoPath}" alt="${escapeHtml(user.name)}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px;\\'>${initial}</div>';">
+                </div>`;
             } else {
                 avatarContent = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 700;">${initial}</div>`;
             }
@@ -1403,7 +1520,7 @@ async function addNewMember() {
                      style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s;"
                      onclick="toggleEmployeeSelection(${user.id}, '${escapeHtml(user.name)}', this)">
                     <div style="position: relative; display: inline-block;">
-                        <div style="width: 64px; height: 64px; border-radius: 50%; background: ${color}; margin: 0 auto 12px; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+                        <div style="width: 64px; height: 64px; border-radius: 50%; background: ${chatColor}; margin: 0 auto 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); overflow: hidden; display: flex; align-items: center; justify-content: center;">
                             ${avatarContent}
                         </div>
                         <input type="checkbox" class="employee-checkbox" 

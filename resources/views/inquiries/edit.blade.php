@@ -125,6 +125,7 @@
         <option value="jharkhand" {{ old('state', $inquiry->state) == 'jharkhand' ? 'selected' : '' }}>Jharkhand</option>
         <option value="karnataka" {{ old('state', $inquiry->state) == 'karnataka' ? 'selected' : '' }}>Karnataka</option>
         <option value="kerala" {{ old('state', $inquiry->state) == 'kerala' ? 'selected' : '' }}>Kerala</option>
+        <option value="ladakh" {{ old('state', $inquiry->state) == 'ladakh' ? 'selected' : '' }}>Ladakh</option>
         <option value="madhya_pradesh" {{ old('state', $inquiry->state) == 'madhya_pradesh' ? 'selected' : '' }}>Madhya Pradesh</option>
         <option value="maharashtra" {{ old('state', $inquiry->state) == 'maharashtra' ? 'selected' : '' }}>Maharashtra</option>
         <option value="manipur" {{ old('state', $inquiry->state) == 'manipur' ? 'selected' : '' }}>Manipur</option>
@@ -141,8 +142,15 @@
         <option value="uttar_pradesh" {{ old('state', $inquiry->state) == 'uttar_pradesh' ? 'selected' : '' }}>Uttar Pradesh</option>
         <option value="uttarakhand" {{ old('state', $inquiry->state) == 'uttarakhand' ? 'selected' : '' }}>Uttarakhand</option>
         <option value="west_bengal" {{ old('state', $inquiry->state) == 'west_bengal' ? 'selected' : '' }}>West Bengal</option>
+        {{-- Union Territories --}}
+        <option value="andaman_nicobar" {{ old('state', $inquiry->state) == 'andaman_nicobar' ? 'selected' : '' }}>Andaman & Nicobar Islands</option>
+        <option value="chandigarh" {{ old('state', $inquiry->state) == 'chandigarh' ? 'selected' : '' }}>Chandigarh</option>
+        <option value="dadra_nagar_haveli_daman_diu" {{ old('state', $inquiry->state) == 'dadra_nagar_haveli_daman_diu' ? 'selected' : '' }}>Dadra & Nagar Haveli and Daman & Diu</option>
+        <option value="lakshadweep" {{ old('state', $inquiry->state) == 'lakshadweep' ? 'selected' : '' }}>Lakshadweep</option>
+        <option value="puducherry" {{ old('state', $inquiry->state) == 'puducherry' ? 'selected' : '' }}>Puducherry</option>
         <option value="other" {{ old('state', $inquiry->state) == 'other' ? 'selected' : '' }}>Other</option>
       </select>
+      <input type="text" name="state_other" id="state_other_input" class="Rectangle-29 hrp-input" placeholder="Enter State Name" value="{{ old('state_other', $inquiry->state_other) }}" style="display: {{ old('state', $inquiry->state) == 'other' ? 'block' : 'none' }}; margin-top: 8px;">
       @error('state')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
 
@@ -153,6 +161,8 @@
         <option value="" disabled selected>SELECT STATE FIRST</option>
       </select>
       <input type="hidden" id="old_city" value="{{ old('city', $inquiry->city) }}">
+      <input type="hidden" id="old_city_other" value="{{ old('city_other', $inquiry->city_other) }}">
+      <input type="text" name="city_other" id="city_other_input" class="Rectangle-29 hrp-input" placeholder="Enter City Name" value="{{ old('city_other', $inquiry->city_other) }}" style="display: {{ old('city', $inquiry->city) == 'other' ? 'block' : 'none' }}; margin-top: 8px;">
       @error('city')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
@@ -542,13 +552,35 @@ const stateCityData = {
     ]
 };
 
+// Function to toggle "Other" text input visibility
+function toggleOtherInput(selectElement, otherInput) {
+    if (!otherInput) return;
+    
+    if (selectElement.value === 'other') {
+        otherInput.style.display = 'block';
+        otherInput.required = selectElement.required;
+    } else {
+        otherInput.style.display = 'none';
+        otherInput.required = false;
+        otherInput.value = '';
+    }
+}
+
 // Function to populate cities based on selected state
-function populateCities(stateValue, selectedCity = null) {
+function populateCities(stateValue, selectedCity = null, isInitialLoad = false) {
     const citySelect = document.getElementById('city_select');
+    const cityOtherInput = document.getElementById('city_other_input');
+    const oldCityOtherValue = document.getElementById('old_city_other')?.value;
     if (!citySelect) return;
     
     // Clear existing options
     citySelect.innerHTML = '<option value="" disabled selected>SELECT CITY</option>';
+    
+    // Only clear city other input when user changes state (not on initial load)
+    if (cityOtherInput && !isInitialLoad) {
+        cityOtherInput.style.display = 'none';
+        cityOtherInput.value = '';
+    }
     
     if (stateValue && stateCityData[stateValue]) {
         const cities = stateCityData[stateValue];
@@ -561,6 +593,15 @@ function populateCities(stateValue, selectedCity = null) {
             }
             citySelect.appendChild(option);
         });
+        
+        // If selected city is "other", show the other input and restore value
+        if (selectedCity === 'other' && cityOtherInput) {
+            cityOtherInput.style.display = 'block';
+            // On initial load, restore the saved city_other value
+            if (isInitialLoad && oldCityOtherValue) {
+                cityOtherInput.value = oldCityOtherValue;
+            }
+        }
     }
 }
 
@@ -591,19 +632,41 @@ document.addEventListener('DOMContentLoaded', function() {
   const companyPhoneInput = document.querySelector('input[name="company_phone"]');
   const contactMobileInput = document.querySelector('input[name="contact_mobile"]');
   
-  // Initialize state-city dropdown
+  // Initialize state-city dropdown with "Other" text box support
   const stateSelect = document.getElementById('state_select');
+  const citySelect = document.getElementById('city_select');
+  const stateOtherInput = document.getElementById('state_other_input');
+  const cityOtherInput = document.getElementById('city_other_input');
   const oldCity = document.getElementById('old_city')?.value;
+  const oldCityOther = document.getElementById('old_city_other')?.value;
   
   if (stateSelect) {
-      // If state is already selected (e.g., from old input or existing data), populate cities
+      // If state is already selected (e.g., from old input or existing data), populate cities and show other inputs
       if (stateSelect.value) {
-          populateCities(stateSelect.value, oldCity);
+          // Show state other input if "other" is selected
+          if (stateOtherInput) {
+              toggleOtherInput(stateSelect, stateOtherInput);
+          }
+          // Populate cities on initial load (pass true to preserve city_other value)
+          populateCities(stateSelect.value, oldCity, true);
       }
       
-      // Add change event listener
+      // Add change event listener for state
       stateSelect.addEventListener('change', function() {
+          // Toggle state other input
+          if (stateOtherInput) {
+              toggleOtherInput(this, stateOtherInput);
+          }
           populateCities(this.value);
+      });
+  }
+  
+  // Add change event listener for city "Other" option
+  if (citySelect) {
+      citySelect.addEventListener('change', function() {
+          if (cityOtherInput) {
+              toggleOtherInput(this, cityOtherInput);
+          }
       });
   }
   
@@ -639,17 +702,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // HTML5 validation-style check: just prevent submit if invalid and show browser messages
   if (form) {
     form.addEventListener('submit', function(e) {
-      // Convert date from dd/mm/yyyy to yyyy-mm-dd before submission
-      var dateInput = document.querySelector('input[name="inquiry_date"]');
-      if(dateInput && dateInput.value){
-        var parts = dateInput.value.split('/');
-        if(parts.length === 3){
-          var day = parts[0];
-          var month = parts[1];
-          var year = parts[2];
-          dateInput.value = year + '-' + month + '-' + day;
-        }
-      }
+      // Date conversion is now handled in the backend controller
+      // The date is sent in dd/mm/yyyy format and converted server-side
       
       if (!form.checkValidity()) {
         e.preventDefault();

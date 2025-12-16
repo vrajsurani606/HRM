@@ -14,7 +14,18 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Offer Letter - {{ $lead->person_name }}</title>
   <style>
-    body, html { margin:0 !important; padding:0 !important; font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif !important; }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    
+    * {
+        font-family: 'Poppins', sans-serif !important;
+    }
+    
+    body, html { margin:0 !important; padding:0 !important; font-family: 'Poppins', sans-serif !important; font-weight: 400; }
+    
+    b, strong {
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 700 !important;
+    }
     @page { margin: 0; }
     .offer-container {
       width: 100vw; min-width: 100vw; height: 100vh; margin: 0;
@@ -28,14 +39,15 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
     .letter-content { position:relative; z-index:1; }
     .letter-content { width:100%; max-width:800px; margin:0 auto; margin-top:220px; padding:40px 30px 20px 30px; border-radius:8px; box-sizing:border-box; }
     .letter-meta, .recipient, .subject, .body, .signature { margin-bottom:16px; }
-    .letter-meta { display:flex; justify-content:space-between; font-size:16px; color:#222; font-weight:500; }
-    .subject { font-size:17px; font-weight:700; color:#222; text-align:center; }
+    .letter-meta { display:flex; justify-content:space-between; font-size:13.2px; color:#222; font-weight:500; }
+    .recipient { font-size:13.2px; color:#222; }
+    .subject { font-size:13.2px; font-weight:700; color:#222; text-align:center; }
     .body { font-size:13.2px; color:#222; line-height:1.7; }
     .body .company { color:#456DB5; font-weight:700; }
     .body .highlight { font-weight:700; }
-    .signature { font-size:16px; color:#222; text-align:left; }
-    .signature .name { font-weight:700; font-size:16px; }
-    .signature .company { font-size:16px; color:#456DB5; font-weight:700; }
+    .signature { font-size:13.2px; color:#222; text-align:left; }
+    .signature .name { font-weight:700; font-size:13.2px; }
+    .signature .company { font-size:13.2px; color:#456DB5; font-weight:700; }
     .signature .sign { margin:6px 0 6px 0; }
     .signature .sign img { height:62px; width:auto; display:block; object-fit:contain; }
     @media print {
@@ -101,53 +113,48 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
   <div class="offer-container">
     <div class="bg-cover"><img src="{{ $background_url }}" alt="" /></div>
     <div class="letter-content first-page">
-      <div style="margin-bottom: 15px;"><b>Ref No.:</b> {{ $offer->reference_number ?? $lead->unique_code ?? 'N/A' }}</div>
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-        <div class="recipient" style="flex: 1;">
-          <div><b>To,</b></div>
-          <div>{{ ($lead->gender == 'Female' || $lead->gender == 'female') ? 'Ms.' : 'Mr.' }} {{ $lead->person_name ?? $lead->name }}</div>
-          <div>{{ $lead->position ?? $lead->designation ?? 'Candidate' }}</div>
-          @if(!empty($lead->address))
-          <div>{{ $lead->address }}</div>
-          @endif
-        </div>
-        <div class="letter-meta" style="text-align: right;">
-          <div><b>Date:</b> {{ optional($offer->issue_date)->format('d-m-Y') ?? now()->format('d-m-Y') }}</div>
-        </div>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+        <div style="font-size: 13.2px;"><b>Ref No.:</b> {{ $offer->reference_number ?? $lead->unique_code ?? 'N/A' }}</div>
+        <div style="font-size: 13.2px;"><b>Date:</b> {{ optional($offer->issue_date)->format('d-m-Y') ?? now()->format('d-m-Y') }}</div>
+      </div>
+      <div class="recipient" style="margin-bottom: 12px;">
+        <div><b>To,</b></div>
+        <div>{{ ($lead->gender == 'Female' || $lead->gender == 'female') ? 'Ms.' : 'Mr.' }} {{ $lead->person_name ?? $lead->name }}</div>
+        <div>{{ $lead->position ?? $lead->designation ?? 'Candidate' }}</div>
+        @if(!empty($lead->address))
+        <div>{{ $lead->address }}</div>
+        @endif
       </div>
       <div class="subject">Subject: Job Offer for {{ $lead->position ?? $lead->designation ?? 'N/A' }} Position</div>
       <div class="body">
         <p>Dear <b>{{ $lead->person_name ?? $lead->name }}</b>,</p>
         <p><b>Congratulations!</b> We are pleased to inform you that you have been selected to join <span class="company">{{ $company_name }}</span><br> as a <span class="highlight">{{ $lead->position ?? $lead->designation ?? 'N/A' }}</span>. We are delighted to extend the following job offer:</p>
-        <ol style="margin-top:-0px;">
-          <li><b>Position & Compensation</b>
-            <ul style="list-style-type: disc;">
-              <li><b>Designation:</b> {{ $lead->position ?? $lead->designation ?? 'N/A' }}</li>
-              <li><b>Monthly Salary:</b> ₹ {{ $offer->monthly_salary ? number_format($offer->monthly_salary, 2) : '__________' }}</li>
-              <li><b>Annual Cost to Company (CTC):</b> ₹ {{ $offer->annual_ctc ? number_format($offer->annual_ctc, 2) : '__________' }}</li>
-              <li><b>Reporting Manager:</b> {{ $offer->reporting_manager ?? '__________' }}</li>
-              <li><b>Working Hours:</b> {{ $offer->working_hours ?? '9:30 AM to 6:30 PM' }}</li>
-            </ul>
-          </li>
-          <li><b>Probation Period</b>
-            @if(!empty($probation_lines))
-              <ul class="bullets-avoid-break" style="list-style: disc; margin: 4px 0 0 18px; padding:0;">
-                @foreach($probation_lines as $ln)
-                  <li style="margin-bottom:2px;">{{ $ln }}</li>
-                @endforeach
-              </ul>
-            @endif
-          </li>
-          <li><b>Salary & Increment Structure (Special Case)</b>
-            @if(!empty($salary_lines))
-              <ul class="bullets-avoid-break" style="list-style: disc; margin: 4px 0 0 18px; padding:0;">
-                @foreach($salary_lines as $ln)
-                  <li style="margin-bottom:2px;">{{ $ln }}</li>
-                @endforeach
-              </ul>
-            @endif
-          </li>
-        </ol>
+        <div style="margin-top:8px;">
+          <div style="margin-bottom:6px;"><b>1. Position & Compensation</b></div>
+          <div style="margin-left:18px;">
+            <div style="margin-bottom:2px;">• <b>Designation:</b> {{ $lead->position ?? $lead->designation ?? 'N/A' }}</div>
+            <div style="margin-bottom:2px;">• <b>Monthly Salary:</b> ₹ {{ $offer->monthly_salary ? number_format($offer->monthly_salary, 2) : '__________' }}</div>
+            <div style="margin-bottom:2px;">• <b>Annual Cost to Company (CTC):</b> ₹ {{ $offer->annual_ctc ? number_format($offer->annual_ctc, 2) : '__________' }}</div>
+            <div style="margin-bottom:2px;">• <b>Reporting Manager:</b> {{ $offer->reporting_manager ?? '__________' }}</div>
+            <div style="margin-bottom:2px;">• <b>Working Hours:</b> {{ $offer->working_hours ?? '9:30 AM to 6:30 PM' }}</div>
+          </div>
+          <div style="margin-top:8px; margin-bottom:6px;"><b>2. Probation Period</b></div>
+          @if(!empty($probation_lines))
+            <div style="margin-left:18px;">
+              @foreach($probation_lines as $ln)
+                <div style="margin-bottom:2px;">• {{ $ln }}</div>
+              @endforeach
+            </div>
+          @endif
+          <div style="margin-top:8px; margin-bottom:6px;"><b>3. Salary & Increment Structure (Special Case)</b></div>
+          @if(!empty($salary_lines))
+            <div style="margin-left:18px;">
+              @foreach($salary_lines as $ln)
+                <div style="margin-bottom:2px;">• {{ $ln }}</div>
+              @endforeach
+            </div>
+          @endif
+        </div>
         @if($break_after)
           </div>
           </div>

@@ -3,14 +3,38 @@
 if (!function_exists('storage_asset')) {
     /**
      * Generate a URL for a file stored in the public storage directory.
-     * This helper handles the correct path for subdirectory installations.
+     * This helper handles the correct path for both:
+     * - artisan serve (public folder is web root) -> storage/
+     * - subdirectory installations (public is subfolder) -> public/storage/
+     * - live server with symlink -> storage/
      *
      * @param string $path
      * @return string
      */
     function storage_asset($path)
     {
-        return asset('public/storage/' . ltrim($path, '/'));
+        if (empty($path)) {
+            return '';
+        }
+        
+        $path = ltrim($path, '/');
+        
+        // Check if storage symlink exists in public folder
+        $symlinkPath = public_path('storage');
+        $publicStoragePath = public_path('public/storage');
+        
+        // If public/storage directory exists (subdirectory installation)
+        if (is_dir($publicStoragePath) || is_link($publicStoragePath)) {
+            return asset('public/storage/' . $path);
+        }
+        
+        // If storage symlink exists directly in public (standard Laravel)
+        if (is_dir($symlinkPath) || is_link($symlinkPath)) {
+            return asset('storage/' . $path);
+        }
+        
+        // Fallback: try public/storage first for subdirectory installations
+        return asset('public/storage/' . $path);
     }
 }
 
@@ -235,6 +259,36 @@ if (!function_exists('profile_photo_or_initials')) {
             'name' => $displayName,
             'initials' => get_user_initials($displayName)
         ];
+    }
+}
+
+if (!function_exists('get_user_chat_color')) {
+    /**
+     * Get user's chat_color with fallback to random color based on ID
+     * 
+     * @param \App\Models\User|\App\Models\Employee|null $model
+     * @param int|null $fallbackId - ID to use for fallback color calculation
+     * @return string - Hex color code
+     */
+    function get_user_chat_color($model, $fallbackId = null)
+    {
+        $fallbackColors = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#ef4444', '#06b6d4', '#84cc16'];
+        
+        // If model is User and has chat_color
+        if ($model && $model instanceof \App\Models\User && !empty($model->chat_color)) {
+            return $model->chat_color;
+        }
+        
+        // If model is Employee, try to get user's chat_color
+        if ($model && $model instanceof \App\Models\Employee) {
+            if ($model->user && !empty($model->user->chat_color)) {
+                return $model->user->chat_color;
+            }
+        }
+        
+        // Fallback to random color based on ID
+        $id = $fallbackId ?? ($model->id ?? 0);
+        return $fallbackColors[$id % count($fallbackColors)];
     }
 }
     

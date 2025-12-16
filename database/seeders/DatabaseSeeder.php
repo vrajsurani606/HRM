@@ -26,9 +26,9 @@ class DatabaseSeeder extends Seeder
             
             // Finally: Create other data
             // EmployeeSeeder::class,
-            // ProjectStageSeeder::class,
+            ProjectStageSeeder::class,
             // TicketSeeder::class,
-            // MaterialSeeder::class,
+            MaterialSeeder::class,
             // ProjectSeeder::class,
             // CompanyHolidaySeeder::class,
         ]);

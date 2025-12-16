@@ -523,6 +523,7 @@
             <select name="status" id="status" class="Rectangle-29 Rectangle-29-select" onchange="togglePaymentDetails()">
               <option value="pending" selected>Pending</option>
               <option value="paid">Paid</option>
+              <option value="hold">Hold</option>
               <option value="cancelled">Cancelled</option>
             </select>
           </div>

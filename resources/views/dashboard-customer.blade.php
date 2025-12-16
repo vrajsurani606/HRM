@@ -535,7 +535,6 @@
                 <div class="cust-doc-details">{{ $quot['date'] }} • {{ $quot['company'] }}</div>
               </div>
               <div class="cust-doc-amount">₹{{ $quot['amount'] }}</div>
-              <span class="cust-doc-badge {{ $quot['status'] }}">{{ ucfirst($quot['status']) }}</span>
             </div>
           </a>
         @empty
@@ -587,7 +586,7 @@
   </div>
 
   <!-- Active Projects -->
-  <div class="hrp-col-12">
+  <!-- <div class="hrp-col-12">
     <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
       <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 20px 0;">🚀 Active Projects</h3>
       <div class="hrp-grid">
@@ -628,7 +627,7 @@
         @endforelse
       </div>
     </div>
-  </div>
+  </div> -->
 
   <!-- Recent Tickets & Quick Actions -->
   <div class="hrp-col-6">

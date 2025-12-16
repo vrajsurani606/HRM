@@ -13,8 +13,15 @@
     RewriteCond %{HTTP:x-xsrf-token} .
     RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
 
-    # Redirect storage requests to public/storage
+    # Redirect storage requests to public/storage (for subdirectory installations)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^storage/(.*)$ public/storage/$1 [L,NC]
+    
+    # Also handle public/storage requests
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^public/storage/(.*)$ public/storage/$1 [L,NC]
 
     # Serve static assets from public directory
     RewriteCond %{REQUEST_FILENAME} !-f

@@ -2,14 +2,20 @@
 @section('page_title', 'Invoice List')
 @section('content')
 
+@php
+  $isCustomer = auth()->user()->hasRole('customer') || auth()->user()->hasRole('client') || auth()->user()->hasRole('company');
+@endphp
+
 <!-- Filter Row -->
 <form method="GET" action="{{ route('invoices.index') }}" class="jv-filter performa-filter">
   <input type="text" name="search" placeholder="Search Invoice No, Company..." class="filter-pill live-search" value="{{ request('search') }}" />
+  @if(!$isCustomer)
   <select name="invoice_type" class="filter-pill">
     <option value="">All Types</option>
     <option value="gst" {{ request('invoice_type') == 'gst' ? 'selected' : '' }}>GST Invoice</option>
     <option value="without_gst" {{ request('invoice_type') == 'without_gst' ? 'selected' : '' }}>Without GST</option>
   </select>
+  @endif
   <input type="text" name="from_date" placeholder="From : dd/mm/yyyy" class="filter-pill date-picker" value="{{ request('from_date') }}" autocomplete="off" />
   <input type="text" name="to_date" placeholder="To : dd/mm/yyyy" class="filter-pill date-picker" value="{{ request('to_date') }}" autocomplete="off" />
   <button type="submit" class="filter-search" aria-label="Search">
@@ -34,7 +40,9 @@
         <th>Serial No.</th>
         <th><x-sortable-header column="unique_code" title="Invoice No" /></th>
         <th><x-sortable-header column="invoice_date" title="Invoice Date" /></th>
+        @if(!$isCustomer)
         <th><x-sortable-header column="invoice_type" title="Invoice Type" /></th>
+        @endif
         <th>Proforma No</th>
         <th><x-sortable-header column="company_name" title="Bill To" /></th>
         <th>Mobile No.</th>
@@ -73,6 +81,7 @@
         <td>{{ $invoices->firstItem() + $index }}</td>
         <td>{{ $invoice->unique_code }}</td>
         <td>{{ $invoice->invoice_date ? $invoice->invoice_date->format('d-m-Y') : '-' }}</td>
+        @if(!$isCustomer)
         <td>
           @if($invoice->invoice_type == 'gst')
             <span style="background: #E8F0FC; color: #456DB5; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">GST</span>
@@ -80,6 +89,7 @@
             <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">Without GST</span>
           @endif
         </td>
+        @endif
         <td>{{ $invoice->proforma ? $invoice->proforma->unique_code : '-' }}</td>
         <td>{{ $invoice->company_name }}</td>
         <td>{{ display_mobile($invoice->mobile_no) ?? '-' }}</td>
@@ -89,7 +99,7 @@
       </tr>
       @empty
         <x-empty-state 
-            colspan="11" 
+            colspan="{{ $isCustomer ? '10' : '11' }}" 
             title="No invoices found" 
             message="Try adjusting your filters or create a new invoice"
         />

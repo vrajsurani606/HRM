@@ -48,10 +48,7 @@
 
           <div class="profile-section">
             <div class="profile-image">
-              <img src="{{ $photoUrl }}" alt="{{ $user->name }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-              <div class="profile-initials" style="display:none; width:100%; height:100%; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; font-weight:700; font-size:24px; align-items:center; justify-content:center; border-radius:50%;">
-                {{ strtoupper(substr($user->name, 0, 2)) }}
-              </div>
+              <x-profile-avatar :user="$user" :employee="$employee" size="lg" />
             </div>
             <div class="profile-info">
               <h3 class="profile-name">{{ $user->name }}</h3>

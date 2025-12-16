@@ -551,8 +551,93 @@
     </div>
   </div>
 
+  <!-- Calendar Section - Full Width -->
+  <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); margin-bottom: 16px;">
+      <!-- Calendar Header -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 3px solid #3b82f6;">
+        <!-- Left: Navigation and Today -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button onclick="changeMonth(-1)" style="width: 36px; height: 36px; border-radius: 6px; background: #3b82f6; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">‹</button>
+          <button onclick="changeMonth(1)" style="width: 36px; height: 36px; border-radius: 6px; background: #3b82f6; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">›</button>
+          <button onclick="goToToday()" style="padding: 8px 16px; border-radius: 6px; background: white; color: #374151; border: 1px solid #d1d5db; cursor: pointer; font-size: 13px; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; transition: all 0.2s; margin-left: 8px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">Today</button>
+        </div>
+        
+        <!-- Center: Month Year -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span id="currentMonth" style="font-size: 22px; font-weight: 700; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-transform: uppercase;">{{ now()->format('F') }}</span>
+          <span id="currentYear" style="font-size: 22px; font-weight: 700; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">{{ now()->format('Y') }}</span>
+        </div>
+        
+        <!-- Right: Month View Label -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="padding: 8px 20px; background: #3b82f6; color: white; border-radius: 6px; font-size: 13px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Month View</span>
+        </div>
+      </div>
+      
+      <!-- Calendar Title -->
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+        <div style="width: 4px; height: 20px; background: #3b82f6; border-radius: 2px;"></div>
+        <h3 style="font-size: 15px; font-weight: 600; color: #1f2937; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Calendar</h3>
+      </div>
+
+      <!-- Calendar Table -->
+      <table id="calendarTable" style="width: 100%; table-layout: fixed; border-collapse: collapse; margin-bottom: 20px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
+        <thead>
+          <tr style="background: #f9fafb;">
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #ef4444; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Sun</th>
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Mon</th>
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Tue</th>
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Wed</th>
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Thu</th>
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Fri</th>
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Sat</th>
+          </tr>
+        </thead>
+        <tbody id="calendarBody">
+          <!-- Calendar will be rendered by JavaScript -->
+        </tbody>
+      </table>
+
+      <!-- Legend - Bottom of Calendar -->
+      <div style="background: #f9fafb; padding: 16px 20px; border-radius: 8px; margin-top: 10px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: flex-start;">
+          
+          <!-- Pending - Yellow/Amber -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; background: #f59e0b; border-radius: 50%; box-shadow: 0 2px 4px rgba(245,158,11,0.3);"></div>
+            <span style="font-size: 13px; color: #374151; font-weight: 500;">Pending</span>
+          </div>
+          
+          <!-- Approve - Green -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; background: #22c55e; border-radius: 50%; box-shadow: 0 2px 4px rgba(34,197,94,0.3);"></div>
+            <span style="font-size: 13px; color: #374151; font-weight: 500;">Approve</span>
+          </div>
+          
+          <!-- Reject - Red -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; background: #ef4444; border-radius: 50%; box-shadow: 0 2px 4px rgba(239,68,68,0.3);"></div>
+            <span style="font-size: 13px; color: #374151; font-weight: 500;">Reject</span>
+          </div>
+          
+          <!-- Birthday - Teal -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; background: #14b8a6; border-radius: 50%; box-shadow: 0 2px 4px rgba(20,184,166,0.3);"></div>
+            <span style="font-size: 13px; color: #374151; font-weight: 500;">Birthday</span>
+          </div>
+          
+          <!-- Work Anniversary - Orange -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; background: #f97316; border-radius: 50%; box-shadow: 0 2px 4px rgba(249,115,22,0.3);"></div>
+            <span style="font-size: 13px; color: #374151; font-weight: 500;">Work Anniversary</span>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+
   <!-- Notes Section -->
-  <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); margin-bottom: 16px;">
+  <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); margin-bottom: 40px;">
     <!-- Tabs - Left Aligned -->
     <div style="display: flex; background: #414141; border-radius: 16px 16px 0 0; justify-content: flex-start;">
       <button onclick="switchTab('notes')" id="notesTab" style="padding: 14px 28px; font-size: 13px; font-weight: 700; color: white; cursor: pointer; border: none; background: transparent; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; transition: all 0.2s;">
@@ -709,91 +794,6 @@
 
     </div>
   </div>
-
-  <!-- Calendar Section - Full Width -->
-  <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); margin-bottom: 40px;">
-      <!-- Calendar Header -->
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 3px solid #3b82f6;">
-        <!-- Left: Navigation and Today -->
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <button onclick="changeMonth(-1)" style="width: 36px; height: 36px; border-radius: 6px; background: #3b82f6; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">‹</button>
-          <button onclick="changeMonth(1)" style="width: 36px; height: 36px; border-radius: 6px; background: #3b82f6; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">›</button>
-          <button onclick="goToToday()" style="padding: 8px 16px; border-radius: 6px; background: white; color: #374151; border: 1px solid #d1d5db; cursor: pointer; font-size: 13px; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; transition: all 0.2s; margin-left: 8px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">Today</button>
-        </div>
-        
-        <!-- Center: Month Year -->
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span id="currentMonth" style="font-size: 22px; font-weight: 700; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-transform: uppercase;">{{ now()->format('F') }}</span>
-          <span id="currentYear" style="font-size: 22px; font-weight: 700; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">{{ now()->format('Y') }}</span>
-        </div>
-        
-        <!-- Right: Month View Label -->
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="padding: 8px 20px; background: #3b82f6; color: white; border-radius: 6px; font-size: 13px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Month View</span>
-        </div>
-      </div>
-      
-      <!-- Calendar Title -->
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
-        <div style="width: 4px; height: 20px; background: #3b82f6; border-radius: 2px;"></div>
-        <h3 style="font-size: 15px; font-weight: 600; color: #1f2937; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Calendar</h3>
-      </div>
-
-      <!-- Calendar Table -->
-      <table id="calendarTable" style="width: 100%; table-layout: fixed; border-collapse: collapse; margin-bottom: 20px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
-        <thead>
-          <tr style="background: #f9fafb;">
-            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #ef4444; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Sun</th>
-            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Mon</th>
-            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Tue</th>
-            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Wed</th>
-            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Thu</th>
-            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Fri</th>
-            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Sat</th>
-          </tr>
-        </thead>
-        <tbody id="calendarBody">
-          <!-- Calendar will be rendered by JavaScript -->
-        </tbody>
-      </table>
-
-      <!-- Legend - Bottom of Calendar -->
-      <div style="background: #f9fafb; padding: 16px 20px; border-radius: 8px; margin-top: 10px;">
-        <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: flex-start;">
-          
-          <!-- Pending - Yellow/Amber -->
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 14px; height: 14px; background: #f59e0b; border-radius: 50%; box-shadow: 0 2px 4px rgba(245,158,11,0.3);"></div>
-            <span style="font-size: 13px; color: #374151; font-weight: 500;">Pending</span>
-          </div>
-          
-          <!-- Approve - Green -->
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 14px; height: 14px; background: #22c55e; border-radius: 50%; box-shadow: 0 2px 4px rgba(34,197,94,0.3);"></div>
-            <span style="font-size: 13px; color: #374151; font-weight: 500;">Approve</span>
-          </div>
-          
-          <!-- Reject - Red -->
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 14px; height: 14px; background: #ef4444; border-radius: 50%; box-shadow: 0 2px 4px rgba(239,68,68,0.3);"></div>
-            <span style="font-size: 13px; color: #374151; font-weight: 500;">Reject</span>
-          </div>
-          
-          <!-- Birthday - Teal -->
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 14px; height: 14px; background: #14b8a6; border-radius: 50%; box-shadow: 0 2px 4px rgba(20,184,166,0.3);"></div>
-            <span style="font-size: 13px; color: #374151; font-weight: 500;">Birthday</span>
-          </div>
-          
-          <!-- Work Anniversary - Orange -->
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 14px; height: 14px; background: #f97316; border-radius: 50%; box-shadow: 0 2px 4px rgba(249,115,22,0.3);"></div>
-            <span style="font-size: 13px; color: #374151; font-weight: 500;">Work Anniversary</span>
-          </div>
-          
-        </div>
-      </div>
-    </div>
     
     <!-- Spacer for footer -->
     <div style="height: 60px;"></div>

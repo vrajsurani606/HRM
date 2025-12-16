@@ -71,7 +71,7 @@
         </div>
         <div>
           <label class="hrp-label">Mobile No :</label>
-          <input type="text" class="Rectangle-29" name="mobile_no" value="{{ old('mobile_no', $proforma->mobile_no) }}" placeholder="Enter Mobile No.">
+          <input type="text" class="Rectangle-29 allow-country-code" name="mobile_no" value="{{ old('mobile_no', $proforma->mobile_no) }}" placeholder="e.g., +919876543210">
         </div>
       </div>
   </div>

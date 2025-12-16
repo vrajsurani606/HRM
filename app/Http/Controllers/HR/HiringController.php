@@ -21,11 +21,21 @@ class HiringController extends Controller
         
         $query = HiringLead::query();
 
-        // Exclude converted leads (only show active leads)
-        $query->where(function($q) {
-            $q->whereNull('status')
-              ->orWhere('status', '!=', 'converted');
-        });
+        // Apply status filter - default shows all except converted
+        $statusFilter = $request->get('status', 'all_active');
+        if ($statusFilter === 'all_active') {
+            // Show all except converted
+            $query->where(function($q) {
+                $q->whereNull('status')
+                  ->orWhere('status', '!=', 'converted');
+            });
+        } elseif ($statusFilter === 'all') {
+            // Show all including converted
+        } elseif ($statusFilter === 'converted') {
+            $query->where('status', 'converted');
+        } elseif ($statusFilter) {
+            $query->where('status', $statusFilter);
+        }
 
         // Apply date filters if they exist
         if ($request->filled('from_date')) {
@@ -483,6 +493,103 @@ class HiringController extends Controller
             'Content-Disposition' => 'inline; filename="'.basename($absolutePath).'"',
             'X-Content-Type-Options' => 'nosniff',
         ]);
+    }
+
+    /**
+     * Accept a hiring lead - creates offer letter
+     */
+    public function accept(Request $request, $id)
+    {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.edit lead'))) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+
+        $lead = HiringLead::findOrFail($id);
+        
+        $lead->update([
+            'status' => HiringLead::STATUS_ACCEPTED,
+            'status_changed_at' => now(),
+            'status_changed_by' => auth()->id(),
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Lead accepted successfully! Redirecting to offer letter...',
+                'redirect' => route('hiring.offer.create', $lead->id)
+            ]);
+        }
+
+        return redirect()->route('hiring.offer.create', $lead->id)
+            ->with('success', 'Lead accepted! Please create offer letter.');
+    }
+
+    /**
+     * Reject a hiring lead with reason
+     */
+    public function reject(Request $request, $id)
+    {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.edit lead'))) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+
+        $data = $request->validate([
+            'reject_reason' => 'required|string|max:1000',
+        ]);
+
+        $lead = HiringLead::findOrFail($id);
+        
+        $lead->update([
+            'status' => HiringLead::STATUS_REJECTED,
+            'reject_reason' => $data['reject_reason'],
+            'status_changed_at' => now(),
+            'status_changed_by' => auth()->id(),
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Lead rejected successfully!'
+            ]);
+        }
+
+        return redirect()->route('hiring.index')->with('success', 'Lead rejected.');
+    }
+
+    /**
+     * Put a hiring lead on hold
+     */
+    public function hold(Request $request, $id)
+    {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leads Management.edit lead'))) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+
+        $lead = HiringLead::findOrFail($id);
+        
+        $lead->update([
+            'status' => HiringLead::STATUS_HOLD,
+            'status_changed_at' => now(),
+            'status_changed_by' => auth()->id(),
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Lead put on hold successfully!'
+            ]);
+        }
+
+        return redirect()->route('hiring.index')->with('success', 'Lead put on hold.');
     }
     
 }

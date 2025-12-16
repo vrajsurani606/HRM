@@ -301,7 +301,7 @@ become more streamlined, integrated, and scalable.
                         </div> <br>
                         
                         <div style="font-size: 24px;">Sincerely,</div> <br>
-                        <div style="font-size: 18px; margin-bottom: 10px; font-weight: 600;">MR. CHINTAN KACHHADIYA</div>
+                        <div style="font-size: 18px; margin-bottom: 10px; font-weight: 600;">Mr. CHINTAN KACHHADIYA</div>
                         <div style="font-size: 18px; margin-bottom: 10px; font-weight: 600;">CHITRI ENLARGE SOFT IT HUB PVT LTD (CEIHPL)</div>
                         <div style="font-size: 18px; font-weight: 600;">(+91) 72763 23999</div>
                     </td>

@@ -9,7 +9,7 @@ class Company extends Model
 {
     protected $fillable = [
         'unique_code', 'company_name', 'gst_no', 'pan_no', 'company_address',
-        'state', 'city', 'contact_person_name', 'contact_person_mobile',
+        'state', 'state_other', 'city', 'city_other', 'contact_person_name', 'contact_person_mobile',
         'contact_person_position', 'company_email', 'company_phone', 
         'company_type', 'other_details', 'company_logo', 'scope_link',
         'sop_upload', 'quotation_upload', 'person_name_1', 'person_number_1',

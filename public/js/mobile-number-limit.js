@@ -1,6 +1,7 @@
 /**
  * Mobile Number 10-Digit Limit Enforcer
  * Automatically applies 10-digit limit to all mobile/phone number fields
+ * Allows +91 country code prefix for proforma/quotation forms
  */
 
 (function() {
@@ -10,6 +11,11 @@
     function enforceMobileLimit(input) {
         // Skip if already has maxlength set
         if (input.hasAttribute('maxlength') && parseInt(input.getAttribute('maxlength')) === 10) {
+            return;
+        }
+        
+        // Skip if input has 'allow-country-code' class (for proforma/quotation forms)
+        if (input.classList.contains('allow-country-code')) {
             return;
         }
         
@@ -68,9 +74,10 @@
         const inputs = document.querySelectorAll(selectors.join(', '));
         
         inputs.forEach(input => {
-            // Skip if it's a country code selector or already processed
+            // Skip if it's a country code selector, already processed, or allows country code
             if (input.classList.contains('country-code-select') || 
-                input.classList.contains('mobile-limit-processed')) {
+                input.classList.contains('mobile-limit-processed') ||
+                input.classList.contains('allow-country-code')) {
                 return;
             }
             

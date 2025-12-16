@@ -5,6 +5,15 @@
 <div class="hrp-card">
   <div class="hrp-card-body">
     <form id="filterForm" method="GET" action="{{ route('hiring.index') }}" class="jv-filter">
+      <select name="status" class="filter-pill" onchange="this.form.submit()">
+        <option value="all_active" {{ request('status', 'all_active') == 'all_active' ? 'selected' : '' }}>All Active</option>
+        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+        <option value="accepted" {{ request('status') == 'accepted' ? 'selected' : '' }}>Accepted</option>
+        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+        <option value="hold" {{ request('status') == 'hold' ? 'selected' : '' }}>On Hold</option>
+        <option value="converted" {{ request('status') == 'converted' ? 'selected' : '' }}>Converted</option>
+        <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Records</option>
+      </select>
       <input type="text" name="from_date" class="filter-pill date-picker" placeholder="From : dd/mm/yyyy" value="{{ request('from_date') }}" autocomplete="off">
       <input type="text" name="to_date" class="filter-pill date-picker" placeholder="To : dd/mm/yyyy" value="{{ request('to_date') }}" autocomplete="off">
       <select name="gender" class="filter-pill">
@@ -69,6 +78,8 @@
             </div>
           </div>
           <div class="hiring-chips">
+            @php($leadStatus = $lead->status ?? 'pending')
+            <span class="chip chip-status-{{ $leadStatus }}">{{ ucfirst($leadStatus) }}</span>
             <span class="chip chip-{{ $lead->is_experience ? 'exp' : 'fresh' }}">{{ $lead->is_experience ? (($lead->experience_count ?? 0).' yrs') : 'Fresher' }}</span>
             <span class="chip chip-gender">{{ ucfirst($lead->gender ?? '-') }}</span>
           </div>
@@ -82,34 +93,51 @@
           </div>
           <div class="hiring-grid-actions" onclick="event.stopPropagation()">
             @can('Leads Management.edit lead')
-              <a href="{{ route('hiring.edit', $lead) }}" class="hiring-grid-action-btn btn-edit" title="Edit" aria-label="Edit">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              {{-- Approve - show for pending/hold/rejected (not converted/accepted) --}}
+              @if(!in_array($leadStatus, ['converted', 'accepted']))
+                <img src="{{ asset('action_icon/approve.svg') }}" alt="Approve" class="action-icon-btn" onclick="acceptLead({{ $lead->id }}, '{{ addslashes($lead->person_name) }}')" title="Approve">
+              @endif
+              {{-- Reject - show for pending/hold/accepted (not converted/rejected) --}}
+              @if(!in_array($leadStatus, ['converted', 'rejected']))
+                <img src="{{ asset('action_icon/reject.svg') }}" alt="Reject" class="action-icon-btn" onclick="rejectLead({{ $lead->id }}, '{{ addslashes($lead->person_name) }}')" title="Reject">
+              @endif
+              {{-- Hold - show for pending/accepted/rejected (not converted/hold) --}}
+              @if(!in_array($leadStatus, ['converted', 'hold']))
+                <img src="{{ asset('action_icon/hold.svg') }}" alt="Hold" class="action-icon-btn" onclick="holdLead({{ $lead->id }}, '{{ addslashes($lead->person_name) }}')" title="Hold" onerror="this.style.display='none'">
+              @endif
+              {{-- Edit - always show --}}
+              <a href="{{ route('hiring.edit', $lead) }}" title="Edit" aria-label="Edit">
+                <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon-btn">
               </a>
             @endcan
-            @can('Leads Management.print lead')
-              <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']) }}" target="_blank" class="hiring-grid-action-btn btn-print" title="Print Offer Letter" aria-label="Print Offer Letter">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-              </a>
-            @endcan
+            {{-- Delete - always show --}}
             @can('Leads Management.delete lead')
               <form method="POST" action="{{ route('hiring.destroy', $lead) }}" class="delete-form" style="display:inline">
                 @csrf @method('DELETE')
-                <button type="button" class="hiring-grid-action-btn btn-delete" onclick="confirmDeleteLead(this); event.stopPropagation();" title="Delete" aria-label="Delete">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                <button type="button" onclick="confirmDeleteLead(this); event.stopPropagation();" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;cursor:pointer;">
+                  <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon-btn">
                 </button>
               </form>
             @endcan
-            @can('Leads Management.convert lead')
-              <a href="{{ route('hiring.convert', $lead->id) }}" 
-                 class="hiring-grid-action-btn btn-convert convert-btn" 
-                 data-id="{{ $lead->id }}"
-                 data-url="{{ route('hiring.convert', $lead->id) }}"
-                 data-name="{{ $lead->person_name }}"
-                 title="Convert to Employee" 
-                 aria-label="Convert to Employee">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,11 12,14 15,11"></polyline><line x1="12" y1="2" x2="12" y2="14"></line></svg>
-              </a>
-            @endcan
+            {{-- Convert & Print - only for accepted status --}}
+            @if($leadStatus === 'accepted')
+              @can('Leads Management.convert lead')
+                <a href="javascript:void(0)" 
+                   class="convert-btn" 
+                   data-no-loader
+                   data-id="{{ $lead->id }}"
+                   data-url="{{ route('hiring.convert', $lead->id) }}"
+                   data-name="{{ $lead->person_name }}"
+                   title="Convert to Employee">
+                  <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert" class="action-icon-btn">
+                </a>
+              @endcan
+              @can('Leads Management.print lead')
+                <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']) }}" target="_blank" title="Print Offer Letter">
+                  <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon-btn">
+                </a>
+              @endcan
+            @endif
           </div>
         </div>
       </div>
@@ -128,6 +156,7 @@
         <thead>
           <tr>
             <th>Action</th>
+            <th>Status</th>
             <th>Sr.</th>
             <th>Code</th>
             <th>Name</th>
@@ -140,19 +169,29 @@
         </thead>
         <tbody>
           @forelse($leads as $i => $lead)
+          @php($leadStatus = $lead->status ?? 'pending')
           <tr>
             <td>
               <div class="action-icons">
                 @can('Leads Management.edit lead')
+                  {{-- Approve - show for pending/hold/rejected (not converted/accepted) --}}
+                  @if(!in_array($leadStatus, ['converted', 'accepted']))
+                    <img src="{{ asset('action_icon/approve.svg') }}" alt="Approve" class="action-icon" style="cursor:pointer;" onclick="acceptLead({{ $lead->id }}, '{{ addslashes($lead->person_name) }}')" title="Approve">
+                  @endif
+                  {{-- Reject - show for pending/hold/accepted (not converted/rejected) --}}
+                  @if(!in_array($leadStatus, ['converted', 'rejected']))
+                    <img src="{{ asset('action_icon/reject.svg') }}" alt="Reject" class="action-icon" style="cursor:pointer;" onclick="rejectLead({{ $lead->id }}, '{{ addslashes($lead->person_name) }}')" title="Reject">
+                  @endif
+                  {{-- Hold - show for pending/accepted/rejected (not converted/hold) --}}
+                  @if(!in_array($leadStatus, ['converted', 'hold']))
+                    <img src="{{ asset('action_icon/hold.svg') }}" alt="Hold" class="action-icon" style="cursor:pointer;" onclick="holdLead({{ $lead->id }}, '{{ addslashes($lead->person_name) }}')" title="Hold" onerror="this.style.display='none'">
+                  @endif
+                  {{-- Edit - always show --}}
                   <a href="{{ route('hiring.edit', $lead) }}" title="Edit" aria-label="Edit">
                     <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon">
                   </a>
                 @endcan
-                @can('Leads Management.print lead')
-                  <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']) }}" title="Print Offer Letter" target="_blank" aria-label="Print Offer Letter">
-                    <img src="{{ asset('action_icon/print.svg') }}" alt="Print Offer Letter" class="action-icon">
-                  </a>
-                @endcan
+                {{-- Delete - always show --}}
                 @can('Leads Management.delete lead')
                   <form method="POST" action="{{ route('hiring.destroy', $lead) }}" class="delete-form" style="display:inline">
                     @csrf @method('DELETE')
@@ -161,17 +200,36 @@
                     </button>
                   </form>
                 @endcan
-                @can('Leads Management.convert lead')
-                  <a href="{{ route('hiring.convert', $lead->id) }}"
-                        class="convert-btn"
-                        data-id="{{ $lead->id }}"
-                        data-url="{{ route('hiring.convert', $lead->id) }}"
-                        data-name="{{ $lead->person_name }}"
-                        title="Convert to Employee">
-                          <img src="{{ asset('action_icon/convert.svg') }}" class="action-icon">
+                {{-- Convert & Print - only for accepted status --}}
+                @if($leadStatus === 'accepted')
+                  @can('Leads Management.convert lead')
+                    <a href="javascript:void(0)"
+                          class="convert-btn"
+                          data-no-loader
+                          data-id="{{ $lead->id }}"
+                          data-url="{{ route('hiring.convert', $lead->id) }}"
+                          data-name="{{ $lead->person_name }}"
+                          title="Convert to Employee">
+                            <img src="{{ asset('action_icon/convert.svg') }}" class="action-icon">
+                      </a>
+                  @endcan
+                  @can('Leads Management.print lead')
+                    <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']) }}" title="Print Offer Letter" target="_blank" aria-label="Print Offer Letter">
+                      <img src="{{ asset('action_icon/print.svg') }}" alt="Print Offer Letter" class="action-icon">
                     </a>
-                @endcan
+                  @endcan
+                @endif
               </div>
+            </td>
+            <td>
+              <span class="status-badge status-{{ $leadStatus }}">
+                {{ ucfirst($leadStatus) }}
+              </span>
+              @if($leadStatus === 'rejected' && $lead->reject_reason)
+                <button type="button" class="reason-tooltip" onclick="showRejectReason('{{ addslashes($lead->reject_reason) }}')" title="View Reason">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                </button>
+              @endif
             </td>
             <td>{{ ($leads->currentPage()-1) * $leads->perPage() + $i + 1 }}</td>
             <td><span style="font-weight:600;color:#3b82f6;">{{ $lead->unique_code }}</span></td>
@@ -204,7 +262,7 @@
           </tr>
           @empty
             <x-empty-state 
-                colspan="9" 
+                colspan="10" 
                 title="No hiring records found" 
                 message="Try adjusting your filters or create a new hiring record"
             />
@@ -219,6 +277,9 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+  const csrf = '{{ csrf_token() }}';
+  const baseUrl = '{{ url('/') }}';
+
   // SweetAlert delete confirmation for hiring leads
   function confirmDeleteLead(button) {
     Swal.fire({
@@ -242,111 +303,263 @@
     });
   }
 
+  // Accept Lead
+  function acceptLead(leadId, name) {
+    Swal.fire({
+      title: `Accept ${name}?`,
+      text: "This will mark the lead as accepted and redirect to create offer letter.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, Accept!',
+      cancelButtonText: 'Cancel',
+      width: '400px',
+      customClass: { popup: 'perfect-swal-popup' }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch(`${baseUrl}/hiring/${leadId}/accept`, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': csrf,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire('Accepted!', data.message, 'success').then(() => {
+              if (data.redirect) {
+                window.location.href = data.redirect;
+              } else {
+                location.reload();
+              }
+            });
+          } else {
+            Swal.fire('Error!', data.message, 'error');
+          }
+        })
+        .catch(() => Swal.fire('Error!', 'Something went wrong', 'error'));
+      }
+    });
+  }
+
+  // Reject Lead with reason
+  function rejectLead(leadId, name) {
+    Swal.fire({
+      title: `Reject ${name}?`,
+      html: `
+        <div style="text-align: left; margin: 20px 0;">
+          <label class="hrp-label">Rejection Reason:</label>
+          <textarea id="reject-reason" class="hrp-input Rectangle-29" rows="4" 
+                    placeholder="Enter reason for rejection (required for HR records)" 
+                    style="color: #000; resize: vertical;"></textarea>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Reject',
+      cancelButtonText: 'Cancel',
+      width: '450px',
+      customClass: { popup: 'perfect-swal-popup' },
+      preConfirm: () => {
+        const reason = document.getElementById('reject-reason').value.trim();
+        if (!reason) {
+          Swal.showValidationMessage('Please enter rejection reason');
+          return false;
+        }
+        return { reject_reason: reason };
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const formData = new FormData();
+        formData.append('reject_reason', result.value.reject_reason);
+        formData.append('_token', csrf);
+
+        fetch(`${baseUrl}/hiring/${leadId}/reject`, {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+          },
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire('Rejected!', data.message, 'success').then(() => location.reload());
+          } else {
+            Swal.fire('Error!', data.message, 'error');
+          }
+        })
+        .catch(() => Swal.fire('Error!', 'Something went wrong', 'error'));
+      }
+    });
+  }
+
+  // Hold Lead
+  function holdLead(leadId, name) {
+    Swal.fire({
+      title: `Put ${name} on Hold?`,
+      text: "This lead will be marked as on hold.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#f59e0b',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, Hold!',
+      cancelButtonText: 'Cancel',
+      width: '400px',
+      customClass: { popup: 'perfect-swal-popup' }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch(`${baseUrl}/hiring/${leadId}/hold`, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': csrf,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire('On Hold!', data.message, 'success').then(() => location.reload());
+          } else {
+            Swal.fire('Error!', data.message, 'error');
+          }
+        })
+        .catch(() => Swal.fire('Error!', 'Something went wrong', 'error'));
+      }
+    });
+  }
+
+  // Show reject reason popup
+  function showRejectReason(reason) {
+    Swal.fire({
+      title: 'Rejection Reason',
+      text: reason,
+      icon: 'info',
+      confirmButtonColor: '#3b82f6',
+      width: '400px',
+      customClass: { popup: 'perfect-swal-popup' }
+    });
+  }
+
 document.addEventListener('DOMContentLoaded', function() {
-    const csrf = '{{ csrf_token() }}';
 
     document.querySelectorAll('.convert-btn').forEach(function(btn) {
 
         btn.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
+            
+            // Hide global page loader if it was triggered
+            if (window.hidePageLoader) {
+                window.hidePageLoader();
+            }
 
             const leadId = this.dataset.id;
             const name = this.dataset.name || 'this lead';
-            const routeUrl = this.dataset.url; // <-- Laravel route('hiring.convert', id)
+            const routeUrl = this.dataset.url;
 
-            // Load form data (GET request)
-            fetch(routeUrl, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
+            // Show popup immediately without waiting for fetch
+            Swal.fire({
+                title: `Convert ${name} to Employee`,
+                html: `
+                    <div style="text-align: left; margin: 20px 0;">
+                        <label class="hrp-label">Email:</label>
+                        <input type="email" id="convert-email" class="hrp-input Rectangle-29"
+                               placeholder="Enter email" style="margin-bottom: 15px; color: #000;">
 
-                Swal.fire({
-                    title: `Convert ${name} to Employee`,
-                    html: `
-                        <div style="text-align: left; margin: 20px 0;">
-                            <label class="hrp-label">Email:</label>
-                            <input type="email" id="convert-email" class="hrp-input Rectangle-29"
-                                   value="${data.suggested_email || ''}"
-                                   placeholder="Enter email" style="margin-bottom: 15px; color: #000;">
-
-                            <label class="hrp-label">Password:</label>
-                            <div class="password-wrapper">
-                                <input type="password" id="convert-password" class="hrp-input Rectangle-29"
-                                       placeholder="Enter password" style="color: #000;">
-                            </div>
+                        <label class="hrp-label">Password:</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="convert-password" class="hrp-input Rectangle-29"
+                                   placeholder="Enter password" style="color: #000;">
                         </div>
-                    `,
-                    showCancelButton: true,
-                    confirmButtonColor: '#10b981',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Convert & Create Login',
-                    cancelButtonText: 'Cancel',
-                    width: '450px',
-                    customClass: { popup: 'perfect-swal-popup' },
-                    preConfirm: () => {
-                        const email = document.getElementById('convert-email').value.trim();
-                        const password = document.getElementById('convert-password').value.trim();
-
-                        if (!email || !password) {
-                            Swal.showValidationMessage('Please fill all fields');
-                            return false;
-                        }
-
-                        if (password.length < 6) {
-                            Swal.showValidationMessage('Password must be at least 6 characters');
-                            return false;
-                        }
-
-                        return { email, password };
-                    }
-                })
-                .then(result => {
-                    if (!result.isConfirmed) return;
-
-                    // Submit conversion (POST request)
-                    const formData = new FormData();
-                    formData.append('email', result.value.email);
-                    formData.append('password', result.value.password);
-                    formData.append('_token', csrf);
-                    
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Convert & Create Login',
+                cancelButtonText: 'Cancel',
+                width: '450px',
+                customClass: { popup: 'perfect-swal-popup' },
+                didOpen: () => {
+                    // Fetch suggested email in background after popup opens
                     fetch(routeUrl, {
-                        method: 'POST',
+                        method: 'GET',
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json'
-                        },
-                        body: formData
-                    })
-                    .then(res => {
-                        if (!res.ok) {
-                            return res.text().then(text => {
-                                throw new Error(`HTTP ${res.status}: ${text}`);
-                            });
                         }
-                        return res.json();
                     })
+                    .then(res => res.json())
                     .then(data => {
-                        if (data.success) {
-                            Swal.fire('Success!', data.message, 'success')
-                                .then(() => location.reload());
-                        } else {
-                            Swal.fire('Error!', data.message || 'Conversion failed', 'error');
+                        const emailInput = document.getElementById('convert-email');
+                        if (emailInput && data.suggested_email && !emailInput.value) {
+                            emailInput.value = data.suggested_email;
                         }
                     })
-                    .catch(error => {
-                        console.error('Conversion error:', error);
-                        Swal.fire('Error!', error.message || 'Something went wrong', 'error');
-                    });
-                });
+                    .catch(() => {});
+                },
+                preConfirm: () => {
+                    const email = document.getElementById('convert-email').value.trim();
+                    const password = document.getElementById('convert-password').value.trim();
 
+                    if (!email || !password) {
+                        Swal.showValidationMessage('Please fill all fields');
+                        return false;
+                    }
+
+                    if (password.length < 6) {
+                        Swal.showValidationMessage('Password must be at least 6 characters');
+                        return false;
+                    }
+
+                    return { email, password };
+                }
             })
-            .catch(() => {
-                Swal.fire('Error!', 'Failed to load conversion form', 'error');
+            .then(result => {
+                if (!result.isConfirmed) return;
+
+                // Submit conversion (POST request)
+                const formData = new FormData();
+                formData.append('email', result.value.email);
+                formData.append('password', result.value.password);
+                formData.append('_token', csrf);
+                
+                fetch(routeUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(res => {
+                    if (!res.ok) {
+                        return res.text().then(text => {
+                            throw new Error(`HTTP ${res.status}: ${text}`);
+                        });
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Success!', data.message, 'success')
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire('Error!', data.message || 'Conversion failed', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Conversion error:', error);
+                    Swal.fire('Error!', error.message || 'Something went wrong', 'error');
+                });
             });
         });
 
@@ -444,6 +657,63 @@ document.addEventListener('DOMContentLoaded', function() {
   .hiring-grid-action-btn.btn-convert svg { color:#10b981; }
   .hiring-grid-action-btn.btn-convert:hover { background:#10b981; }
   .hiring-grid-action-btn.btn-convert:hover svg { color:#fff; }
+
+  /* Accept/Reject/Hold buttons */
+  .hiring-grid-action-btn.btn-accept { border-color:#10b981; background:#ecfdf5; }
+  .hiring-grid-action-btn.btn-accept svg { color:#10b981; }
+  .hiring-grid-action-btn.btn-accept:hover { background:#10b981; }
+  .hiring-grid-action-btn.btn-accept:hover svg { color:#fff; }
+  
+  .hiring-grid-action-btn.btn-reject { border-color:#ef4444; background:#fef2f2; }
+  .hiring-grid-action-btn.btn-reject svg { color:#ef4444; }
+  .hiring-grid-action-btn.btn-reject:hover { background:#ef4444; }
+  .hiring-grid-action-btn.btn-reject:hover svg { color:#fff; }
+  
+  .hiring-grid-action-btn.btn-hold { border-color:#f59e0b; background:#fffbeb; }
+  .hiring-grid-action-btn.btn-hold svg { color:#f59e0b; }
+  .hiring-grid-action-btn.btn-hold:hover { background:#f59e0b; }
+  .hiring-grid-action-btn.btn-hold:hover svg { color:#fff; }
+
+  /* Status chips for grid */
+  .chip-status-pending { background:#fef3c7; border-color:#fcd34d; color:#92400e; }
+  .chip-status-accepted { background:#dcfce7; border-color:#86efac; color:#166534; }
+  .chip-status-rejected { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
+  .chip-status-hold { background:#fef3c7; border-color:#fcd34d; color:#92400e; }
+  .chip-status-converted { background:#dbeafe; border-color:#93c5fd; color:#1e40af; }
+
+  /* Status badges for list */
+  .status-badge { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:600; }
+  .status-pending { background:#fef3c7; color:#92400e; }
+  .status-accepted { background:#dcfce7; color:#166534; }
+  .status-rejected { background:#fee2e2; color:#991b1b; }
+  .status-hold { background:#fef3c7; color:#92400e; }
+  .status-converted { background:#dbeafe; color:#1e40af; }
+
+  /* Small action buttons for list view */
+  .action-btn-small { padding:4px; border:1px solid #e5e7eb; background:#fff; border-radius:4px; cursor:pointer; transition:all .2s; display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; }
+  .btn-accept-small { border-color:#10b981; background:#ecfdf5; }
+  .btn-accept-small svg { color:#10b981; }
+  .btn-accept-small:hover { background:#10b981; }
+  .btn-accept-small:hover svg { color:#fff; }
+  .btn-reject-small { border-color:#ef4444; background:#fef2f2; }
+  .btn-reject-small svg { color:#ef4444; }
+  .btn-reject-small:hover { background:#ef4444; }
+  .btn-reject-small:hover svg { color:#fff; }
+  .btn-hold-small { border-color:#f59e0b; background:#fffbeb; }
+  .btn-hold-small svg { color:#f59e0b; }
+  .btn-hold-small:hover { background:#f59e0b; }
+  .btn-hold-small:hover svg { color:#fff; }
+
+  /* Reason tooltip button */
+  .reason-tooltip { background:transparent; border:none; cursor:pointer; padding:2px; margin-left:4px; vertical-align:middle; }
+  .reason-tooltip svg { color:#6b7280; }
+  .reason-tooltip:hover svg { color:#3b82f6; }
+
+  /* Action icon buttons (like leave approval) */
+  .action-icon-btn { width:20px; height:20px; cursor:pointer; transition:transform .2s, opacity .2s; }
+  .action-icon-btn:hover { transform:scale(1.1); opacity:0.8; }
+  .hiring-grid-actions { display:flex; gap:10px; align-items:center; }
+  .hiring-grid-actions a { display:inline-flex; }
 
   /* Fix orphaned CSS line and ensure swal styles remain intact */
   /* List table alignments */

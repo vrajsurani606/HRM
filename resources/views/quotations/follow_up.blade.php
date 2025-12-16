@@ -141,7 +141,7 @@
       <label class="hrp-label">Next Follow Up Date:</label>
       <input 
         type="text" 
-        class="hrp-input Rectangle-29 date-picker" 
+        class="hrp-input Rectangle-29 followup-date-picker" 
         name="next_followup_date" 
         placeholder="dd/mm/yyyy" 
         value="{{ old('next_followup_date') }}" 
@@ -191,12 +191,14 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function() {
-    // Initialize date picker with dd/mm/yyyy format (same as quotation create)
-    $('.date-picker').datepicker({
+    // Initialize follow-up date picker with dd/mm/yyyy format
+    // minDate: 0 prevents selecting past dates (only today and future dates allowed)
+    $('.followup-date-picker').datepicker({
         dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
         changeMonth: true,
         changeYear: true,
-        yearRange: '-10:+10',
+        yearRange: '0:+10',
+        minDate: 0, // Prevent selecting past dates
         showButtonPanel: true,
         beforeShow: function(input, inst) {
             setTimeout(function() {

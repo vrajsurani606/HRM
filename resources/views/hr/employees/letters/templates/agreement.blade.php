@@ -1,24 +1,22 @@
 <div class="letter-header">
-    <div style="margin-bottom: 15px;"><b>Ref No.:</b> {{ $letter->reference_number }}</div>
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-        <div class="recipient" style="flex: 1;">
-            <div><b>To,</b></div>
-            <div>{{ ($employee->gender == 'Female' || $employee->gender == 'female') ? 'Ms.' : 'Mr.' }} {{ $employee->name }}</div>
-            <div>{{ $employee->designation ?? $employee->position ?? 'Employee' }}</div>
-            @if($employee->address)
-            <div>{{ $employee->address }}</div>
-            @endif
-        </div>
-        <div class="letter-meta" style="text-align: right;">
-            <div><b>Date:</b> {{ \Carbon\Carbon::parse($letter->issue_date)->format('d-m-Y') }}</div>
-        </div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; font-size: 13px;">
+        <div><b>Ref No.:</b> {{ $letter->reference_number }}</div>
+        <div><b>Date:</b> {{ \Carbon\Carbon::parse($letter->issue_date)->format('d-m-Y') }}</div>
+    </div>
+    <div class="recipient" style="margin-bottom: 12px; font-size: 13px;">
+        <div><b>To,</b></div>
+        <div>{{ ($employee->gender == 'Female' || $employee->gender == 'female') ? 'Ms.' : 'Mr.' }} {{ $employee->name }}</div>
+        <div>{{ $employee->designation ?? $employee->position ?? 'Employee' }}</div>
+        @if($employee->address)
+        <div>{{ $employee->address }}</div>
+        @endif
     </div>
 </div>
 
 @if($letter->subject)
-<div class="subject">Subject: {{ $letter->subject }}</div>
+<div class="subject" style="font-size: 13px;">Subject: {{ $letter->subject }}</div>
 @else
-<div class="subject">Subject: Employment Agreement</div>
+<div class="subject" style="font-size: 13px;">Subject: Employment Agreement</div>
 @endif
 
 <div class="body">

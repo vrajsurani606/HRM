@@ -4,6 +4,17 @@
 @section('content')
   <div class="employee-container">
     <form method="GET" action="{{ route('employees.index') }}" class="jv-filter">
+      <select name="status" class="filter-pill" onchange="this.form.submit()">
+        <option value="active" {{ request('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>
+        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+        <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Users</option>
+      </select>
+      <select name="position_group" class="filter-pill" onchange="this.form.submit()">
+        <option value="">All Positions</option>
+        @foreach($positionGroups ?? [] as $groupName => $positions)
+          <option value="{{ $groupName }}" {{ request('position_group') == $groupName ? 'selected' : '' }}>{{ $groupName }}</option>
+        @endforeach
+      </select>
       <input type="text" name="name" class="filter-pill" placeholder="Name" value="{{ request('name') }}">
       <input type="text" name="email" class="filter-pill" placeholder="Email" value="{{ request('email') }}">
       <input type="text" name="code" class="filter-pill" placeholder="Employee Code" value="{{ request('code') }}">
@@ -160,16 +171,7 @@
             <!-- Profile Section -->
             <div class="profile-section">
               <div class="profile-image">
-                @php($initial = strtoupper(mb_substr((string)($emp->name ?? 'U'), 0, 1)))
-                @if(isset($emp->photo_path) && $emp->photo_path)
-                  <img src="{{ storage_asset(''.$emp->photo_path) }}" alt="{{ $emp->name }}">
-                @else
-                  <span style="
-                    width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-                    font-weight:700;font-size:20px;color:#fff;background:linear-gradient(135deg,#3b82f6,#9333ea);">
-                    {{ $initial }}
-                  </span>
-                @endif
+                <x-profile-avatar :employee="$emp" :user="$emp->user" size="lg" />
               </div>
               <div class="profile-info">
                 <h3 class="profile-name">{{ $emp->name }}</h3>

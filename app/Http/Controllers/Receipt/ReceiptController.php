@@ -312,16 +312,15 @@ class ReceiptController extends Controller
             // Generate unique code based on invoice type
             $validated['unique_code'] = $this->generateReceiptCode($validated['invoice_type']);
             
-            $receipt = Receipt::create($validated);
+            // Calculate and store actual partial amounts applied to each invoice
+            $partialAmountsInput = $request->input('partial_amounts', []);
+            $actualPartialAmounts = [];
             
             // Update paid amounts for selected invoices with partial payment support
             if (!empty($validated['invoice_ids']) && $validated['received_amount'] > 0) {
-                $partialAmounts = $request->input('partial_amounts', []);
-                
                 \Log::info('Updating invoice paid amounts with partial payments', [
-                    'receipt_id' => $receipt->id,
                     'invoice_ids' => $validated['invoice_ids'],
-                    'partial_amounts' => $partialAmounts,
+                    'partial_amounts_input' => $partialAmountsInput,
                     'received_amount' => $validated['received_amount']
                 ]);
                 
@@ -333,9 +332,12 @@ class ReceiptController extends Controller
                     $invoiceBalance = $invoice->final_amount - $invoice->paid_amount;
                     
                     // Use partial amount if specified, otherwise use full balance
-                    $paymentForThisInvoice = isset($partialAmounts[$invoiceId]) && $partialAmounts[$invoiceId] > 0
-                        ? min((float)$partialAmounts[$invoiceId], $invoiceBalance)
+                    $paymentForThisInvoice = isset($partialAmountsInput[$invoiceId]) && $partialAmountsInput[$invoiceId] > 0
+                        ? min((float)$partialAmountsInput[$invoiceId], $invoiceBalance)
                         : min($validated['received_amount'], $invoiceBalance);
+                    
+                    // Store the actual amount applied to this invoice
+                    $actualPartialAmounts[$invoiceId] = $paymentForThisInvoice;
                     
                     $invoice->paid_amount = ($invoice->paid_amount ?? 0) + $paymentForThisInvoice;
                     $invoice->save();
@@ -346,10 +348,14 @@ class ReceiptController extends Controller
                         'old_paid' => $oldPaidAmount,
                         'new_paid' => $invoice->paid_amount,
                         'payment_applied' => $paymentForThisInvoice,
-                        'was_partial' => isset($partialAmounts[$invoiceId])
+                        'was_partial' => isset($partialAmountsInput[$invoiceId])
                     ]);
                 }
             }
+            
+            // Store the receipt with actual partial amounts
+            $validated['partial_amounts'] = $actualPartialAmounts;
+            $receipt = Receipt::create($validated);
             
             return redirect()->route('receipts.index')
                 ->with('status', 'Receipt created successfully with ID: ' . $receipt->unique_code);
@@ -408,6 +414,8 @@ class ReceiptController extends Controller
                 'invoice_type' => ['required', 'string', 'in:gst,without_gst'],
                 'invoice_ids' => ['nullable', 'array'],
                 'invoice_ids.*' => ['integer', 'exists:invoices,id'],
+                'partial_amounts' => ['nullable', 'array'],
+                'partial_amounts.*' => ['nullable', 'numeric', 'min:0'],
                 'received_amount' => ['required', 'numeric', 'min:0.01'],
                 'payment_type' => ['nullable', 'string', 'max:255'],
                 'narration' => ['nullable', 'string', 'max:1000'],
@@ -423,73 +431,87 @@ class ReceiptController extends Controller
                 }
             }
             
-            // Get old invoice IDs before update
+            // Get old invoice IDs and partial amounts before update
             $oldInvoiceIds = $receipt->invoice_ids ?? [];
+            $oldPartialAmounts = $receipt->partial_amounts ?? [];
             $newInvoiceIds = $validated['invoice_ids'] ?? [];
             $oldReceivedAmount = $receipt->received_amount;
             $newReceivedAmount = $validated['received_amount'];
+            $partialAmountsInput = $request->input('partial_amounts', []);
             
             \Log::info('Updating receipt', [
                 'receipt_id' => $receipt->id,
                 'old_invoice_ids' => $oldInvoiceIds,
+                'old_partial_amounts' => $oldPartialAmounts,
                 'new_invoice_ids' => $newInvoiceIds,
                 'old_amount' => $oldReceivedAmount,
                 'new_amount' => $newReceivedAmount
             ]);
             
-            // Step 1: Reverse old payments (subtract from invoices that were previously selected)
+            // Step 1: Reverse old payments using stored partial amounts
             if (!empty($oldInvoiceIds) && $oldReceivedAmount > 0) {
-                $oldInvoices = Invoice::whereIn('id', $oldInvoiceIds)->get();
-                $remainingAmount = $oldReceivedAmount;
-                
-                foreach ($oldInvoices as $invoice) {
-                    if ($remainingAmount <= 0) break;
+                foreach ($oldInvoiceIds as $invoiceId) {
+                    $invoice = Invoice::find($invoiceId);
+                    if (!$invoice) continue;
                     
-                    $invoiceBalance = $invoice->final_amount - ($invoice->paid_amount - $oldReceivedAmount);
-                    $paymentToReverse = min($remainingAmount, $oldReceivedAmount);
+                    // Use stored partial amount if available
+                    $paymentToReverse = 0;
+                    if (isset($oldPartialAmounts[$invoiceId])) {
+                        $paymentToReverse = (float) $oldPartialAmounts[$invoiceId];
+                    } else {
+                        // Fallback for old receipts without partial_amounts
+                        $paymentToReverse = $oldReceivedAmount / count($oldInvoiceIds);
+                    }
                     
                     // Subtract the old payment
+                    $oldPaidAmount = $invoice->paid_amount;
                     $invoice->paid_amount = max(0, ($invoice->paid_amount ?? 0) - $paymentToReverse);
                     $invoice->save();
                     
                     \Log::info('Reversed payment for invoice', [
                         'invoice_id' => $invoice->id,
                         'invoice_code' => $invoice->unique_code,
+                        'old_paid' => $oldPaidAmount,
                         'amount_reversed' => $paymentToReverse,
                         'new_paid' => $invoice->paid_amount
                     ]);
-                    
-                    $remainingAmount -= $paymentToReverse;
                 }
             }
             
-            // Step 2: Apply new payments (add to newly selected invoices)
+            // Step 2: Apply new payments and track actual amounts
+            $newPartialAmounts = [];
             if (!empty($newInvoiceIds) && $newReceivedAmount > 0) {
-                $newInvoices = Invoice::whereIn('id', $newInvoiceIds)->get();
-                $remainingAmount = $newReceivedAmount;
-                
-                foreach ($newInvoices as $invoice) {
-                    if ($remainingAmount <= 0) break;
+                foreach ($newInvoiceIds as $invoiceId) {
+                    $invoice = Invoice::find($invoiceId);
+                    if (!$invoice) continue;
                     
                     $invoiceBalance = $invoice->final_amount - $invoice->paid_amount;
-                    $paymentForThisInvoice = min($remainingAmount, $invoiceBalance);
+                    
+                    // Use partial amount if specified, otherwise use full balance
+                    $paymentForThisInvoice = isset($partialAmountsInput[$invoiceId]) && $partialAmountsInput[$invoiceId] > 0
+                        ? min((float)$partialAmountsInput[$invoiceId], $invoiceBalance)
+                        : min($newReceivedAmount, $invoiceBalance);
+                    
+                    // Store the actual amount applied
+                    $newPartialAmounts[$invoiceId] = $paymentForThisInvoice;
                     
                     // Add the new payment
+                    $oldPaidAmount = $invoice->paid_amount;
                     $invoice->paid_amount = ($invoice->paid_amount ?? 0) + $paymentForThisInvoice;
                     $invoice->save();
                     
                     \Log::info('Applied payment to invoice', [
                         'invoice_id' => $invoice->id,
                         'invoice_code' => $invoice->unique_code,
+                        'old_paid' => $oldPaidAmount,
                         'payment_applied' => $paymentForThisInvoice,
                         'new_paid' => $invoice->paid_amount
                     ]);
-                    
-                    $remainingAmount -= $paymentForThisInvoice;
                 }
             }
             
-            // Step 3: Update the receipt
+            // Step 3: Update the receipt with new partial amounts
+            $validated['partial_amounts'] = $newPartialAmounts;
             $receipt->update($validated);
             
             return redirect()->route('receipts.index')
@@ -513,24 +535,30 @@ class ReceiptController extends Controller
             
             // Reverse payments before deleting receipt
             $invoiceIds = $receipt->invoice_ids ?? [];
+            $partialAmounts = $receipt->partial_amounts ?? [];
             $receivedAmount = $receipt->received_amount;
             
             if (!empty($invoiceIds) && $receivedAmount > 0) {
-                $invoices = Invoice::whereIn('id', $invoiceIds)->get();
-                $remainingAmount = $receivedAmount;
-                
                 \Log::info('Reversing payments for deleted receipt', [
                     'receipt_id' => $receipt->id,
                     'receipt_code' => $receipt->unique_code,
                     'invoice_ids' => $invoiceIds,
-                    'amount_to_reverse' => $receivedAmount
+                    'partial_amounts' => $partialAmounts,
+                    'total_amount' => $receivedAmount
                 ]);
                 
-                foreach ($invoices as $invoice) {
-                    if ($remainingAmount <= 0) break;
+                foreach ($invoiceIds as $invoiceId) {
+                    $invoice = Invoice::find($invoiceId);
+                    if (!$invoice) continue;
                     
-                    $invoiceBalance = $invoice->final_amount - ($invoice->paid_amount - $receivedAmount);
-                    $paymentToReverse = min($remainingAmount, $receivedAmount);
+                    // Use stored partial amount if available, otherwise calculate proportionally
+                    $paymentToReverse = 0;
+                    if (isset($partialAmounts[$invoiceId])) {
+                        $paymentToReverse = (float) $partialAmounts[$invoiceId];
+                    } else {
+                        // Fallback: distribute evenly among invoices (for old receipts without partial_amounts)
+                        $paymentToReverse = $receivedAmount / count($invoiceIds);
+                    }
                     
                     // Subtract the payment
                     $oldPaidAmount = $invoice->paid_amount;
@@ -544,8 +572,6 @@ class ReceiptController extends Controller
                         'new_paid' => $invoice->paid_amount,
                         'amount_reversed' => $paymentToReverse
                     ]);
-                    
-                    $remainingAmount -= $paymentToReverse;
                 }
             }
             
