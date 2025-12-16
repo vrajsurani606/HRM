@@ -1087,42 +1087,42 @@
           </div>
         </div>
         @endforeach
-
-        <!-- Inline Add Card Form (Trello Style) -->
-        @can('Projects Management.create project')
-        <div class="inline-add-card-form" id="inlineAddCard-{{ $stage->id }}" style="display: none;">
-          <div class="inline-card-input-wrapper">
-            <textarea 
-              class="inline-card-title-input" 
-              id="inlineCardTitle-{{ $stage->id }}" 
-              placeholder="Enter a title for this project..."
-              rows="2"
-              onkeydown="handleInlineCardKeydown(event, {{ $stage->id }})"
-            ></textarea>
-          </div>
-          <div class="inline-card-actions">
-            <button type="button" class="inline-add-btn" onclick="submitInlineCard({{ $stage->id }})">
-              Add project
-            </button>
-            <button type="button" class="inline-close-btn" onclick="closeInlineAddCard({{ $stage->id }})">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Add Card Button (Trello Style) -->
-        <button class="inline-add-card-trigger" id="addCardTrigger-{{ $stage->id }}" onclick="toggleInlineAddCard({{ $stage->id }})">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Add a project
-        </button>
-        @endcan
       </div>
+
+      <!-- Inline Add Card Form (Trello Style) - Outside kanban-cards for proper positioning -->
+      @can('Projects Management.create project')
+      <div class="inline-add-card-form" id="inlineAddCard-{{ $stage->id }}" style="display: none; margin: 0 20px 12px;">
+        <div class="inline-card-input-wrapper">
+          <textarea 
+            class="inline-card-title-input" 
+            id="inlineCardTitle-{{ $stage->id }}" 
+            placeholder="Enter a title for this project..."
+            rows="2"
+            onkeydown="handleInlineCardKeydown(event, {{ $stage->id }})"
+          ></textarea>
+        </div>
+        <div class="inline-card-actions">
+          <button type="button" class="inline-add-btn" onclick="submitInlineCard({{ $stage->id }})">
+            Add project
+          </button>
+          <button type="button" class="inline-close-btn" onclick="closeInlineAddCard({{ $stage->id }})">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Add Card Button (Trello Style) - Outside kanban-cards for proper positioning -->
+      <button class="inline-add-card-trigger" id="addCardTrigger-{{ $stage->id }}" onclick="toggleInlineAddCard({{ $stage->id }})" style="margin: 0 20px 12px; width: calc(100% - 40px);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Add a project
+      </button>
+      @endcan
     </div>
     @endforeach
   </div>
@@ -1551,10 +1551,10 @@
         </div>
         
         <!-- Action Buttons -->
-        <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: stretch;">
           
           
-          <button id="dueDateButton" onclick="openProjectDueDatePicker()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">
+          <button id="dueDateButton" onclick="openProjectDueDatePicker()" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s; height: 38px; box-sizing: border-box;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
@@ -1563,32 +1563,25 @@
           </button>
 
           @can('Projects Management.create task')
-          <button onclick="toggleAddTaskBox()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;">
+          <button onclick="toggleAddTaskBox()" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s; height: 38px; box-sizing: border-box;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Manually Assign
+            Manual
           </button>
           
-          <button onclick="openMaterialsModalInKanban()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s;">
+          <button onclick="openMaterialsModalInKanban()" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s; height: 38px; box-sizing: border-box;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 11l3 3L22 4"></path>
               <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
             </svg>
-            Auto Assign
+            Auto
           </button>
           @endcan
-          <!-- <button  style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: #10b981; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; color: white; transition: all 0.2s; font-weight: 600;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 11l3 3L22 4"></path>
-              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
-            </svg>
-            Assign Materials
-          </button> -->
           
           <!-- Members Section -->
-          <div style="display: inline-flex; align-items: center; gap: 8px; padding: 7px 13px; background: white; border: 1px solid #e5e7eb; border-radius: 5px; font-size: 13px; color: #000;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; color: #000; height: 38px; box-sizing: border-box;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
@@ -1632,10 +1625,6 @@
             <div style="margin-bottom: 12px;">
               <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">Task Name</label>
               <input type="text" id="newTaskTitle" placeholder="Enter task name..." style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none;">
-            </div>
-            <div style="margin-bottom: 12px;">
-              <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000;">Description</label>
-              <textarea id="newTaskDescription" placeholder="Task details (optional)..." style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; color: #000; font-size: 13px; outline: none; min-height: 60px; resize: vertical;"></textarea>
             </div>
             <!-- Tasks are visible to all project members - no assignment needed -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
@@ -1895,6 +1884,9 @@ function initializeDragAndDrop() {
     let clickStartX = 0;
     let clickStartY = 0;
 
+    // Clean up any stale drop indicators on initialization
+    document.querySelectorAll('.drop-indicator').forEach(indicator => indicator.remove());
+
     cards.forEach(card => {
         // Set draggable attribute
         card.setAttribute('draggable', 'true');
@@ -1930,9 +1922,11 @@ function initializeDragAndDrop() {
             this.style.opacity = '1';
             this.classList.remove('dragging');
             
-            // Clear all column highlights
+            // Clear all column highlights and remove all drop indicators
             columns.forEach(col => {
                 col.style.backgroundColor = '';
+                const indicator = col.querySelector('.drop-indicator');
+                if (indicator) indicator.remove();
             });
             
             console.log('Drag ended');
@@ -1964,7 +1958,7 @@ function initializeDragAndDrop() {
 
     // Setup drop zones
     columns.forEach(column => {
-        // Dragover - must prevent default to allow drop
+        // Dragover - must prevent default to allow drop and show drop indicator
         column.addEventListener('dragover', function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -1972,6 +1966,25 @@ function initializeDragAndDrop() {
             if (draggedElement) {
                 e.dataTransfer.dropEffect = 'move';
                 this.style.backgroundColor = 'rgba(255,255,255,0.2)';
+                
+                // Find the card we're hovering over to show drop position
+                const cards = [...this.querySelectorAll('.kanban-card:not(.dragging)')];
+                const afterElement = getDragAfterElement(this, e.clientY);
+                
+                // Remove existing drop indicator
+                const existingIndicator = this.querySelector('.drop-indicator');
+                if (existingIndicator) existingIndicator.remove();
+                
+                // Add drop indicator
+                const indicator = document.createElement('div');
+                indicator.className = 'drop-indicator';
+                indicator.style.cssText = 'height: 3px; background: #3b82f6; border-radius: 2px; margin: 8px 0;';
+                
+                if (afterElement) {
+                    this.insertBefore(indicator, afterElement);
+                } else {
+                    this.appendChild(indicator);
+                }
             }
         });
 
@@ -1990,6 +2003,9 @@ function initializeDragAndDrop() {
             if (e.clientX < rect.left || e.clientX >= rect.right ||
                 e.clientY < rect.top || e.clientY >= rect.bottom) {
                 this.style.backgroundColor = '';
+                // Remove drop indicator
+                const indicator = this.querySelector('.drop-indicator');
+                if (indicator) indicator.remove();
             }
         });
 
@@ -2000,6 +2016,10 @@ function initializeDragAndDrop() {
             
             this.style.backgroundColor = '';
             
+            // Remove drop indicator
+            const indicator = this.querySelector('.drop-indicator');
+            if (indicator) indicator.remove();
+            
             if (draggedElement) {
                 const projectId = draggedElement.dataset.projectId;
                 const newStageId = this.dataset.stageId;
@@ -2008,21 +2028,44 @@ function initializeDragAndDrop() {
                 
                 console.log('DROP EVENT - Project:', projectId, 'Old Stage:', oldStageId, 'New Stage:', newStageId);
                 
-                // Move the card to the new column
-                if (oldStageId !== newStageId) {
-                    this.appendChild(draggedElement);
-                    draggedElement.style.opacity = '1';
-                    
-                    // Update backend
-                    updateProjectStage(projectId, newStageId);
-                    
-                    console.log('Card moved successfully!');
+                // Find the correct position to insert
+                const afterElement = getDragAfterElement(this, e.clientY);
+                
+                // Move the card to the correct position
+                if (afterElement) {
+                    this.insertBefore(draggedElement, afterElement);
                 } else {
-                    console.log('Same column, no move needed');
+                    this.appendChild(draggedElement);
                 }
+                draggedElement.style.opacity = '1';
+                
+                // Update backend if stage changed
+                if (oldStageId !== newStageId) {
+                    updateProjectStage(projectId, newStageId);
+                    console.log('Card moved to new stage!');
+                }
+                
+                // Always save positions after drop (for reordering within same column or after stage change)
+                saveColumnPositions(this);
             }
         });
     });
+    
+    // Helper function to find the element after which to insert
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.kanban-card:not(.dragging)')];
+        
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
 
     // Also add drop listeners to the column containers
     document.querySelectorAll('.kanban-column').forEach(column => {
@@ -2040,11 +2083,22 @@ function initializeDragAndDrop() {
                 const oldColumn = draggedElement.closest('.kanban-cards');
                 const oldStageId = oldColumn ? oldColumn.dataset.stageId : null;
                 
-                if (oldStageId !== newStageId) {
+                // Find the correct position to insert
+                const afterElement = getDragAfterElement(cardsContainer, e.clientY);
+                
+                if (afterElement) {
+                    cardsContainer.insertBefore(draggedElement, afterElement);
+                } else {
                     cardsContainer.appendChild(draggedElement);
-                    draggedElement.style.opacity = '1';
+                }
+                draggedElement.style.opacity = '1';
+                
+                if (oldStageId !== newStageId) {
                     updateProjectStage(projectId, newStageId);
                 }
+                
+                // Save positions after drop
+                saveColumnPositions(cardsContainer);
             }
         });
     });
@@ -2086,6 +2140,46 @@ function updateProjectStage(projectId, stageId) {
     .catch(error => {
         console.error('❌ Error updating project:', error);
         toastr.error('Error updating project. Please check your connection.');
+    });
+}
+
+// Save project positions within a column
+function saveColumnPositions(column) {
+    const cards = column.querySelectorAll('.kanban-card');
+    const positions = [];
+    
+    cards.forEach((card, index) => {
+        const projectId = card.dataset.projectId;
+        if (projectId) {
+            positions.push({
+                id: parseInt(projectId),
+                position: index
+            });
+        }
+    });
+    
+    if (positions.length === 0) return;
+    
+    console.log('💾 Saving positions:', positions);
+    
+    fetch('{{ route("projects.update-positions") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ positions: positions })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('✅ Positions saved successfully');
+        } else {
+            console.error('❌ Failed to save positions:', data);
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error saving positions:', error);
     });
 }
 

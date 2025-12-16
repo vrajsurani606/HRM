@@ -490,13 +490,16 @@ function removeTicketFile(index) {
   showTicketFileNames(input);
 }
 
-function clearTicketFiles() {
+function clearTicketFiles(clearPreview = true) {
   const input = document.getElementById('ticket_attachments');
   const preview = document.getElementById('ticket_files_preview');
   const label = document.getElementById('ticket_attachments_label');
   
   input.value = '';
-  preview.innerHTML = '';
+  // Only clear preview if explicitly requested (not when editing with existing attachments)
+  if (clearPreview && !document.getElementById('existing_attachments_grid')) {
+    preview.innerHTML = '';
+  }
   label.textContent = 'Click to upload images or PDFs (Max 10MB each)';
   label.parentElement.style.borderColor = '#cbd5e1';
   label.parentElement.style.background = '#f8fafc';
@@ -758,6 +761,9 @@ function openAddTicketModal() {
   document.getElementById('modalTitle').textContent = 'Add Ticket';
   document.getElementById('ticketForm').reset();
   document.getElementById('ticket_id').value = '';
+  // Clear the preview area for new tickets
+  document.getElementById('ticket_files_preview').innerHTML = '';
+  clearTicketFiles(true);
   document.getElementById('ticketModal').style.display = 'flex';
 }
 
@@ -946,8 +952,8 @@ function editTicket(id) {
       // Show existing attachments
       showExistingAttachments(ticket.attachments || []);
       
-      // Clear new file input
-      clearTicketFiles();
+      // Clear new file input but don't clear preview (existing attachments are shown there)
+      clearTicketFiles(false);
       
       // Open modal
       document.getElementById('ticketModal').style.display = 'flex';
@@ -1665,7 +1671,12 @@ function performDeleteTicket(id) {
 
 // Global helper function to generate storage URL (matches storage_asset() helper)
 function getStorageUrl(path) {
+  if (!path) return '';
   const baseUrl = '{{ url('/') }}';
+  // Remove leading slash if present
+  path = path.replace(/^\/+/, '');
+  // Remove 'storage/' prefix if already present to avoid duplication
+  path = path.replace(/^storage\//, '');
   return `${baseUrl}/public/storage/${path}`;
 }
 

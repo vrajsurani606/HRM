@@ -25,16 +25,18 @@ class ProjectController extends Controller
             $stages = ProjectStage::with(['projects' => function($query) use ($user) {
                 $query->whereHas('members', function($q) use ($user) {
                     $q->where('users.id', $user->id);
-                })->with(['company', 'members']);
+                })->with(['company', 'members'])->orderBy('position');
             }])->orderBy('order')->get();
         } elseif (($user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company')) && $user->company_id) {
             // Customers/clients only see their company's projects
             $stages = ProjectStage::with(['projects' => function($query) use ($user) {
-                $query->where('company_id', $user->company_id)->with(['company', 'members']);
+                $query->where('company_id', $user->company_id)->with(['company', 'members'])->orderBy('position');
             }])->orderBy('order')->get();
         } else {
             // Admin/HR see all projects
-            $stages = ProjectStage::with(['projects.company', 'projects.members'])->orderBy('order')->get();
+            $stages = ProjectStage::with(['projects' => function($query) {
+                $query->with(['company', 'members'])->orderBy('position');
+            }])->orderBy('order')->get();
         }
         
         // Get all projects for list/grid view (no pagination)
@@ -985,5 +987,27 @@ class ProjectController extends Controller
             'success' => true,
             'employees' => $employees
         ]);
+    }
+
+    /**
+     * Update project positions within a stage (for drag and drop reordering)
+     */
+    public function updatePositions(Request $request): JsonResponse
+    {
+        if (!auth()->check() || !(auth()->user()->hasRole('super-admin') || auth()->user()->can('Projects Management.edit project'))) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+        
+        $validated = $request->validate([
+            'positions' => 'required|array',
+            'positions.*.id' => 'required|exists:projects,id',
+            'positions.*.position' => 'required|integer|min:0',
+        ]);
+
+        foreach ($validated['positions'] as $item) {
+            Project::where('id', $item['id'])->update(['position' => $item['position']]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Positions updated successfully']);
     }
 }
