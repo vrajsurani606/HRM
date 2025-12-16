@@ -37,44 +37,69 @@
             @error('company_address')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
-          <div style="margin-bottom: 8px;">
-            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Company Type</label>
+          <div class="mb-2">
+            <label class="hrp-label"
+                style="font-weight:500; margin-bottom:8px; display:block; color:#374151; font-size:14px;">
+                Company Type
+            </label>
+
             <div class="relative">
-              <select name="company_type" class="hrp-input Rectangle-29" style="
-                padding-right: 32px;
-                -webkit-appearance: none;
-                -moz-appearance: none;
-                appearance: none;
-                background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\");
-                background-repeat: no-repeat;
-                background-position: right 12px center;
-                background-size: 16px 16px;
-                cursor: pointer;
-                text-transform: uppercase;
-                width: 100%;
-                font-size: 14px;
-                line-height: 1.5;
-              ">
-                <option value="" disabled {{ old('company_type', $company->company_type) ? '' : 'selected' }}>SELECT COMPANY TYPE</option>
-                <option value="AUTOMOBILE" {{ old('company_type', $company->company_type) == 'AUTOMOBILE' ? 'selected' : '' }}>AUTOMOBILE</option>
-                <option value="FMCG" {{ old('company_type', $company->company_type) == 'FMCG' ? 'selected' : '' }}>FMCG (FAST-MOVING CONSUMER GOODS)</option>
-                <option value="IT" {{ old('company_type', $company->company_type) == 'IT' ? 'selected' : '' }}>INFORMATION TECHNOLOGY</option>
-                <option value="MANUFACTURING" {{ old('company_type', $company->company_type) == 'MANUFACTURING' ? 'selected' : '' }}>MANUFACTURING</option>
-                <option value="CONSTRUCTION" {{ old('company_type', $company->company_type) == 'CONSTRUCTION' ? 'selected' : '' }}>CONSTRUCTION</option>
-                <option value="HEALTHCARE" {{ old('company_type', $company->company_type) == 'HEALTHCARE' ? 'selected' : '' }}>HEALTHCARE</option>
-                <option value="EDUCATION" {{ old('company_type', $company->company_type) == 'EDUCATION' ? 'selected' : '' }}>EDUCATION</option>
-                <option value="FINANCE" {{ old('company_type', $company->company_type) == 'FINANCE' ? 'selected' : '' }}>FINANCE & BANKING</option>
-                <option value="RETAIL" {{ old('company_type', $company->company_type) == 'RETAIL' ? 'selected' : '' }}>RETAIL</option>
-                <option value="TELECOM" {{ old('company_type', $company->company_type) == 'TELECOM' ? 'selected' : '' }}>TELECOMMUNICATIONS</option>
-                <option value="HOSPITALITY" {{ old('company_type', $company->company_type) == 'HOSPITALITY' ? 'selected' : '' }}>HOSPITALITY</option>
-                <option value="TRANSPORT" {{ old('company_type', $company->company_type) == 'TRANSPORT' ? 'selected' : '' }}>TRANSPORT & LOGISTICS</option>
-                <option value="ENERGY" {{ old('company_type', $company->company_type) == 'ENERGY' ? 'selected' : '' }}>ENERGY & UTILITIES</option>
-                <option value="MEDIA" {{ old('company_type', $company->company_type) == 'MEDIA' ? 'selected' : '' }}>MEDIA & ENTERTAINMENT</option>
-                <option value="REAL_ESTATE" {{ old('company_type', $company->company_type) == 'REAL_ESTATE' ? 'selected' : '' }}>REAL ESTATE</option>
-                <option value="OTHER" {{ old('company_type', $company->company_type) == 'OTHER' ? 'selected' : '' }}>OTHER</option>
-              </select>
-              @error('company_type')<small class="hrp-error">{{ $message }}</small>@enderror
+                <select name="company_type" class="hrp-input Rectangle-29"
+                    style="padding-right:32px; appearance:none; background-repeat:no-repeat;
+                    background-position:right 12px center; background-size:16px;
+                    cursor:pointer; width:100%;
+                    background-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%236b7280\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'/%3E%3C/svg%3E');">
+
+                    <option value="" disabled {{ old('company_type', $company->company_type) ? '' : 'selected' }}>SELECT COMPANY TYPE</option>
+                    <option value="INFORMATION_TECHNOLOGY" {{ old('company_type', $company->company_type) == 'INFORMATION_TECHNOLOGY' ? 'selected' : '' }}>Information Technology (IT)</option>
+                    <option value="SOFTWARE_DEVELOPMENT" {{ old('company_type', $company->company_type) == 'SOFTWARE_DEVELOPMENT' ? 'selected' : '' }}>Software Development</option>
+                    <option value="HARDWARE_ELECTRONICS" {{ old('company_type', $company->company_type) == 'HARDWARE_ELECTRONICS' ? 'selected' : '' }}>Hardware & Electronics</option>
+                    <option value="TELECOMMUNICATIONS" {{ old('company_type', $company->company_type) == 'TELECOMMUNICATIONS' ? 'selected' : '' }}>Telecommunications</option>
+                    <option value="E_COMMERCE" {{ old('company_type', $company->company_type) == 'E_COMMERCE' ? 'selected' : '' }}>E-Commerce</option>
+                    <option value="MANUFACTURING" {{ old('company_type', $company->company_type) == 'MANUFACTURING' ? 'selected' : '' }}>Manufacturing</option>
+                    <option value="AUTOMOBILE" {{ old('company_type', $company->company_type) == 'AUTOMOBILE' ? 'selected' : '' }}>Automobile</option>
+                    <option value="AEROSPACE_DEFENSE" {{ old('company_type', $company->company_type) == 'AEROSPACE_DEFENSE' ? 'selected' : '' }}>Aerospace & Defense</option>
+                    <option value="CONSTRUCTION_INFRASTRUCTURE" {{ old('company_type', $company->company_type) == 'CONSTRUCTION_INFRASTRUCTURE' ? 'selected' : '' }}>Construction & Infrastructure</option>
+                    <option value="REAL_ESTATE" {{ old('company_type', $company->company_type) == 'REAL_ESTATE' ? 'selected' : '' }}>Real Estate</option>
+                    <option value="BANKING_FINANCIAL" {{ old('company_type', $company->company_type) == 'BANKING_FINANCIAL' ? 'selected' : '' }}>Banking & Financial Services</option>
+                    <option value="INSURANCE" {{ old('company_type', $company->company_type) == 'INSURANCE' ? 'selected' : '' }}>Insurance</option>
+                    <option value="INVESTMENT_ASSET" {{ old('company_type', $company->company_type) == 'INVESTMENT_ASSET' ? 'selected' : '' }}>Investment & Asset Management</option>
+                    <option value="HEALTHCARE" {{ old('company_type', $company->company_type) == 'HEALTHCARE' ? 'selected' : '' }}>Healthcare</option>
+                    <option value="PHARMACEUTICALS" {{ old('company_type', $company->company_type) == 'PHARMACEUTICALS' ? 'selected' : '' }}>Pharmaceuticals</option>
+                    <option value="BIOTECHNOLOGY" {{ old('company_type', $company->company_type) == 'BIOTECHNOLOGY' ? 'selected' : '' }}>Biotechnology</option>
+                    <option value="MEDICAL_DEVICES" {{ old('company_type', $company->company_type) == 'MEDICAL_DEVICES' ? 'selected' : '' }}>Medical Devices</option>
+                    <option value="EDUCATION_TRAINING" {{ old('company_type', $company->company_type) == 'EDUCATION_TRAINING' ? 'selected' : '' }}>Education & Training</option>
+                    <option value="RETAIL" {{ old('company_type', $company->company_type) == 'RETAIL' ? 'selected' : '' }}>Retail</option>
+                    <option value="WHOLESALE_DISTRIBUTION" {{ old('company_type', $company->company_type) == 'WHOLESALE_DISTRIBUTION' ? 'selected' : '' }}>Wholesale & Distribution</option>
+                    <option value="LOGISTICS_SUPPLY" {{ old('company_type', $company->company_type) == 'LOGISTICS_SUPPLY' ? 'selected' : '' }}>Logistics & Supply Chain</option>
+                    <option value="TRANSPORTATION" {{ old('company_type', $company->company_type) == 'TRANSPORTATION' ? 'selected' : '' }}>Transportation (Air, Road, Rail, Sea)</option>
+                    <option value="FOOD_BEVERAGE" {{ old('company_type', $company->company_type) == 'FOOD_BEVERAGE' ? 'selected' : '' }}>Food & Beverages</option>
+                    <option value="HOSPITALITY" {{ old('company_type', $company->company_type) == 'HOSPITALITY' ? 'selected' : '' }}>Hospitality</option>
+                    <option value="TOURISM_TRAVEL" {{ old('company_type', $company->company_type) == 'TOURISM_TRAVEL' ? 'selected' : '' }}>Tourism & Travel</option>
+                    <option value="MEDIA_ENTERTAINMENT" {{ old('company_type', $company->company_type) == 'MEDIA_ENTERTAINMENT' ? 'selected' : '' }}>Media & Entertainment</option>
+                    <option value="ADVERTISING_MARKETING" {{ old('company_type', $company->company_type) == 'ADVERTISING_MARKETING' ? 'selected' : '' }}>Advertising & Marketing</option>
+                    <option value="PUBLISHING" {{ old('company_type', $company->company_type) == 'PUBLISHING' ? 'selected' : '' }}>Publishing</option>
+                    <option value="OIL_GAS" {{ old('company_type', $company->company_type) == 'OIL_GAS' ? 'selected' : '' }}>Oil & Gas</option>
+                    <option value="MINING_METALS" {{ old('company_type', $company->company_type) == 'MINING_METALS' ? 'selected' : '' }}>Mining & Metals</option>
+                    <option value="CHEMICALS" {{ old('company_type', $company->company_type) == 'CHEMICALS' ? 'selected' : '' }}>Chemicals</option>
+                    <option value="ENERGY_POWER" {{ old('company_type', $company->company_type) == 'ENERGY_POWER' ? 'selected' : '' }}>Energy & Power</option>
+                    <option value="RENEWABLE_ENERGY" {{ old('company_type', $company->company_type) == 'RENEWABLE_ENERGY' ? 'selected' : '' }}>Renewable Energy (Solar, Wind)</option>
+                    <option value="AGRICULTURE" {{ old('company_type', $company->company_type) == 'AGRICULTURE' ? 'selected' : '' }}>Agriculture</option>
+                    <option value="ENVIRONMENTAL_SERVICES" {{ old('company_type', $company->company_type) == 'ENVIRONMENTAL_SERVICES' ? 'selected' : '' }}>Environmental Services</option>
+                    <option value="LEGAL_SERVICES" {{ old('company_type', $company->company_type) == 'LEGAL_SERVICES' ? 'selected' : '' }}>Legal Services</option>
+                    <option value="CONSULTING_ADVISORY" {{ old('company_type', $company->company_type) == 'CONSULTING_ADVISORY' ? 'selected' : '' }}>Consulting & Advisory</option>
+                    <option value="HUMAN_RESOURCES" {{ old('company_type', $company->company_type) == 'HUMAN_RESOURCES' ? 'selected' : '' }}>Human Resources Services</option>
+                    <option value="BPO_KPO" {{ old('company_type', $company->company_type) == 'BPO_KPO' ? 'selected' : '' }}>BPO / KPO</option>
+                    <option value="SECURITY_SERVICES" {{ old('company_type', $company->company_type) == 'SECURITY_SERVICES' ? 'selected' : '' }}>Security Services</option>
+                    <option value="FASHION_APPAREL" {{ old('company_type', $company->company_type) == 'FASHION_APPAREL' ? 'selected' : '' }}>Fashion & Apparel</option>
+                    <option value="TEXTILES" {{ old('company_type', $company->company_type) == 'TEXTILES' ? 'selected' : '' }}>Textiles</option>
+                    <option value="SPORTS_FITNESS" {{ old('company_type', $company->company_type) == 'SPORTS_FITNESS' ? 'selected' : '' }}>Sports & Fitness</option>
+                    <option value="NON_PROFIT_NGO" {{ old('company_type', $company->company_type) == 'NON_PROFIT_NGO' ? 'selected' : '' }}>Non-Profit / NGO</option>
+                    <option value="GOVERNMENT_PUBLIC" {{ old('company_type', $company->company_type) == 'GOVERNMENT_PUBLIC' ? 'selected' : '' }}>Government & Public Sector</option>
+                    <option value="OTHER" {{ old('company_type', $company->company_type) == 'OTHER' ? 'selected' : '' }}>Other</option>
+                </select>
             </div>
+            @error('company_type') <small class="hrp-error">{{ $message }}</small> @enderror
           </div>
 
           <div style="margin-bottom: 8px;">
@@ -166,19 +191,19 @@
           </div>
 
           <div style="margin-bottom: 8px;">
-            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Contact Person Name</label>
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Contact Person Name <span class="text-red-500">*</span></label>
             <input name="contact_person_name" type="text" placeholder="Enter Contact Person Name" value="{{ old('contact_person_name', $company->contact_person_name) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
             @error('contact_person_name')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div style="margin-bottom: 8px;">
-            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Contact Person Position</label>
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Contact Person Position <span class="text-red-500">*</span></label>
             <input name="contact_person_position" placeholder="Enter Contact Person Position" value="{{ old('contact_person_position', $company->contact_person_position) }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
             @error('contact_person_position')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
 
           <div style="margin-bottom: 8px;">
-            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Contact Person Mobile No</label>
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Contact Person Mobile No <span class="text-red-500">*</span></label>
             <input
               class="hrp-input Rectangle-29"
               name="contact_person_mobile"

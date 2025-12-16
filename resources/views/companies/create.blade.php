@@ -191,7 +191,7 @@
 <div class="mb-2">
     <label class="hrp-label"
         style="font-weight:500; margin-bottom:8px; display:block; color:#374151; font-size:14px;">
-        Contact Person Name
+        Contact Person Name <span class="text-red-500">*</span>
     </label>
 
     <input name="contact_person_name" placeholder="Enter Contact Person Name"
@@ -203,7 +203,7 @@
 
           
           <div style="margin-bottom: 8px;">
-            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Contact Person Mobile No</label>
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Contact Person Mobile No <span class="text-red-500">*</span></label>
             <input
               class="hrp-input Rectangle-29"
               name="contact_person_mobile"
@@ -219,7 +219,7 @@
           </div>
           
           <div style="margin-bottom: 8px;">
-            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Contact Person Position</label>
+            <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">Contact Person Position <span class="text-red-500">*</span></label>
             <input name="contact_person_position" placeholder="Enter Contact Person Position" value="{{ old('contact_person_position') }}" class="hrp-input Rectangle-29" style="font-size: 14px; line-height: 1.5;">
             @error('contact_person_position')<small class="hrp-error">{{ $message }}</small>@enderror
           </div>
