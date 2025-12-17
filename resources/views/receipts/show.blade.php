@@ -105,11 +105,17 @@
     .receipt-logo {
         text-align: center;
         margin-bottom: 25px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
     }
     
     .receipt-logo img {
         max-width: 160px;
         height: auto;
+        display: block;
+        margin: 0 auto;
     }
     
     /* Header Info */
@@ -529,9 +535,6 @@
                 <div class="receipt-header-info">
                     <p><strong>Date:</strong> {{ $receipt->receipt_date ? $receipt->receipt_date->format('d-m-Y') : date('d-m-Y') }}</p>
                     <p><strong>Receipt No.:</strong> {{ $receipt->unique_code }}</p>
-                    @if($invoices->count() > 0)
-                    <p><strong>Invoice No.:</strong> {{ $invoices->pluck('unique_code')->implode(', ') }}</p>
-                    @endif
                 </div>
                 
                 <!-- Title -->

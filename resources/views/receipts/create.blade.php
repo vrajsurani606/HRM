@@ -70,12 +70,21 @@
         <div>
           <label class="hrp-label">Company Name: <span class="text-red-500">*</span></label>
           <select class="Rectangle-29-select @error('company_name') is-invalid @enderror" name="company_name" id="companySelect" required>
-            <option value="">-- Select Company --</option>
-            @foreach($companies as $company)
-            <option value="{{ $company }}" {{ old('company_name') == $company ? 'selected' : '' }}>{{ $company }}</option>
-            @endforeach
+            @if($companies->count() > 0)
+              <option value="">-- Select Company --</option>
+              @foreach($companies as $company)
+              <option value="{{ $company }}" {{ old('company_name') == $company ? 'selected' : '' }}>{{ $company }}</option>
+              @endforeach
+            @else
+              <option value="">No companies available - Create company first</option>
+            @endif
           </select>
           @error('company_name')<small class="hrp-error">{{ $message }}</small>@enderror
+          @if($companies->count() === 0)
+          <small style="color: #DC2626; font-size: 12px; margin-top: 4px; display: block;">
+            <a href="{{ route('companies.create') }}" style="color: #2563EB; text-decoration: underline;">Click here to create a company first</a>
+          </small>
+          @endif
         </div>
         <div>
           <label class="hrp-label">Invoice Type: <span class="text-red-500">*</span></label>

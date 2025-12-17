@@ -222,12 +222,19 @@ class ReceiptController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
+        // Check if companies exist first
+        $companiesCount = \App\Models\Company::count();
+        if ($companiesCount === 0) {
+            return redirect()->route('companies.create')
+                ->with('error', 'No companies found. Please create a company first before adding receipts.');
+        }
+        
         // Note: Receipt code will be generated after invoice type is selected
         // For now, show placeholder
         $nextCode = 'Automaticlly generated based on invoice type';
         
-        // Get unique company names from all invoices
-        $companies = Invoice::select('company_name')
+        // Get company names from companies table (only created companies)
+        $companies = \App\Models\Company::select('company_name')
             ->distinct()
             ->orderBy('company_name')
             ->pluck('company_name');
@@ -385,8 +392,15 @@ class ReceiptController extends Controller
         
         $receipt = Receipt::findOrFail($id);
         
-        // Get unique company names from all invoices
-        $companies = Invoice::select('company_name')
+        // Check if companies exist first
+        $companiesCount = \App\Models\Company::count();
+        if ($companiesCount === 0) {
+            return redirect()->route('companies.create')
+                ->with('error', 'No companies found. Please create a company first before editing receipts.');
+        }
+        
+        // Get company names from companies table (only created companies)
+        $companies = \App\Models\Company::select('company_name')
             ->distinct()
             ->orderBy('company_name')
             ->pluck('company_name');
