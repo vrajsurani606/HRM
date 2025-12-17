@@ -11,7 +11,6 @@
     <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
     
     <style>
         :root {
@@ -19,7 +18,6 @@
             --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            --warning-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
             --glass-bg: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.2);
             --shadow-light: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
@@ -600,18 +598,23 @@
         /* Print Styles */
         @media print {
             .header-actions {
-                display: none;
+                display: none !important;
             }
             
             body {
-                background: white;
-                color: black;
+                background: white !important;
+                color: black !important;
+            }
+            
+            body::before {
+                display: none !important;
             }
             
             .glass-card {
-                background: white;
-                border: 1px solid #ddd;
-                box-shadow: none;
+                background: white !important;
+                border: 1px solid #ddd !important;
+                box-shadow: none !important;
+                backdrop-filter: none !important;
             }
             
             .profile-name,
@@ -620,8 +623,37 @@
             .section-title,
             .timeline-title,
             .contact-item,
-            .summary-text {
-                color: black;
+            .summary-text,
+            .skill-tag,
+            .timeline-company,
+            .timeline-duration,
+            .timeline-description,
+            .contact-label,
+            .contact-value {
+                color: black !important;
+                text-shadow: none !important;
+            }
+            
+            .section-icon,
+            .contact-icon {
+                background: #333 !important;
+                color: white !important;
+            }
+            
+            .skill-tag {
+                background: #f0f0f0 !important;
+                border: 1px solid #ddd !important;
+                color: black !important;
+            }
+            
+            .timeline-item {
+                background: #f9f9f9 !important;
+                border: 1px solid #ddd !important;
+            }
+            
+            .contact-info {
+                background: #f9f9f9 !important;
+                border: 1px solid #ddd !important;
             }
         }
 
@@ -643,42 +675,45 @@
             padding: 3rem;
             font-size: 1.1rem;
         }
+
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 1000;
+        }
+
+        @media print {
+            .watermark {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="main-container">
         <!-- Header Actions -->
-        <div class="header-actions" data-aos="fade-down">
+        <div class="header-actions">
             <button onclick="window.print()" class="action-btn">
                 <i class="fas fa-print"></i>
                 Print Card
             </button>
-            <a href="{{ route('employees.digital-card.download', $employee) }}" class="action-btn">
-                <i class="fas fa-download"></i>
-                Download HTML
-            </a>
-            <button onclick="openQuickEditModal({{ $employee->id }})" class="action-btn">
-                <i class="fas fa-bolt"></i>
-                Quick Edit
+            <button onclick="saveAsFile()" class="action-btn">
+                <i class="fas fa-save"></i>
+                Save File
             </button>
-            <a href="{{ route('employees.digital-card.edit', $employee) }}" class="action-btn">
-                <i class="fas fa-edit"></i>
-                Full Edit
-            </a>
-            <form method="POST" action="{{ route('employees.digital-card.destroy', $employee) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this digital card?')">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="action-btn" style="background: rgba(239, 68, 68, 0.2);">
-                    <i class="fas fa-trash"></i>
-                    Delete
-                </button>
-            </form>
         </div>
 
         <!-- Profile Header -->
-        <div class="glass-card profile-header fade-in" data-aos="zoom-in">
+        <div class="glass-card profile-header fade-in">
             <div class="profile-image-container">
-                <img src="{{ asset($profile_image) }}" alt="Profile" class="profile-image">
+                <img src="{{ $profile_image }}" alt="Profile" class="profile-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTAwQzExNi41NjkgMTAwIDEzMCA4Ni41Njg1IDEzMCA3MEM1MyA3MCA3MCA4Ni41Njg1IDEwMCAxMDBaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0xMDAgMTEwQzEyNy42MTQgMTEwIDE1MCAzMi4zODU4IDE1MCA2MEM1MCA2MCA3Mi4zODU4IDExMCAxMDAgMTEwWiIgZmlsbD0iIzlCOUJBMCIvPgo8L3N2Zz4K'">
                 <div class="status-indicator"></div>
             </div>
             <h1 class="profile-name">{{ $profile['name'] }}</h1>
@@ -686,15 +721,15 @@
             <p class="profile-company">{{ $profile['company'] }}</p>
             
             <div class="profile-stats">
-                <div class="stat-item" data-aos="fade-up" data-aos-delay="100">
+                <div class="stat-item">
                     <span class="stat-number">{{ $profile['experience_years'] }}+</span>
                     <span class="stat-label">Years Experience</span>
                 </div>
-                <div class="stat-item" data-aos="fade-up" data-aos-delay="200">
+                <div class="stat-item">
                     <span class="stat-number">{{ count($projects) }}</span>
                     <span class="stat-label">Projects</span>
                 </div>
-                <div class="stat-item" data-aos="fade-up" data-aos-delay="300">
+                <div class="stat-item">
                     <span class="stat-number">{{ count($skills) }}</span>
                     <span class="stat-label">Skills</span>
                 </div>
@@ -704,7 +739,7 @@
             <div class="social-links">
                 @foreach($socials as $platform => $url)
                     @if(!empty($url))
-                        <a href="{{ $url }}" target="_blank" class="social-link" title="{{ ucfirst($platform) }}" data-aos="zoom-in" data-aos-delay="{{ $loop->index * 100 + 400 }}">
+                        <a href="{{ $url }}" target="_blank" class="social-link" title="{{ ucfirst($platform) }}">
                             <i class="fab fa-{{ $platform === 'portfolio' ? 'globe' : $platform }}"></i>
                         </a>
                     @endif
@@ -716,7 +751,7 @@
             <div class="col-lg-8">
                 <!-- Summary Section -->
                 @if(!empty($profile['summary']))
-                <div class="glass-card content-section fade-in" data-aos="fade-right">
+                <div class="glass-card content-section fade-in">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-user"></i>
@@ -729,7 +764,7 @@
 
                 <!-- Skills Section -->
                 @if(!empty($skills))
-                <div class="glass-card content-section fade-in" data-aos="fade-right" data-aos-delay="100">
+                <div class="glass-card content-section fade-in">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-code"></i>
@@ -738,7 +773,7 @@
                     </h3>
                     <div class="skills-grid">
                         @foreach($skills as $skill)
-                            <span class="skill-tag" data-aos="zoom-in" data-aos-delay="{{ $loop->index * 50 }}">{{ trim($skill) }}</span>
+                            <span class="skill-tag">{{ trim($skill) }}</span>
                         @endforeach
                     </div>
                 </div>
@@ -746,7 +781,7 @@
 
                 <!-- Experience Section -->
                 @if(!empty($previous_roles))
-                <div class="glass-card content-section fade-in" data-aos="fade-right" data-aos-delay="200">
+                <div class="glass-card content-section fade-in">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-briefcase"></i>
@@ -754,7 +789,7 @@
                         Experience
                     </h3>
                     @foreach($previous_roles as $role)
-                        <div class="timeline-item" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                        <div class="timeline-item">
                             <h4 class="timeline-title">{{ $role['position'] ?? 'Position' }}</h4>
                             <p class="timeline-company">{{ $role['company'] ?? 'Company' }}</p>
                             <p class="timeline-duration">{{ $role['duration'] ?? 'Duration' }}</p>
@@ -768,7 +803,7 @@
 
                 <!-- Education Section -->
                 @if(!empty($education))
-                <div class="glass-card content-section fade-in" data-aos="fade-right" data-aos-delay="300">
+                <div class="glass-card content-section fade-in">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-graduation-cap"></i>
@@ -776,7 +811,7 @@
                         Education
                     </h3>
                     @foreach($education as $edu)
-                        <div class="timeline-item" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                        <div class="timeline-item">
                             <h4 class="timeline-title">{{ $edu['degree'] ?? 'Degree' }}</h4>
                             <p class="timeline-company">{{ $edu['institution'] ?? 'Institution' }}</p>
                             <p class="timeline-duration">{{ $edu['year'] ?? 'Year' }}</p>
@@ -790,7 +825,7 @@
 
                 <!-- Projects Section -->
                 @if(!empty($projects))
-                <div class="glass-card content-section fade-in" data-aos="fade-right" data-aos-delay="400">
+                <div class="glass-card content-section fade-in">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-project-diagram"></i>
@@ -798,7 +833,7 @@
                         Projects
                     </h3>
                     @foreach($projects as $project)
-                        <div class="timeline-item" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                        <div class="timeline-item">
                             <h4 class="timeline-title">{{ $project['name'] ?? 'Project Name' }}</h4>
                             @if(!empty($project['technologies']))
                                 <p class="timeline-company">{{ $project['technologies'] }}</p>
@@ -809,6 +844,11 @@
                             @if(!empty($project['description']))
                                 <p class="timeline-description">{!! nl2br(e($project['description'])) !!}</p>
                             @endif
+                            @if(!empty($project['link']))
+                                <p class="timeline-description">
+                                    <strong>Link:</strong> <a href="{{ $project['link'] }}" target="_blank" style="color: #4facfe;">{{ $project['link'] }}</a>
+                                </p>
+                            @endif
                         </div>
                     @endforeach
                 </div>
@@ -817,7 +857,7 @@
 
             <div class="col-lg-4">
                 <!-- Contact Information -->
-                <div class="glass-card contact-info fade-in" data-aos="fade-left">
+                <div class="glass-card contact-info fade-in">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-address-card"></i>
@@ -826,7 +866,7 @@
                     </h3>
                     
                     @if(!empty($profile['email']))
-                    <div class="contact-item" data-aos="fade-left" data-aos-delay="100">
+                    <div class="contact-item">
                         <div class="contact-icon">
                             <i class="fas fa-envelope"></i>
                         </div>
@@ -838,7 +878,7 @@
                     @endif
 
                     @if(!empty($profile['phone']))
-                    <div class="contact-item" data-aos="fade-left" data-aos-delay="200">
+                    <div class="contact-item">
                         <div class="contact-icon">
                             <i class="fas fa-phone"></i>
                         </div>
@@ -850,7 +890,7 @@
                     @endif
 
                     @if(!empty($profile['location']))
-                    <div class="contact-item" data-aos="fade-left" data-aos-delay="300">
+                    <div class="contact-item">
                         <div class="contact-icon">
                             <i class="fas fa-map-marker-alt"></i>
                         </div>
@@ -864,7 +904,7 @@
 
                 <!-- Languages Section -->
                 @if(!empty($languages))
-                <div class="glass-card content-section fade-in" data-aos="fade-left" data-aos-delay="100">
+                <div class="glass-card content-section fade-in">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-language"></i>
@@ -873,7 +913,7 @@
                     </h3>
                     <div class="skills-grid">
                         @foreach($languages as $language)
-                            <span class="skill-tag" data-aos="zoom-in" data-aos-delay="{{ $loop->index * 50 }}">{{ is_array($language) ? ($language['name'] ?? $language) : $language }}</span>
+                            <span class="skill-tag">{{ is_array($language) ? ($language['name'] ?? $language) : $language }}</span>
                         @endforeach
                     </div>
                 </div>
@@ -881,7 +921,7 @@
 
                 <!-- Hobbies Section -->
                 @if(!empty($hobbies))
-                <div class="glass-card content-section fade-in" data-aos="fade-left" data-aos-delay="200">
+                <div class="glass-card content-section fade-in">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-heart"></i>
@@ -890,7 +930,7 @@
                     </h3>
                     <div class="skills-grid">
                         @foreach($hobbies as $hobby)
-                            <span class="skill-tag" data-aos="zoom-in" data-aos-delay="{{ $loop->index * 50 }}">{{ trim($hobby) }}</span>
+                            <span class="skill-tag">{{ trim($hobby) }}</span>
                         @endforeach
                     </div>
                 </div>
@@ -898,7 +938,7 @@
 
                 <!-- Certifications Section -->
                 @if(!empty($certifications))
-                <div class="glass-card content-section fade-in" data-aos="fade-left" data-aos-delay="300">
+                <div class="glass-card content-section fade-in">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-certificate"></i>
@@ -906,7 +946,7 @@
                         Certifications
                     </h3>
                     @foreach($certifications as $cert)
-                        <div class="timeline-item" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                        <div class="timeline-item">
                             <h4 class="timeline-title">{{ $cert['name'] ?? 'Certification' }}</h4>
                             @if(!empty($cert['issuer']))
                                 <p class="timeline-company">{{ $cert['issuer'] }}</p>
@@ -921,7 +961,7 @@
 
                 <!-- Achievements Section -->
                 @if(!empty($achievements))
-                <div class="glass-card content-section fade-in" data-aos="fade-left" data-aos-delay="400">
+                <div class="glass-card content-section fade-in">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-trophy"></i>
@@ -929,7 +969,7 @@
                         Achievements
                     </h3>
                     @foreach($achievements as $achievement)
-                        <div class="timeline-item" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                        <div class="timeline-item">
                             <h4 class="timeline-title">{{ $achievement['title'] ?? 'Achievement' }}</h4>
                             @if(!empty($achievement['description']))
                                 <p class="timeline-description">{!! nl2br(e($achievement['description'])) !!}</p>
@@ -943,7 +983,7 @@
 
         <!-- Gallery Section -->
         @if(!empty($gallery) && count($gallery) > 1)
-        <div class="glass-card content-section fade-in" data-aos="fade-up">
+        <div class="glass-card content-section fade-in">
             <h3 class="section-title">
                 <div class="section-icon">
                     <i class="fas fa-images"></i>
@@ -953,7 +993,7 @@
             <div class="gallery-grid">
                 @foreach($gallery as $image)
                     @if(!empty($image))
-                        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="{{ $loop->index * 100 }}">
+                        <div class="gallery-item">
                             <img src="{{ asset('storage/' . $image) }}" alt="Gallery Image" class="gallery-image" onerror="this.style.display='none'">
                         </div>
                     @endif
@@ -963,46 +1003,29 @@
         @endif
     </div>
 
-    <!-- Quick Edit Modal -->
-    @include('hr.employees.digital-card.quick-edit-modal')
+    <!-- Watermark -->
+    <div class="watermark">
+        Generated on {{ now()->format('M d, Y') }}
+    </div>
     
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <script>
-        // Initialize AOS (Animate On Scroll)
-        AOS.init({
-            duration: 800,
-            easing: 'ease-in-out',
-            once: true,
-            mirror: false
-        });
-
-        // Download functionality
-        function downloadCard() {
-            const link = document.createElement('a');
-            link.href = window.location.href;
-            link.download = '{{ $profile['name'] }}_Digital_Card.html';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
+        // Save as file functionality
+        function saveAsFile() {
+            const blob = new Blob([document.documentElement.outerHTML], {
+                type: 'text/html'
             });
-        });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '{{ str_replace(' ', '_', $profile['name']) }}_Digital_Card.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
 
         // Loading animation
         window.addEventListener('load', function() {
@@ -1048,57 +1071,6 @@
                 }
             }, 1000);
         });
-        
-        // Set current employee ID for quick edit
-        window.currentEmployeeId = {{ $employee->id }};
-        
-        // Notification system
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i>
-                ${message}
-            `;
-            
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'error' ? '#ef4444' : '#10b981'};
-                color: white;
-                padding: 12px 20px;
-                border-radius: 8px;
-                z-index: 10000;
-                animation: slideInRight 0.3s ease-out;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideOutRight 0.3s ease-in';
-                setTimeout(() => {
-                    if (document.body.contains(notification)) {
-                        document.body.removeChild(notification);
-                    }
-                }, 300);
-            }, 3000);
-        }
-        
-        // Add CSS for notifications
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOutRight {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
