@@ -551,7 +551,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     if (data.success) {
                         Swal.fire('Success!', data.message, 'success')
-                            .then(() => location.reload());
+                            .then(() => {
+                                // Redirect to employee list if URL provided, otherwise reload
+                                if (data.redirect) {
+                                    window.location.href = data.redirect;
+                                } else {
+                                    location.reload();
+                                }
+                            });
                     } else {
                         Swal.fire('Error!', data.message || 'Conversion failed', 'error');
                     }

@@ -1748,7 +1748,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Receptionist-specific dashboard
+     * Receptionist-specific dashboard (with employee-style attendance features)
      */
     private function receptionistDashboard()
     {
@@ -1756,7 +1756,238 @@ class DashboardController extends Controller
         $currentMonth = now()->month;
         $currentYear = now()->year;
 
-        // Receptionist KPIs
+        // Get employee record for receptionist
+        $employee = Employee::where('user_id', auth()->id())->first();
+
+        // ========== EMPLOYEE-STYLE ATTENDANCE STATS ==========
+        $presentDays = 0;
+        $workingHours = 0;
+        $lateEntries = 0;
+        $earlyExits = 0;
+        $attendanceCalendar = [];
+        $leavesCalendar = [];
+        $birthdaysCalendar = [];
+        $anniversariesCalendar = [];
+        $pendingLeavesCalendar = [];
+        $rejectedLeavesCalendar = [];
+        $systemNotes = [];
+        $empNotes = [];
+
+        if ($employee) {
+            $attendances = Attendance::where('employee_id', $employee->id)
+                ->whereYear('date', $currentYear)
+                ->whereMonth('date', $currentMonth)
+                ->get();
+
+            $presentDays = $attendances->pluck('date')->unique()->count();
+            
+            $workingHours = $attendances->sum(function($att) {
+                if ($att->check_in && $att->check_out) {
+                    $checkIn = Carbon::parse($att->check_in);
+                    $checkOut = Carbon::parse($att->check_out);
+                    return $checkIn->diffInMinutes($checkOut) / 60;
+                }
+                return 0;
+            });
+            
+            $lateEntries = $attendances->where('status', 'late')->pluck('date')->unique()->count();
+            $earlyExits = $attendances->where('status', 'early_leave')->pluck('date')->unique()->count();
+
+            // Attendance calendar data
+            foreach ($attendances as $att) {
+                $day = Carbon::parse($att->date)->day;
+                $attendanceCalendar[$day] = $att->status;
+            }
+
+            // Leaves calendar data for current employee
+            $monthStart = Carbon::create($currentYear, $currentMonth, 1)->startOfMonth();
+            $monthEnd = Carbon::create($currentYear, $currentMonth, 1)->endOfMonth();
+            
+            $monthLeaves = Leave::where('status', 'approved')
+                ->where('employee_id', $employee->id)
+                ->where(function($query) use ($monthStart, $monthEnd) {
+                    $query->where('start_date', '<=', $monthEnd)
+                          ->where('end_date', '>=', $monthStart);
+                })
+                ->with('employee')
+                ->get();
+
+            foreach ($monthLeaves as $leave) {
+                $startDate = Carbon::parse($leave->start_date);
+                $endDate = Carbon::parse($leave->end_date);
+                $loopDate = $startDate->copy();
+                while ($loopDate->lte($endDate)) {
+                    if ($loopDate->month == $currentMonth && $loopDate->year == $currentYear) {
+                        $day = $loopDate->day;
+                        if (!isset($leavesCalendar[$day])) {
+                            $leavesCalendar[$day] = [];
+                        }
+                        $leavesCalendar[$day][] = [
+                            'name' => $leave->employee->name ?? 'You',
+                            'type' => ucfirst($leave->leave_type ?? 'Leave')
+                        ];
+                    }
+                    $loopDate->addDay();
+                }
+            }
+
+            // Pending leaves
+            $pendingLeaves = Leave::where('status', 'pending')
+                ->where('employee_id', $employee->id)
+                ->where(function($query) use ($monthStart, $monthEnd) {
+                    $query->where('start_date', '<=', $monthEnd)
+                          ->where('end_date', '>=', $monthStart);
+                })
+                ->with('employee')
+                ->get();
+
+            foreach ($pendingLeaves as $leave) {
+                $startDate = Carbon::parse($leave->start_date);
+                $endDate = Carbon::parse($leave->end_date);
+                $loopDate = $startDate->copy();
+                while ($loopDate->lte($endDate)) {
+                    if ($loopDate->month == $currentMonth && $loopDate->year == $currentYear) {
+                        $day = $loopDate->day;
+                        if (!isset($pendingLeavesCalendar[$day])) {
+                            $pendingLeavesCalendar[$day] = [];
+                        }
+                        $pendingLeavesCalendar[$day][] = [
+                            'name' => $leave->employee->name ?? 'You',
+                            'type' => ucfirst($leave->leave_type ?? 'Leave')
+                        ];
+                    }
+                    $loopDate->addDay();
+                }
+            }
+
+            // Rejected leaves
+            $rejectedLeaves = Leave::where('status', 'rejected')
+                ->where('employee_id', $employee->id)
+                ->where(function($query) use ($monthStart, $monthEnd) {
+                    $query->where('start_date', '<=', $monthEnd)
+                          ->where('end_date', '>=', $monthStart);
+                })
+                ->with('employee')
+                ->get();
+
+            foreach ($rejectedLeaves as $leave) {
+                $startDate = Carbon::parse($leave->start_date);
+                $endDate = Carbon::parse($leave->end_date);
+                $loopDate = $startDate->copy();
+                while ($loopDate->lte($endDate)) {
+                    if ($loopDate->month == $currentMonth && $loopDate->year == $currentYear) {
+                        $day = $loopDate->day;
+                        if (!isset($rejectedLeavesCalendar[$day])) {
+                            $rejectedLeavesCalendar[$day] = [];
+                        }
+                        $rejectedLeavesCalendar[$day][] = [
+                            'name' => $leave->employee->name ?? 'You',
+                            'type' => ucfirst($leave->leave_type ?? 'Leave')
+                        ];
+                    }
+                    $loopDate->addDay();
+                }
+            }
+
+            // System notes
+            try {
+                if (DB::getSchemaBuilder()->hasTable('notes')) {
+                    $systemNotesData = DB::table('notes')
+                        ->where('type', 'system')
+                        ->where(function($query) use ($employee) {
+                            $query->where('user_id', auth()->id())
+                                  ->orWhere('employee_id', $employee->id)
+                                  ->orWhereNull('user_id');
+                        })
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                    
+                    foreach ($systemNotesData as $note) {
+                        $systemNotes[] = [
+                            'id' => $note->id,
+                            'text' => $note->content ?? '',
+                            'date' => isset($note->created_at) ? Carbon::parse($note->created_at)->format('M d, Y g:i A') : now()->format('M d, Y g:i A')
+                        ];
+                    }
+                }
+            } catch (\Exception $e) {}
+
+            // Employee notes
+            try {
+                if (DB::getSchemaBuilder()->hasTable('notes')) {
+                    $empNotesData = DB::table('notes')
+                        ->where('type', 'employee')
+                        ->where(function($query) use ($employee) {
+                            $query->where('employee_id', $employee->id)
+                                  ->orWhereRaw("JSON_CONTAINS(assignees, JSON_QUOTE(?), '$')", [$employee->name]);
+                        })
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                    
+                    foreach ($empNotesData as $note) {
+                        $assignees = isset($note->assignees) ? json_decode($note->assignees, true) : [];
+                        $canDelete = ($note->user_id == auth()->id());
+                        
+                        $empNotes[] = [
+                            'id' => $note->id,
+                            'text' => $note->content ?? '',
+                            'date' => isset($note->created_at) ? Carbon::parse($note->created_at)->format('M d, Y') : now()->format('M d, Y'),
+                            'assignees' => $assignees,
+                            'can_delete' => $canDelete
+                        ];
+                    }
+                }
+            } catch (\Exception $e) {}
+        }
+
+        // Birthdays calendar
+        $birthdays = Employee::whereMonth('date_of_birth', $currentMonth)
+            ->orderByRaw('DAY(date_of_birth)')
+            ->get();
+        
+        foreach ($birthdays as $emp) {
+            $day = Carbon::parse($emp->date_of_birth)->day;
+            if (!isset($birthdaysCalendar[$day])) {
+                $birthdaysCalendar[$day] = [];
+            }
+            $birthdaysCalendar[$day][] = [
+                'name' => $emp->name,
+                'photo' => $emp->profile_photo_url
+            ];
+        }
+
+        // Work anniversaries
+        $anniversaryEmployees = Employee::whereMonth('joining_date', $currentMonth)
+            ->whereNotNull('joining_date')
+            ->where('joining_date', '<', now())
+            ->get();
+        
+        foreach ($anniversaryEmployees as $emp) {
+            $joiningDate = Carbon::parse($emp->joining_date);
+            $yearsWorked = $joiningDate->diffInYears(now());
+            
+            if ($yearsWorked >= 1) {
+                $day = $joiningDate->day;
+                if (!isset($anniversariesCalendar[$day])) {
+                    $anniversariesCalendar[$day] = [];
+                }
+                $anniversariesCalendar[$day][] = [
+                    'name' => $emp->name,
+                    'years' => $yearsWorked,
+                    'photo' => $emp->profile_photo_url
+                ];
+            }
+        }
+
+        // Employee attendance stats
+        $employeeStats = [
+            'present_days' => str_pad($presentDays, 2, '0', STR_PAD_LEFT),
+            'working_hours' => round($workingHours, 1),
+            'late_entries' => str_pad($lateEntries, 2, '0', STR_PAD_LEFT),
+            'early_exits' => str_pad($earlyExits, 2, '0', STR_PAD_LEFT),
+        ];
+
+        // ========== RECEPTIONIST-SPECIFIC STATS ==========
         $todayInquiries = 0;
         $pendingInquiries = 0;
         $totalInquiriesMonth = 0;
@@ -1781,11 +2012,8 @@ class DashboardController extends Controller
                     ->whereDate('next_followup_date', $today)
                     ->count();
             }
-        } catch (\Exception $e) {
-            // Tables don't exist
-        }
+        } catch (\Exception $e) {}
 
-        // Visitors today
         $visitorsToday = 0;
         try {
             if (DB::getSchemaBuilder()->hasTable('visitors')) {
@@ -1793,14 +2021,10 @@ class DashboardController extends Controller
                     ->whereDate('visit_date', $today)
                     ->count();
             }
-        } catch (\Exception $e) {
-            $visitorsToday = 0;
-        }
+        } catch (\Exception $e) {}
 
-        // Active tickets
         $activeTickets = Ticket::whereIn('status', ['open', 'pending', 'in_progress'])->count();
         
-        // Appointments today
         $appointmentsToday = 0;
         try {
             if (DB::getSchemaBuilder()->hasTable('appointments')) {
@@ -1808,11 +2032,8 @@ class DashboardController extends Controller
                     ->whereDate('appointment_date', $today)
                     ->count();
             }
-        } catch (\Exception $e) {
-            $appointmentsToday = 0;
-        }
+        } catch (\Exception $e) {}
 
-        // Calls handled today
         $callsToday = 0;
         try {
             if (DB::getSchemaBuilder()->hasTable('call_logs')) {
@@ -1820,9 +2041,7 @@ class DashboardController extends Controller
                     ->whereDate('created_at', $today)
                     ->count();
             }
-        } catch (\Exception $e) {
-            $callsToday = 0;
-        }
+        } catch (\Exception $e) {}
 
         $stats = [
             'today_inquiries' => $todayInquiries,
@@ -1856,9 +2075,7 @@ class DashboardController extends Controller
                         ];
                     });
             }
-        } catch (\Exception $e) {
-            $recentInquiries = collect([]);
-        }
+        } catch (\Exception $e) {}
 
         // Today's follow-ups
         $todayFollowUps = collect([]);
@@ -1879,9 +2096,7 @@ class DashboardController extends Controller
                         ];
                     });
             }
-        } catch (\Exception $e) {
-            $todayFollowUps = collect([]);
-        }
+        } catch (\Exception $e) {}
 
         // Recent tickets
         $recentTickets = Ticket::orderBy('created_at', 'desc')
@@ -1923,7 +2138,23 @@ class DashboardController extends Controller
             }
         }
 
-        return view('dashboard-receptionist', compact('stats', 'recentInquiries', 'todayFollowUps', 'recentTickets', 'inquiryTrends'));
+        return view('dashboard-receptionist', compact(
+            'stats', 
+            'employeeStats',
+            'recentInquiries', 
+            'todayFollowUps', 
+            'recentTickets', 
+            'inquiryTrends',
+            'employee',
+            'attendanceCalendar',
+            'leavesCalendar',
+            'birthdaysCalendar',
+            'anniversariesCalendar',
+            'pendingLeavesCalendar',
+            'rejectedLeavesCalendar',
+            'systemNotes',
+            'empNotes'
+        ));
     }
 
     /**

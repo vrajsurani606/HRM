@@ -888,7 +888,7 @@ function renderTeamMembers() {
         
         // Check for photo from employee data
         const photoPath = member.employee && member.employee.photo_path 
-            ? `{{ asset('public/storage') }}/${member.employee.photo_path}`
+            ? `{{ url('storage') }}/${member.employee.photo_path}`
             : null;
         
         // Build avatar content - photo with colored ring or initials on colored background
@@ -1500,7 +1500,7 @@ async function addNewMember() {
             const initial = user.name.charAt(0).toUpperCase();
             
             // Determine avatar display (photo or initial) - photo_path comes directly from API
-            const photoPath = user.photo_path ? `{{ asset('public/storage') }}/${user.photo_path}` : null;
+            const photoPath = user.photo_path ? `{{ url('storage') }}/${user.photo_path}` : null;
             
             // Build avatar - photo with colored ring or initials on colored background
             let avatarContent = '';

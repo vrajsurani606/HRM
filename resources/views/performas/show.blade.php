@@ -29,8 +29,10 @@
       <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 700; color: #1e40af;">From</h3>
       <div style="font-size: 14px; line-height: 1.8; color: #374151;">
         <p style="margin: 0; font-weight: 600;">CHITRI ENLARGE SOFT IT HUB PVT. LTD.</p>
-        <p style="margin: 0;">401/B, RISE ON PLAZA, SARKHEJ JAKAT NAKA,</p>
-        <p style="margin: 0;">SURAT, 390006.</p>
+        {{-- <p style="margin: 0;">401/B, RISE ON PLAZA, SARKHEJ JAKAT NAKA,</p>
+        <p style="margin: 0;">SURAT, 390006.</p> --}}
+        <p style="margin: 0;">244/45, Raj Imperia, Near Sarthana Police Station,</p>
+        <p style="margin: 0;">Vraj Chowk, Simada, Surat - 395006.</p>
         <p style="margin: 0;">GST. NO.: 24AAMCC4413E1Z1</p>
         <p style="margin: 0;">Mo. (+91) 72763 23999</p>
       </div>

@@ -138,14 +138,16 @@
       @error('followup_date')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
-      <label class="hrp-label">Next Follow Up Date:</label>
+      <label class="hrp-label">Next Follow Up Date: <span class="text-red-500">*</span></label>
       <input 
         type="text" 
-        class="hrp-input Rectangle-29 followup-date-picker" 
+        class="hrp-input Rectangle-29" 
+        id="next_followup_date"
         name="next_followup_date" 
         placeholder="dd/mm/yyyy" 
         value="{{ old('next_followup_date') }}" 
         autocomplete="off"
+        required
       >
       @error('next_followup_date')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
@@ -193,11 +195,11 @@
 $(document).ready(function() {
     // Initialize follow-up date picker with dd/mm/yyyy format
     // minDate: 0 prevents selecting past dates (only today and future dates allowed)
-    $('.followup-date-picker').datepicker({
+    $('#next_followup_date').datepicker({
         dateFormat: 'dd/mm/yy', // In jQuery UI, 'yy' means 4-digit year
         changeMonth: true,
         changeYear: true,
-        yearRange: '0:+10',
+        yearRange: '-1:+2', // Allow 1 year back and 2 years forward
         minDate: 0, // Prevent selecting past dates
         showButtonPanel: true,
         beforeShow: function(input, inst) {
@@ -207,6 +209,20 @@ $(document).ready(function() {
                     marginLeft: '0px'
                 });
             }, 0);
+        }
+    });
+    
+    // Ensure the datepicker is properly initialized
+    $('#next_followup_date').on('focus', function() {
+        if (!$(this).hasClass('hasDatepicker')) {
+            $(this).datepicker({
+                dateFormat: 'dd/mm/yy',
+                changeMonth: true,
+                changeYear: true,
+                yearRange: '-1:+2',
+                minDate: 0,
+                showButtonPanel: true
+            });
         }
     });
     

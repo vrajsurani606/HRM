@@ -254,6 +254,14 @@
     border-radius: 4px;
     transition: width 0.3s ease;
   }
+  
+  /* Calendar Section */
+  .rec-calendar-section {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
 </style>
 @endpush
 
@@ -384,6 +392,82 @@
   </div>
 
 
+  <!-- Calendar Section - Full Width -->
+  <div class="hrp-col-12">
+    <div class="rec-calendar-section">
+      <!-- Calendar Header -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 3px solid #3b82f6;">
+        <!-- Left: Navigation and Today -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button onclick="changeMonth(-1)" style="width: 36px; height: 36px; border-radius: 6px; background: #3b82f6; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">‹</button>
+          <button onclick="changeMonth(1)" style="width: 36px; height: 36px; border-radius: 6px; background: #3b82f6; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">›</button>
+          <button onclick="goToToday()" style="padding: 8px 16px; border-radius: 6px; background: white; color: #374151; border: 1px solid #d1d5db; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; margin-left: 8px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">Today</button>
+        </div>
+        
+        <!-- Center: Month Year -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span id="currentMonth" style="font-size: 22px; font-weight: 700; color: #1f2937; text-transform: uppercase;">{{ now()->format('F') }}</span>
+          <span id="currentYear" style="font-size: 22px; font-weight: 700; color: #1f2937;">{{ now()->format('Y') }}</span>
+        </div>
+        
+        <!-- Right: Month View Label -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="padding: 8px 20px; background: #3b82f6; color: white; border-radius: 6px; font-size: 13px; font-weight: 600;">Month View</span>
+        </div>
+      </div>
+      
+      <!-- Calendar Title -->
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+        <div style="width: 4px; height: 20px; background: #3b82f6; border-radius: 2px;"></div>
+        <h3 style="font-size: 15px; font-weight: 600; color: #1f2937; margin: 0;">Calendar</h3>
+      </div>
+
+      <!-- Calendar Table -->
+      <table id="calendarTable" style="width: 100%; table-layout: fixed; border-collapse: collapse; margin-bottom: 20px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
+        <thead>
+          <tr style="background: #f9fafb;">
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #ef4444; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb;">Sun</th>
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb;">Mon</th>
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb;">Tue</th>
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb;">Wed</th>
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb;">Thu</th>
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb;">Fri</th>
+            <th style="width: 14.28%; text-align: left; font-size: 15px; font-weight: 600; color: #374151; padding: 16px 14px; border-bottom: 1px solid #e5e7eb;">Sat</th>
+          </tr>
+        </thead>
+        <tbody id="calendarBody">
+          <!-- Calendar will be rendered by JavaScript -->
+        </tbody>
+      </table>
+
+      <!-- Legend -->
+      <div style="background: #f9fafb; padding: 16px 20px; border-radius: 8px; margin-top: 10px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: flex-start;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; background: #f59e0b; border-radius: 50%; box-shadow: 0 2px 4px rgba(245,158,11,0.3);"></div>
+            <span style="font-size: 13px; color: #374151; font-weight: 500;">Pending</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; background: #22c55e; border-radius: 50%; box-shadow: 0 2px 4px rgba(34,197,94,0.3);"></div>
+            <span style="font-size: 13px; color: #374151; font-weight: 500;">Approve</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; background: #ef4444; border-radius: 50%; box-shadow: 0 2px 4px rgba(239,68,68,0.3);"></div>
+            <span style="font-size: 13px; color: #374151; font-weight: 500;">Reject</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; background: #14b8a6; border-radius: 50%; box-shadow: 0 2px 4px rgba(20,184,166,0.3);"></div>
+            <span style="font-size: 13px; color: #374151; font-weight: 500;">Birthday</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; background: #f97316; border-radius: 50%; box-shadow: 0 2px 4px rgba(249,115,22,0.3);"></div>
+            <span style="font-size: 13px; color: #374151; font-weight: 500;">Work Anniversary</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Recent Inquiries -->
   <div class="hrp-col-8">
     <div class="rec-inquiry-card">
@@ -458,4 +542,266 @@
     </div>
   </div>
 </div>
+
+<!-- Events Popup Modal -->
+<div id="eventsPopup" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+  <div style="background: white; border-radius: 16px; width: 90%; max-width: 400px; max-height: 80vh; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.25);">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white;">
+      <h3 id="popupTitle" style="margin: 0; font-size: 16px; font-weight: 700;">Events</h3>
+      <button onclick="closeEventsPopup()" style="width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.15); border: none; color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+    </div>
+    <div id="popupContent" style="padding: 20px; overflow-y: auto; max-height: 60vh; display: flex; flex-direction: column; gap: 10px;"></div>
+  </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+// Calendar data from backend
+let calendarData = {
+  attendance: @json($attendanceCalendar ?? []),
+  leaves: @json($leavesCalendar ?? []),
+  birthdays: @json($birthdaysCalendar ?? []),
+  anniversaries: @json($anniversariesCalendar ?? []),
+  pendingLeaves: @json($pendingLeavesCalendar ?? []),
+  rejectedLeaves: @json($rejectedLeavesCalendar ?? []),
+  today: {
+    day: {{ now()->day }},
+    month: {{ now()->month }},
+    year: {{ now()->year }}
+  }
+};
+
+let currentDate = new Date();
+let isLoadingCalendar = false;
+
+// Fetch calendar data for a specific month via AJAX
+async function fetchCalendarData(month, year) {
+  if (isLoadingCalendar) return;
+  isLoadingCalendar = true;
+  
+  try {
+    const response = await fetch(`{{ route('employee.calendar.data') }}?month=${month}&year=${year}`);
+    const data = await response.json();
+    
+    if (data.success) {
+      calendarData.attendance = data.attendance || {};
+      calendarData.leaves = data.leaves || {};
+      calendarData.birthdays = data.birthdays || {};
+      calendarData.anniversaries = data.anniversaries || {};
+      calendarData.pendingLeaves = data.pendingLeaves || {};
+      calendarData.rejectedLeaves = data.rejectedLeaves || {};
+    }
+  } catch (error) {
+    console.error('Error fetching calendar data:', error);
+  } finally {
+    isLoadingCalendar = false;
+  }
+}
+
+async function changeMonth(direction) {
+  currentDate.setMonth(currentDate.getMonth() + direction);
+  const month = currentDate.getMonth() + 1;
+  const year = currentDate.getFullYear();
+  
+  await fetchCalendarData(month, year);
+  renderCalendar();
+}
+
+async function goToToday() {
+  currentDate = new Date();
+  const month = currentDate.getMonth() + 1;
+  const year = currentDate.getFullYear();
+  
+  await fetchCalendarData(month, year);
+  renderCalendar();
+}
+
+function showEventsPopup(day, events) {
+  const popup = document.getElementById('eventsPopup');
+  const title = document.getElementById('popupTitle');
+  const content = document.getElementById('popupContent');
+  
+  const monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+  
+  title.textContent = `${monthNames[currentDate.getMonth()]} ${day}, ${currentDate.getFullYear()}`;
+  
+  let html = '';
+  events.forEach(event => {
+    html += `<div style="background: ${event.bgColor}; border-left: 4px solid ${event.borderColor}; padding: 10px 14px; border-radius: 6px;">
+      <div style="font-size: 13px; font-weight: 600; color: ${event.textColor};">${event.title}</div>
+      ${event.subtitle ? `<div style="font-size: 11px; color: ${event.textColor}; opacity: 0.8; margin-top: 2px;">${event.subtitle}</div>` : ''}
+    </div>`;
+  });
+  
+  content.innerHTML = html;
+  popup.style.display = 'flex';
+}
+
+function closeEventsPopup() {
+  document.getElementById('eventsPopup').style.display = 'none';
+}
+
+document.addEventListener('click', function(e) {
+  const popup = document.getElementById('eventsPopup');
+  if (e.target === popup) {
+    closeEventsPopup();
+  }
+});
+
+function renderCalendar() {
+  const monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+  
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  
+  document.getElementById('currentMonth').textContent = monthNames[month];
+  document.getElementById('currentYear').textContent = year;
+  
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = new Date();
+  const isCurrentMonth = (year === today.getFullYear() && month === today.getMonth());
+  
+  let html = '';
+  let dayCount = 1;
+  let totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+  
+  for (let i = 0; i < totalCells; i++) {
+    if (i % 7 === 0) {
+      html += '<tr>';
+    }
+    
+    if (i < firstDay || dayCount > daysInMonth) {
+      const prevMonthDay = i < firstDay ? new Date(year, month, 0).getDate() - (firstDay - i - 1) : '';
+      const nextMonthDay = dayCount > daysInMonth ? dayCount - daysInMonth : '';
+      const displayDay = i < firstDay ? prevMonthDay : nextMonthDay;
+      if (dayCount > daysInMonth) dayCount++;
+      
+      const isSaturdayEmpty = (i % 7 === 6);
+      const rightBorderEmpty = isSaturdayEmpty ? '' : 'border-right: 1px solid #e5e7eb;';
+      html += `<td style="text-align: left; padding: 12px; border-bottom: 1px solid #e5e7eb; ${rightBorderEmpty} background: #fafafa; vertical-align: top; height: 130px;">
+        <div style="font-size: 16px; font-weight: 400; color: #d1d5db;">${displayDay}</div>
+      </td>`;
+    } else {
+      const day = dayCount;
+      const isToday = isCurrentMonth && day === today.getDate();
+      const isSunday = (i % 7 === 0);
+      
+      let bgColor = 'white';
+      const dayColor = isSunday ? '#ef4444' : '#374151';
+      
+      let allEvents = [];
+      
+      // Birthdays
+      const dayBirthdays = calendarData.birthdays[day] || [];
+      dayBirthdays.forEach(b => {
+        allEvents.push({
+          type: 'birthday',
+          title: `Birthday Of ${b.name}`,
+          subtitle: null,
+          bgColor: 'rgba(20, 184, 166, 0.15)',
+          borderColor: '#14b8a6',
+          textColor: '#0f766e'
+        });
+      });
+      
+      // Work Anniversaries
+      const dayAnniversaries = calendarData.anniversaries[day] || [];
+      dayAnniversaries.forEach(a => {
+        allEvents.push({
+          type: 'anniversary',
+          title: `Work Anniversary Of ${a.name}`,
+          subtitle: `${a.years} Year${a.years > 1 ? 's' : ''}`,
+          bgColor: 'rgba(249, 115, 22, 0.15)',
+          borderColor: '#f97316',
+          textColor: '#c2410c'
+        });
+      });
+      
+      // Approved Leaves
+      const dayLeaves = calendarData.leaves[day] || [];
+      dayLeaves.forEach(l => {
+        allEvents.push({
+          type: 'leave_approved',
+          title: `${l.name}`,
+          subtitle: `${l.type || 'Leave'} - Approved`,
+          bgColor: 'rgba(34, 197, 94, 0.15)',
+          borderColor: '#22c55e',
+          textColor: '#15803d'
+        });
+      });
+      
+      // Pending Leaves
+      const dayPendingLeaves = calendarData.pendingLeaves[day] || [];
+      dayPendingLeaves.forEach(l => {
+        allEvents.push({
+          type: 'leave_pending',
+          title: `${l.name}`,
+          subtitle: `${l.type || 'Leave'} - Pending`,
+          bgColor: 'rgba(245, 158, 11, 0.15)',
+          borderColor: '#f59e0b',
+          textColor: '#b45309'
+        });
+      });
+      
+      // Rejected Leaves
+      const dayRejectedLeaves = calendarData.rejectedLeaves[day] || [];
+      dayRejectedLeaves.forEach(l => {
+        allEvents.push({
+          type: 'leave_rejected',
+          title: `${l.name}`,
+          subtitle: `${l.type || 'Leave'} - Rejected`,
+          bgColor: 'rgba(239, 68, 68, 0.15)',
+          borderColor: '#ef4444',
+          textColor: '#b91c1c'
+        });
+      });
+      
+      const isSaturday = (i % 7 === 6);
+      const rightBorder = isSaturday ? '' : 'border-right: 1px solid #e5e7eb;';
+      html += `<td style="text-align: left; padding: 12px; border-bottom: 1px solid #e5e7eb; ${rightBorder} background: ${bgColor}; vertical-align: top; height: 130px; position: relative;">`;
+      
+      if (isToday) {
+        html += `<div style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: #3b82f6; border-radius: 50%; margin-bottom: 8px;">
+          <span style="font-size: 16px; font-weight: 700; color: white;">${day}</span>
+        </div>`;
+      } else {
+        html += `<div style="font-size: 17px; font-weight: ${isSunday ? '700' : '600'}; color: ${dayColor}; margin-bottom: 8px;">${day}</div>`;
+      }
+      
+      html += `<div style="display: flex; flex-direction: column; gap: 4px;">`;
+      
+      const maxVisible = 3;
+      const visibleEvents = allEvents.slice(0, maxVisible);
+      const remainingCount = allEvents.length - maxVisible;
+      
+      visibleEvents.forEach(event => {
+        html += `<div style="background: ${event.bgColor}; border-left: 4px solid ${event.borderColor}; color: ${event.textColor}; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: default;" title="${event.title}${event.subtitle ? ' - ' + event.subtitle : ''}">${event.title}</div>`;
+      });
+      
+      if (remainingCount > 0) {
+        html += `<div onclick='showEventsPopup(${day}, ${JSON.stringify(allEvents)})' style="background: #e5e7eb; color: #374151; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 4px; cursor: pointer; text-align: center; transition: all 0.2s;" onmouseover="this.style.background='#d1d5db'" onmouseout="this.style.background='#e5e7eb'">+${remainingCount} more</div>`;
+      }
+      
+      html += `</div>`;
+      html += '</td>';
+      dayCount++;
+    }
+    
+    if (i % 7 === 6) {
+      html += '</tr>';
+    }
+  }
+  
+  document.getElementById('calendarBody').innerHTML = html;
+}
+
+// Initialize calendar on page load
+document.addEventListener('DOMContentLoaded', function() {
+  renderCalendar();
+});
+</script>
+@endpush

@@ -200,13 +200,14 @@ class HiringController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Lead converted to employee successfully with all details transferred'
+                'message' => 'Lead converted to employee successfully with all details transferred',
+                'redirect' => route('employees.index')
             ]);
         }
 
-        // SUCCESS – Web
+        // SUCCESS – Web - Redirect to employee list
         return redirect()
-            ->route('hiring.index')
+            ->route('employees.index')
             ->with('success', 'Lead converted to employee successfully with all details transferred');
 
     } catch (\Exception $e) {
@@ -417,8 +418,8 @@ class HiringController extends Controller
         $data['hiring_lead_id'] = $lead->id;
         OfferLetter::create($data);
 
-        return redirect()->route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter'])
-            ->with('success','Offer letter saved');
+        // Redirect back to hiring leads list
+        return redirect()->route('hiring.index')->with('success', 'Offer letter saved successfully');
     }
 
     public function offerEdit($id)
@@ -466,8 +467,11 @@ class HiringController extends Controller
         $offer->update($data);
 
         if ($r->has('save_and_print')) {
-            return redirect()->route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter'])
-                ->with('success','Offer letter updated');
+            return redirect()->route('hiring.print', [
+                'id' => $lead->id, 
+                'type' => 'offerletter',
+                'redirect_to' => route('hiring.index')
+            ])->with('success','Offer letter updated');
         }
         return back()->with('success','Offer letter updated');
     }
