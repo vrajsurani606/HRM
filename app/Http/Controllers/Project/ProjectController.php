@@ -891,9 +891,20 @@ class ProjectController extends Controller
             $existingMemberUserIds = $project->members()->pluck('users.id')->toArray();
             
             // Filter and format employees with chat_color
+            // Exclude super-admin and admin roles as they already have access to all projects
             $availableEmployees = $employees->filter(function($employee) use ($existingMemberUserIds) {
                 // Only include employees with user_id and not already in project
-                return $employee->user_id && !in_array($employee->user_id, $existingMemberUserIds);
+                if (!$employee->user_id || in_array($employee->user_id, $existingMemberUserIds)) {
+                    return false;
+                }
+                
+                // Exclude users with super-admin or admin roles
+                $user = $employee->user;
+                if ($user && ($user->hasRole('super-admin') || $user->hasRole('admin'))) {
+                    return false;
+                }
+                
+                return true;
             })->map(function($employee) {
                 $user = $employee->user;
                 return [

@@ -13,11 +13,18 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Offer Letter - {{ $lead->person_name }}</title>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
     
-    * {
+    *:not(.fa):not(.fas):not(.far):not(.fab):not(.fal):not(.fad):not([class^="fa-"]):not([class*=" fa-"]) {
         font-family: 'Poppins', sans-serif !important;
+    }
+    
+    /* Ensure Font Awesome icons use their own font */
+    .fa, .fas, .far, .fab, .fal, .fad, [class^="fa-"], [class*=" fa-"] {
+        font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
     }
     
     body, html { margin:0 !important; padding:0 !important; font-family: 'Poppins', sans-serif !important; font-weight: 400; }
@@ -114,6 +121,16 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
     .letter-content.first-page .letter-meta, .letter-content.first-page .recipient, .letter-content.first-page .subject, .letter-content.first-page .body, .letter-content.first-page .signature { margin-bottom:4px !important; }
     .letter-content.first-page .body p, .letter-content.first-page .body ol, .letter-content.first-page .body ul { margin-bottom:2px !important; }
     .letter-content.first-page .signature { margin-top:6px !important; }
+    
+    /* Font Awesome icons - must be at the end to override other font-family rules */
+    .fa, .fas, .far, .fab, .fal, .fad,
+    i[class^="fa-"], i[class*=" fa-"] {
+        font-family: "Font Awesome 6 Free" !important;
+        font-weight: 900;
+    }
+    .fab {
+        font-family: "Font Awesome 6 Brands" !important;
+    }
   </style>
 </head>
 <body>
@@ -125,7 +142,6 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
       <i class="fas fa-print" style="margin-right: 5px;"></i> Print
     </button>
   </div>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script>
   function goBack() {
     // Check if there's a specific redirect URL in the query string
@@ -134,11 +150,8 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
     
     if (redirectTo) {
       window.location.href = redirectTo;
-    } else if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
-      // Go back to previous page if it's from the same domain
-      window.history.back();
     } else {
-      // Default: go to hiring leads index
+      // Default: go to hiring leads index (don't rely on history.back as it may not work after form submissions)
       window.location.href = "{{ route('hiring.index') }}";
     }
   }

@@ -11,6 +11,8 @@
         <link rel="stylesheet" href="{{ asset('new_theme/css/macos.css') }}">
         <link rel="stylesheet" href="{{ asset('new_theme/css/visby-fonts.css') }}">
         <link rel="stylesheet" href="{{ asset('new_theme/css/hrportal.css') }}">
+        <!-- Font Awesome 6 for fas/far/fab icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
         <!-- Breeze/Vite assets -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])

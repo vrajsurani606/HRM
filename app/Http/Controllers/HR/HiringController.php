@@ -200,13 +200,14 @@ class HiringController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Lead converted to employee successfully with all details transferred'
+                'message' => 'Lead converted to employee successfully with all details transferred',
+                'redirect' => route('employees.index')
             ]);
         }
 
-        // SUCCESS – Web
+        // SUCCESS – Web - Redirect to employee list
         return redirect()
-            ->route('hiring.index')
+            ->route('employees.index')
             ->with('success', 'Lead converted to employee successfully with all details transferred');
 
     } catch (\Exception $e) {

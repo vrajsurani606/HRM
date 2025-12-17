@@ -59,11 +59,17 @@
         .logo-section {
             text-align: center;
             margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
         }
         
         .logo-section img {
             max-width: 180px;
             height: auto;
+            display: block;
+            margin: 0 auto;
         }
         
         /* Header Info */

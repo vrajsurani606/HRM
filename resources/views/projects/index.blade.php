@@ -149,8 +149,34 @@
 /* View Project Modal specific styles */
 #viewProjectModal .modal-content {
   max-height: 90vh !important;
-  overflow: hidden !important;
+  overflow: visible !important;
 }
+
+/* Allow tooltip overflow for member avatars */
+#projectMembersAvatars {
+  overflow: visible !important;
+  position: relative;
+  z-index: 10;
+}
+
+/* Ensure avatar wrapper allows tooltip overflow */
+#projectMembersAvatars .avatar-wrapper {
+  position: relative;
+  overflow: visible !important;
+}
+
+/* Member tooltip styling */
+#member-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  z-index: 999999;
+  pointer-events: none;
+}
+
+/* Custom tooltip - styles applied via JavaScript for reliability */
 
 /* jQuery UI Datepicker z-index fix for modals */
 .ui-datepicker {
@@ -1551,7 +1577,7 @@
         </div>
         
         <!-- Action Buttons -->
-        <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: stretch;">
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: stretch; overflow: visible;">
           
           
           <button id="dueDateButton" onclick="openProjectDueDatePicker()" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s; height: 38px; box-sizing: border-box;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">
@@ -1581,7 +1607,7 @@
           @endcan
           
           <!-- Members Section -->
-          <div style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; color: #000; height: 38px; box-sizing: border-box;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; color: #000; height: 38px; box-sizing: border-box; overflow: visible; position: relative;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
@@ -1589,7 +1615,7 @@
               <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
             </svg>
             <span style="font-weight: 500;">Members</span>
-            <div id="projectMembersAvatars" style="display: flex; align-items: center; gap: 4px;">
+            <div id="projectMembersAvatars" style="display: flex; align-items: center; gap: 4px; overflow: visible;">
               <!-- Member avatars will be added here -->
             </div>
           </div>
@@ -1822,7 +1848,87 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeViewSwitching();
     initializeDragAndDrop();
     loadEmployeesForTasks();
+    initializeAvatarTooltips();
 });
+
+// Custom tooltip for avatars - positioned directly above the avatar
+function initializeAvatarTooltips() {
+    // Create tooltip element if not exists
+    let tooltip = document.getElementById('avatar-tooltip');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'avatar-tooltip';
+        tooltip.className = 'avatar-tooltip';
+        tooltip.style.cssText = 'position:fixed;display:none;padding:6px 12px;background:#1f2937;color:#fff;font-size:12px;font-weight:500;white-space:nowrap;border-radius:6px;z-index:2147483647;box-shadow:0 4px 12px rgba(0,0,0,0.3);pointer-events:none;';
+        document.body.appendChild(tooltip);
+        
+        // Add arrow
+        const arrow = document.createElement('div');
+        arrow.style.cssText = 'position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#1f2937;';
+        tooltip.appendChild(arrow);
+    }
+    
+    let currentAvatar = null;
+    
+    // Function to position tooltip
+    function positionTooltip() {
+        if (!currentAvatar) return;
+        
+        const rect = currentAvatar.getBoundingClientRect();
+        const tooltipWidth = tooltip.offsetWidth;
+        const tooltipHeight = tooltip.offsetHeight;
+        
+        // Position directly above the avatar
+        let left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
+        let top = rect.top - tooltipHeight - 8;
+        
+        // Keep within viewport
+        if (left < 5) left = 5;
+        if (left + tooltipWidth > window.innerWidth - 5) left = window.innerWidth - tooltipWidth - 5;
+        if (top < 5) top = rect.bottom + 8; // Show below if no space above
+        
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+    }
+    
+    // Show tooltip
+    function showTooltip(avatar) {
+        const text = avatar.getAttribute('data-tooltip');
+        if (!text) return;
+        
+        currentAvatar = avatar;
+        tooltip.childNodes[0].textContent = text;
+        tooltip.style.display = 'block';
+        
+        // Position after display
+        setTimeout(positionTooltip, 0);
+    }
+    
+    // Hide tooltip
+    function hideTooltip() {
+        tooltip.style.display = 'none';
+        currentAvatar = null;
+    }
+    
+    // Event listeners using capture phase
+    document.addEventListener('mouseenter', function(e) {
+        const avatar = e.target;
+        if (avatar.hasAttribute && avatar.hasAttribute('data-tooltip')) {
+            if (avatar.closest('#projectMembersAvatars') || avatar.closest('.card-avatars')) {
+                showTooltip(avatar);
+            }
+        }
+    }, true);
+    
+    document.addEventListener('mouseleave', function(e) {
+        const avatar = e.target;
+        if (avatar.hasAttribute && avatar.hasAttribute('data-tooltip')) {
+            if (avatar.closest('#projectMembersAvatars') || avatar.closest('.card-avatars')) {
+                hideTooltip();
+            }
+        }
+    }, true);
+}
 
 function initializeViewSwitching() {
     const viewButtons = document.querySelectorAll('.view-toggle-btn');
@@ -5457,16 +5563,16 @@ function addMemberAvatar(member) {
     // Check for photo
     let photoPath = null;
     if (member.employee && member.employee.photo_path) {
-        photoPath = `{{ asset('public/storage') }}/${member.employee.photo_path}`;
+        photoPath = `{{ url('storage') }}/${member.employee.photo_path}`;
     } else if (member.photo_path) {
-        photoPath = `{{ asset('public/storage') }}/${member.photo_path}`;
+        photoPath = `{{ url('storage') }}/${member.photo_path}`;
     }
     
     // Add new member avatar with user's unique color as border
     const avatar = document.createElement('div');
     avatar.className = 'avatar';
     avatar.style.cssText = `width: 32px; height: 32px; border-radius: 50%; background: ${photoPath ? '#f3f4f6' : userColor}; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 600; border: 2px solid ${userColor}; cursor: pointer; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.12); margin-left: 0;`;
-    avatar.setAttribute('data-tooltip', member.name);
+    // Don't set data-tooltip here - we use JavaScript tooltip instead to avoid duplicate tooltips
     avatar.dataset.userId = member.id;
     
     // Set avatar content (photo or initials)
@@ -5592,7 +5698,7 @@ function loadProjectMembers(projectId) {
                 const avatar = document.createElement('div');
                 avatar.className = 'avatar';
                 avatar.style.cssText = `width: 32px; height: 32px; border-radius: 50%; background: ${photoPath ? '#f3f4f6' : userColor}; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 600; border: 2px solid ${userColor}; cursor: pointer; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.12); margin-left: 0;`;
-                avatar.setAttribute('data-tooltip', member.name);
+                // Don't set data-tooltip here - we use JavaScript tooltip instead to avoid duplicate tooltips
                 avatar.dataset.userId = member.id;
                 
                 // Set avatar content (photo or initials)
@@ -5678,46 +5784,58 @@ function showMemberTooltip(event, text, element) {
     // Remove any existing tooltip
     hideMemberTooltip();
     
-    // Create tooltip element
+    // Create tooltip container - position absolute relative to the avatar wrapper
+    const tooltipContainer = document.createElement('div');
+    tooltipContainer.id = 'member-tooltip';
+    tooltipContainer.style.cssText = `
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-bottom: 8px;
+        z-index: 999999;
+        pointer-events: none;
+    `;
+    
+    // Create tooltip text element
     const tooltip = document.createElement('div');
-    tooltip.id = 'member-tooltip';
     tooltip.textContent = text;
     tooltip.style.cssText = `
-        position: fixed;
         padding: 6px 12px;
-        background: #1f2937;
+        background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
         color: white;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 500;
         white-space: nowrap;
         border-radius: 6px;
-        z-index: 999999;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.15s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        max-width: 200px;
+        text-overflow: ellipsis;
+        overflow: hidden;
     `;
     
-    document.body.appendChild(tooltip);
+    // Create arrow element
+    const arrow = document.createElement('div');
+    arrow.style.cssText = `
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid #374151;
+        margin: 0 auto;
+    `;
     
-    // Position tooltip above the element
-    const rect = element.getBoundingClientRect();
-    const tooltipRect = tooltip.getBoundingClientRect();
+    tooltipContainer.appendChild(tooltip);
+    tooltipContainer.appendChild(arrow);
     
-    tooltip.style.left = (rect.left + rect.width / 2 - tooltipRect.width / 2) + 'px';
-    tooltip.style.top = (rect.top - tooltipRect.height - 8) + 'px';
-    
-    // Show with animation
-    requestAnimationFrame(() => {
-        tooltip.style.opacity = '1';
-    });
+    // Append tooltip to the element itself (avatar wrapper) for correct positioning
+    element.style.position = 'relative';
+    element.appendChild(tooltipContainer);
 }
 
 function hideMemberTooltip() {
-    const tooltip = document.getElementById('member-tooltip');
-    if (tooltip) {
-        tooltip.remove();
-    }
+    const tooltips = document.querySelectorAll('#member-tooltip');
+    tooltips.forEach(tooltip => tooltip.remove());
 }
 
 // Project Filter Functions

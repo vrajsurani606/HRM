@@ -25,11 +25,18 @@ if ($contentLength > 3000) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ $letter->type }} Letter - {{ $employee->name }}</title>
+<!-- Font Awesome 6 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
     
-    * {
+    *:not(.fa):not(.fas):not(.far):not(.fab):not(.fal):not(.fad):not([class^="fa-"]):not([class*=" fa-"]) {
         font-family: 'Poppins', sans-serif !important;
+    }
+    
+    /* Ensure Font Awesome icons use their own font */
+    .fa, .fas, .far, .fab, .fal, .fad, [class^="fa-"], [class*=" fa-"] {
+        font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
     }
     
     body, html { 
@@ -192,13 +199,32 @@ if ($contentLength > 3000) {
     }
     .bullets-avoid-break { break-inside: avoid; page-break-inside: avoid; }
     
-    /* Print Button */
+    /* Button Container */
+    .btn-container {
+        position: fixed;
+        right: 24px;
+        top: 20px;
+        z-index: 9999;
+        display: flex;
+        gap: 10px;
+    }
+    
+    /* Print & Back Buttons */
     .print-btn {
-        position: fixed; right: 24px; top: 20px; z-index: 9999;
         background: #1f2937; color: #fff; border: 0; padding: 10px 14px; border-radius: 6px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.15); cursor: pointer; font-weight: 700;
+        display: inline-flex;
+        align-items: center;
     }
     .print-btn:hover { background: #111827; }
+    
+    .back-btn {
+        background: #6b7280; color: #fff; border: 0; padding: 10px 14px; border-radius: 6px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15); cursor: pointer; font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+    }
+    .back-btn:hover { background: #4b5563; }
     
     /* Print Styles */
     @media print {
@@ -207,8 +233,8 @@ if ($contentLength > 3000) {
             margin: 0;
         }
         
-        .print-btn { display:none !important; }
-        div[style*="position: fixed"] { display:none !important; }
+        .btn-container { display:none !important; }
+        .print-btn, .back-btn { display:none !important; }
         body { background:none; margin:0; padding:0; }
         
         .offer-container { 
@@ -281,6 +307,16 @@ if ($contentLength > 3000) {
             padding-top: 200px !important;
         }
     }
+    
+    /* Font Awesome icons - must be at the end to override other font-family rules */
+    .fa, .fas, .far, .fab, .fal, .fad,
+    i[class^="fa-"], i[class*=" fa-"] {
+        font-family: "Font Awesome 6 Free" !important;
+        font-weight: 900;
+    }
+    .fab {
+        font-family: "Font Awesome 6 Brands" !important;
+    }
 </style>
 </head>
 <body>
@@ -299,8 +335,8 @@ if ($contentLength > 3000) {
     $needsPageBreak = $lineCount > 17;
 @endphp
 
-<div style="position: fixed; right: 24px; top: 20px; z-index: 9999; display: flex; gap: 10px;">
-    <button class="print-btn" onclick="goBack()" style="background: #6b7280;">
+<div class="btn-container">
+    <button class="back-btn" onclick="goBack()">
         <i class="fas fa-arrow-left" style="margin-right: 5px;"></i> Back
     </button>
     <button class="print-btn" onclick="window.print()">
@@ -315,15 +351,12 @@ function goBack() {
     
     if (redirectTo) {
         window.location.href = redirectTo;
-    } else if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
-        // Go back to previous page if it's from the same domain
-        window.history.back();
     } else {
-        // Default: go to employee letters index
+        // Default: go to employee letters index (don't rely on history.back)
         @if(isset($employee) && $employee)
         window.location.href = "{{ route('employees.letters.index', $employee) }}";
         @else
-        window.history.back();
+        window.location.href = "{{ route('employees.index') }}";
         @endif
     }
 }

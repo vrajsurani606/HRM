@@ -10,6 +10,8 @@
     <!-- Core CSS from theme -->
     <link rel="stylesheet" href="{{ asset('new_theme/bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('new_theme/bower_components/font-awesome/css/font-awesome.min.css') }}">
+    <!-- Font Awesome 6 for fas/far/fab icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="{{ asset('new_theme/bower_components/Ionicons/css/ionicons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('new_theme/bower_components/jquery-ui/themes/base/jquery-ui.min.css') }}">
     <link rel="stylesheet" href="{{ asset('new_theme/dist/css/AdminLTE.min.css') }}">
@@ -33,6 +35,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
+    
+    <!-- Font Awesome icon override - ensure icons display correctly -->
+    <style>
+        .fa, .fas, .far, .fab, .fal, .fad,
+        i[class^="fa-"], i[class*=" fa-"] {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900;
+        }
+        .far {
+            font-weight: 400;
+        }
+        .fab {
+            font-family: "Font Awesome 6 Brands" !important;
+        }
+    </style>
 </head>
 <body class="skin-red sidebar-collapse macos-theme">
 
