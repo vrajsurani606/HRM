@@ -458,7 +458,15 @@
           <ol style="margin: 0; padding-left: 20px; font-size: 14px; color: #374151; line-height: 1.8;">
             @foreach($quotation->custom_terms_and_conditions as $term)
               @if(trim($term))
-                <li style="margin-bottom: 8px;">{{ trim($term) }}</li>
+                @php
+                  // Remove bullet points and clean up the term
+                  $cleanTerm = trim($term);
+                  $cleanTerm = preg_replace('/^[•\-\*\+]\s*/', '', $cleanTerm);
+                  $cleanTerm = trim($cleanTerm);
+                @endphp
+                @if(!empty($cleanTerm))
+                  <li style="margin-bottom: 8px;">{{ $cleanTerm }}</li>
+                @endif
               @endif
             @endforeach
           </ol>
