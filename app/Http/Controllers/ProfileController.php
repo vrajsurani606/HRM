@@ -196,6 +196,10 @@ class ProfileController extends Controller
                 ->get();
         }
         
+        // Check if user is a company/customer user
+        $isCompanyUser = $user->hasRole('customer') || $user->hasRole('client') || $user->hasRole('company');
+        $company = $user->company;
+        
         return view('profile.edit', [
             'user' => $user,
             'employee' => $employee,
@@ -204,6 +208,8 @@ class ProfileController extends Controller
             'attSummary'  => $attSummary,
             'payslips' => $payslips,
             'isAdmin' => $isAdmin,
+            'isCompanyUser' => $isCompanyUser,
+            'company' => $company,
             'selectedEmployeeId' => $request->get('employee_id'),
             'start_date' => $startDate,
             'end_date' => $endDate,

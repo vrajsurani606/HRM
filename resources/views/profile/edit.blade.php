@@ -13,6 +13,138 @@
 @section('content')
   <!-- Tabs Section -->
   <div>
+    @if(isset($isCompanyUser) && $isCompanyUser && $company)
+    <!-- Company User Profile Header -->
+    <div style="padding:0;background:white;border-radius:20px;overflow:hidden;margin:24px 32px;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+      <!-- Company Banner -->
+      <div style="background:linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #7c3aed 100%);padding:40px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:rgba(255,255,255,0.1);border-radius:50%;"></div>
+        <div style="position:absolute;bottom:-30px;left:20%;width:100px;height:100px;background:rgba(255,255,255,0.05);border-radius:50%;"></div>
+        <div style="display:flex;align-items:center;gap:24px;position:relative;z-index:1;">
+          <!-- Company Logo -->
+          <div style="width:100px;height:100px;background:white;border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,0.15);overflow:hidden;">
+            @if($company->logo)
+              <img src="{{ storage_asset($company->logo) }}" alt="{{ $company->company_name }}" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+            @else
+              <div style="font-size:36px;font-weight:800;color:#6366f1;">{{ strtoupper(substr($company->company_name, 0, 2)) }}</div>
+            @endif
+          </div>
+          <div>
+            <h1 style="font-size:32px;font-weight:800;color:white;margin:0 0 8px 0;text-shadow:0 2px 4px rgba(0,0,0,0.1);">{{ $company->company_name }}</h1>
+            <p style="font-size:16px;color:rgba(255,255,255,0.9);margin:0;display:flex;align-items:center;gap:8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              {{ $company->city ?? '' }}{{ $company->city && $company->state ? ', ' : '' }}{{ $company->state ?? 'India' }}
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Company Info Cards -->
+      <div style="padding:32px;background:#f8fafc;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:20px;">
+          <!-- Contact Person Card -->
+          <div style="background:white;border-radius:16px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.04);border:1px solid #e2e8f0;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+              <div style="width:44px;height:44px;background:linear-gradient(135deg, #dbeafe, #bfdbfe);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#1d4ed8;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              </div>
+              <div>
+                <div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Contact Person</div>
+                <div style="font-size:18px;font-weight:700;color:#0f172a;">{{ $user->name }}</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;align-items:center;gap:10px;color:#475569;font-size:14px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#6366f1;"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                {{ $user->email }}
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;color:#475569;font-size:14px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#10b981;"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                {{ display_mobile($company->mobile_no ?? $user->mobile_no) ?? '—' }}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Company Details Card -->
+          <div style="background:white;border-radius:16px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.04);border:1px solid #e2e8f0;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+              <div style="width:44px;height:44px;background:linear-gradient(135deg, #fef3c7, #fde68a);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#d97706;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
+              </div>
+              <div>
+                <div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Company Info</div>
+                <div style="font-size:18px;font-weight:700;color:#0f172a;">Business Details</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              @if($company->gst_no)
+              <div style="display:flex;align-items:center;gap:10px;color:#475569;font-size:14px;">
+                <span style="font-weight:600;color:#64748b;min-width:60px;">GST:</span>
+                {{ $company->gst_no }}
+              </div>
+              @endif
+              @if($company->industry_type)
+              <div style="display:flex;align-items:center;gap:10px;color:#475569;font-size:14px;">
+                <span style="font-weight:600;color:#64748b;min-width:60px;">Industry:</span>
+                {{ $company->industry_type }}
+              </div>
+              @endif
+              @if($company->website)
+              <div style="display:flex;align-items:center;gap:10px;color:#475569;font-size:14px;">
+                <span style="font-weight:600;color:#64748b;min-width:60px;">Website:</span>
+                <a href="{{ $company->website }}" target="_blank" style="color:#6366f1;text-decoration:none;">{{ $company->website }}</a>
+              </div>
+              @endif
+            </div>
+          </div>
+          
+          <!-- Address Card -->
+          <div style="background:white;border-radius:16px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.04);border:1px solid #e2e8f0;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+              <div style="width:44px;height:44px;background:linear-gradient(135deg, #d1fae5, #a7f3d0);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#059669;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              </div>
+              <div>
+                <div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Address</div>
+                <div style="font-size:18px;font-weight:700;color:#0f172a;">Location</div>
+              </div>
+            </div>
+            <div style="color:#475569;font-size:14px;line-height:1.6;">
+              {{ $company->address ?? '—' }}<br>
+              {{ $company->city ?? '' }}{{ $company->city && $company->state ? ', ' : '' }}{{ $company->state ?? '' }}
+              {{ $company->pincode ? ' - ' . $company->pincode : '' }}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));gap:16px;margin-top:24px;">
+          <a href="{{ route('quotations.index') }}" style="text-decoration:none;">
+            <div style="background:linear-gradient(135deg, #6366f1, #4f46e5);border-radius:12px;padding:20px;text-align:center;transition:transform 0.2s;cursor:pointer;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div style="font-size:28px;font-weight:800;color:white;">{{ \App\Models\Quotation::where('customer_id', $company->id)->count() }}</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.8);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Quotations</div>
+            </div>
+          </a>
+          <a href="{{ route('invoices.index') }}" style="text-decoration:none;">
+            <div style="background:linear-gradient(135deg, #10b981, #059669);border-radius:12px;padding:20px;text-align:center;transition:transform 0.2s;cursor:pointer;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div style="font-size:28px;font-weight:800;color:white;">{{ \App\Models\Invoice::where('company_name', $company->company_name)->count() }}</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.8);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Invoices</div>
+            </div>
+          </a>
+          <a href="{{ route('tickets.index') }}" style="text-decoration:none;">
+            <div style="background:linear-gradient(135deg, #f59e0b, #d97706);border-radius:12px;padding:20px;text-align:center;transition:transform 0.2s;cursor:pointer;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div style="font-size:28px;font-weight:800;color:white;">{{ \App\Models\Ticket::where('company_id', $company->id)->count() }}</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.8);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Tickets</div>
+            </div>
+          </a>
+          <div style="background:linear-gradient(135deg, #ec4899, #db2777);border-radius:12px;padding:20px;text-align:center;">
+            <div style="font-size:28px;font-weight:800;color:white;">{{ $company->created_at ? $company->created_at->diffInDays(now()) : 0 }}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.8);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Days with Us</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    @else
     <!-- Employee Profile Header -->
     <div style="padding:24px 40px;background:white">
       <div style="display:flex;align-items:center;gap:20px;justify-content:space-between;flex-wrap:wrap;width:100%">
@@ -101,7 +233,9 @@
         @endif
       </div>
     </div>
+    @endif
     
+    @if(!isset($isCompanyUser) || !$isCompanyUser || !$company)
     <!-- Tab Navigation -->
     @php
       $canViewPayroll = auth()->user()->can('Profile Management.view own payroll') || auth()->user()->can('Payroll Management.view payroll');
@@ -697,7 +831,8 @@
     </div>
     @endif
   </div>
-
+  @endif
+  
   @section('footer_pagination')
   @if(isset($payrolls) && method_exists($payrolls,'links'))
       <form method="GET" class="hrp-entries-form" style="display:inline-flex;align-items:center;gap:6px;margin-right:10px">

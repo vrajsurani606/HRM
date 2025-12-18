@@ -411,8 +411,10 @@
               <button type="button" onclick="generateCompanyPassword()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
             </div>
             @can('Companies Management.edit company')
-              @if($company->company_password)
-              <small style="color:#6b7280;font-size:12px;display:block;margin-top:4px">Current: <strong>{{ $company->company_password }}</strong></small>
+              @if($company->company_password_plain)
+                <small style="color:#6b7280;font-size:12px;display:block;margin-top:4px">Current: <strong>{{ $company->company_password_plain }}</strong></small>
+              @elseif($company->company_password)
+                <small style="color:#f59e0b;font-size:12px;display:block;margin-top:4px">⚠️ Password is set but not visible. Set a new password to enable visibility.</small>
               @endif
             @endcan
             @error('company_password')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -439,8 +441,10 @@
               <button type="button" onclick="generateEmployeePasswordEdit()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer;">Generate</button>
             </div>
             @can('Companies Management.edit company')
-              @if($company->company_employee_password)
-              <small style="color:#6b7280;font-size:12px;display:block;margin-top:4px">Current: <strong>{{ $company->company_employee_password }}</strong></small>
+              @if($company->company_employee_password_plain)
+                <small style="color:#6b7280;font-size:12px;display:block;margin-top:4px">Current: <strong>{{ $company->company_employee_password_plain }}</strong></small>
+              @elseif($company->company_employee_password)
+                <small style="color:#f59e0b;font-size:12px;display:block;margin-top:4px">⚠️ Password is set but not visible. Set a new password to enable visibility.</small>
               @endif
             @endcan
             @error('company_employee_password')<small class="hrp-error">{{ $message }}</small>@enderror
