@@ -28,9 +28,15 @@
         @endcan
 
         @can('Inquiries Management.follow up')
-          <a href="{{ route('inquiry.follow-up', $inquiry->id) }}" title="Follow Up" aria-label="Follow Up">
-            <img class="action-icon" src="{{ asset('action_icon/follow-up.svg') }}" alt="Follow Up">
-          </a>
+          @php
+            $latestFollowUpForAction = $inquiry->followUps->first();
+            $isFollowUpConfirmed = $latestFollowUpForAction && $latestFollowUpForAction->is_confirm;
+          @endphp
+          @if(!$isFollowUpConfirmed)
+            <a href="{{ route('inquiry.follow-up', $inquiry->id) }}" title="Follow Up" aria-label="Follow Up">
+              <img class="action-icon" src="{{ asset('action_icon/follow-up.svg') }}" alt="Follow Up">
+            </a>
+          @endif
         @endcan
 
         @can('Quotations Management.create quotation')
@@ -84,7 +90,7 @@
   <td><a href="{{ $inquiry->scope_link }}" class="scope-link">View</a></td>
   <td>
     @if($inquiry->quotation_file)
-      <a href="{{ url('public/storage/'.$inquiry->quotation_file) }}" target="_blank" class="scope-link">View</a>
+      <a href="{{ storage_asset($inquiry->quotation_file) }}" target="_blank" class="scope-link">View</a>
     @else
       —
     @endif

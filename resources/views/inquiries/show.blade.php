@@ -79,7 +79,7 @@
       <label class="hrp-label">Quotation File</label>
       <div class="Rectangle-29">
         @if($inquiry->quotation_file)
-          <a href="{{ url('public/storage/'.$inquiry->quotation_file) }}" target="_blank" class="scope-link">View File</a>
+          <a href="{{ storage_asset($inquiry->quotation_file) }}" target="_blank" class="scope-link">View File</a>
         @else
           —
         @endif

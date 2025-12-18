@@ -3,6 +3,85 @@
 @section('page_title','Add New Inquiry')
 
 @section('content')
+<script>
+// File upload handler - runs immediately when DOM is ready
+(function(){
+  function initFileUpload() {
+    var fileInput = document.getElementById('quotation_file');
+    var filenameDisplay = document.getElementById('quotation_filename');
+    var previewContainer = document.getElementById('quotation_preview_container');
+    var previewImage = document.getElementById('quotation_preview');
+    var fileIconContainer = document.getElementById('quotation_file_icon');
+    var fileNameSpan = document.getElementById('quotation_file_name');
+    
+    if(fileInput && filenameDisplay){
+      fileInput.addEventListener('change', function(){
+        // Hide previews initially
+        if(previewContainer) previewContainer.style.display = 'none';
+        if(fileIconContainer) fileIconContainer.style.display = 'none';
+        
+        if(this.files && this.files.length > 0){
+          var file = this.files[0];
+          var fileName = file.name;
+          var fileExt = fileName.split('.').pop().toLowerCase();
+          var allowedExts = ['pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg'];
+          var imageExts = ['png', 'jpg', 'jpeg'];
+          
+          // Validate file type
+          if(allowedExts.indexOf(fileExt) === -1){
+            alert('Invalid file type. Please upload PDF, DOC, DOCX, PNG, JPG, or JPEG files only.');
+            this.value = '';
+            filenameDisplay.textContent = 'No File Chosen';
+            filenameDisplay.style.color = '#9ca3af';
+            return;
+          }
+          
+          // Validate file size (2MB)
+          if(file.size > 2 * 1024 * 1024){
+            alert('File size exceeds 2MB limit.');
+            this.value = '';
+            filenameDisplay.textContent = 'No File Chosen';
+            filenameDisplay.style.color = '#9ca3af';
+            return;
+          }
+          
+          // Update filename display
+          filenameDisplay.textContent = fileName;
+          filenameDisplay.style.color = '#374151';
+          
+          // Show image preview for images
+          if(imageExts.indexOf(fileExt) !== -1){
+            var reader = new FileReader();
+            reader.onload = function(e){
+              if(previewImage && previewContainer){
+                previewImage.src = e.target.result;
+                previewContainer.style.display = 'block';
+              }
+            };
+            reader.readAsDataURL(file);
+          } else {
+            // Show file icon for documents
+            if(fileIconContainer && fileNameSpan){
+              fileNameSpan.textContent = fileName;
+              fileIconContainer.style.display = 'block';
+            }
+          }
+        } else {
+          filenameDisplay.textContent = 'No File Chosen';
+          filenameDisplay.style.color = '#9ca3af';
+        }
+      });
+    }
+  }
+  
+  // Run when DOM is ready
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initFileUpload);
+  } else {
+    initFileUpload();
+  }
+})();
+</script>
 <style>
   .Rectangle-29::placeholder,
   .Rectangle-29-textarea::placeholder {
@@ -202,10 +281,25 @@
       <label class="hrp-label">Quotation Upload:</label>
       <div class="upload-pill Rectangle-29">
         <div class="choose">Choose File</div>
-        <div class="filename">No File Chosen</div>
-        <input type="file" id="quotation_file" name="quotation_file">
+        <div class="filename" id="quotation_filename">No File Chosen</div>
+        <input type="file" id="quotation_file" name="quotation_file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg">
       </div>
+      <small class="text-muted" style="font-size:0.75rem;color:#6b7280;">Allowed: PDF, DOC, DOCX, PNG, JPG, JPEG (Max 2MB)</small>
       @error('quotation_file')<small class="hrp-error">{{ $message }}</small>@enderror
+      <!-- Image Preview -->
+      <div id="quotation_preview_container" style="display:none;margin-top:10px;">
+        <img id="quotation_preview" src="" alt="Preview" style="max-width:150px;max-height:150px;border-radius:8px;border:1px solid #e5e7eb;">
+      </div>
+      <!-- File Icon for non-image files -->
+      <div id="quotation_file_icon" style="display:none;margin-top:10px;">
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f3f4f6;border-radius:8px;max-width:fit-content;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          <span id="quotation_file_name" style="font-size:0.875rem;color:#374151;"></span>
+        </div>
+      </div>
     </div>
 
     <!-- Row 8: Quotation Sent -->
@@ -660,18 +754,6 @@ document.addEventListener('DOMContentLoaded', function() {
               toggleOtherInput(this, cityOtherInput);
           }
       });
-  }
-  
-  if (fileInput && filenameSpan) {
-    fileInput.addEventListener('change', function() {
-      if (this.files && this.files[0]) {
-        filenameSpan.textContent = this.files[0].name;
-        filenameSpan.style.color = '#374151';
-      } else {
-        filenameSpan.textContent = 'No file Chosen';
-        filenameSpan.style.color = '#9ca3af';
-      }
-    });
   }
   
   // HTML5 validation on submit (same pattern as hiring/create)

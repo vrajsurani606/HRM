@@ -79,7 +79,7 @@
         <div class="choose">Quotation File</div>
         <div class="filename">
           @if($inquiry->quotation_file)
-            <a href="{{ url('public/storage/'.$inquiry->quotation_file) }}" target="_blank" class="scope-link">View File</a>
+            <a href="{{ storage_asset($inquiry->quotation_file) }}" target="_blank" class="scope-link">View File</a>
           @else
             No File Uploaded
           @endif
@@ -100,7 +100,7 @@
   @if($followUps->count() > 0)
   <div style="{{ $followUps->count() > 5 ? 'max-height: 220px; overflow-y: auto;' : '' }} overflow-x: auto; border-radius: 6px; border: 1px solid #e5e7eb;">
     <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none followup-table" style="margin:0; border-radius:0;">
-      <table style="min-width: 1100px; width: 100%;">
+      <table style="min-width: 900px; width: 100%;">
       <thead>
         <tr>
           <th>Serial No.</th>
@@ -110,8 +110,6 @@
           <th>Followup Date</th>
           <th>Next Date</th>
           <th>Demo Status</th>
-          <th>Scheduled Demo Date</th>
-          <th>Scheduled Demo Time</th>
           <th>Demo Date &amp; Time</th>
           <th>Code</th>
         </tr>
@@ -151,8 +149,6 @@
               <span>{{ ucfirst($followUp->demo_status) }}</span>
             @endif
           </td>
-          <td>{{ optional($followUp->scheduled_demo_date)->format('d-m-Y') }}</td>
-          <td>{{ $followUp->scheduled_demo_time }}</td>
           <td>
             @if($followUp->demo_date || $followUp->demo_time)
               {{ optional($followUp->demo_date)->format('d-m-Y') }} {{ $followUp->demo_time }}
@@ -393,8 +389,8 @@ $(document).ready(function() {
     var followUpForm = document.querySelector('form[action*="follow-up.store"]');
     if(followUpForm){
       followUpForm.addEventListener('submit', function(e){
-        // Convert all date-picker inputs from dd/mm/yyyy to yyyy-mm-dd
-        var dateInputs = followUpForm.querySelectorAll('.date-picker');
+        // Convert all date-picker and followup-date-picker inputs from dd/mm/yyyy to yyyy-mm-dd
+        var dateInputs = followUpForm.querySelectorAll('.date-picker, .followup-date-picker');
         dateInputs.forEach(function(dateInput){
           if(dateInput.value){
             var parts = dateInput.value.split('/');
@@ -443,22 +439,15 @@ $(document).ready(function() {
           .then(function (res) { return res.json(); })
           .then(function (data) {
             if (data && data.success) {
-              // Update Action and Is Confirm cells
-              var cells = row.querySelectorAll('td');
-              // cells: [Serial, Action, Is Confirm, Remark, ...]
-              if (cells[1]) {
-                cells[1].innerHTML = '<span style="color:#16a34a;font-weight:600;">Confirmed</span>';
-              }
-              if (cells[2]) {
-                cells[2].innerHTML = '<span style="color:#16a34a;font-weight:600;">Confirmed</span>';
-              }
-
               Swal.fire({
                 title: 'Follow Up Confirm Successfully',
                 icon: 'success',
                 timer: 1500,
                 showConfirmButton: false,
                 width: '380px',
+              }).then(function() {
+                // Redirect to inquiry index page after confirmation
+                window.location.href = "{{ route('inquiries.index') }}";
               });
             }
           })
