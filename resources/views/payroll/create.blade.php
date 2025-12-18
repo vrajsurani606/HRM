@@ -211,12 +211,13 @@
             </div>
             <div class="grid-2">
               <div>
-                <label class="hrp-label">Personal (Unpaid)</label>
-                <input type="number" name="personal_leave_unpaid" id="personal_leave_unpaid" value="{{ old('personal_leave_unpaid', isset($payroll)?($payroll->leave_deduction_days ?? $payroll->personal_leave_unpaid ?? 0):0) }}" class="hrp-input Rectangle-29" form="payrollForm" step="0.5" min="0" max="30" oninput="updateLeaveTotals()">
+                <label class="hrp-label">Unpaid Leave Days</label>
+                <input type="number" name="personal_leave_unpaid" id="personal_leave_unpaid" value="{{ old('personal_leave_unpaid', isset($payroll) ? ($payroll->personal_leave_unpaid ?? 0) : 0) }}" class="hrp-input Rectangle-29" form="payrollForm" step="0.5" min="0" max="30" oninput="updateLeaveTotals()">
+                <small style="color: #6b7280; font-size: 10px;">Includes personal + excess casual/medical</small>
               </div>
               <div>
-                <label class="hrp-label">Unpaid (Auto)</label>
-                <input type="number" id="unpaid_leave_total" value="0" class="hrp-input Rectangle-29" readonly style="background:#f7fafc;">
+                <label class="hrp-label">Deduction Days</label>
+                <input type="number" id="unpaid_leave_total" value="{{ isset($payroll) ? ($payroll->leave_deduction_days ?? $payroll->personal_leave_unpaid ?? 0) : 0 }}" class="hrp-input Rectangle-29" readonly style="background:#f7fafc;">
               </div>
             </div>
           </div>
@@ -469,15 +470,22 @@ const isEditMode = {{ isset($payroll) ? 'true' : 'false' }};
       // Only auto-fetch for new payroll creation
       loadEmployeeSalaryData();
     } else if (isEditMode) {
-      // For edit mode, just update leave totals and calculate net salary from saved data
-      updateLeaveTotals();
+      // For edit mode, initialize leave totals from saved database values
+      // Don't auto-fetch - use the values already in the form
+      setTimeout(function() {
+        updateLeaveTotals();
+        calculateNetSalary();
+      }, 100);
     }
-  } catch(e) { /* no-op */ }
+  } catch(e) { console.error('Init error:', e); }
 
   // Initialize payment fields visibility based on current status
   try { togglePaymentFields(); } catch(e) {}
 
-  calculateNetSalary();
+  // Calculate net salary with current values
+  setTimeout(function() {
+    calculateNetSalary();
+  }, 200);
 })();
 
 function togglePaymentFields() {

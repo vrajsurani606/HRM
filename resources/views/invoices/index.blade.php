@@ -7,7 +7,7 @@
 @endphp
 
 <!-- Filter Row -->
-<form method="GET" action="{{ route('invoices.index') }}" class="jv-filter performa-filter">
+<form method="GET" action="{{ route('invoices.index') }}" class="jv-filter performa-filter" data-no-loader="true">
   <input type="text" name="search" placeholder="Search Invoice No, Company..." class="filter-pill live-search" value="{{ request('search') }}" />
   @if(!$isCustomer)
   <select name="invoice_type" class="filter-pill">

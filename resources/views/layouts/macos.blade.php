@@ -199,7 +199,9 @@
         <main class="hrp-main">
             @include('partials.header')
             <div class="hrp-content">
-                @yield('content')
+                <div class="hrp-content-scroll">
+                    @yield('content')
+                </div>
                 @include('partials.footer')
             </div>
         </main>
@@ -870,7 +872,12 @@
   var loader = document.getElementById('globalPageLoader');
   if (!loader) return;
   
-  // Hide loader when page is fully loaded
+  // Hide loader immediately (no delay for filter operations)
+  function hideLoaderNow() {
+    loader.classList.add('hidden');
+  }
+  
+  // Hide loader with slight delay (for page loads)
   function hideLoader() {
     setTimeout(function() {
       loader.classList.add('hidden');
@@ -882,6 +889,28 @@
     loader.classList.remove('hidden');
   }
   
+  // Check if form is a filter form (should not show loader)
+  function isFilterForm(form) {
+    // Check for data-no-loader attribute
+    if (form.hasAttribute('data-no-loader')) return true;
+    // Check for filter-related classes
+    if (form.classList.contains('jv-filter') || 
+        form.classList.contains('filter-form') ||
+        form.classList.contains('hrp-entries-form') ||
+        form.classList.contains('performa-filter')) {
+      return true;
+    }
+    // Check for filter-related IDs
+    if (form.id && (form.id.includes('filter') || form.id.includes('Filter'))) {
+      return true;
+    }
+    // Check if form contains live-search input or filter-pill
+    if (form.querySelector('.live-search, .filter-pill, input[name="search"], input[name="q"]')) {
+      return true;
+    }
+    return false;
+  }
+  
   // Hide on page load
   if (document.readyState === 'complete') {
     hideLoader();
@@ -889,13 +918,48 @@
     window.addEventListener('load', hideLoader);
   }
   
-  // Show loader on form submit
+  // Hide loader when interacting with filter inputs (live-search, filter-pill)
+  document.addEventListener('input', function(e) {
+    var target = e.target;
+    if (target.classList.contains('live-search') || 
+        target.classList.contains('filter-pill') ||
+        target.name === 'search' || 
+        target.name === 'q') {
+      hideLoaderNow();
+    }
+  }, true);
+  
+  // Hide loader on focus of filter inputs
+  document.addEventListener('focus', function(e) {
+    var target = e.target;
+    if (target.classList.contains('live-search') || 
+        target.classList.contains('filter-pill') ||
+        target.name === 'search' || 
+        target.name === 'q') {
+      hideLoaderNow();
+    }
+  }, true);
+  
+  // Hide loader on keydown in filter inputs
+  document.addEventListener('keydown', function(e) {
+    var target = e.target;
+    if (target.classList.contains('live-search') || 
+        target.classList.contains('filter-pill') ||
+        target.name === 'search' || 
+        target.name === 'q') {
+      hideLoaderNow();
+    }
+  }, true);
+  
+  // Show loader on form submit (but NOT for filter forms)
   document.addEventListener('submit', function(e) {
     var form = e.target;
     // Skip AJAX forms
     if (form.hasAttribute('data-ajax') || form.hasAttribute('data-no-loader')) return;
     // Skip forms with target="_blank"
     if (form.target === '_blank') return;
+    // Skip filter forms - they should not show loader
+    if (isFilterForm(form)) return;
     showLoader();
   });
   
@@ -919,6 +983,10 @@
       setTimeout(hideLoader, 2000);
       return;
     }
+    // Skip reset filter links
+    if (link.classList.contains('filter-search') || link.classList.contains('pill-btn-secondary') || link.classList.contains('pill-secondary')) {
+      return;
+    }
     // Skip if modifier key pressed (new tab)
     if (e.ctrlKey || e.metaKey || e.shiftKey) return;
     showLoader();
@@ -936,7 +1004,7 @@
     document.addEventListener('click', function() {
       setTimeout(function() {
         if (document.querySelector('.swal2-container')) {
-          hideLoader();
+          hideLoaderNow();
         }
       }, 100);
     });
@@ -948,7 +1016,7 @@
       if (mutation.addedNodes.length) {
         mutation.addedNodes.forEach(function(node) {
           if (node.classList && (node.classList.contains('swal2-container') || node.classList.contains('swal2-popup'))) {
-            hideLoader();
+            hideLoaderNow();
           }
         });
       }
@@ -958,7 +1026,7 @@
   
   // Expose globally for manual control
   window.showPageLoader = showLoader;
-  window.hidePageLoader = hideLoader;
+  window.hidePageLoader = hideLoaderNow;
 })();
 </script>
 </body>

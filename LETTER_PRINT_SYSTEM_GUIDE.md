@@ -69,24 +69,24 @@
 ## Page Break Logic
 
 ### Configuration
-- **Max Lines Per Page:** 20 lines
-- **Header Lines:** 6 (Ref, To, Name, Position, Address, Subject)
+- **Max Lines Per Page:** 27 lines
+- **Header Lines:** 7 (Ref, Date, To, Name, Position, Address, Subject)
 - **Signature Lines:** 4 (Sincerely, Sign, Name, Company)
-- **Available Body Lines:** 20 - 6 - 4 = 10 lines
+- **Available Body Lines:** 27 - 7 - 4 = 16 lines
 
 ### How It Works
 1. JavaScript counts all paragraphs (`<p>`), list items (`<li>`), and divs
-2. If content exceeds 20 lines, page break occurs
-3. 21st line onwards moves to new page
+2. If content exceeds 27 lines, page break occurs
+3. 28th line onwards moves to new page
 4. Background image repeats on new page
 5. Signature moves to last page
 
 ### Adjusting Line Limit
 In `print.blade.php`, find:
 ```javascript
-const MAX_LINES_PAGE1 = 20;
+const MAX_LINES_PAGE1 = 27;
 ```
-Change `20` to desired number.
+Change `27` to desired number.
 
 ---
 
@@ -130,7 +130,7 @@ Change to desired size (e.g., `14px`, `12px`)
 
 ### Change Line Limit
 ```javascript
-const MAX_LINES_PAGE1 = 20; // Change this number
+const MAX_LINES_PAGE1 = 27; // Change this number
 ```
 
 ### Change Top Padding (Screen)
@@ -215,8 +215,8 @@ const MAX_LINES_PAGE1 = 20; // Change this number
 |-------|----------|
 | Content overlaps header | Increase `padding-top` in screen CSS |
 | Too much space above content | Decrease `padding-top` |
-| Page break too early | Increase `MAX_LINES_PAGE1` |
-| Page break too late | Decrease `MAX_LINES_PAGE1` |
+| Page break too early | Increase `MAX_LINES_PAGE1` (current: 27) |
+| Page break too late | Decrease `MAX_LINES_PAGE1` (current: 27) |
 | Font not loading | Check Google Fonts import URL |
 | Background not printing | Enable "Background graphics" in print settings |
 

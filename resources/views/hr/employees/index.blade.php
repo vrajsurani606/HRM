@@ -3,7 +3,7 @@
 
 @section('content')
   <div class="employee-container">
-    <form method="GET" action="{{ route('employees.index') }}" class="jv-filter">
+    <form method="GET" action="{{ route('employees.index') }}" class="jv-filter" data-no-loader="true">
       <select name="status" class="filter-pill" onchange="this.form.submit()">
         <option value="active" {{ request('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>
         <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>

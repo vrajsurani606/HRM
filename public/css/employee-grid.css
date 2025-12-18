@@ -36,6 +36,11 @@
   border-color: #3b82f6;
 }
 
+/* Ensure card with open dropdown is on top */
+.emp-card:has(.dropdown-menu[style*="block"]) {
+  z-index: 100;
+}
+
 /* Card Header */
 .card-header {
   display: flex;
@@ -170,10 +175,6 @@
 /* Override any conflicting img styles inside profile-image */
 .profile-image > div {
   display: inline-flex !important;
-}
-
-.profile-image img {
-  /* These styles are now handled by the component inline styles */
 }
 
 .profile-info {

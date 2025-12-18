@@ -193,12 +193,31 @@ class HiringController extends Controller
             if ($lead->offerLetter) {
                 $offer = $lead->offerLetter;
                 
-                // Generate reference number for offer letter
-                $lastLetter = \App\Models\EmployeeLetter::where('type', 'offer')
+                // Generate unique reference number for offer letter
+                $year = date('Y');
+                $prefix = 'OL-' . $year . '-';
+                
+                // Find the last letter with this prefix format
+                $lastLetter = \App\Models\EmployeeLetter::where('reference_number', 'like', $prefix . '%')
                     ->orderBy('id', 'desc')
                     ->first();
-                $nextNum = $lastLetter ? ((int)substr($lastLetter->reference_number ?? 'OL-0000', 3) + 1) : 1;
-                $referenceNumber = 'OL-' . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
+                
+                // Extract sequence number from the last reference number
+                $nextNum = 1;
+                if ($lastLetter && preg_match('/OL-\d{4}-(\d+)/', $lastLetter->reference_number, $matches)) {
+                    $nextNum = (int)$matches[1] + 1;
+                }
+                
+                // Generate reference number with random suffix for extra uniqueness
+                $randomSuffix = strtoupper(\Illuminate\Support\Str::random(3));
+                $referenceNumber = $prefix . str_pad($nextNum, 4, '0', STR_PAD_LEFT) . '-' . $randomSuffix;
+                
+                // Ensure uniqueness by checking if it already exists
+                while (\App\Models\EmployeeLetter::where('reference_number', $referenceNumber)->exists()) {
+                    $nextNum++;
+                    $randomSuffix = strtoupper(\Illuminate\Support\Str::random(3));
+                    $referenceNumber = $prefix . str_pad($nextNum, 4, '0', STR_PAD_LEFT) . '-' . $randomSuffix;
+                }
                 
                 \App\Models\EmployeeLetter::create([
                     'employee_id' => $employee->id,

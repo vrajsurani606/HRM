@@ -7,7 +7,7 @@
       <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
         <div class="jv-filter">
           <div class="filter-right">
-            <form method="GET" action="{{ route('roles.index') }}" class="filter-row">
+            <form method="GET" action="{{ route('roles.index') }}" class="filter-row" data-no-loader="true">
               <input type="text" name="q" value="{{ $q ?? '' }}" placeholder="Search roles..." class="filter-pill live-search">
               <button type="submit" class="filter-search" aria-label="Search">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">

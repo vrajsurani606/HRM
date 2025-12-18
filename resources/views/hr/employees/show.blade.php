@@ -416,34 +416,46 @@
         </select>
       </form>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin:0 32px 30px">
-      <div style="background:linear-gradient(135deg,#dbeafe 0%,#bfdbfe 100%);padding:20px;border-radius:12px;text-align:center">
-        <div style="width:40px;height:40px;background:#3b82f6;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin:0 32px 30px">
+      {{-- Present Days --}}
+      <div style="background:linear-gradient(135deg,#dbeafe 0%,#bfdbfe 100%);padding:16px;border-radius:12px;text-align:center">
+        <div style="width:36px;height:36px;background:#3b82f6;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
         </div>
-        <div style="font-size:28px;font-weight:700;color:#1e40af;margin-bottom:4px">{{ $attSummary['present'] ?? 0 }}</div>
-        <div style="font-size:20px;color:#1e40af;font-weight:500">Present Days</div>
+        <div style="font-size:24px;font-weight:700;color:#1e40af;margin-bottom:2px">{{ $attSummary['present'] ?? 0 }}</div>
+        <div style="font-size:12px;color:#1e40af;font-weight:500">Present Days</div>
       </div>
-      <div style="background:linear-gradient(135deg,#dcfce7 0%,#bbf7d0 100%);padding:20px;border-radius:12px;text-align:center">
-        <div style="width:40px;height:40px;background:#10b981;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/></svg>
+      {{-- Working Hours --}}
+      <div style="background:linear-gradient(135deg,#dcfce7 0%,#bbf7d0 100%);padding:16px;border-radius:12px;text-align:center">
+        <div style="width:36px;height:36px;background:#10b981;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/></svg>
         </div>
-        <div style="font-size:28px;font-weight:700;color:#059669;margin-bottom:4px">{{ $attSummary['hours'] ?? '00:00' }}</div>
-        <div style="font-size:20px;color:#059669;font-weight:500">Working Hours</div>
+        <div style="font-size:24px;font-weight:700;color:#059669;margin-bottom:2px">{{ $attSummary['hours'] ?? '00:00' }}</div>
+        <div style="font-size:12px;color:#059669;font-weight:500">Working Hours</div>
       </div>
-      <div style="background:linear-gradient(135deg,#fed7aa 0%,#fdba74 100%);padding:20px;border-radius:12px;text-align:center">
-        <div style="width:40px;height:40px;background:#f97316;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8Z"/></svg>
+      {{-- Late Entries --}}
+      <div style="background:linear-gradient(135deg,#fed7aa 0%,#fdba74 100%);padding:16px;border-radius:12px;text-align:center">
+        <div style="width:36px;height:36px;background:#f97316;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/></svg>
         </div>
-        <div style="font-size:28px;font-weight:700;color:#ea580c;margin-bottom:4px">{{ $attSummary['late'] ?? 0 }}</div>
-        <div style="font-size:20px;color:#ea580c;font-weight:500">Late Entries</div>
+        <div style="font-size:24px;font-weight:700;color:#ea580c;margin-bottom:2px">{{ $attSummary['late'] ?? 0 }}</div>
+        <div style="font-size:12px;color:#ea580c;font-weight:500">Late Entries</div>
       </div>
-      <div style="background:linear-gradient(135deg,#fecaca 0%,#fca5a5 100%);padding:20px;border-radius:12px;text-align:center">
-        <div style="width:40px;height:40px;background:#ef4444;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z"/></svg>
+      {{-- Early Exits --}}
+      <div style="background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);padding:16px;border-radius:12px;text-align:center">
+        <div style="width:36px;height:36px;background:#d97706;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
         </div>
-        <div style="font-size:28px;font-weight:700;color:#dc2626;margin-bottom:4px">{{ $attSummary['absent'] ?? 0 }}</div>
-        <div style="font-size:20px;color:#dc2626;font-weight:500">Absent Days</div>
+        <div style="font-size:24px;font-weight:700;color:#b45309;margin-bottom:2px">{{ $attSummary['early_exit'] ?? 0 }}</div>
+        <div style="font-size:12px;color:#b45309;font-weight:500">Early Exits</div>
+      </div>
+      {{-- Absent Days --}}
+      <div style="background:linear-gradient(135deg,#fecaca 0%,#fca5a5 100%);padding:16px;border-radius:12px;text-align:center">
+        <div style="width:36px;height:36px;background:#ef4444;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z"/></svg>
+        </div>
+        <div style="font-size:24px;font-weight:700;color:#dc2626;margin-bottom:2px">{{ $attSummary['absent'] ?? 0 }}</div>
+        <div style="font-size:12px;color:#dc2626;font-weight:500">Absent Days</div>
       </div>
     </div>
     <div class="striped-surface table-wrap pad-attn">

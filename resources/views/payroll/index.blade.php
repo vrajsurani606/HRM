@@ -4,7 +4,7 @@
   @section('content')
   <div class="inquiry-index-container">
     <!-- JV Filter -->
-    <form method="GET" action="{{ route('payroll.index') }}" class="jv-filter">
+    <form method="GET" action="{{ route('payroll.index') }}" class="jv-filter" data-no-loader="true">
       <select class="filter-pill" name="month">
         <option value="">All Months</option>
         @foreach($months as $month)

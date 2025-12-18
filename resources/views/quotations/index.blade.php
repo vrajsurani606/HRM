@@ -47,7 +47,7 @@
 @section('content')
 <div class="inquiry-index-container">
   <!-- JV Filter -->
-  <form method="GET" action="{{ route('quotations.index') }}" class="jv-filter" id="filterForm">
+  <form method="GET" action="{{ route('quotations.index') }}" class="jv-filter" id="filterForm" data-no-loader="true">
     <input type="text" placeholder="Quotation No" class="filter-pill" name="quotation_no" value="{{ request('quotation_no') }}">
     <input type="text" placeholder="From : dd/mm/yyyy" class="filter-pill date-picker" name="from_date" value="{{ request('from_date') }}" autocomplete="off">
     <input type="text" placeholder="To : dd/mm/yyyy" class="filter-pill date-picker" name="to_date" value="{{ request('to_date') }}" autocomplete="off">

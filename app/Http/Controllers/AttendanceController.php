@@ -631,12 +631,14 @@ class AttendanceController extends Controller
         }
     }
 
-    public function secretEdit($id)
+    /**
+     * Quick edit attendance record (AJAX)
+     */
+    public function quickEdit($id)
     {
         $attendance = Attendance::with('employee')->findOrFail($id);
 
         if (request()->ajax()) {
-            // Format dates for JSON response
             $attendanceData = $attendance->toArray();
             $attendanceData['date'] = $attendance->date ? $attendance->date->format('Y-m-d') : null;
             $attendanceData['check_in'] = $attendance->check_in ? Carbon::parse($attendance->check_in)->format('Y-m-d H:i:s') : null;
@@ -651,7 +653,10 @@ class AttendanceController extends Controller
         return response()->json(['success' => false, 'message' => 'Invalid request'], 400);
     }
 
-    public function secretUpdate(Request $request, $id)
+    /**
+     * Quick update attendance record (AJAX)
+     */
+    public function quickUpdate(Request $request, $id)
     {
         $attendance = Attendance::findOrFail($id);
 

@@ -427,7 +427,7 @@
       </div>
       
       <!-- Date Filter Row - Same as Attendance Reports -->
-      <form method="GET" action="{{ route('profile.edit') }}" class="jv-filter" id="attendanceFilterForm">
+      <form method="GET" action="{{ route('profile.edit') }}" class="jv-filter" id="attendanceFilterForm" data-no-loader="true">
         <input type="hidden" name="tab" value="attendance">
         <input type="text" name="start_date" class="filter-pill date-picker" placeholder="From : dd/mm/yy" value="{{ request('start_date') }}" autocomplete="off" style="min-width: 130px;">
         <input type="text" name="end_date" class="filter-pill date-picker" placeholder="To : dd/mm/yy" value="{{ request('end_date') }}" autocomplete="off" style="min-width: 130px;">

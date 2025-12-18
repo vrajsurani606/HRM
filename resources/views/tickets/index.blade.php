@@ -14,7 +14,7 @@
 @section('content')
 <div class="hrp-content">
   <!-- Filters -->
-  <form method="GET" action="{{ route('tickets.index') }}" class="jv-filter" id="ticketFilters">
+  <form method="GET" action="{{ route('tickets.index') }}" class="jv-filter" id="ticketFilters" data-no-loader="true">
     <select class="filter-pill" name="status">
       <option value="">All Status</option>
       <option value="open" {{ request('status') == 'open' ? 'selected' : '' }}>Open</option>

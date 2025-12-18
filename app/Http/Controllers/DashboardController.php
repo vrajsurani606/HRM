@@ -444,11 +444,33 @@ class DashboardController extends Controller
             return 0;
         });
         
-        // Late entries - count unique dates with late status (first entry of day was late)
-        $lateEntries = $attendances->where('status', 'late')->pluck('date')->unique()->count();
+        // Late entries and early exits - calculate based on actual times
+        $lateThreshold = '09:30:00';
+        $earlyExitThreshold = '18:00:00';
+        $workingStatuses = ['present', 'late', 'half_day', 'early_leave'];
         
-        // Early exits - count unique dates with early_leave status
-        $earlyExits = $attendances->where('status', 'early_leave')->pluck('date')->unique()->count();
+        $lateEntries = 0;
+        $earlyExits = 0;
+        
+        foreach ($attendances as $att) {
+            $wasAtWork = in_array($att->status, $workingStatuses);
+            
+            // Count late entries (check_in after 9:30 AM)
+            if ($att->check_in && $wasAtWork) {
+                $checkInTime = Carbon::parse($att->check_in)->format('H:i:s');
+                if (strcmp($checkInTime, $lateThreshold) > 0) {
+                    $lateEntries++;
+                }
+            }
+            
+            // Count early exits (check_out before 6:00 PM)
+            if ($att->check_out && $wasAtWork) {
+                $checkOutTime = Carbon::parse($att->check_out)->format('H:i:s');
+                if (strcmp($checkOutTime, $earlyExitThreshold) < 0) {
+                    $earlyExits++;
+                }
+            }
+        }
 
         // Get active projects count for this employee
         $activeProjects = 0;

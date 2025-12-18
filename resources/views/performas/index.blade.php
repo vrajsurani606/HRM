@@ -3,7 +3,7 @@
 @section('content')
 
 <!-- Filter Row (JV Datatable filter style) -->
-<form method="GET" action="{{ route('performas.index') }}" class="jv-filter performa-filter">
+<form method="GET" action="{{ route('performas.index') }}" class="jv-filter performa-filter" data-no-loader="true">
   <input type="text" name="company_name" placeholder="Bill Name" class="filter-pill" value="{{ request('company_name') }}" />
   <input type="text" name="unique_code" placeholder="Proforma No." class="filter-pill" value="{{ request('unique_code') }}" />
   <input type="text" name="mobile_no" placeholder="Mobile No." class="filter-pill" value="{{ request('mobile_no') }}" />

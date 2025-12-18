@@ -10,27 +10,31 @@
 <style>
     /* Summernote Custom Styling */
     .note-editor {
-        border: 1px solid #d2d6de !important;
-        border-radius: 4px;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px;
         margin-bottom: 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .note-toolbar {
-        background-color: #f9f9f9 !important;
-        border-bottom: 1px solid #d2d6de !important;
-        padding: 5px !important;
+        background-color: #f8fafc !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        padding: 8px !important;
+        border-radius: 8px 8px 0 0;
     }
     .note-btn-group .btn {
         padding: 5px 8px !important;
         background: #fff !important;
-        border: 1px solid #ddd !important;
-        color: #333 !important;
+        border: 1px solid #e2e8f0 !important;
+        color: #475569 !important;
         font-size: 12px !important;
         line-height: 1.2 !important;
         margin-right: 2px !important;
         margin-bottom: 3px !important;
+        border-radius: 4px !important;
     }
     .note-btn-group .btn:hover {
-        background-color: #e9ecef !important;
+        background-color: #f1f5f9 !important;
+        border-color: #cbd5e1 !important;
     }
     .note-btn-group .dropdown-toggle::after {
         vertical-align: middle !important;
@@ -42,34 +46,171 @@
         font-size: 14px;
         line-height: 1.6;
     }
-    /* Make sure the modal appears above other elements */
-    .note-modal {
-        z-index: 1050 !important;
+    .note-modal { z-index: 1050 !important; }
+    .note-modal-backdrop { z-index: 1040 !important; }
+    .note-toolbar .note-btn i { font-size: 14px !important; }
+    #content + .note-editor { min-height: 200px !important; }
+    #content + .note-editor .note-editable { min-height: 200px !important; }
+    #notes + .note-editor { min-height: 225px !important; }
+    #notes + .note-editor .note-editable { min-height: 200px !important; }
+    #terminationFields { width: 100% !important; grid-column: 1 / -1 !important; }
+    
+    /* Beautiful Default Content Toggle */
+    .content-toggle-card {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 1px solid #bae6fd;
+        border-radius: 12px;
+        padding: 16px 20px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
     }
-    .note-modal-backdrop {
-        z-index: 1040 !important;
+    .content-toggle-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #0ea5e9 0%, #3b82f6 100%);
+        border-radius: 12px 0 0 12px;
     }
-    /* Smaller toolbar icons */
-    .note-toolbar .note-btn i {
-        font-size: 14px !important;
+    .content-toggle-card.unchecked {
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        border-color: #fecaca;
     }
-    /* Set minimum heights for editors */
-    #content + .note-editor {
-        min-height: 200px !important;
+    .content-toggle-card.unchecked::before {
+        background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
     }
-    #content + .note-editor .note-editable {
-        min-height: 200px !important;
+    .toggle-switch {
+        position: relative;
+        width: 52px;
+        height: 28px;
+        flex-shrink: 0;
     }
-    #notes + .note-editor {
-        min-height: 225px !important;
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
     }
-    #notes + .note-editor .note-editable {
-        min-height: 200px !important;
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #cbd5e1;
+        transition: 0.3s;
+        border-radius: 28px;
     }
-    /* Ensure termination fields use full width */
-    #terminationFields {
-        width: 100% !important;
-        grid-column: 1 / -1 !important;
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 3px;
+        bottom: 3px;
+        background: white;
+        transition: 0.3s;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .toggle-switch input:checked + .toggle-slider {
+        background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+    }
+    .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+    }
+    .toggle-label-main {
+        font-weight: 600;
+        font-size: 14px;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .toggle-label-main i {
+        font-size: 16px;
+    }
+    .toggle-description {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 4px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .toggle-description .status-on {
+        color: #059669;
+        font-weight: 500;
+    }
+    .toggle-description .status-off {
+        color: #dc2626;
+        font-weight: 500;
+    }
+    
+    /* Beautiful Additional Content Section */
+    .additional-content-section {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .additional-content-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 14px 18px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .additional-content-header i {
+        color: #3b82f6;
+        font-size: 18px;
+    }
+    .additional-content-header .header-title {
+        font-weight: 600;
+        font-size: 14px;
+        color: #1e293b;
+    }
+    .additional-content-header .header-badge {
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-weight: 500;
+        margin-left: auto;
+    }
+    .additional-content-body {
+        padding: 16px 18px;
+    }
+    .additional-content-body .field-hint {
+        font-size: 12px;
+        color: #64748b;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .additional-content-body .field-hint i {
+        color: #94a3b8;
+    }
+    
+    /* Subject Field Styling */
+    .subject-field-wrapper {
+        margin-bottom: 16px;
+    }
+    .subject-field-wrapper .hrp-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .subject-field-wrapper .hrp-label i {
+        color: #64748b;
+        font-size: 12px;
     }
 </style>
 @endpush
@@ -77,7 +218,7 @@
 @section('content')
 <div class="hrp-card">
     <div class="Rectangle-30 hrp-compact">
-        <form method="POST" action="{{ isset($letter) ? route('employees.letters.update', ['employee'=>$employee, 'letter'=>$letter]) : route('employees.letters.store', $employee) }}" enctype="multipart/form-data" class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3" id="letterForm">
+        <form method="POST" action="{{ isset($letter) ? route('employees.letters.update', ['employee'=>$employee, 'letter'=>$letter]) : route('employees.letters.store', $employee) }}" enctype="multipart/form-data" class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3" id="letterForm" data-ajax="true">
             @csrf
             @if(isset($letter))
                 @method('PUT')
@@ -132,20 +273,23 @@
             </div>
             
             <!-- Use Default Content Checkbox -->
-            <div id="defaultContentCheckboxContainer" class="hidden md:col-span-2 mt-2 mb-2">
-                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg" id="checkbox-container">
-                    <div class="flex items-center gap-3">
+            <div id="defaultContentCheckboxContainer" class="hidden md:col-span-2 mt-3 mb-3">
+                <div class="content-toggle-card" id="checkbox-container">
+                    <div class="flex items-center gap-4">
                         <input type="hidden" name="use_default_content" id="use_default_content_hidden" value="1">
-                        <input type="checkbox" id="use_default_content" class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer" checked>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="use_default_content" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
                         <div class="flex-1">
-                            <label for="use_default_content" class="font-semibold text-gray-800 cursor-pointer flex items-center gap-2">
-                                <i class="fas fa-file-alt text-blue-600" id="checkbox-icon"></i> 
-                                <span>Use Default Letter Content</span>
-                            </label>
-                            <p class="text-xs text-gray-600 mt-1">
-                                <span class="text-green-600"><i class="fas fa-check-circle"></i> Checked:</span> Uses template + custom content | 
-                                <span class="text-red-600"><i class="fas fa-times-circle"></i> Unchecked:</span> Custom content only
-                            </p>
+                            <div class="toggle-label-main">
+                                <i class="fas fa-file-contract" id="checkbox-icon"></i>
+                                <span>Use Default Letter Template</span>
+                            </div>
+                            <div class="toggle-description">
+                                <span class="status-on"><i class="fas fa-check-circle"></i> ON: Template + Custom</span>
+                                <span class="status-off"><i class="fas fa-edit"></i> OFF: Custom Only</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -362,23 +506,41 @@
             </div>
             
             <!-- Universal Content & Subject Fields (for all letter types) -->
-            <div id="universalFields" class="hidden col-span-2 space-y-4">
-                <div>
-                    <label class="hrp-label">Subject:</label>
-                    <input type="text" name="subject" id="universal_subject" class="hrp-input Rectangle-29" 
-                           placeholder="Enter letter subject (optional)" value="{{ old('subject', isset($letter) ? $letter->subject : '') }}">
-                    @error('subject')
-                        <small class="hrp-error">{{ $message }}</small>
-                    @enderror
-                </div>
-                <div>
-                    <label class="hrp-label">Additional Content:</label>
-                    <small class="text-xs text-gray-500">Add any additional content or notes for this letter. Maximum 10,000 characters.</small>
-                    <textarea name="content" id="universal_content" class="form-control summernote w-full" 
-                             placeholder="Enter additional letter content (optional)" style="min-height: 250px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
-                    @error('content')
-                        <small class="hrp-error">{{ $message }}</small>
-                    @enderror
+            <div id="universalFields" class="hidden col-span-2 mt-4">
+                <div class="additional-content-section">
+                    <div class="additional-content-header">
+                        <i class="fas fa-pen-fancy"></i>
+                        <span class="header-title">Additional Content</span>
+                        <span class="header-badge">Optional</span>
+                    </div>
+                    <div class="additional-content-body">
+                        <div class="field-hint">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Customize your letter with additional subject and content. Max 10,000 characters.</span>
+                        </div>
+                        
+                        <div class="subject-field-wrapper">
+                            <label class="hrp-label">
+                                <i class="fas fa-heading"></i> Subject
+                            </label>
+                            <input type="text" name="subject" id="universal_subject" class="hrp-input Rectangle-29" 
+                                   placeholder="Enter letter subject (optional)" value="{{ old('subject', isset($letter) ? $letter->subject : '') }}">
+                            @error('subject')
+                                <small class="hrp-error">{{ $message }}</small>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label class="hrp-label">
+                                <i class="fas fa-align-left"></i> Content
+                            </label>
+                            <textarea name="content" id="universal_content" class="form-control summernote w-full" 
+                                     placeholder="Enter additional letter content (optional)" style="min-height: 220px;">{{ old('content', isset($letter) ? $letter->content : '') }}</textarea>
+                            @error('content')
+                                <small class="hrp-error">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -816,24 +978,24 @@ $(document).ready(function() {
         });
     });
 
-    // Handle default content checkbox
+    // Handle default content toggle switch
     $('#use_default_content').on('change', function() {
         const isChecked = $(this).is(':checked');
         $('#use_default_content_hidden').val(isChecked ? '1' : '0');
         
-        // Update visual feedback
+        // Update visual feedback for new toggle card
         const container = $('#checkbox-container');
         const icon = $('#checkbox-icon');
         
         if (isChecked) {
-            container.removeClass('bg-red-50 border-red-200').addClass('bg-blue-50 border-blue-200');
-            icon.removeClass('fa-times-circle text-red-600').addClass('fa-file-alt text-blue-600');
+            container.removeClass('unchecked');
+            icon.removeClass('fa-edit').addClass('fa-file-contract');
         } else {
-            container.removeClass('bg-blue-50 border-blue-200').addClass('bg-red-50 border-red-200');
-            icon.removeClass('fa-file-alt text-blue-600').addClass('fa-times-circle text-red-600');
+            container.addClass('unchecked');
+            icon.removeClass('fa-file-contract').addClass('fa-edit');
         }
         
-        console.log('Checkbox changed. Checked:', isChecked, 'Hidden value:', $('#use_default_content_hidden').val());
+        console.log('Toggle changed. Checked:', isChecked, 'Hidden value:', $('#use_default_content_hidden').val());
     });
     
     // Initialize checkbox state on page load
@@ -987,19 +1149,56 @@ $(document).ready(function() {
                 if (xhr.status === 422) {
                     var errors = xhr.responseJSON.errors;
                     console.error('Validation errors:', errors);
+                    
+                    // Show toastr notification for validation errors
+                    var errorMessages = [];
+                    $.each(errors, function(field, messages) {
+                        errorMessages.push(messages[0]);
+                    });
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error(errorMessages.join('<br>'), 'Validation Error', {
+                            timeOut: 5000,
+                            closeButton: true,
+                            escapeHtml: false
+                        });
+                    } else {
+                        alert('Validation Error: ' + errorMessages.join('\n'));
+                    }
+                    
                     $.each(errors, function(field, messages) {
                         var input = $('[name="' + field + '"]');
-                        input.addClass('is-invalid');
-                        var errorContainer = input.siblings('.hrp-error');
-                        if (errorContainer.length === 0) {
-                            errorContainer = $('<small class="hrp-error text-red-500 text-xs"></small>');
-                            input.after(errorContainer);
+                        if (input.length === 0) {
+                            // Try finding by ID (some fields use ID instead of name)
+                            input = $('#' + field);
                         }
-                        errorContainer.html(messages[0]).show();
+                        if (input.length) {
+                            input.addClass('is-invalid');
+                            
+                            // Unhide parent container if it's hidden
+                            var parentContainer = input.closest('div[id$="Fields"]');
+                            if (parentContainer.length && parentContainer.hasClass('hidden')) {
+                                parentContainer.removeClass('hidden');
+                            }
+                            
+                            // Find or create error container
+                            var errorContainer = input.siblings('.hrp-error');
+                            if (errorContainer.length === 0) {
+                                errorContainer = input.parent().find('.hrp-error');
+                            }
+                            if (errorContainer.length === 0) {
+                                errorContainer = $('<small class="hrp-error text-red-500 text-xs mt-1 block"></small>');
+                                input.after(errorContainer);
+                            }
+                            errorContainer.html(messages[0]).show();
+                        }
                     });
+                    
                     // Scroll to first error field
                     var firstKey = Object.keys(errors)[0];
                     var firstEl = $('[name="' + firstKey + '"]');
+                    if (firstEl.length === 0) {
+                        firstEl = $('#' + firstKey);
+                    }
                     if (firstEl && firstEl.length) {
                         $('html, body').animate({ scrollTop: Math.max(0, firstEl.offset().top - 120) }, 300);
                         firstEl.focus();
@@ -1008,7 +1207,11 @@ $(document).ready(function() {
                     var errorMsg = xhr.responseJSON && xhr.responseJSON.message 
                         ? xhr.responseJSON.message 
                         : 'An error occurred while saving. Please try again.';
-                    toastr.error(errorMsg);
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error(errorMsg);
+                    } else {
+                        alert(errorMsg);
+                    }
                 }
             }
         });

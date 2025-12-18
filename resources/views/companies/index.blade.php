@@ -22,7 +22,7 @@
 @section('content')
 <div class="hrp-card">
   <div class="hrp-card-body">
-    <form id="filterForm" method="GET" action="{{ route('companies.index') }}" class="jv-filter">
+    <form id="filterForm" method="GET" action="{{ route('companies.index') }}" class="jv-filter" data-no-loader="true">
       <input type="text" name="company_name" class="filter-pill" placeholder="Company name" value="{{ request('company_name') }}">
       <input type="text" name="gst_no" class="filter-pill" placeholder="GST No." value="{{ request('gst_no') }}">
       <input type="text" name="contact_person" class="filter-pill" placeholder="Contact Person" value="{{ request('contact_person') }}">
