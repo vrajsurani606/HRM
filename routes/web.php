@@ -260,6 +260,8 @@ Route::middleware('auth')->group(function () {
     Route::put('projects/{project}/tasks/{task}', [ProjectController::class, 'updateTask'])->name('projects.tasks.update');
     Route::patch('projects/{project}/tasks/{task}', [ProjectController::class, 'updateTask']);
     Route::delete('projects/{project}/tasks/{task}', [ProjectController::class, 'deleteTask'])->name('projects.tasks.delete');
+    Route::get('projects/{project}/tasks/{task}/status', [ProjectController::class, 'checkTaskStatus'])->name('projects.tasks.status');
+    Route::get('projects/{project}/tasks-status', [ProjectController::class, 'getTasksStatus'])->name('projects.tasks.all-status');
     Route::get('projects/employees/list', [ProjectController::class, 'getEmployeesList'])->name('projects.employees.list');
     
     // Project Comments (MUST be before resource routes)

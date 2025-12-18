@@ -414,6 +414,26 @@ class ProjectController extends Controller
             
             $task = $project->allTasks()->findOrFail($taskId);
             
+            // Check for conflict: if trying to mark as completed but someone else already did
+            if ($request->has('is_completed') && $request->is_completed == true) {
+                if ($task->is_completed && $task->completed_by && $task->completed_by != $user->id) {
+                    $completedByUser = \App\Models\User::find($task->completed_by);
+                    $completedByName = $completedByUser ? $completedByUser->name : 'Another user';
+                    $completedAt = $task->completed_at ? $task->completed_at->format('d M Y, h:i A') : 'recently';
+                    
+                    return response()->json([
+                        'success' => false,
+                        'conflict' => true,
+                        'message' => "This task was already completed by {$completedByName} at {$completedAt}.",
+                        'completed_by' => [
+                            'id' => $task->completed_by,
+                            'name' => $completedByName,
+                            'completed_at' => $completedAt
+                        ]
+                    ], 409); // 409 Conflict status code
+                }
+            }
+            
             // Convert empty strings to null for optional date fields
             $data = $request->all();
             if (array_key_exists('due_date', $data) && (empty($data['due_date']) || $data['due_date'] === 'null')) {
@@ -1020,5 +1040,73 @@ class ProjectController extends Controller
         }
 
         return response()->json(['success' => true, 'message' => 'Positions updated successfully']);
+    }
+    
+    /**
+     * Check task status for conflict detection (real-time polling)
+     */
+    public function checkTaskStatus(Request $request, Project $project, $taskId)
+    {
+        try {
+            $task = $project->allTasks()->with('completedByUser')->findOrFail($taskId);
+            
+            return response()->json([
+                'success' => true,
+                'task' => [
+                    'id' => $task->id,
+                    'is_completed' => $task->is_completed,
+                    'completed_by' => $task->completed_by,
+                    'completed_by_name' => $task->completedByUser ? $task->completedByUser->name : null,
+                    'completed_at' => $task->completed_at ? $task->completed_at->format('d M Y, h:i A') : null
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Task not found'
+            ], 404);
+        }
+    }
+    
+    /**
+     * Get all tasks status for a project (for bulk polling)
+     */
+    public function getTasksStatus(Request $request, Project $project)
+    {
+        try {
+            $tasks = $project->allTasks()->with('completedByUser')->get();
+            
+            $tasksStatus = $tasks->map(function($task) {
+                $completedByUser = null;
+                if ($task->completedByUser) {
+                    $completedByUser = [
+                        'id' => $task->completedByUser->id,
+                        'name' => $task->completedByUser->name,
+                        'chat_color' => $task->completedByUser->chat_color ?? '#10b981',
+                        'photo_path' => $task->completedByUser->photo_path
+                    ];
+                }
+                
+                return [
+                    'id' => $task->id,
+                    'parent_id' => $task->parent_id,
+                    'is_completed' => $task->is_completed,
+                    'completed_by' => $task->completed_by,
+                    'completed_by_name' => $task->completedByUser ? $task->completedByUser->name : null,
+                    'completed_at' => $task->completed_at ? $task->completed_at->format('d M Y, h:i A') : null,
+                    'completed_by_user' => $completedByUser
+                ];
+            });
+            
+            return response()->json([
+                'success' => true,
+                'tasks' => $tasksStatus
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get tasks status'
+            ], 500);
+        }
     }
 }

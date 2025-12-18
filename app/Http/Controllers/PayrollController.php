@@ -50,8 +50,9 @@ class PayrollController extends Controller
             $query->where('employee_id', $request->employee_id);
         }
 
-        // Default to current month/year if no filters provided
-        if (!$request->filled('month') && !$request->filled('year')) {
+        // Default to current month/year ONLY on first load (no query params at all)
+        // If user explicitly selected "All Months" or "All Years", don't apply default
+        if (!$request->has('month') && !$request->has('year') && !$request->has('status') && !$request->has('employee_id') && !$request->has('q')) {
             $query->where('month', date('F'));
             $query->where('year', date('Y'));
         }
@@ -226,10 +227,22 @@ class PayrollController extends Controller
                     ->where('year', $year)
                     ->first();
 
+                // Calculate total leave and working days
+                $totalLeave = $casualLeave + $medicalLeave + $holidayLeave + $personalLeave;
+                $attendedWorkingDays = max(0, $daysInMonth - $totalLeave);
+
                 $payload = [
                     'employee_id' => $emp->id,
                     'month' => $month,
                     'year' => $year,
+                    'total_working_days' => $daysInMonth,
+                    'attended_working_days' => $attendedWorkingDays,
+                    // Save paid leave data (Casual, Medical, Holiday - NOT deducted from salary)
+                    'casual_leave' => $casualLeave,
+                    'medical_leave' => $medicalLeave,
+                    'holiday_leave' => $holidayLeave,
+                    // Save unpaid leave data (Personal - DEDUCTED from salary)
+                    'personal_leave_unpaid' => $personalLeave,
                     'basic_salary' => $actualBasicSalary,
                     'allowances' => $allowances,
                     'bonuses' => $bonuses,
@@ -397,6 +410,12 @@ class PayrollController extends Controller
                 'employee_id' => $request->employee_id,
                 'month' => $request->month,
                 'year' => $request->year,
+                'total_working_days' => $request->total_working_days,
+                'attended_working_days' => $request->attended_working_days,
+                'casual_leave' => max(0, $request->casual_leave ?? 0),
+                'medical_leave' => max(0, $request->medical_leave ?? 0),
+                'holiday_leave' => max(0, $request->holiday_leave ?? 0),
+                'personal_leave_unpaid' => max(0, $request->personal_leave_unpaid ?? 0),
                 'basic_salary' => $basicSalary,
                 'hra' => $hra,
                 'dearness_allowance' => $dearnessAllowance,
@@ -518,6 +537,8 @@ class PayrollController extends Controller
             'esic' => 'nullable|numeric|min:0',
             'security_deposit' => 'nullable|numeric|min:0',
             'leave_deduction' => 'nullable|numeric|min:0',
+            'leave_deduction_days' => 'nullable|numeric|min:0',
+            'personal_leave_unpaid' => 'nullable|numeric|min:0',
             'deductions' => 'nullable|numeric|min:0',
             'tax' => 'nullable|numeric|min:0',
             'payment_date' => 'nullable|date',
@@ -560,6 +581,8 @@ class PayrollController extends Controller
         $esic = max(0, $request->esic ?? 0);
         $securityDeposit = max(0, $request->security_deposit ?? 0);
         $leaveDeduction = max(0, $request->leave_deduction ?? 0);
+        // Get unpaid leave days from form (personal_leave_unpaid or leave_deduction_days)
+        $leaveDeductionDays = max(0, $request->personal_leave_unpaid ?? $request->leave_deduction_days ?? 0);
         $deductions = max(0, $request->deductions ?? 0);
         $tax = max(0, $request->tax ?? 0);
         
@@ -570,6 +593,12 @@ class PayrollController extends Controller
             'employee_id' => $request->employee_id,
             'month' => $request->month,
             'year' => $request->year,
+            'total_working_days' => $request->total_working_days,
+            'attended_working_days' => $request->attended_working_days,
+            'casual_leave' => max(0, $request->casual_leave ?? 0),
+            'medical_leave' => max(0, $request->medical_leave ?? 0),
+            'holiday_leave' => max(0, $request->holiday_leave ?? 0),
+            'personal_leave_unpaid' => max(0, $request->personal_leave_unpaid ?? 0),
             'basic_salary' => $basicSalary,
             'hra' => $hra,
             'medical_allowance' => $medicalAllowance,
@@ -585,6 +614,7 @@ class PayrollController extends Controller
             'esic' => $esic,
             'security_deposit' => $securityDeposit,
             'leave_deduction' => $leaveDeduction,
+            'leave_deduction_days' => $leaveDeductionDays,
             'deductions' => $totalDeductions,
             'tax' => $professionalTax + $tds,
             'net_salary' => $netSalary,

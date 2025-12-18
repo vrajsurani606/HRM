@@ -4,14 +4,26 @@
 @section('content')
 <div class="hrp-content">
   <!-- Filters -->
-  <form method="GET" action="{{ route('leave-approval.index') }}" class="jv-filter">
-    <input type="text" name="start_date" class="filter-pill date-picker" placeholder="From : dd/mm/yyyy" value="{{ request('start_date') }}" autocomplete="off">
-    <input type="text" name="end_date" class="filter-pill date-picker" placeholder="To : dd/mm/yyyy" value="{{ request('end_date') }}" autocomplete="off">
+  @php
+    // Convert dates from yyyy-mm-dd to dd/mm/yyyy for display
+    $startDateDisplay = request('start_date');
+    $endDateDisplay = request('end_date');
+    
+    if ($startDateDisplay && preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDateDisplay)) {
+        $startDateDisplay = \Carbon\Carbon::parse($startDateDisplay)->format('d/m/Y');
+    }
+    if ($endDateDisplay && preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDateDisplay)) {
+        $endDateDisplay = \Carbon\Carbon::parse($endDateDisplay)->format('d/m/Y');
+    }
+  @endphp
+  <form method="GET" action="{{ route('leave-approval.index') }}" class="jv-filter" id="leaveFilterForm">
+    <input type="text" name="start_date" class="filter-pill date-picker" placeholder="From : dd/mm/yyyy" value="{{ $startDateDisplay }}" autocomplete="off">
+    <input type="text" name="end_date" class="filter-pill date-picker" placeholder="To : dd/mm/yyyy" value="{{ $endDateDisplay }}" autocomplete="off">
     
     <select name="employee_id" class="filter-pill">
       <option value="">All Employee</option>
       @foreach($employees as $emp)
-        <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>{{ $emp->name }}</option>
+        <option value="{{ $emp->id }}" {{ (string)request('employee_id') === (string)$emp->id ? 'selected' : '' }}>{{ $emp->name }}</option>
       @endforeach
     </select>
     
@@ -86,22 +98,36 @@
         @forelse($leaves as $leave)
         <tr>
           <td style="vertical-align: middle; padding: 14px;">
+            @php
+              $isAdmin = auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Approval Management.edit leave approval');
+              $isEmployee = auth()->user()->hasRole('employee');
+              $currentEmployee = $isEmployee ? \App\Models\Employee::where('email', auth()->user()->email)->first() : null;
+              $isOwnLeave = $currentEmployee && $leave->employee_id === $currentEmployee->id;
+            @endphp
             <div>
               @if($leave->status == 'pending')
-                <!-- Approve/Reject buttons for pending leaves -->
+                <!-- Approve/Reject buttons for pending leaves (Admin/HR only) -->
                 @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Approval Management.approve leave'))
-                  <img src="{{ asset('action_icon/approve.svg') }}" alt="Approve" style="cursor: pointer; width: 20px; height: 20px;" onclick="approveLeave({{ $leave->id }})">
+                  <img src="{{ asset('action_icon/approve.svg') }}" alt="Approve" title="Approve" style="cursor: pointer; width: 20px; height: 20px;" onclick="approveLeave({{ $leave->id }})">
                 @endif
                 @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Approval Management.reject leave'))
-                  <img src="{{ asset('action_icon/reject.svg') }}" alt="Reject" style="cursor: pointer; width: 20px; height: 20px;" onclick="rejectLeave({{ $leave->id }})">
+                  <img src="{{ asset('action_icon/reject.svg') }}" alt="Reject" title="Reject" style="cursor: pointer; width: 20px; height: 20px;" onclick="rejectLeave({{ $leave->id }})">
+                @endif
+                <!-- Edit/Delete buttons for pending leaves (Admin OR Employee's own leave) -->
+                @if($isAdmin || ($isEmployee && $isOwnLeave))
+                  <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" title="Edit" style="cursor: pointer; width: 18px; height: 18px;" onclick="editLeave({{ $leave->id }})">
+                  <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" title="Delete" style="cursor: pointer; width: 18px; height: 18px;" onclick="deleteLeave({{ $leave->id }})">
                 @endif
               @else
-                <!-- Edit/Delete buttons for approved/rejected leaves -->
-                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Approval Management.edit leave approval'))
-                  <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" style="cursor: pointer; width: 18px; height: 18px;" onclick="editLeave({{ $leave->id }})">
+                <!-- Edit/Delete buttons for approved/rejected leaves (Admin only - NOT for employees) -->
+                @if($isAdmin && !$isEmployee)
+                  <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" title="Edit" style="cursor: pointer; width: 18px; height: 18px;" onclick="editLeave({{ $leave->id }})">
                 @endif
-                @if(auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Approval Management.delete leave approval'))
-                  <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 18px; height: 18px;" onclick="deleteLeave({{ $leave->id }})">
+                @if((auth()->user()->hasRole('super-admin') || auth()->user()->can('Leave Approval Management.delete leave approval')) && !$isEmployee)
+                  <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" title="Delete" style="cursor: pointer; width: 18px; height: 18px;" onclick="deleteLeave({{ $leave->id }})">
+                @endif
+                @if($isEmployee)
+                  <span style="color: #9ca3af; font-size: 12px; font-style: italic;">No actions</span>
                 @endif
               @endif
             </div>
@@ -459,6 +485,12 @@ function updateEditLeaveInfo() {
 
 function submitEditLeave(event) {
   event.preventDefault();
+  
+  // Show loader
+  if (typeof window.showPageLoader === 'function') {
+    window.showPageLoader();
+  }
+  
   const formData = new FormData(event.target);
   const leaveId = document.getElementById('edit_leave_id').value;
   
@@ -498,9 +530,15 @@ function submitEditLeave(event) {
     },
     body: formData
   })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
+  .then(response => {
+    // Always hide loader after response received
+    if (typeof window.hidePageLoader === 'function') {
+      window.hidePageLoader();
+    }
+    return response.json().then(data => ({ ok: response.ok, data }));
+  })
+  .then(({ ok, data }) => {
+    if (ok && data.success) {
       if (typeof toastr !== 'undefined') {
         toastr.success(data.message || 'Leave updated successfully!');
       } else {
@@ -509,6 +547,7 @@ function submitEditLeave(event) {
       closeEditLeaveModal();
       setTimeout(() => location.reload(), 1000);
     } else {
+      // Handle error response (including 422 validation errors)
       if (typeof toastr !== 'undefined') {
         toastr.error(data.message || 'Error updating leave');
       } else {
@@ -517,6 +556,11 @@ function submitEditLeave(event) {
     }
   })
   .catch(error => {
+    // Hide loader on network/parse error
+    if (typeof window.hidePageLoader === 'function') {
+      window.hidePageLoader();
+    }
+    
     console.error('Error:', error);
     if (typeof toastr !== 'undefined') {
       toastr.error('Error updating leave');
@@ -722,6 +766,12 @@ function fetchPaidLeaveBalance(employeeId) {
 
 function submitLeave(event) {
   event.preventDefault();
+  
+  // Show loader
+  if (typeof window.showPageLoader === 'function') {
+    window.showPageLoader();
+  }
+  
   const formData = new FormData(event.target);
   
   // Convert dates from dd/mm/yyyy to yyyy-mm-dd format
@@ -757,9 +807,15 @@ function submitLeave(event) {
     },
     body: formData
   })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
+  .then(response => {
+    // Always hide loader after response received
+    if (typeof window.hidePageLoader === 'function') {
+      window.hidePageLoader();
+    }
+    return response.json().then(data => ({ ok: response.ok, data }));
+  })
+  .then(({ ok, data }) => {
+    if (ok && data.success) {
       if (typeof toastr !== 'undefined') {
         toastr.success(data.message || 'Leave request submitted successfully!');
       } else {
@@ -768,6 +824,7 @@ function submitLeave(event) {
       closeAddLeaveModal();
       setTimeout(() => location.reload(), 1000);
     } else {
+      // Handle error response (including 422 validation errors)
       if (typeof toastr !== 'undefined') {
         toastr.error(data.message || 'Error submitting leave request');
       } else {
@@ -776,6 +833,11 @@ function submitLeave(event) {
     }
   })
   .catch(error => {
+    // Hide loader on network/parse error
+    if (typeof window.hidePageLoader === 'function') {
+      window.hidePageLoader();
+    }
+    
     console.error('Error:', error);
     if (typeof toastr !== 'undefined') {
       toastr.error('Error submitting leave request');
@@ -798,6 +860,11 @@ function rejectLeave(id) {
 }
 
 function updateLeaveStatus(id, status) {
+  // Show loader
+  if (typeof window.showPageLoader === 'function') {
+    window.showPageLoader();
+  }
+  
   const formData = new FormData();
   formData.append('_method', 'PUT');
   formData.append('status', status);
@@ -811,9 +878,15 @@ function updateLeaveStatus(id, status) {
     },
     body: formData
   })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
+  .then(response => {
+    // Always hide loader after response received
+    if (typeof window.hidePageLoader === 'function') {
+      window.hidePageLoader();
+    }
+    return response.json().then(data => ({ ok: response.ok, data }));
+  })
+  .then(({ ok, data }) => {
+    if (ok && data.success) {
       if (typeof toastr !== 'undefined') {
         toastr.success(data.message);
       } else {
@@ -821,6 +894,7 @@ function updateLeaveStatus(id, status) {
       }
       setTimeout(() => location.reload(), 1000);
     } else {
+      // Handle error response (including 422 validation errors)
       if (typeof toastr !== 'undefined') {
         toastr.error(data.message || 'Error updating leave status');
       } else {
@@ -829,6 +903,11 @@ function updateLeaveStatus(id, status) {
     }
   })
   .catch(error => {
+    // Hide loader on network/parse error
+    if (typeof window.hidePageLoader === 'function') {
+      window.hidePageLoader();
+    }
+    
     console.error('Error:', error);
     if (typeof toastr !== 'undefined') {
       toastr.error('Error updating leave status');
@@ -857,17 +936,23 @@ function editLeave(id) {
       document.getElementById('edit_leave_id').value = leave.id;
       document.getElementById('edit_employee_id').value = leave.employee_id;
       document.getElementById('edit_leave_type').value = leave.leave_type;
-      document.getElementById('edit_start_date').value = leave.start_date;
-      document.getElementById('edit_end_date').value = leave.end_date;
-      document.getElementById('edit_total_days').value = leave.total_days;
+      
+      // Format dates for display (convert yyyy-mm-dd to input format)
+      document.getElementById('edit_start_date').value = leave.start_date ? leave.start_date.split('T')[0] : '';
+      document.getElementById('edit_end_date').value = leave.end_date ? leave.end_date.split('T')[0] : '';
+      
+      // Ensure total_days preserves decimal value (e.g., 7.5)
+      const totalDays = parseFloat(leave.total_days);
+      document.getElementById('edit_total_days').value = isNaN(totalDays) ? leave.total_days : totalDays;
+      
       document.getElementById('edit_reason').value = leave.reason;
       document.getElementById('edit_status').value = leave.status;
       
       // Show edit modal
       document.getElementById('editLeaveModal').style.display = 'flex';
       
-      // Calculate days for edit modal
-      calculateEditModalDays();
+      // Don't auto-calculate - show saved data only
+      // User can manually change dates if needed, which will trigger recalculation
     } else {
       if (typeof toastr !== 'undefined') {
         toastr.error(data.message || 'Error loading leave data');
@@ -888,6 +973,11 @@ function editLeave(id) {
 
 function deleteLeave(id) {
   if (confirm('Are you sure you want to delete this leave request? This action cannot be undone.')) {
+    // Show loader
+    if (typeof window.showPageLoader === 'function') {
+      window.showPageLoader();
+    }
+    
     const formData = new FormData();
     formData.append('_method', 'DELETE');
     
@@ -900,18 +990,35 @@ function deleteLeave(id) {
       },
       body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
+    .then(response => {
+      // Always hide loader after response received
+      if (typeof window.hidePageLoader === 'function') {
+        window.hidePageLoader();
+      }
+      return response.json().then(data => ({ ok: response.ok, data }));
+    })
+    .then(({ ok, data }) => {
+      if (ok && data.success) {
         if (typeof toastr !== 'undefined') {
           toastr.success('Leave request deleted successfully!');
         } else {
           alert('Leave request deleted successfully!');
         }
         setTimeout(() => location.reload(), 1000);
+      } else {
+        if (typeof toastr !== 'undefined') {
+          toastr.error(data.message || 'Error deleting leave request');
+        } else {
+          alert(data.message || 'Error deleting leave request');
+        }
       }
     })
     .catch(error => {
+      // Hide loader on network/parse error
+      if (typeof window.hidePageLoader === 'function') {
+        window.hidePageLoader();
+      }
+      
       console.error('Error:', error);
       if (typeof toastr !== 'undefined') {
         toastr.error('Error deleting leave request');
@@ -947,14 +1054,19 @@ $(document).ready(function() {
 
 // Convert dates before form submission
 document.addEventListener('DOMContentLoaded', function() {
-    var form = document.querySelector('.jv-filter, #filterForm');
+    var form = document.getElementById('leaveFilterForm');
     if(form){
         form.addEventListener('submit', function(e){
             var dateInputs = form.querySelectorAll('.date-picker');
             dateInputs.forEach(function(input){
                 if(input.value){
-                    var parts = input.value.split('/');
-                    if(parts.length === 3) input.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+                    // Only convert if in dd/mm/yyyy format
+                    if(input.value.includes('/')) {
+                        var parts = input.value.split('/');
+                        if(parts.length === 3) {
+                            input.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+                        }
+                    }
                 }
             });
         });

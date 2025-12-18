@@ -486,7 +486,7 @@ class AttendanceController extends Controller
         ]);
 
         return redirect()
-            ->route('attendance.reports')
+            ->route('attendance.report')
             ->with('success', 'Attendance record created successfully.');
     }
 

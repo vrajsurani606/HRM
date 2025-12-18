@@ -151,7 +151,17 @@
       <div class="md:col-span-2 payroll-section">
         <div class="section-header">
           <h4>Leave Details</h4>
-          <small>Paid: Casual/Medical/Holiday. Unpaid: Personal (deducted).</small>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <small>Paid: Casual/Medical/Holiday. Unpaid: Personal (deducted).</small>
+            @if(isset($payroll))
+            <button type="button" onclick="refreshLeaveData()" class="pill-btn" style="font-size: 11px; padding: 4px 10px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;" title="Refresh leave data from Leave Management system">
+              <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;">
+                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+              </svg>
+              Refresh from Leave System
+            </button>
+            @endif
+          </div>
         </div>
 
         <!-- Summary Row -->
@@ -202,7 +212,7 @@
             <div class="grid-2">
               <div>
                 <label class="hrp-label">Personal (Unpaid)</label>
-                <input type="number" name="personal_leave_unpaid" id="personal_leave_unpaid" value="{{ old('personal_leave_unpaid', isset($payroll)?($payroll->personal_leave_unpaid ?? 0):0) }}" class="hrp-input Rectangle-29" form="payrollForm" step="0.5" min="0" max="30" oninput="updateLeaveTotals()">
+                <input type="number" name="personal_leave_unpaid" id="personal_leave_unpaid" value="{{ old('personal_leave_unpaid', isset($payroll)?($payroll->leave_deduction_days ?? $payroll->personal_leave_unpaid ?? 0):0) }}" class="hrp-input Rectangle-29" form="payrollForm" step="0.5" min="0" max="30" oninput="updateLeaveTotals()">
               </div>
               <div>
                 <label class="hrp-label">Unpaid (Auto)</label>
@@ -421,6 +431,7 @@ function updateLeaveTotals(){
   const total = casual + medical + holiday + personalUnpaid;
   const totalEl = document.getElementById('total_leave_total');
   if (totalEl) totalEl.value = total.toFixed(1).replace(/\.0$/, '');
+  
   // Summary badges
   const bTotal = document.getElementById('badge_total_leave');
   const bPaid = document.getElementById('badge_paid_leave');
@@ -431,18 +442,35 @@ function updateLeaveTotals(){
   if (bPaid) bPaid.textContent = paid.toString();
   if (bUnpaid) bUnpaid.textContent = personalUnpaid.toString();
   if (unpaidBox) unpaidBox.value = personalUnpaid.toString();
+  
+  // Auto-calculate attended working days = Total Working Days - Total Leave Days
+  const totalWorkingDays = parseFloat(document.getElementById('total_working_days')?.value || 0) || 0;
+  if (totalWorkingDays > 0) {
+    const attendedDays = Math.max(0, Math.round(totalWorkingDays - total));
+    setSelectValue('attended_working_days', attendedDays);
+  }
+  
   calculateNetSalary();
 }
 
+// Check if we're in edit mode
+const isEditMode = {{ isset($payroll) ? 'true' : 'false' }};
+
 // Initialize on page load
 (function(){
-  // If all 3 are set, load employee data on page load (for edit prefill)
+  // For CREATE mode: If all 3 are set, load employee data on page load
+  // For EDIT mode: Don't auto-fetch, use saved database values
   try {
     var eid = document.getElementById('employee_id')?.value;
     var m = document.getElementById('month')?.value;
     var y = document.getElementById('year')?.value;
-    if (eid && m && y) {
+    
+    if (!isEditMode && eid && m && y) {
+      // Only auto-fetch for new payroll creation
       loadEmployeeSalaryData();
+    } else if (isEditMode) {
+      // For edit mode, just update leave totals and calculate net salary from saved data
+      updateLeaveTotals();
     }
   } catch(e) { /* no-op */ }
 
@@ -486,15 +514,23 @@ function toggleTransactionField() {
     }
 }
 
-function loadEmployeeSalaryData() {
+function loadEmployeeSalaryData(forceRefresh = false) {
     const employeeId = document.getElementById('employee_id').value;
     const month = document.getElementById('month').value;
     const year = document.getElementById('year').value;
     
-    console.log('Loading employee data:', { employeeId, month, year });
+    console.log('Loading employee data:', { employeeId, month, year, isEditMode, forceRefresh });
     
     if (!employeeId || !month || !year) {
         console.log('Missing required fields');
+        return;
+    }
+    
+    // In edit mode, don't auto-fetch unless force refresh is requested
+    if (isEditMode && !forceRefresh) {
+        console.log('Edit mode: Using saved database values');
+        // Just recalculate with existing values
+        calculateNetSalary();
         return;
     }
     
@@ -527,7 +563,14 @@ function loadEmployeeSalaryData() {
             
             // Fill attendance
             setSelectValue('total_working_days', data.days_in_month || 30);
-            setSelectValue('attended_working_days', data.working_days || 0);
+            
+            // Calculate attended days = total working days - total leave days
+            const totalLeave = parseFloat(data.casual_leave_used || 0) + 
+                              parseFloat(data.medical_leave_used || 0) + 
+                              parseFloat(data.holiday_leave_used || 0) + 
+                              parseFloat(data.personal_leave_used || 0);
+            const attendedDays = Math.max(0, (data.days_in_month || 30) - totalLeave);
+            setSelectValue('attended_working_days', Math.round(attendedDays));
             
             // Fill leave data (structured) - now using number inputs
             document.getElementById('casual_leave').value = parseFloat(data.casual_leave_used || 0);
@@ -538,7 +581,11 @@ function loadEmployeeSalaryData() {
             updateLeaveTotals();
             
             // Fill salary - Basic Salary only, rest are manual entry (default 0)
-            document.getElementById('basic_salary').value = data.basic_salary || 0;
+            // Only update basic salary if it's empty or zero (don't overwrite in edit mode)
+            const currentBasic = parseFloat(document.getElementById('basic_salary').value) || 0;
+            if (currentBasic === 0 || forceRefresh) {
+                document.getElementById('basic_salary').value = data.basic_salary || 0;
+            }
             
             // HRA, City Allowance, PF default to 0 - HR/Admin enters manually
             // Do NOT auto-calculate
@@ -555,7 +602,7 @@ function loadEmployeeSalaryData() {
             calculateNetSalary();
             
             if (typeof toastr !== 'undefined') {
-                toastr.success('Employee data loaded successfully!');
+                toastr.success(forceRefresh ? 'Leave data refreshed from system!' : 'Employee data loaded successfully!');
             }
             console.log('Data loaded successfully');
         } else {
@@ -571,6 +618,13 @@ function loadEmployeeSalaryData() {
             toastr.error('Error loading employee data');
         }
     });
+}
+
+// Function to manually refresh leave data from leave system
+function refreshLeaveData() {
+    if (confirm('This will refresh leave data from the Leave Management system. Your manually entered leave values will be overwritten. Continue?')) {
+        loadEmployeeSalaryData(true);
+    }
 }
 
 function setSelectValue(selectId, value) {
