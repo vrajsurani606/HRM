@@ -76,8 +76,6 @@ if ($contentLength > 3000) {
         /* Top padding for header, bottom padding for footer */
         padding: 190px 36px 120px 36px;
         box-sizing:border-box;
-        max-height: calc(100vh - 310px); /* Limit height to prevent footer overlap */
-        overflow: hidden;
     }
     
     /* Letter Elements */
@@ -245,7 +243,7 @@ if ($contentLength > 3000) {
             box-shadow:none; border:none; 
             width: 210mm; height: 297mm;
             page-break-after: always;
-            overflow: hidden;
+            overflow: visible !important;
         }
         
         .offer-container:last-child {
@@ -260,8 +258,8 @@ if ($contentLength > 3000) {
         .letter-content { 
             /* Top padding for header, bottom padding for footer */
             padding: 190px 30px 120px 30px;
-            max-height: 620px; /* ~35 lines at 13px font with 1.7 line-height */
-            overflow: hidden !important;
+            max-height: none !important;
+            overflow: visible !important;
         }
         
         .break-section { 
@@ -284,6 +282,14 @@ if ($contentLength > 3000) {
             orphans: 3;
             widows: 3;
         }
+        
+        .body ul, .body ol {
+            page-break-inside: avoid;
+        }
+        
+        .body li {
+            page-break-inside: avoid;
+        }
     }
     
     /* Screen Preview */
@@ -291,11 +297,11 @@ if ($contentLength > 3000) {
         body, html { background:#f5f5f5; min-height:100vh; min-width:100vw; margin:0; padding:0; }
         .offer-container { 
             width:794px; min-width:794px; max-width:794px; 
-            height:1123px; min-height:1123px; max-height:1123px; 
+            min-height:1123px;
             margin:40px auto; box-shadow:0 4px 24px rgba(44,108,164,0.10); 
-            position:relative; overflow:hidden; border:1.5px solid #dbe6f7; display:block;
+            position:relative; overflow:visible; border:1.5px solid #dbe6f7; display:block;
         }
-        /* Screen view - limit content height to prevent footer overlap */
+        /* Screen view - allow content to flow naturally */
         .letter-content { 
             max-height: none !important;
             overflow: visible !important;
@@ -303,10 +309,6 @@ if ($contentLength > 3000) {
             padding-bottom: 120px !important;
         }
         
-        /* Clip content that overflows the page */
-        .offer-container {
-            overflow: hidden !important;
-        }
         .break-section { margin-top:32px; }
         
         /* Page 2 styling for screen */
@@ -315,7 +317,7 @@ if ($contentLength > 3000) {
         }
         #page2 .letter-content {
             padding-top: 190px !important;
-            max-height: 650px !important;
+            max-height: none !important;
         }
     }
     
