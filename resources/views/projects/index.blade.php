@@ -1580,6 +1580,7 @@
         <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: stretch; overflow: visible;">
           
           
+          @if(!auth()->user()->hasRole('employee'))
           <button id="dueDateButton" onclick="openProjectDueDatePicker()" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s; height: 38px; box-sizing: border-box;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
@@ -1587,6 +1588,15 @@
             </svg>
             <span id="dueDateText">Due Date</span>
           </button>
+          @else
+          <div id="dueDateButton" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; color: #6b7280; height: 38px; box-sizing: border-box;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span id="dueDateText">Due Date</span>
+          </div>
+          @endif
 
           @can('Projects Management.create task')
           <button onclick="toggleAddTaskBox()" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; font-size: 13px; color: #000; transition: all 0.2s; height: 38px; box-sizing: border-box;">
@@ -1625,7 +1635,7 @@
 
         <!-- Company Selector -->
         <div style="margin-bottom: 20px;">
-          <select id="viewProjectCompany" style="width: 50%; padding: 9px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fafafa; color: #000; font-size: 13px; cursor: pointer; outline: none;">
+          <select id="viewProjectCompany" style="width: 50%; padding: 9px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: {{ auth()->user()->hasRole('employee') ? '#f3f4f6' : '#fafafa' }}; color: {{ auth()->user()->hasRole('employee') ? '#6b7280' : '#000' }}; font-size: 13px; cursor: {{ auth()->user()->hasRole('employee') ? 'not-allowed' : 'pointer' }}; outline: none;" {{ auth()->user()->hasRole('employee') ? 'disabled' : '' }}>
             <option>Select Your Company</option>
           </select>
         </div>
@@ -1640,7 +1650,7 @@
             </svg>
             <h3 style="margin: 0; font-size: 15px; font-weight: 600; color: #000;">Description</h3>
           </div>
-          <textarea id="viewProjectDescription" placeholder="Enter About Whole Project Description" style="width: 100%; background: #fafafa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px; min-height: 100px; color: #000; font-size: 13px; line-height: 1.5; font-family: inherit; resize: vertical; outline: none;"></textarea>
+          <textarea id="viewProjectDescription" placeholder="{{ auth()->user()->hasRole('employee') ? 'Project description' : 'Enter About Whole Project Description' }}" style="width: 100%; background: {{ auth()->user()->hasRole('employee') ? '#f3f4f6' : '#fafafa' }}; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px; min-height: 100px; color: {{ auth()->user()->hasRole('employee') ? '#6b7280' : '#000' }}; font-size: 13px; line-height: 1.5; font-family: inherit; resize: {{ auth()->user()->hasRole('employee') ? 'none' : 'vertical' }}; outline: none; cursor: {{ auth()->user()->hasRole('employee') ? 'not-allowed' : 'text' }};" {{ auth()->user()->hasRole('employee') ? 'readonly' : '' }}></textarea>
         </div>
 
         <!-- Tasks Section -->
@@ -2483,15 +2493,19 @@ function viewProject(projectId, event) {
             descTextarea.style.color = '#9ca3af';
         }
         
-        // Save description on blur
-        descTextarea.onblur = function() {
-            saveProjectDescription(project.id, this.value);
-        };
+        // Save description on blur (only for non-employees)
+        if (!isEmployee) {
+            descTextarea.onblur = function() {
+                saveProjectDescription(project.id, this.value);
+            };
+        }
         
-        // Save company on change
-        companySelect.onchange = function() {
-            saveProjectCompany(project.id, this.value);
-        };
+        // Save company on change (only for non-employees)
+        if (!isEmployee) {
+            companySelect.onchange = function() {
+                saveProjectCompany(project.id, this.value);
+            };
+        }
         
         // Load project members
         loadProjectMembers(project.id);
@@ -2616,6 +2630,9 @@ const canDeleteTask = {{ auth()->user()->can('Projects Management.delete task') 
 const canManageMembers = {{ auth()->user()->can('Projects Management.edit project') ? 'true' : 'false' }};
 // Only employees cannot uncheck completed tasks - all other roles can uncheck
 const canUncheckTask = {{ !auth()->user()->hasRole('employee') ? 'true' : 'false' }};
+// Employee cannot edit project details (deadline, description, company)
+const isEmployee = {{ auth()->user()->hasRole('employee') ? 'true' : 'false' }};
+const canEditProjectDetails = {{ auth()->user()->can('Projects Management.edit project') ? 'true' : 'false' }};
 
 // Helper function to show confirmation dialog
 function showConfirmDialog(title, message, confirmText = 'Confirm', cancelText = 'Cancel') {
@@ -5491,6 +5508,12 @@ function openMaterialsModalInKanban() {
 
 // Open Due Date Picker for View Project Modal
 function openProjectDueDatePicker() {
+    // Employees cannot edit project deadline
+    if (isEmployee) {
+        toastr.warning('You do not have permission to edit project deadline');
+        return;
+    }
+    
     if (!currentProjectId) {
         toastr.error('No project selected');
         return;

@@ -22,7 +22,9 @@
 @if($errors->any())
 <script>
   document.addEventListener('DOMContentLoaded', function(){
-    toastr.error('Please fix the highlighted errors.');
+    @foreach($errors->all() as $error)
+      toastr.error(@json($error));
+    @endforeach
   });
 </script>
 @endif

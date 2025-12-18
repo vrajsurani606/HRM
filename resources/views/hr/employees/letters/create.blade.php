@@ -49,6 +49,68 @@
     .note-modal { z-index: 1050 !important; }
     .note-modal-backdrop { z-index: 1040 !important; }
     .note-toolbar .note-btn i { font-size: 14px !important; }
+    
+    /* Hide Summernote hint/autocomplete popover and fix dropdown positioning */
+    .note-hint-popover,
+    .note-hint-popover .popover-content,
+    .note-hint-popover .popover-content .note-hint-group,
+    .note-hint-popover .popover-content .note-hint-group .note-hint-item {
+        display: none !important;
+    }
+    .popover.note-hint-popover {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+    
+    /* Fix dropdown menus positioning - prevent them from appearing outside editor */
+    .note-editor .dropdown-menu {
+        position: absolute !important;
+        z-index: 1060 !important;
+        left: 0 !important;
+        transform: none !important;
+    }
+    .note-editor .note-dropdown-menu {
+        min-width: 180px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    /* Fix style dropdown specifically */
+    .note-editor .note-style .dropdown-menu,
+    .note-editor .note-para .dropdown-menu {
+        left: 0 !important;
+        right: auto !important;
+    }
+    
+    /* Ensure dropdowns stay within viewport */
+    .note-toolbar .dropdown-menu.show {
+        position: absolute !important;
+        inset: auto !important;
+        transform: none !important;
+    }
+    
+    /* Image modal styling */
+    .note-modal .modal-dialog {
+        max-width: 600px;
+    }
+    .note-modal .note-image-input {
+        width: 100%;
+    }
+    .note-modal .note-group-image-url input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+    }
+    
+    /* Fix image popover */
+    .note-popover.popover {
+        max-width: 350px;
+    }
+    .note-popover .popover-content {
+        padding: 8px;
+    }
     #content + .note-editor { min-height: 200px !important; }
     #content + .note-editor .note-editable { min-height: 200px !important; }
     #notes + .note-editor { min-height: 225px !important; }
@@ -922,25 +984,27 @@ $(document).ready(function() {
                 $this.summernote({
                     height: 200,
                     focus: false,
+                    disableResizeEditor: true,
                     toolbar: [
-                        ['style', ['style']],
-                        ['font', ['bold', 'italic', 'underline', 'clear', 'strikethrough']],
+                        ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
                         ['fontname', ['fontname']],
                         ['fontsize', ['fontsize']],
                         ['color', ['color']],
                         ['para', ['ul', 'ol', 'paragraph']],
                         ['height', ['height']],
                         ['table', ['table']],
-                        ['insert', ['link', 'picture', 'hr']],
+                        ['insert', ['link', 'hr']],
                         ['view', ['fullscreen', 'codeview', 'help']],
                         ['misc', ['undo', 'redo']]
                     ],
                     fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '24', '36', '48'],
-                    styleTags: [
-                        'p',
-                        { title: 'Blockquote', tag: 'blockquote', className: 'blockquote', value: 'blockquote' },
-                        'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
-                    ]
+                    popover: {
+                        image: [],
+                        link: [
+                            ['link', ['linkDialogShow', 'unlink']]
+                        ],
+                        air: []
+                    }
                 });
             }
         });
@@ -952,13 +1016,20 @@ $(document).ready(function() {
                 $this.summernote({
                     height: 225,
                     focus: false,
+                    disableResizeEditor: true,
                     toolbar: [
-                        ['style', ['bold', 'italic', 'underline', 'clear']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
                         ['para', ['ul', 'ol']],
                         ['insert', ['link']]
                     ],
                     fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18'],
-                    styleTags: ['p', 'h4', 'h5', 'h6']
+                    popover: {
+                        image: [],
+                        link: [
+                            ['link', ['linkDialogShow', 'unlink']]
+                        ],
+                        air: []
+                    }
                 });
             }
         });

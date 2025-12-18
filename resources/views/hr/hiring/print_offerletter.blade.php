@@ -44,7 +44,7 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
     }
     .offer-container .bg-cover img { width:100%; height:100%; object-fit:cover; display:block; }
     .letter-content { position:relative; z-index:1; }
-    .letter-content { width:100%; max-width:800px; margin:0 auto; margin-top:190px; padding:40px 30px 20px 30px; border-radius:8px; box-sizing:border-box; }
+    .letter-content { width:100%; max-width:800px; margin:0 auto; margin-top:190px; padding:40px 30px 20px 30px; border-radius:8px; box-sizing:border-box; font-size:12.5px; }
     .letter-meta, .recipient, .subject, .body, .signature { margin-bottom:16px; }
     .letter-meta { display:flex; justify-content:space-between; font-size:12.5px; color:#222; font-weight:500; }
     .recipient { font-size:12.5px; color:#222; }
@@ -99,10 +99,10 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
       .letter-content.first-page { max-height:none !important; height:auto !important; overflow:visible !important; }
       .break-section { margin-top:32px; }
     }
-    .doc-table { width:100%; border-collapse:separate; border-spacing:0; font-size:14px; margin-bottom:18px; overflow:hidden; box-shadow:0 1px 6px rgba(44,108,164,0.06); background:transparent; }
-    .doc-table th, .doc-table td { border:1.5px solid #b3b3b3; padding:10px 14px; background:transparent; }
-    .doc-table th { font-weight:700; text-align:center; font-size:15px; background:transparent; padding:10px 0; }
-    .doc-table .doc-table-header { border:2px solid #b3b3b3; font-weight:700; text-align:center; font-size:15px; background:rgba(69,108,181,0.18); padding:10px 0; }
+    .doc-table { width:100%; border-collapse:separate; border-spacing:0; font-size:12.5px; margin-bottom:18px; overflow:hidden; box-shadow:0 1px 6px rgba(44,108,164,0.06); background:transparent; }
+    .doc-table th, .doc-table td { border:1.5px solid #b3b3b3; padding:8px 12px; background:transparent; }
+    .doc-table th { font-weight:700; text-align:center; font-size:12.5px; background:transparent; padding:8px 0; }
+    .doc-table .doc-table-header { border:2px solid #b3b3b3; font-weight:700; text-align:center; font-size:12.5px; background:rgba(69,108,181,0.18); padding:8px 0; }
     .letter-content.first-page { padding:0 36px 4px 36px !important; margin-top:190px !important; font-size:12.5px !important; }
     .print-btn {
       background: #1f2937; color: #fff; border: 0; padding: 10px 14px; border-radius: 6px;
@@ -208,17 +208,36 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
           <div style="page-break-before: always;"></div>
           <div class="offer-container">
             <div class="bg-cover"><img src="{{ $background_url }}" alt="" /></div>
-            <div class="letter-content">
-        @endif
-        <p style="margin-top:-0px;">
+            <div class="letter-content first-page">
+              <div class="body">
+                <p style="margin-top:0; font-size:12.5px;">
+                  Your joining date is
+                  <b>{{ data_get($joining, 'date_of_joining', '[Date of Joining]') }}</b>
+                  at 9:30 AM. Please report to  <b>{{ data_get($joining, 'reporting_person', 'Reporting person name') }}</b> 
+                  for documentation and orientation. If this date is not feasible, kindly inform us immediately.
+                </p>
+                <p style="margin-top:5px; font-size:12.5px;">We are confident that you will make a valuable contribution to the success of <span class="company">{{ $company_name }}</span> and look forward to working with you.</p>
+              </div>
+              <div class="signature" style="margin-bottom: 80px; font-size:12.5px;">
+                <div><b>Sincerely,</b></div>
+                <div class="sign">
+                  <img src="{{ asset('letters/signature.png') }}" alt="Signature">
+                </div>
+                <div class="name">Mr. Chintan Kachhadiya</div>
+                <div class="company">{{ $company_name }}</div>
+              </div>
+            </div>
+          </div>
+        @else
+        <p style="margin-top:-0px; font-size:12.5px;">
           Your joining date is
           <b>{{ data_get($joining, 'date_of_joining', '[Date of Joining]') }}</b>
           at 9:30 AM. Please report to  <b>{{ data_get($joining, 'reporting_person', 'Reporting person name') }}</b> 
           for documentation and orientation. If this date is not feasible, kindly inform us immediately.
         </p>
-        <p style="margin-top:5px;">We are confident that you will make a valuable contribution to the success of <span class="company">{{ $company_name }}</span> and look forward to working with you.</p>
+        <p style="margin-top:5px; font-size:12.5px;">We are confident that you will make a valuable contribution to the success of <span class="company">{{ $company_name }}</span> and look forward to working with you.</p>
       </div>
-      <div class="signature" style="margin-bottom: 80px;">
+      <div class="signature" style="margin-bottom: 80px; font-size:12.5px;">
         <div><b>Sincerely,</b></div>
         <div class="sign">
           <img src="{{ asset('letters/signature.png') }}" alt="Signature">
@@ -228,32 +247,33 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
       </div>
     </div>
   </div>
+  @endif
   <div style="page-break-before: always;"></div>
   <div class="offer-container">
     <div class="bg-cover"><img src="{{ $background_url }}" alt="" /></div>
-    <div class="letter-content">
-      <div style="font-size:15px; margin-bottom:18px;">Please submit Résumé (<b>signed by recruiter</b>); Application form(<span style="color:#0056b3;font-weight:700;">Blue Form</span>); Expectation Check List &amp; BGC FORM along with photo copies (no original) of below documents</div>
+    <div class="letter-content first-page">
+      <div style="font-size:12.5px; margin-bottom:18px;">Please submit Résumé (<b>signed by recruiter</b>); Application form(<span style="color:#0056b3;font-weight:700;">Blue Form</span>); Expectation Check List &amp; BGC FORM along with photo copies (no original) of below documents</div>
       <table class="doc-table">
         <tr><td colspan="2" class="doc-table-header">MANDATORY DOCUMENT</td></tr>
-        <tr><td style="width:3%; text-align:center;">1.</td><td>Pan Card / Pan Card application number</td></tr>
-        <tr><td style="text-align:center;">2.</td><td>Proof of Citizenship &amp; Age (Birth Certificate / Passport / School Leaving Certificate)</td></tr>
-        <tr><td style="text-align:center;">3.</td><td>2 Passport size photo of Candidate</td></tr>
+        <tr><td style="width:3%; text-align:center;">1.</td><td>PAN CARD / PAN CARD APPLICATION NUMBER</td></tr>
+        <tr><td style="text-align:center;">2.</td><td>PROOF OF CITIZENSHIP &amp; AGE (BIRTH CERTIFICATE / PASSPORT / SCHOOL LEAVING CERTIFICATE)</td></tr>
+        <tr><td style="text-align:center;">3.</td><td>2 PASSPORT SIZE PHOTO OF CANDIDATE</td></tr>
       </table>
       <table class="doc-table">
-        <tr><td colspan="2" class="doc-table-header">All documents for employment to be submitted</td></tr>
+        <tr><td colspan="2" class="doc-table-header">ALL DOCUMENTS FOR EMPLOYMENT TO BE SUBMITTED</td></tr>
         <tr>
           <td style="width:18%; vertical-align:center; font-weight:700; text-align:center;">EMPLOYMENT</td>
           <td>
             <div style="font-weight:700; text-decoration:underline; margin-bottom:4px;">FOR CURRENT EMPLOYMENT:</div>
             <ol style="margin:0 0 8px 18px; padding:0;">
               <li style="margin-bottom:2px;">APPOINTMENT LETTER OR OFFER LETTER</li>
-              <li style="margin-bottom:2px;">RELIEVING LETTER WITH F&amp;F STATEMENT OR SERVICE CERTIFICATE OR EXPERIENCE LETTER (Share Declaration if currently not available)</li>
+              <li style="margin-bottom:2px;">RELIEVING LETTER WITH F&amp;F STATEMENT OR SERVICE CERTIFICATE OR EXPERIENCE LETTER (SHARE DECLARATION IF CURRENTLY NOT AVAILABLE)</li>
               <li style="margin-bottom:2px;">RESIGNATION ACCEPTANCE LETTER</li>
-              <li style="margin-bottom:2px;">Recruiter to sign the declaration with EMPLOYEE CODE if both relieving letter &amp; resignation letter is currently not available</li>
+              <li style="margin-bottom:2px;">RECRUITER TO SIGN THE DECLARATION WITH EMPLOYEE CODE IF BOTH RELIEVING LETTER &amp; RESIGNATION LETTER IS CURRENTLY NOT AVAILABLE</li>
               <li style="margin-bottom:2px;">SALARY SLIPS (LAST 3 MONTHS) OR SALARY CERTIFICATE</li>
               <li>BANK STATEMENT OR FORM 16</li>
             </ol>
-            <div style="font-weight:700; text-decoration:underline; margin-top:10px; margin-bottom:4px;">ALL PAST EMPLOYMENT POST HSC/12<sup>th</sup></div>
+            <div style="font-weight:700; text-decoration:underline; margin-top:10px; margin-bottom:4px;">ALL PAST EMPLOYMENT POST HSC/12<sup>TH</sup></div>
             <ol style="margin:0 0 0 18px; padding:0;">
               <li style="margin-bottom:2px;">RELIEVING LETTER OR SERVICE CERTIFICATE OR EXPERIENCE LETTER</li>
               <li style="margin-bottom:2px;">SALARY SLIPS (LAST 3 MONTHS) OR SALARY CERTIFICATE</li>
@@ -268,8 +288,8 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
           <td style="width:18%; vertical-align:center; font-weight:700; text-align:center;">EDUCATION</td>
           <td>
             <ol style="margin:0 0 0 18px; padding:0;">
-              <li style="margin-bottom:2px;">PASSING CERTIFICATE FOR GRADUATION (If undergraduate then till 12<sup>th</sup>)</li>
-              <li>MARK SHEET FOR SSC , HSC &amp; GRADUATION (If undergraduate then till 12<sup>th</sup>)</li>
+              <li style="margin-bottom:2px;">PASSING CERTIFICATE FOR GRADUATION (IF UNDERGRADUATE THEN TILL 12<sup>TH</sup>)</li>
+              <li>MARK SHEET FOR SSC, HSC &amp; GRADUATION (IF UNDERGRADUATE THEN TILL 12<sup>TH</sup>)</li>
             </ol>
           </td>
         </tr>
@@ -279,7 +299,7 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
   <div style="page-break-before: always;"></div>
   <div class="offer-container">
     <div class="bg-cover"><img src="{{ $background_url }}" alt="" /></div>
-    <div class="letter-content">
+    <div class="letter-content first-page">
       <table class="doc-table">
         <tr>
           <td colspan="2" class="doc-table-header">ANY ONE (1) DOCUMENT FOR BOTH PRESENT &amp; PERMANENT ADDRESS TO BE SUBMITTED</td>
@@ -290,10 +310,10 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
             <ol style="margin:0 0 0 18px; padding:0;">
               <li>VALID PASSPORT</li>
               <li>AADHAAR CARD</li>
-              <li>UTILITY BILL (Land Line Phone Bill's ; Electricity Bill)</li>
-              <li>LIC POLICY DOCUMENT (Bearing Address)</li>
-              <li>LEAVE AND LICENSE COPY or AGREEMENT COPY (Registered)</li>
-              <li>BANK STATEMENT or PASSBOOK (Preferably Nationalized Banks with Address)</li>
+              <li>UTILITY BILL (LAND LINE PHONE BILLS; ELECTRICITY BILL)</li>
+              <li>LIC POLICY DOCUMENT (BEARING ADDRESS)</li>
+              <li>LEAVE AND LICENSE COPY OR AGREEMENT COPY (REGISTERED)</li>
+              <li>BANK STATEMENT OR PASSBOOK (PREFERABLY NATIONALIZED BANKS WITH ADDRESS)</li>
               <li>RATION CARD</li>
               <li>DECLARATION OF CANDIDATES STAY FROM OWNER WITH UTILITY BILL</li>
             </ol>
@@ -302,7 +322,7 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
       </table>
       <table class="doc-table">
         <tr>
-          <td colspan="2" class="doc-table-header">ANY ONE (1) DOCUMENTS FOR IDENTITY PROOF TO BE SUBMITTED</td>
+          <td colspan="2" class="doc-table-header">ANY ONE (1) DOCUMENT FOR IDENTITY PROOF TO BE SUBMITTED</td>
         </tr>
         <tr>
           <td style="width:22%; vertical-align:top; font-weight:700; text-align:center;">IDENTITY<br>PROOF</td>
@@ -311,10 +331,10 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
               <li>VALID PASSPORT</li>
               <li>PAN CARD</li>
               <li>DRIVER'S LICENSE</li>
-              <li>VOTER'S ID or AADHAAR CARD</li>
-              <li>BANK PASSBOOK (With Photograph)</li>
-              <li>COLLEGE ID (For Fresher's)</li>
-              <li>DEFENSE ID CARD (Issued By Govt. Of India For Defense Staff)</li>
+              <li>VOTER'S ID OR AADHAAR CARD</li>
+              <li>BANK PASSBOOK (WITH PHOTOGRAPH)</li>
+              <li>COLLEGE ID (FOR FRESHERS)</li>
+              <li>DEFENSE ID CARD (ISSUED BY GOVT. OF INDIA FOR DEFENSE STAFF)</li>
             </ol>
           </td>
         </tr>

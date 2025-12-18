@@ -1,6 +1,37 @@
 @extends('layouts.macos')
 @section('page_title', 'Ticket Support')
 
+@push('styles')
+<style>
+/* Ticket Modal Styles */
+.ticket-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 999999;
+  overflow-y: auto;
+  padding: 20px;
+  padding-bottom: 100px;
+}
+.ticket-modal-overlay.show {
+  display: block !important;
+}
+.ticket-modal-content {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 600px;
+  width: 100%;
+  margin: 20px auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+</style>
+@endpush
+
 @php
   // Define employee ID for JavaScript use
   $isEmployeeUser = auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee');
@@ -246,8 +277,8 @@
 </div>
 
 <!-- Add/Edit Ticket Modal -->
-<div id="ticketModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; padding-bottom: 80px;">
-  <div style="background: white; border-radius: 15px; padding: 30px; max-width: 600px; width: 90%; max-height: calc(100vh - 120px); overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3); margin: auto;">
+<div id="ticketModal" class="ticket-modal-overlay" style="display: none;">
+  <div class="ticket-modal-content">
     <h3 id="modalTitle" style="margin: 0 0 20px 0; font-size: 22px; font-weight: 700;">Add Ticket</h3>
     
     <form id="ticketForm" onsubmit="submitTicket(event)" enctype="multipart/form-data">
@@ -653,8 +684,8 @@ function clearTicketFiles(clearPreview = true) {
       <div class="ticket-view-right-column">
         <!-- Chat Header with Tabs for Admin -->
         <div style="border-bottom: 1px solid #e5e7eb; background: white; flex-shrink: 0;">
-          @if(auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr') || auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee'))
-          <!-- Tab Navigation for Admin/Employee -->
+          @if(auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr'))
+          <!-- Tab Navigation for Admin Only - Employees don't see Customer Chat -->
           <div style="display: flex; border-bottom: 1px solid #e5e7eb;">
             <button id="chatTabExternal" onclick="switchChatTab('external')" style="flex: 1; padding: 12px 16px; background: white; border: none; border-bottom: 3px solid #3b82f6; cursor: pointer; font-size: 13px; font-weight: 600; color: #3b82f6; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -670,6 +701,18 @@ function clearTicketFiles(clearPreview = true) {
               Internal Notes
               <span id="internalNotesCount" style="background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; display: none;">0</span>
             </button>
+          </div>
+          @elseif(auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee'))
+          <!-- Employee Only - Show Internal Notes header without tabs -->
+          <div style="padding: 12px 16px; background: #f8fafc; border-bottom: 1px solid #e5e7eb;">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #374151;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              Internal Notes
+              <span id="internalNotesCountEmployee" style="background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; display: none;">0</span>
+            </div>
           </div>
           @endif
           <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
@@ -742,12 +785,21 @@ function clearTicketFiles(clearPreview = true) {
             </button>
           </div>
           
-          @if(auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr') || auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee'))
+          @if(auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr'))
+          {{-- Admin/HR can toggle between customer chat and internal notes --}}
           <div style="display: flex; align-items: center; gap: 8px; padding-top: 8px;">
             <label id="internalNoteLabel" style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #64748b; cursor: pointer;">
               <input type="checkbox" id="ticketInternalComment" style="width: 13px; height: 13px; cursor: pointer;">
               <span>🔒 Internal note (hidden from customer)</span>
             </label>
+          </div>
+          @elseif(auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee'))
+          {{-- Employees can only send internal notes - checkbox is hidden but always checked --}}
+          <input type="hidden" id="ticketInternalComment" value="1" checked>
+          <div style="display: flex; align-items: center; gap: 8px; padding-top: 8px;">
+            <span style="font-size: 11px; color: #92400e; display: flex; align-items: center; gap: 6px;">
+              🔒 All messages are internal notes (not visible to customer)
+            </span>
           </div>
           @endif
         </div>
@@ -764,11 +816,13 @@ function openAddTicketModal() {
   // Clear the preview area for new tickets
   document.getElementById('ticket_files_preview').innerHTML = '';
   clearTicketFiles(true);
-  document.getElementById('ticketModal').style.display = 'flex';
+  document.getElementById('ticketModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
 }
 
 function closeTicketModal() {
   document.getElementById('ticketModal').style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 function submitTicket(event) {
@@ -1051,6 +1105,12 @@ function viewTicket(id) {
   const modal = document.getElementById('viewTicketModal');
   modal.style.display = 'flex';
   
+  // For employees, automatically switch to internal notes (they can't see customer chat)
+  const isEmployeeRole = {{ (auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee')) ? 'true' : 'false' }};
+  if (isEmployeeRole) {
+    currentChatTab = 'internal';
+  }
+  
   // Fetch ticket data
   fetch(`{{ url('tickets') }}/${id}/json`, {
     method: 'GET',
@@ -1090,15 +1150,16 @@ function closeViewTicketModal() {
   currentViewTicketId = null;
   stopTicketChatPolling();
   
-  // Reset chat state
-  currentChatTab = 'external';
+  // Reset chat state - for employees, keep internal; for others, reset to external
+  const isEmployeeRole = {{ (auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee')) ? 'true' : 'false' }};
+  currentChatTab = isEmployeeRole ? 'internal' : 'external';
   allTicketComments = [];
   clearChatAttachment();
   
-  // Reset tab UI if tabs exist
+  // Reset tab UI if tabs exist (only for non-employees)
   const externalTab = document.getElementById('chatTabExternal');
   const internalTab = document.getElementById('chatTabInternal');
-  if (externalTab && internalTab) {
+  if (externalTab && internalTab && !isEmployeeRole) {
     switchChatTab('external');
   }
 }
@@ -1298,12 +1359,22 @@ function renderTicketComments(comments) {
     // Update internal notes count
     const internalCount = comments.filter(c => c.is_internal).length;
     const countBadge = document.getElementById('internalNotesCount');
+    const countBadgeEmployee = document.getElementById('internalNotesCountEmployee');
     if (countBadge) {
       if (internalCount > 0) {
         countBadge.textContent = internalCount;
         countBadge.style.display = 'inline';
       } else {
         countBadge.style.display = 'none';
+      }
+    }
+    // Also update employee-specific badge
+    if (countBadgeEmployee) {
+      if (internalCount > 0) {
+        countBadgeEmployee.textContent = internalCount;
+        countBadgeEmployee.style.display = 'inline';
+      } else {
+        countBadgeEmployee.style.display = 'none';
       }
     }
   }

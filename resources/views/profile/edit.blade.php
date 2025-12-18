@@ -3,6 +3,11 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/empty-state.css') }}">
+<style>
+  .border-red-500 {
+    border-color: #ef4444 !important;
+  }
+</style>
 @endpush
 
 @section('content')
@@ -159,19 +164,24 @@
               $canEdit = auth()->user()->can('Profile Management.edit own profile') || auth()->user()->can('Profile Management.edit profile');
             @endphp
             <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px 24px;align-items:start">
+              @csrf
+              @method('PATCH')
+              
               <!-- Profile Photo Upload -->
               @if($canEdit)
               <div style="grid-column:1/-1">
                 <label class="hrp-label">Profile Photo</label>
-                <input type="file" name="photo" accept="image/*" class="hrp-input Rectangle-29" onchange="previewPhoto(this)">
+                <input type="file" name="photo" accept="image/*" class="hrp-input Rectangle-29 @error('photo') border-red-500 @enderror" onchange="previewPhoto(this)">
                 <small style="color:#6b7280;font-size:12px">Upload a new profile photo (JPG, PNG, max 2MB)</small>
+                @error('photo')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
               </div>
               @endif
               
               <!-- Full Name -->
               <div>
                 <label class="hrp-label">Full Name</label>
-                <input type="text" name="name" value="{{ old('name', $employee->name ?? $user->name) }}" class="hrp-input Rectangle-29" {{ $canEdit ? 'required' : 'readonly' }}>
+                <input type="text" name="name" value="{{ old('name', $employee->name ?? $user->name) }}" class="hrp-input Rectangle-29 @error('name') border-red-500 @enderror" {{ $canEdit ? 'required' : 'readonly' }}>
+                @error('name')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
               </div>
 
               <!-- Gender -->
@@ -191,6 +201,7 @@
                     </label>
                   </div>
                 </div>
+                @error('gender')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
               </div>
 
               <!-- Date of Birth -->
@@ -200,48 +211,55 @@
                   label="Date of Birth" 
                   :value="old('date_of_birth', $employee->date_of_birth ?? null)" 
                 />
+                @error('date_of_birth')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
               </div>
 
               <!-- Mobile No -->
               <div>
                 <label class="hrp-label">Mobile No:</label>
-                <input type="text" name="mobile_no" value="{{ old('mobile_no', strip_country_code($employee->mobile_no ?? $user->mobile_no)) }}" class="hrp-input Rectangle-29" {{ $canEdit ? '' : 'readonly' }}>
+                <input type="text" name="mobile_no" value="{{ old('mobile_no', strip_country_code($employee->mobile_no ?? $user->mobile_no)) }}" class="hrp-input Rectangle-29 @error('mobile_no') border-red-500 @enderror" {{ $canEdit ? '' : 'readonly' }}>
+                @error('mobile_no')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
               </div>
 
               <!-- Marital Status -->
               <div>
                 <label class="hrp-label">Marital Status :</label>
-                <select name="marital_status" class="Rectangle-29 Rectangle-29-select" {{ $canEdit ? '' : 'disabled' }}>
+                <select name="marital_status" class="Rectangle-29 Rectangle-29-select @error('marital_status') border-red-500 @enderror" {{ $canEdit ? '' : 'disabled' }}>
                   <option value="">Select Status</option>
                   <option value="single" {{ old('marital_status', $employee->marital_status ?? null) === 'single' ? 'selected' : '' }}>Single</option>
                   <option value="married" {{ old('marital_status', $employee->marital_status ?? null) === 'married' ? 'selected' : '' }}>Married</option>
                   <option value="divorced" {{ old('marital_status', $employee->marital_status ?? null) === 'divorced' ? 'selected' : '' }}>Divorced</option>
                   <option value="widowed" {{ old('marital_status', $employee->marital_status ?? null) === 'widowed' ? 'selected' : '' }}>Widowed</option>
                 </select>
+                @error('marital_status')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
               </div>
 
               <!-- Email ID -->
               <div>
                 <label class="hrp-label">Email ID :</label>
-                <input type="email" name="email" value="{{ old('email', $user->email) }}" class="hrp-input Rectangle-29" {{ $canEdit ? 'required' : 'readonly' }}>
+                <input type="email" name="email" value="{{ old('email', $user->email) }}" class="hrp-input Rectangle-29 @error('email') border-red-500 @enderror" {{ $canEdit ? 'required' : 'readonly' }}>
+                @error('email')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
               </div>
 
               <!-- Address -->
               <div style="grid-column:1/-1">
                 <label class="hrp-label">Address:</label>
-                <textarea name="address" placeholder="Enter Your Address" class="Rectangle-29-textarea" {{ $canEdit ? '' : 'readonly' }}>{{ old('address', $employee->address ?? $user->address) }}</textarea>
+                <textarea name="address" placeholder="Enter Your Address" class="Rectangle-29-textarea @error('address') border-red-500 @enderror" {{ $canEdit ? '' : 'readonly' }}>{{ old('address', $employee->address ?? $user->address) }}</textarea>
+                @error('address')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
               </div>
 
               <!-- Aadhaar Card Number -->
               <div>
                 <label class="hrp-label">Aadhaar Card Number :</label>
-                <input type="text" name="aadhaar_no" value="{{ old('aadhaar_no', $employee->aadhaar_no ?? null) }}" placeholder="XXXX XXXX XXXX" class="hrp-input Rectangle-29" maxlength="12" {{ $canEdit ? '' : 'readonly' }}>
+                <input type="text" name="aadhaar_no" value="{{ old('aadhaar_no', $employee->aadhaar_no ?? null) }}" placeholder="XXXX XXXX XXXX" class="hrp-input Rectangle-29 @error('aadhaar_no') border-red-500 @enderror" maxlength="12" {{ $canEdit ? '' : 'readonly' }}>
+                @error('aadhaar_no')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
               </div>
 
               <!-- PAN Number -->
               <div>
                 <label class="hrp-label">PAN Number :</label>
-                <input type="text" name="pan_no" value="{{ old('pan_no', $employee->pan_no ?? null) }}" placeholder="XXXXX0000X" class="hrp-input Rectangle-29" style="text-transform: uppercase;" maxlength="10" {{ $canEdit ? '' : 'readonly' }}>
+                <input type="text" name="pan_no" value="{{ old('pan_no', $employee->pan_no ?? null) }}" placeholder="XXXXX0000X" class="hrp-input Rectangle-29 @error('pan_no') border-red-500 @enderror" style="text-transform: uppercase;" maxlength="10" {{ $canEdit ? '' : 'readonly' }}>
+                @error('pan_no')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
               </div>
 
               <!-- Highest Qualification (long) + Previous Designation stacked left, Year of Passing short right -->
@@ -249,13 +267,16 @@
                 <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px 24px;align-items:start">
                   <div>
                     <label class="hrp-label">Highest Qualification</label>
-                    <input type="text" name="highest_qualification" value="{{ old('highest_qualification', $employee->highest_qualification ?? null) }}" placeholder="Enter your Highest Qualification" class="hrp-input Rectangle-29" style="margin-bottom:14px" {{ $canEdit ? '' : 'readonly' }}>
+                    <input type="text" name="highest_qualification" value="{{ old('highest_qualification', $employee->highest_qualification ?? null) }}" placeholder="Enter your Highest Qualification" class="hrp-input Rectangle-29 @error('highest_qualification') border-red-500 @enderror" style="margin-bottom:14px" {{ $canEdit ? '' : 'readonly' }}>
+                    @error('highest_qualification')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
                     <label class="hrp-label">Previous Designation</label>
-                    <input type="text" name="previous_designation" value="{{ old('previous_designation', $employee->previous_designation ?? null) }}" placeholder="Enter your Last Designation" class="hrp-input Rectangle-29" {{ $canEdit ? '' : 'readonly' }}>
+                    <input type="text" name="previous_designation" value="{{ old('previous_designation', $employee->previous_designation ?? null) }}" placeholder="Enter your Last Designation" class="hrp-input Rectangle-29 @error('previous_designation') border-red-500 @enderror" {{ $canEdit ? '' : 'readonly' }}>
+                    @error('previous_designation')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
                   </div>
                   <div>
                     <label class="hrp-label">Year of Passing</label>
-                    <input type="text" name="year_of_passing" value="{{ old('year_of_passing', $employee->year_of_passing ?? null) }}" placeholder="Passing Year" class="hrp-input Rectangle-29" maxlength="4" {{ $canEdit ? '' : 'readonly' }}>
+                    <input type="text" name="year_of_passing" value="{{ old('year_of_passing', $employee->year_of_passing ?? null) }}" placeholder="Passing Year" class="hrp-input Rectangle-29 @error('year_of_passing') border-red-500 @enderror" maxlength="4" {{ $canEdit ? '' : 'readonly' }}>
+                    @error('year_of_passing')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
                   </div>
                 </div>
               </div>
@@ -263,36 +284,31 @@
               <!-- Previous Company Name -->
               <div>
                 <label class="hrp-label">Previous Company Name :</label>
-                <input type="text" name="previous_company_name" value="{{ old('previous_company_name', $employee->previous_company_name ?? null) }}" placeholder="Enter your Last Company Name" class="hrp-input Rectangle-29" {{ $canEdit ? '' : 'readonly' }}>
+                <input type="text" name="previous_company_name" value="{{ old('previous_company_name', $employee->previous_company_name ?? null) }}" placeholder="Enter your Last Company Name" class="hrp-input Rectangle-29 @error('previous_company_name') border-red-500 @enderror" {{ $canEdit ? '' : 'readonly' }}>
+                @error('previous_company_name')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
               </div>
 
               <!-- Duration + Reason for Leaving on same row -->
               <div style="grid-column:1/-1; display:grid; grid-template-columns:1fr 2fr; gap:20px 24px; align-items:start">
                 <div>
                   <label class="hrp-label">Duration :</label>
-                  <input type="text" name="duration" value="{{ old('duration', $employee->duration ?? null) }}" placeholder="Add Time Duration" class="hrp-input Rectangle-29" {{ $canEdit ? '' : 'readonly' }}>
+                  <input type="text" name="duration" value="{{ old('duration', $employee->duration ?? null) }}" placeholder="Add Time Duration" class="hrp-input Rectangle-29 @error('duration') border-red-500 @enderror" {{ $canEdit ? '' : 'readonly' }}>
+                  @error('duration')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
                 </div>
                 <div>
                   <label class="hrp-label">Reason for Leaving</label>
-                  <textarea name="reason_for_leaving" placeholder="Enter Reason for Leaving" class="Rectangle-29-textarea" {{ $canEdit ? '' : 'readonly' }}>{{ old('reason_for_leaving', $employee->reason_for_leaving ?? null) }}</textarea>
+                  <textarea name="reason_for_leaving" placeholder="Enter Reason for Leaving" class="Rectangle-29-textarea @error('reason_for_leaving') border-red-500 @enderror" {{ $canEdit ? '' : 'readonly' }}>{{ old('reason_for_leaving', $employee->reason_for_leaving ?? null) }}</textarea>
+                  @error('reason_for_leaving')<small style="color:#ef4444;font-size:12px;display:block;margin-top:4px">{{ $message }}</small>@enderror
                 </div>
               </div>
 
               <!-- Save Button -->
               @if($canEdit)
               <div style="grid-column:1/-1;margin-top:20px">
-                @csrf
-                @method('PATCH')
                 <button type="submit"
                   style="background:#10b981;color:white;padding:12px 24px;border:none;border-radius:8px;font-weight:600;cursor:pointer">
-                  💾 SAVE CHANGES
+                    SAVE CHANGES
                 </button>
-              </div>
-              @else
-              <div style="grid-column:1/-1;margin-top:20px">
-                <div style="background:#f59e0b;color:white;padding:12px 24px;border-radius:8px;font-weight:600;text-align:center">
-                  ⚠️ You don't have permission to edit your profile. Contact your administrator.
-                </div>
               </div>
               @endif
             </form>
