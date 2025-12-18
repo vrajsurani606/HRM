@@ -30,14 +30,8 @@
       </svg>
     </button>
 
-    <a href="{{ route('inquiries.index') }}" class="filter-search" aria-label="Reset" title="Reset Filters">
-      <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-      </svg>
-    </a>
-
     <div class="filter-right">
-      <div class="view-toggle-group">
+      <div class="view-toggle-group" style="margin-right:8px;">
         <button type="button" class="view-toggle-btn" data-view="grid" title="Grid View" aria-label="Grid View">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="7" rx="1"></rect>
@@ -58,15 +52,8 @@
         </button>
       </div>
 
-      <input 
-        type="text" 
-        name="search" 
-        id="custom_search" 
-        class="filter-pill live-search" 
-        placeholder="Search inquiries, company, contact, code..." 
-        value="{{ request('search') }}"
-      >
-
+      <input type="text" name="search" id="custom_search" class="filter-pill" placeholder="Search by company, contact, code..." value="{{ request('search') }}">
+      <a href="{{ route('inquiries.index') }}" class="pill-btn pill-secondary">Reset</a>
       @can('Inquiries Management.export inquiry')
         <a href="{{ route('inquiries.export', request()->only(['from_date','to_date','search'])) }}" class="pill-btn pill-success" id="excel_btn">Excel</a>
       @endcan
@@ -228,62 +215,17 @@ $(document).ready(function() {
     });
   }
 
-  // AJAX live filter for Inquiry List (JV-style)
+  // Standard form submission with date conversion (like hiring lead)
   document.addEventListener('DOMContentLoaded', function() {
-    var form = document.querySelector('.jv-filter');
-    var tbody = document.getElementById('inquiries-table-body');
-    if (!form || !tbody) return;
+    var form = document.getElementById('filterForm');
+    if (!form) return;
 
-    function fetchInquiries() {
-      // Convert date format before fetching
+    // Convert dates before form submission
+    form.addEventListener('submit', function(e) {
       var fromDateInput = document.getElementById('start_date');
       var toDateInput = document.getElementById('end_date');
-      
-      // Store original values
-      var originalFromDate = fromDateInput ? fromDateInput.value : '';
-      var originalToDate = toDateInput ? toDateInput.value : '';
-      
-      // Convert dates from dd/mm/yyyy to yyyy-mm-dd for query
-      if(fromDateInput && fromDateInput.value){
-        var parts = fromDateInput.value.split('/');
-        if(parts.length === 3){
-          fromDateInput.value = parts[2] + '-' + parts[1] + '-' + parts[0];
-        }
-      }
-      
-      if(toDateInput && toDateInput.value){
-        var parts = toDateInput.value.split('/');
-        if(parts.length === 3){
-          toDateInput.value = parts[2] + '-' + parts[1] + '-' + parts[0];
-        }
-      }
-      
-      var params = new URLSearchParams(new FormData(form));
-      var url = form.getAttribute('action') + '?' + params.toString();
-      
-      // Restore original values
-      if(fromDateInput) fromDateInput.value = originalFromDate;
-      if(toDateInput) toDateInput.value = originalToDate;
-
-      fetch(url, {
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-      })
-      .then(function(res) { return res.text(); })
-      .then(function(html) {
-        tbody.innerHTML = html;
-      })
-      .catch(function(e) {
-        console.error('Filter error', e);
-      });
-    }
-
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
       
       // Convert dates from dd/mm/yyyy to yyyy-mm-dd before submission
-      var fromDateInput = document.getElementById('start_date');
-      var toDateInput = document.getElementById('end_date');
-      
       if(fromDateInput && fromDateInput.value){
         var parts = fromDateInput.value.split('/');
         if(parts.length === 3){
@@ -297,16 +239,7 @@ $(document).ready(function() {
           toDateInput.value = parts[2] + '-' + parts[1] + '-' + parts[0];
         }
       }
-      
-      fetchInquiries();
     });
-
-    var searchInput = document.getElementById('custom_search');
-    if (searchInput) {
-      searchInput.addEventListener('input', function() {
-        fetchInquiries();
-      });
-    }
     
     // Handle Excel export button with date conversion
     var excelBtn = document.getElementById('excel_btn');
@@ -436,25 +369,6 @@ $(document).ready(function() {
     align-items: center;
     gap: 8px;
     margin-left: auto;
-  }
-
-  .filter-pill.live-search {
-    min-width: 280px;
-    max-width: 350px;
-    padding: 8px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 14px;
-    outline: none;
-    transition: all 0.2s;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .filter-pill.live-search:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 
   /* Status Badges */

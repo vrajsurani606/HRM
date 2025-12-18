@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <meta name="print-color-adjust" content="exact">
     <title>{{ $employee->name }} - Employee ID Card</title>
     
     <!-- Fonts -->
@@ -56,6 +58,9 @@
             background: {{ $isPrintView ? 'white' : 'var(--gray-50)' }};
             color: var(--gray-800);
             line-height: 1.5;
+            -webkit-print-color-adjust: exact;
+            color-adjust: exact;
+            print-color-adjust: exact;
         }
 
         @if($isPrintView)
@@ -65,12 +70,19 @@
             display: none !important;
         }
 
+        body {
+            background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
         .main-container {
-            padding: 20px !important;
+            padding: 0 !important;
             display: flex !important;
             justify-content: center !important;
             align-items: center !important;
             min-height: 100vh !important;
+            background: white !important;
         }
 
         .card-preview-section {
@@ -81,7 +93,9 @@
         }
 
         .employee-id-card {
-            border: 2px solid #333 !important;
+            border: 2px solid #2563eb !important;
+            width: 350px !important;
+            height: 220px !important;
         }
         @endif
 
@@ -230,6 +244,27 @@
             position: relative;
             z-index: 1;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-img {
+            max-height: 32px;
+            max-width: 120px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            drop-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-text {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-text i {
+            font-size: 1rem;
         }
 
         .card-type {
@@ -552,11 +587,22 @@
                 -webkit-print-color-adjust: exact !important;
                 color-adjust: exact !important;
                 print-color-adjust: exact !important;
+                -webkit-filter: none !important;
+                filter: none !important;
             }
 
             @page {
                 size: 85.6mm 54mm;
                 margin: 0;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            html {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             body {
@@ -624,6 +670,7 @@
 
             .card-header {
                 background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%) !important;
+                background-color: #2563eb !important;
                 color: white !important;
                 padding: 2mm 3mm !important;
                 font-size: 7pt !important;
@@ -632,6 +679,9 @@
                 align-items: center !important;
                 height: 8mm !important;
                 position: relative !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .card-header::before {
@@ -650,6 +700,27 @@
                 position: relative !important;
                 z-index: 2 !important;
                 text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 1mm !important;
+            }
+
+            .logo-img {
+                max-height: 6mm !important;
+                max-width: 20mm !important;
+                object-fit: contain !important;
+                filter: brightness(0) invert(1) !important;
+                drop-shadow: 0 0.5mm 1mm rgba(0,0,0,0.3) !important;
+            }
+
+            .logo-text {
+                display: flex !important;
+                align-items: center !important;
+                gap: 1mm !important;
+            }
+
+            .logo-text i {
+                font-size: 6pt !important;
             }
 
             .card-type {
@@ -685,10 +756,14 @@
                 border: 2pt solid #2563eb !important;
                 overflow: hidden !important;
                 background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%) !important;
+                background-color: #f3f4f6 !important;
                 box-shadow: 0 1mm 2mm rgba(0,0,0,0.1) !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .photo-container img {
@@ -731,10 +806,14 @@
                 font-weight: bold !important;
                 margin-bottom: 2mm !important;
                 background: #f0f9ff !important;
+                background-color: #f0f9ff !important;
                 padding: 0.5mm 1mm !important;
                 border-radius: 1mm !important;
                 border: 0.5pt solid #2563eb !important;
                 display: inline-block !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .employee-details {
@@ -780,10 +859,14 @@
                 border: 1pt solid #e5e7eb !important;
                 border-radius: 2mm !important;
                 background: white !important;
+                background-color: white !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
                 box-shadow: 0 0.5mm 1mm rgba(0,0,0,0.1) !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .qr-code img {
@@ -817,6 +900,10 @@
                 right: 0 !important;
                 height: 2mm !important;
                 background: linear-gradient(90deg, #2563eb 0%, #0ea5e9 50%, #10b981 100%) !important;
+                background-color: #2563eb !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             /* Add professional styling elements */
@@ -890,7 +977,16 @@
                     <!-- Card Header -->
                     <div class="card-header">
                         <div class="company-logo">
-                            {{ config('app.name', 'Company Name') }}
+                            @if(file_exists(public_path('full_logo.jpeg')))
+                                <img src="{{ asset('full_logo.jpeg') }}" alt="Company Logo" class="logo-img">
+                            @elseif(config('app.logo'))
+                                <img src="{{ asset(config('app.logo')) }}" alt="Company Logo" class="logo-img">
+                            @else
+                                <div class="logo-text">
+                                    <i class="fas fa-building"></i>
+                                    <span>{{ config('app.name', 'Company Name') }}</span>
+                                </div>
+                            @endif
                         </div>
                         <div class="card-type">
                             EMPLOYEE ID
@@ -958,7 +1054,7 @@
                         <div class="qr-section">
                             <div class="qr-code" id="qrCode">
                                 @php
-                                    $qrData = route('employees.show', $employee);
+                                    $qrData = route('employees.public.verify', $employee);
                                     $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=" . urlencode($qrData);
                                 @endphp
                                 <img src="{{ $qrUrl }}" alt="QR Code" style="width: 60px; height: 60px; border-radius: 4px;" onerror="this.parentElement.innerHTML='<div class=\'qr-placeholder\'>{{ $employee->code ?? 'EMP-' . str_pad($employee->id, 4, '0', STR_PAD_LEFT) }}</div>'">
@@ -1096,17 +1192,40 @@
 
         // Print Card
         function printCard() {
-            // Hide all elements except the card for printing
-            const elementsToHide = document.querySelectorAll('.header-actions, .employee-details-table, .preview-title');
-            elementsToHide.forEach(el => el.style.display = 'none');
-            
-            // Print the page
-            window.print();
-            
-            // Restore elements after printing
-            setTimeout(() => {
-                elementsToHide.forEach(el => el.style.display = '');
-            }, 1000);
+            // Show color printing instruction with detailed steps
+            Swal.fire({
+                title: 'Color Printing Instructions',
+                html: `
+                    <div style="text-align: left; font-size: 14px; line-height: 1.6;">
+                        <p><strong>To print in full color:</strong></p>
+                        <ol style="margin: 10px 0; padding-left: 20px;">
+                            <li>In the print dialog, click <strong>"More settings"</strong></li>
+                            <li>Under <strong>"Options"</strong>, check <strong>"Background graphics"</strong></li>
+                            <li>Set <strong>"Color"</strong> to <strong>"Color"</strong> (not Black & White)</li>
+                            <li>Click <strong>"Print"</strong></li>
+                        </ol>
+                        <p style="color: #2563eb; font-weight: 500;">This ensures all gradients and colors print correctly!</p>
+                    </div>
+                `,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Continue to Print',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#2563eb',
+                width: '500px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Create a new window for printing
+                    const printWindow = window.open('{{ route('employees.id-card.show', $employee) }}?print=1', '_blank');
+                    
+                    // Wait for the new window to load, then print
+                    printWindow.onload = function() {
+                        setTimeout(() => {
+                            printWindow.print();
+                        }, 1000);
+                    };
+                }
+            });
         }
 
         // Download as PDF

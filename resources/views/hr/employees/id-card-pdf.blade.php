@@ -190,7 +190,11 @@
         <!-- Card Header -->
         <div class="card-header">
             <div class="company-logo">
-                {{ config('app.name', 'Company Name') }}
+                @if(config('app.logo'))
+                    <img src="{{ asset(config('app.logo')) }}" alt="Logo" style="max-height: 15px;">
+                @else
+                    {{ config('app.name', 'Company Name') }}
+                @endif
             </div>
             <div class="card-type">
                 EMPLOYEE ID
@@ -258,8 +262,8 @@
             <div class="qr-section">
                 <div class="qr-code">
                     @php
-                        $qrData = route('employees.show', $employee);
-                        $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=" . urlencode($qrData);
+                        $qrData = route('employees.public.verify', $employee);
+                        $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" . urlencode($qrData);
                     @endphp
                     <img src="{{ $qrUrl }}" alt="QR Code" style="width: 50px; height: 50px; border-radius: 4px;" onerror="this.parentElement.innerHTML='<div class=\'qr-placeholder\'>{{ $employee->code ?? 'EMP-' . str_pad($employee->id, 4, '0', STR_PAD_LEFT) }}</div>'">
                 </div>

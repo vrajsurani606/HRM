@@ -724,9 +724,9 @@ class DigitalCardController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
 
-        return view('hr.employees.id-card-professional', [
+        return view('hr.employees.id-card-selector', [
             'employee' => $employee,
-            'page_title' => 'Employee ID Card - ' . $employee->name,
+            'page_title' => 'Choose ID Card Style - ' . $employee->name,
         ]);
     }
 
@@ -822,5 +822,232 @@ class DigitalCardController extends Controller
             'employees' => $employees,
             'page_title' => 'Employee ID Card Showcase'
         ]);
+    }
+
+    /**
+     * Public employee verification (no login required)
+     */
+    public function publicVerifyCard(Employee $employee)
+    {
+        return view('hr.employees.id-card-public', [
+            'employee' => $employee,
+            'page_title' => 'Employee Verification - ' . $employee->name,
+        ]);
+    }
+
+    /**
+     * Show active ID card (default style)
+     */
+    public function showActiveCard(Employee $employee)
+    {
+        // Check permissions - allow own employee or admin/hr
+        if (!$this->canViewIdCard($employee)) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+
+        // Get active style from user preferences or default to 'simple'
+        $activeStyle = $this->getActiveCardStyle($employee);
+        
+        return $this->renderCardByStyle($employee, $activeStyle);
+    }
+
+    /**
+     * Show style selector
+     */
+    public function selectStyle(Employee $employee)
+    {
+        // Check permissions - allow own employee or admin/hr
+        if (!$this->canViewIdCard($employee)) {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
+
+        $activeStyle = $this->getActiveCardStyle($employee);
+
+        return view('hr.employees.id-card-selector', [
+            'employee' => $employee,
+            'activeStyle' => $activeStyle,
+            'page_title' => 'Choose ID Card Style - ' . $employee->name,
+        ]);
+    }
+
+    /**
+     * Set active ID card style
+     */
+    public function setActiveStyle(Employee $employee, $style)
+    {
+        // Check permissions - allow own employee or admin/hr
+        if (!$this->canViewIdCard($employee)) {
+            return response()->json(['error' => 'Permission denied'], 403);
+        }
+
+        $validStyles = ['simple', 'professional', 'creative', 'futuristic', 'modern'];
+        
+        if (!in_array($style, $validStyles)) {
+            return response()->json(['error' => 'Invalid style'], 400);
+        }
+
+        // Store preference in database
+        $employee->update(['id_card_style' => $style]);
+
+        return response()->json([
+            'success' => true, 
+            'message' => 'ID card style updated successfully',
+            'redirect' => route('id-cards.active', $employee)
+        ]);
+    }
+
+    /**
+     * Show simple ID card
+     */
+    public function showSimpleCard(Employee $employee)
+    {
+        return view('hr.employees.id-card-simple', [
+            'employee' => $employee,
+            'page_title' => 'Simple ID Card - ' . $employee->name,
+        ]);
+    }
+
+    /**
+     * Show professional ID card
+     */
+    public function showProfessionalCard(Employee $employee)
+    {
+        return view('hr.employees.id-card-professional', [
+            'employee' => $employee,
+            'page_title' => 'Professional ID Card - ' . $employee->name,
+        ]);
+    }
+
+    /**
+     * Show creative ID card
+     */
+    public function showCreativeCard(Employee $employee)
+    {
+        return view('hr.employees.id-card-creative', [
+            'employee' => $employee,
+            'page_title' => 'Creative ID Card - ' . $employee->name,
+        ]);
+    }
+
+    /**
+     * Show futuristic ID card
+     */
+    public function showFuturisticCard(Employee $employee)
+    {
+        return view('hr.employees.id-card-futuristic', [
+            'employee' => $employee,
+            'page_title' => 'Futuristic ID Card - ' . $employee->name,
+        ]);
+    }
+
+    /**
+     * Show modern ID card
+     */
+    public function showModernCard(Employee $employee)
+    {
+        return view('hr.employees.id-card-modern', [
+            'employee' => $employee,
+            'page_title' => 'Modern ID Card - ' . $employee->name,
+        ]);
+    }
+
+    /**
+     * Print active ID card
+     */
+    public function printActiveCard(Employee $employee)
+    {
+        $activeStyle = $this->getActiveCardStyle($employee);
+        return $this->renderCardByStyle($employee, $activeStyle, true);
+    }
+
+    /**
+     * Download active ID card as PDF
+     */
+    public function downloadActiveCard(Employee $employee)
+    {
+        try {
+            $activeStyle = $this->getActiveCardStyle($employee);
+            $viewName = 'hr.employees.id-card-' . $activeStyle;
+            
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView($viewName, [
+                'employee' => $employee,
+                'page_title' => 'Employee ID Card - ' . $employee->name,
+                'printMode' => true,
+            ]);
+
+            // Set paper size to ID card dimensions
+            $pdf->setPaper([0, 0, 242.65, 153.07], 'landscape');
+
+            $fileName = 'ID_Card_' . str_replace(' ', '_', $employee->name) . '_' . ucfirst($activeStyle) . '.pdf';
+
+            return $pdf->download($fileName);
+        } catch (\Exception $e) {
+            \Log::error('ID Card PDF generation failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to generate PDF. Please try again.');
+        }
+    }
+
+    /**
+     * Get active card style for employee
+     */
+    private function getActiveCardStyle(Employee $employee)
+    {
+        // Get from database, default to 'simple'
+        return $employee->id_card_style ?? 'simple';
+    }
+
+    /**
+     * Render card by style
+     */
+    private function renderCardByStyle(Employee $employee, $style, $printMode = false)
+    {
+        $viewName = 'hr.employees.id-card-' . $style;
+        
+        // Check if view exists, fallback to simple if not
+        if (!view()->exists($viewName)) {
+            $viewName = 'hr.employees.id-card-simple';
+            $style = 'simple';
+        }
+
+        $data = [
+            'employee' => $employee,
+            'page_title' => ucfirst($style) . ' ID Card - ' . $employee->name,
+        ];
+
+        if ($printMode) {
+            $data['printMode'] = true;
+        }
+
+        return view($viewName, $data);
+    }
+
+    /**
+     * Check if user can view ID card for employee
+     * Allows: own employee, super-admin, or users with view employee permission
+     */
+    private function canViewIdCard(Employee $employee)
+    {
+        if (!auth()->check()) {
+            return false;
+        }
+
+        $user = auth()->user();
+
+        // Super admin can view all
+        if ($user->hasRole('super-admin')) {
+            return true;
+        }
+
+        // User with view employee permission can view all
+        if ($user->can('Employees Management.view employee')) {
+            return true;
+        }
+
+        // Employee can view their own ID card
+        if ($user->employee && $user->employee->id === $employee->id) {
+            return true;
+        }
+
+        return false;
     }
 }

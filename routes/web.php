@@ -182,33 +182,81 @@ Route::middleware('auth')->group(function () {
         Route::delete('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'destroy'])->name('employees.digital-card.destroy');
         Route::post('/digital-card/quick-edit', [\App\Http\Controllers\HR\DigitalCardController::class, 'quickEdit'])->name('employees.digital-card.quick-edit');
         Route::get('/digital-card/download', [\App\Http\Controllers\HR\DigitalCardController::class, 'downloadHtml'])->name('employees.digital-card.download');
-        // ID Card routes
-        Route::get('/id-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'showIdCard'])->name('employees.id-card.show');
+        // ID Card routes (redirect to new system)
+        Route::get('/id-card', function(\App\Models\Employee $employee) {
+            return redirect()->route('id-cards.active', $employee);
+        })->name('employees.id-card.show');
         Route::get('/id-card/compact', [\App\Http\Controllers\HR\DigitalCardController::class, 'showCompactIdCard'])->name('employees.id-card.compact');
-        Route::get('/id-card/pdf', [\App\Http\Controllers\HR\DigitalCardController::class, 'downloadIdCardPdf'])->name('employees.id-card.pdf');
+        Route::get('/id-card/pdf', function(\App\Models\Employee $employee) {
+            return redirect()->route('id-cards.download', $employee);
+        })->name('employees.id-card.pdf');
     });
     Route::get('employees/letters/generate-number', [EmployeeController::class, 'generateLetterNumber'])->name('employees.letters.generate-number');
     Route::get('employees/letters/generate-reference', [EmployeeController::class, 'generateLetterNumber'])->name('employees.letters.generate-reference');
     Route::get('employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
     
-    // ID Card Showcase
-    Route::get('id-cards/showcase', [\App\Http\Controllers\HR\DigitalCardController::class, 'showcase'])->name('id-cards.showcase');
+    // Public ID Card routes (no authentication required)
+    Route::get('public/employee/{employee}/verify', [\App\Http\Controllers\HR\DigitalCardController::class, 'publicVerifyCard'])->name('employees.public.verify');
     
-    // Test ID Card (no auth required for testing)
+    // ID Card Management Routes
+    Route::prefix('id-cards')->name('id-cards.')->group(function () {
+        // ID Card Showcase
+        Route::get('showcase', [\App\Http\Controllers\HR\DigitalCardController::class, 'showcase'])->name('showcase');
+        
+        // Default Active ID Card (redirects to current active style)
+        Route::get('{employee}/active', [\App\Http\Controllers\HR\DigitalCardController::class, 'showActiveCard'])->name('active');
+        
+        // ID Card Style Selector
+        Route::get('{employee}/select-style', [\App\Http\Controllers\HR\DigitalCardController::class, 'selectStyle'])->name('select-style');
+        
+        // Set Active ID Card Style
+        Route::post('{employee}/set-active/{style}', [\App\Http\Controllers\HR\DigitalCardController::class, 'setActiveStyle'])->name('set-active');
+        
+        // Individual ID Card Styles
+        Route::get('{employee}/simple', [\App\Http\Controllers\HR\DigitalCardController::class, 'showSimpleCard'])->name('simple');
+        Route::get('{employee}/professional', [\App\Http\Controllers\HR\DigitalCardController::class, 'showProfessionalCard'])->name('professional');
+        Route::get('{employee}/creative', [\App\Http\Controllers\HR\DigitalCardController::class, 'showCreativeCard'])->name('creative');
+        Route::get('{employee}/futuristic', [\App\Http\Controllers\HR\DigitalCardController::class, 'showFuturisticCard'])->name('futuristic');
+        Route::get('{employee}/modern', [\App\Http\Controllers\HR\DigitalCardController::class, 'showModernCard'])->name('modern');
+        
+        // Print and Download
+        Route::get('{employee}/print', [\App\Http\Controllers\HR\DigitalCardController::class, 'printActiveCard'])->name('print');
+        Route::get('{employee}/download', [\App\Http\Controllers\HR\DigitalCardController::class, 'downloadActiveCard'])->name('download');
+    });
+    
+    // Legacy routes for backward compatibility
     Route::get('test-id-card/{employee}', function(\App\Models\Employee $employee) {
-        return view('hr.employees.id-card-professional', [
-            'employee' => $employee,
-            'page_title' => 'Employee ID Card - ' . $employee->name,
-        ]);
+        return redirect()->route('id-cards.professional', $employee);
     })->name('test.id-card');
     
-    // Simple ID Card (for debugging)
     Route::get('simple-id-card/{employee}', function(\App\Models\Employee $employee) {
-        return view('hr.employees.id-card-simple', [
-            'employee' => $employee,
-            'page_title' => 'Employee ID Card - ' . $employee->name,
-        ]);
+        return redirect()->route('id-cards.simple', $employee);
     })->name('simple.id-card');
+    
+    Route::get('creative-id-card/{employee}', function(\App\Models\Employee $employee) {
+        return redirect()->route('id-cards.creative', $employee);
+    })->name('creative.id-card');
+    
+    Route::get('futuristic-id-card/{employee}', function(\App\Models\Employee $employee) {
+        return redirect()->route('id-cards.futuristic', $employee);
+    })->name('futuristic.id-card');
+    
+    Route::get('select-id-card-style/{employee}', function(\App\Models\Employee $employee) {
+        return redirect()->route('id-cards.select-style', $employee);
+    })->name('select.id-card.style');
+    
+    // Debug employee photo
+    Route::get('debug-employee/{employee}', function(\App\Models\Employee $employee) {
+        return response()->json([
+            'employee_id' => $employee->id,
+            'name' => $employee->name,
+            'photo_path' => $employee->photo_path,
+            'user_id' => $employee->user_id,
+            'user_photo' => $employee->user->profile_photo_path ?? null,
+            'photo_exists' => $employee->photo_path ? file_exists(public_path('storage/' . $employee->photo_path)) : false,
+            'storage_path' => $employee->photo_path ? public_path('storage/' . $employee->photo_path) : null,
+        ]);
+    });
 
     // HR Hiring Leads
     Route::resource('hiring', HiringController::class);

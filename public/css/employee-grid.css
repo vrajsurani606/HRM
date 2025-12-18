@@ -73,6 +73,16 @@
 /* Dropdown */
 .dropdown {
   position: relative;
+  z-index: 100;
+}
+
+/* When dropdown is open, increase z-index of parent card */
+.emp-card.dropdown-open {
+  z-index: 1000;
+}
+
+.emp-card:has(.dropdown-menu[style*="block"]) {
+  z-index: 1000;
 }
 
 .dropdown-toggle {
@@ -102,11 +112,11 @@
   right: 0;
   background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   z-index: 9999;
-  min-width: 160px;
-  padding: 4px 0;
+  min-width: 200px;
+  padding: 8px 0;
   margin-top: 4px;
   transition: all 0.2s ease;
   animation: fadeIn 0.15s ease-out;

@@ -54,6 +54,7 @@ class Employee extends Model
         'joining_date',
         'role_id',
         'status',
+        'id_card_style',
         'user_id',
     ];
 
