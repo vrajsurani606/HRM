@@ -191,32 +191,59 @@ class PayrollController extends Controller
                     }
                 }
 
-                // Leave breakdown (paid vs unpaid)
+                // Leave breakdown - Use is_paid field to determine paid/unpaid status
+                // PAID leaves (is_paid = true) - NOT deducted from salary
                 $casualLeave = \App\Models\Leave::where('employee_id', $emp->id)
-                    ->where('leave_type', 'casual')->where('status', 'approved')
+                    ->where('leave_type', 'casual')
+                    ->where('is_paid', true)
+                    ->where('status', 'approved')
                     ->whereYear('start_date', $year)->whereMonth('start_date', $monthNumber)
                     ->sum('total_days') ?? 0;
                 $medicalLeave = \App\Models\Leave::where('employee_id', $emp->id)
-                    ->where('leave_type', 'medical')->where('status', 'approved')
+                    ->where('leave_type', 'medical')
+                    ->where('is_paid', true)
+                    ->where('status', 'approved')
                     ->whereYear('start_date', $year)->whereMonth('start_date', $monthNumber)
                     ->sum('total_days') ?? 0;
                 $holidayLeave = \App\Models\Leave::where('employee_id', $emp->id)
-                    ->where('leave_type', 'company_holiday')->where('status', 'approved')
+                    ->where('leave_type', 'company_holiday')
+                    ->where('status', 'approved')
                     ->whereYear('start_date', $year)->whereMonth('start_date', $monthNumber)
                     ->sum('total_days') ?? 0;
+                
+                // UNPAID leaves - ALL unpaid leaves are deducted from salary
+                // Personal leave (always unpaid)
                 $personalLeave = \App\Models\Leave::where('employee_id', $emp->id)
-                    ->where('leave_type', 'personal')->where('status', 'approved')
+                    ->where('leave_type', 'personal')
+                    ->where('status', 'approved')
                     ->whereYear('start_date', $year)->whereMonth('start_date', $monthNumber)
                     ->sum('total_days') ?? 0;
+                
+                // Unpaid casual/medical leaves (when is_paid = false, exceeded monthly limit)
+                $unpaidCasualLeave = \App\Models\Leave::where('employee_id', $emp->id)
+                    ->where('leave_type', 'casual')
+                    ->where('is_paid', false)
+                    ->where('status', 'approved')
+                    ->whereYear('start_date', $year)->whereMonth('start_date', $monthNumber)
+                    ->sum('total_days') ?? 0;
+                $unpaidMedicalLeave = \App\Models\Leave::where('employee_id', $emp->id)
+                    ->where('leave_type', 'medical')
+                    ->where('is_paid', false)
+                    ->where('status', 'approved')
+                    ->whereYear('start_date', $year)->whereMonth('start_date', $monthNumber)
+                    ->sum('total_days') ?? 0;
+                
+                // Total unpaid leave days (for salary deduction)
+                $totalUnpaidLeave = $personalLeave + $unpaidCasualLeave + $unpaidMedicalLeave;
 
                 // Earnings (only basic by default for bulk)
                 $allowances = 0; 
                 $bonuses = 0; 
                 $tax = 0;
 
-                // Deductions: unpaid personal leave only
+                // Deductions: ALL unpaid leaves (personal + unpaid casual/medical)
                 $perDay = $daysInMonth > 0 ? ($actualBasicSalary / $daysInMonth) : 0;
-                $leaveDeduction = max(0, $perDay * $personalLeave);
+                $leaveDeduction = max(0, $perDay * $totalUnpaidLeave);
                 $otherDeductions = 0;
                 $deductions = $leaveDeduction + $otherDeductions;
 
@@ -228,7 +255,8 @@ class PayrollController extends Controller
                     ->first();
 
                 // Calculate total leave and working days
-                $totalLeave = $casualLeave + $medicalLeave + $holidayLeave + $personalLeave;
+                // Total leave = Paid (casual + medical + holiday) + Unpaid (personal + unpaid casual/medical)
+                $totalLeave = $casualLeave + $medicalLeave + $holidayLeave + $totalUnpaidLeave;
                 $attendedWorkingDays = max(0, $daysInMonth - $totalLeave);
 
                 $payload = [
@@ -237,17 +265,17 @@ class PayrollController extends Controller
                     'year' => $year,
                     'total_working_days' => $daysInMonth,
                     'attended_working_days' => $attendedWorkingDays,
-                    // Save paid leave data (Casual, Medical, Holiday - NOT deducted from salary)
+                    // Save PAID leave data (only is_paid = true) - NOT deducted from salary
                     'casual_leave' => $casualLeave,
                     'medical_leave' => $medicalLeave,
                     'holiday_leave' => $holidayLeave,
-                    // Save unpaid leave data (Personal - DEDUCTED from salary)
-                    'personal_leave_unpaid' => $personalLeave,
+                    // Save UNPAID leave data (personal + unpaid casual/medical) - DEDUCTED from salary
+                    'personal_leave_unpaid' => $totalUnpaidLeave,
                     'basic_salary' => $actualBasicSalary,
                     'allowances' => $allowances,
                     'bonuses' => $bonuses,
                     'leave_deduction' => $leaveDeduction,
-                    'leave_deduction_days' => $personalLeave,
+                    'leave_deduction_days' => $totalUnpaidLeave,
                     'deductions' => $deductions,
                     'tax' => $tax,
                     'net_salary' => $net,
@@ -685,31 +713,28 @@ class PayrollController extends Controller
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $monthNumber, $year);
             
             // Get leave data from leave system
-            // Casual Leave (Paid - NO deduction from salary)
+            // IMPORTANT: Use is_paid field to determine paid/unpaid status, NOT leave_type
+            // Because the system automatically converts excess paid leaves to unpaid
+            
+            // Casual Leave - only count PAID casual leaves
             $casualLeaveUsed = \App\Models\Leave::where('employee_id', $employeeId)
                 ->where('leave_type', 'casual')
+                ->where('is_paid', true)
                 ->where('status', 'approved')
                 ->whereYear('start_date', $year)
                 ->whereMonth('start_date', $monthNumber)
                 ->sum('total_days') ?? 0;
             
-            // Medical Leave (Paid - NO deduction from salary)
+            // Medical Leave - only count PAID medical leaves
             $medicalLeaveUsed = \App\Models\Leave::where('employee_id', $employeeId)
                 ->where('leave_type', 'medical')
+                ->where('is_paid', true)
                 ->where('status', 'approved')
                 ->whereYear('start_date', $year)
                 ->whereMonth('start_date', $monthNumber)
                 ->sum('total_days') ?? 0;
             
-            // Personal Leave (Unpaid - WILL BE DEDUCTED from salary)
-            $personalLeaveUsed = \App\Models\Leave::where('employee_id', $employeeId)
-                ->where('leave_type', 'personal')
-                ->where('status', 'approved')
-                ->whereYear('start_date', $year)
-                ->whereMonth('start_date', $monthNumber)
-                ->sum('total_days') ?? 0;
-            
-            // Holiday Leave (Company holidays)
+            // Holiday Leave (Company holidays) - always paid
             $holidayLeaveUsed = \App\Models\Leave::where('employee_id', $employeeId)
                 ->where('leave_type', 'company_holiday')
                 ->where('status', 'approved')
@@ -717,11 +742,40 @@ class PayrollController extends Controller
                 ->whereMonth('start_date', $monthNumber)
                 ->sum('total_days') ?? 0;
             
-            // Total paid leaves (Casual + Medical) - NOT deducted
-            $paidLeavesUsed = $casualLeaveUsed + $medicalLeaveUsed;
+            // Personal Leave (always unpaid)
+            $personalLeaveUsed = \App\Models\Leave::where('employee_id', $employeeId)
+                ->where('leave_type', 'personal')
+                ->where('status', 'approved')
+                ->whereYear('start_date', $year)
+                ->whereMonth('start_date', $monthNumber)
+                ->sum('total_days') ?? 0;
             
-            // Only personal leave is deducted from salary
-            $leaveDaysDeducted = $personalLeaveUsed;
+            // Get UNPAID leaves from casual/medical types (when is_paid = false)
+            // These are leaves that exceeded the monthly paid limit
+            $unpaidCasualLeave = \App\Models\Leave::where('employee_id', $employeeId)
+                ->where('leave_type', 'casual')
+                ->where('is_paid', false)
+                ->where('status', 'approved')
+                ->whereYear('start_date', $year)
+                ->whereMonth('start_date', $monthNumber)
+                ->sum('total_days') ?? 0;
+            
+            $unpaidMedicalLeave = \App\Models\Leave::where('employee_id', $employeeId)
+                ->where('leave_type', 'medical')
+                ->where('is_paid', false)
+                ->where('status', 'approved')
+                ->whereYear('start_date', $year)
+                ->whereMonth('start_date', $monthNumber)
+                ->sum('total_days') ?? 0;
+            
+            // Total paid leaves (only those with is_paid = true)
+            $paidLeavesUsed = $casualLeaveUsed + $medicalLeaveUsed + $holidayLeaveUsed;
+            
+            // Total unpaid leaves = Personal + Unpaid Casual + Unpaid Medical
+            $totalUnpaidLeaves = $personalLeaveUsed + $unpaidCasualLeave + $unpaidMedicalLeave;
+            
+            // Only unpaid leaves are deducted from salary
+            $leaveDaysDeducted = $totalUnpaidLeaves;
             
             // Calculate per day salary based on current_offer_amount
             $perDaySalary = $daysInMonth > 0 ? $basicSalary / $daysInMonth : 0;
@@ -730,7 +784,7 @@ class PayrollController extends Controller
             $leaveDeduction = $perDaySalary * $leaveDaysDeducted;
             
             // Calculate working days (excluding all leaves)
-            $totalLeaveDays = $paidLeavesUsed + $leaveDaysDeducted + $holidayLeaveUsed;
+            $totalLeaveDays = $paidLeavesUsed + $leaveDaysDeducted;
             $workingDays = $daysInMonth - $totalLeaveDays;
             
             // Get leave balance for the year
@@ -744,10 +798,13 @@ class PayrollController extends Controller
                 'employee_id' => $employeeId,
                 'month' => $month,
                 'year' => $year,
-                'casual_leave' => $casualLeaveUsed,
-                'medical_leave' => $medicalLeaveUsed,
-                'personal_leave' => $personalLeaveUsed,
+                'casual_leave_paid' => $casualLeaveUsed,
+                'medical_leave_paid' => $medicalLeaveUsed,
                 'holiday_leave' => $holidayLeaveUsed,
+                'personal_leave_unpaid' => $personalLeaveUsed,
+                'unpaid_casual_leave' => $unpaidCasualLeave,
+                'unpaid_medical_leave' => $unpaidMedicalLeave,
+                'total_unpaid_leaves' => $totalUnpaidLeaves,
             ]);
             
             return response()->json([
@@ -759,11 +816,14 @@ class PayrollController extends Controller
                     'ifsc_code' => $employee->bank_ifsc ?? '',
                     'basic_salary' => number_format($basicSalary, 2, '.', ''),
                     
-                    // Leave data - keep decimals for accurate leave counting (e.g., 7.5 days)
-                    'casual_leave_used' => (int)$casualLeaveUsed,
+                    // Leave data - PAID leaves only (is_paid = true)
+                    'casual_leave_used' => (float)$casualLeaveUsed,
                     'medical_leave_used' => (float)$medicalLeaveUsed,
-                    'personal_leave_used' => (float)$personalLeaveUsed, // Keep decimal (7.5, etc)
                     'holiday_leave_used' => (float)$holidayLeaveUsed,
+                    
+                    // UNPAID leaves (personal + any casual/medical that exceeded limit)
+                    'personal_leave_used' => (float)$totalUnpaidLeaves, // Total unpaid for deduction
+                    
                     'paid_leave_balance' => (int)$paidLeaveBalance,
                     
                     // Leave calculations

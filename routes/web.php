@@ -108,8 +108,8 @@ Route::prefix('attendance')->middleware('auth')->group(function () {
     Route::put('/{id}', [App\Http\Controllers\AttendanceController::class, 'update'])->name('attendance.update');
     Route::delete('/{id}', [App\Http\Controllers\AttendanceController::class, 'destroy'])->name('attendance.destroy');
     
-    Route::get('/{id}/quick-edit', [App\Http\Controllers\AttendanceController::class, 'secretEdit'])->name('attendance.quick-edit');
-    Route::put('/{id}/quick-update', [App\Http\Controllers\AttendanceController::class, 'secretUpdate'])->name('attendance.quick-update');
+    Route::get('/{id}/quick-edit', [App\Http\Controllers\AttendanceController::class, 'quickEdit'])->name('attendance.quick-edit');
+    Route::put('/{id}/quick-update', [App\Http\Controllers\AttendanceController::class, 'quickUpdate'])->name('attendance.quick-update');
 });
 
 Route::get('/health-monitor', [App\Http\Controllers\System\DiagnosticsController::class, 'index'])->name('diagnostics.index');

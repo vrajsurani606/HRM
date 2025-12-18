@@ -20,7 +20,7 @@
 @section('content')
 <div class="inquiry-index-container">
   <!-- JV Filter -->
-  <form method="GET" action="{{ route('inquiries.index') }}" class="jv-filter" id="filterForm">
+  <form method="GET" action="{{ route('inquiries.index') }}" class="jv-filter" id="filterForm" data-no-loader="true">
     <input type="text" id="start_date" name="from_date" class="filter-pill date-picker" placeholder="From: dd/mm/yyyy" value="{{ request('from_date') }}" autocomplete="off">
     <input type="text" id="end_date" name="to_date" class="filter-pill date-picker" placeholder="To: dd/mm/yyyy" value="{{ request('to_date') }}" autocomplete="off">
     

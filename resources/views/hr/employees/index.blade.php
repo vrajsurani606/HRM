@@ -3,7 +3,7 @@
 
 @section('content')
   <div class="employee-container">
-    <form method="GET" action="{{ route('employees.index') }}" class="jv-filter">
+    <form method="GET" action="{{ route('employees.index') }}" class="jv-filter" data-no-loader="true">
       <select name="status" class="filter-pill" onchange="this.form.submit()">
         <option value="active" {{ request('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>
         <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
@@ -623,16 +623,25 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 function toggleDropdown(index) {
-  // Close all other dropdowns
+  // Close all other dropdowns and reset z-index on their parent cards
   document.querySelectorAll('.dropdown-menu').forEach(menu => {
     if (menu.id !== `dropdown-${index}`) {
       menu.style.display = 'none';
+      const parentCard = menu.closest('.emp-card');
+      if (parentCard) parentCard.style.zIndex = '';
     }
   });
   
   // Toggle current dropdown
   const dropdown = document.getElementById(`dropdown-${index}`);
-  dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+  const isOpening = dropdown.style.display === 'none';
+  dropdown.style.display = isOpening ? 'block' : 'none';
+  
+  // Set z-index on parent card when dropdown is open
+  const parentCard = dropdown.closest('.emp-card');
+  if (parentCard) {
+    parentCard.style.zIndex = isOpening ? '100' : '';
+  }
 }
 
 // Close dropdown when clicking outside
@@ -640,6 +649,8 @@ document.addEventListener('click', function(event) {
   if (!event.target.closest('.dropdown')) {
     document.querySelectorAll('.dropdown-menu').forEach(menu => {
       menu.style.display = 'none';
+      const parentCard = menu.closest('.emp-card');
+      if (parentCard) parentCard.style.zIndex = '';
     });
   }
 });

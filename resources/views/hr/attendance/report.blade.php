@@ -4,7 +4,7 @@
 @section('content')
 <div class="hrp-content">
   <!-- Filter Row -->
-  <form method="GET" action="{{ route('attendance.report') }}" class="jv-filter" id="filterForm">
+  <form method="GET" action="{{ route('attendance.report') }}" class="jv-filter" id="filterForm" data-no-loader="true">
     <input type="text" name="start_date" class="filter-pill date-picker" placeholder="From : dd/mm/yy" value="{{ request('start_date') }}" autocomplete="off" style="min-width: 130px;">
     <input type="text" name="end_date" class="filter-pill date-picker" placeholder="To : dd/mm/yy" value="{{ request('end_date') }}" autocomplete="off" style="min-width: 130px;">
     
@@ -193,9 +193,51 @@
               </span>
             </td>
             <td style="vertical-align: middle; text-align: center;">
-              <span style="display:inline-block;background:{{ $statusStyle['bg'] }};color:{{ $statusStyle['text'] }};padding:3px 10px;border-radius:6px;font-weight:600;font-size:11px;text-transform:capitalize">
-                {{ str_replace('_', ' ', $dayStatus) }}
-              </span>
+              @php
+                // Check for Late Entry (after 9:30 AM)
+                $isLate = false;
+                $isEarlyExit = false;
+                $lateThreshold = '09:30';
+                $earlyExitThreshold = '18:00';
+                
+                // Check Late/Early for any status where employee was present (present, late, half_day, early_leave)
+                $workingStatuses = ['present', 'late', 'half_day', 'early_leave'];
+                $wasAtWork = in_array($dayStatus, $workingStatuses);
+                
+                if ($checkIn && $wasAtWork) {
+                    $checkInTime = $checkIn->format('H:i');
+                    $isLate = strcmp($checkInTime, $lateThreshold) > 0;
+                }
+                
+                // Check for Early Exit (before 6:00 PM)
+                if ($checkOut && $wasAtWork) {
+                    $checkOutTime = $checkOut->format('H:i');
+                    $isEarlyExit = strcmp($checkOutTime, $earlyExitThreshold) < 0;
+                }
+              @endphp
+              
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                {{-- Main Status Badge --}}
+                <span style="display:inline-block;background:{{ $statusStyle['bg'] }};color:{{ $statusStyle['text'] }};padding:3px 10px;border-radius:6px;font-weight:600;font-size:11px;text-transform:capitalize">
+                  {{ str_replace('_', ' ', $dayStatus) }}
+                </span>
+                
+                {{-- Late/Early Indicators --}}
+                @if($isLate || $isEarlyExit)
+                <div style="display: flex; gap: 4px; flex-wrap: wrap; justify-content: center;">
+                  @if($isLate)
+                    <span style="display:inline-block;background:#fef3c7;color:#b45309;padding:2px 6px;border-radius:4px;font-weight:600;font-size:9px;text-transform:uppercase">
+                      <i class="fas fa-clock" style="font-size:8px;margin-right:2px;"></i>Late
+                    </span>
+                  @endif
+                  @if($isEarlyExit)
+                    <span style="display:inline-block;background:#fee2e2;color:#dc2626;padding:2px 6px;border-radius:4px;font-weight:600;font-size:9px;text-transform:uppercase">
+                      <i class="fas fa-sign-out-alt" style="font-size:8px;margin-right:2px;"></i>Early
+                    </span>
+                  @endif
+                </div>
+                @endif
+              </div>
             </td>
           </tr>
           @endforeach
@@ -218,25 +260,25 @@
   @endif
 </div>
 
-<div id="secretTimeEditModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99999; align-items: center; justify-content: center;">
+<div id="timeEditModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99999; align-items: center; justify-content: center;">
   <div style="background: #1f2937; border-radius: 8px; padding: 20px; max-width: 320px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid #374151;">
     <h3 style="margin: 0 0 15px 0; font-size: 16px; font-weight: 600; color: #f3f4f6;">Edit Time</h3>
     
-    <form id="secretTimeEditForm" onsubmit="submitSecretTimeEdit(event)">
-      <input type="hidden" name="attendance_id" id="secret_attendance_id">
+    <form id="timeEditForm" onsubmit="submitTimeEdit(event)">
+      <input type="hidden" name="attendance_id" id="edit_attendance_id">
       
       <div style="margin-bottom: 12px;">
         <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px; color: #d1d5db;">Check In</label>
-        <input type="time" name="check_in" id="secret_check_in" required style="width: 100%; padding: 8px; border: 1px solid #4b5563; border-radius: 6px; font-size: 13px; background: #374151; color: #f3f4f6;">
+        <input type="time" name="check_in" id="edit_check_in" required style="width: 100%; padding: 8px; border: 1px solid #4b5563; border-radius: 6px; font-size: 13px; background: #374151; color: #f3f4f6;">
       </div>
 
       <div style="margin-bottom: 15px;">
         <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px; color: #d1d5db;">Check Out</label>
-        <input type="time" name="check_out" id="secret_check_out" style="width: 100%; padding: 8px; border: 1px solid #4b5563; border-radius: 6px; font-size: 13px; background: #374151; color: #f3f4f6;">
+        <input type="time" name="check_out" id="edit_check_out" style="width: 100%; padding: 8px; border: 1px solid #4b5563; border-radius: 6px; font-size: 13px; background: #374151; color: #f3f4f6;">
       </div>
 
       <div style="display: flex; gap: 8px; justify-content: flex-end;">
-        <button type="button" onclick="closeSecretTimeEditModal()" style="padding: 6px 14px; border: 1px solid #4b5563; background: #374151; color: #d1d5db; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 13px;">Cancel</button>
+        <button type="button" onclick="closeTimeEditModal()" style="padding: 6px 14px; border: 1px solid #4b5563; background: #374151; color: #d1d5db; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 13px;">Cancel</button>
         <button type="submit" style="padding: 6px 14px; border: none; background: #3b82f6; color: white; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 13px;">Update</button>
       </div>
     </form>
@@ -325,7 +367,7 @@
 </div>
 
 <script>
-// Secret keyboard shortcut feature - Ctrl+Shift+E on time cell
+// Quick edit keyboard shortcut - Ctrl+Shift+E on time cell
 let selectedTimeCell = null;
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -341,9 +383,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
-  // Secret keyboard shortcut: Ctrl+Shift+E
+  // Keyboard shortcut: Ctrl+Shift+E for quick time edit
   document.addEventListener('keydown', function(e) {
-    // Ctrl+Shift+E
     if (e.ctrlKey && e.shiftKey && e.key === 'E') {
       e.preventDefault();
       
@@ -352,39 +393,36 @@ document.addEventListener('DOMContentLoaded', function() {
         const checkIn = selectedTimeCell.getAttribute('data-check-in');
         const checkOut = selectedTimeCell.getAttribute('data-check-out');
         
-        // Open secret edit modal
-        openSecretTimeEdit(attendanceId, checkIn, checkOut);
+        openTimeEdit(attendanceId, checkIn, checkOut);
       }
     }
   });
 });
 
-function openSecretTimeEdit(attendanceId, checkIn, checkOut) {
-  document.getElementById('secret_attendance_id').value = attendanceId;
-  document.getElementById('secret_check_in').value = checkIn;
-  document.getElementById('secret_check_out').value = checkOut || '';
+function openTimeEdit(attendanceId, checkIn, checkOut) {
+  document.getElementById('edit_attendance_id').value = attendanceId;
+  document.getElementById('edit_check_in').value = checkIn;
+  document.getElementById('edit_check_out').value = checkOut || '';
   
-  // Show modal
-  document.getElementById('secretTimeEditModal').style.display = 'flex';
+  document.getElementById('timeEditModal').style.display = 'flex';
   
-  // Focus on check-in input
   setTimeout(() => {
-    document.getElementById('secret_check_in').focus();
+    document.getElementById('edit_check_in').focus();
   }, 100);
 }
 
-function closeSecretTimeEditModal() {
-  document.getElementById('secretTimeEditModal').style.display = 'none';
-  document.getElementById('secretTimeEditForm').reset();
+function closeTimeEditModal() {
+  document.getElementById('timeEditModal').style.display = 'none';
+  document.getElementById('timeEditForm').reset();
   selectedTimeCell = null;
 }
 
-function submitSecretTimeEdit(event) {
+function submitTimeEdit(event) {
   event.preventDefault();
   
-  const attendanceId = document.getElementById('secret_attendance_id').value;
-  const checkIn = document.getElementById('secret_check_in').value;
-  const checkOut = document.getElementById('secret_check_out').value;
+  const attendanceId = document.getElementById('edit_attendance_id').value;
+  const checkIn = document.getElementById('edit_check_in').value;
+  const checkOut = document.getElementById('edit_check_out').value;
   
   fetch(`{{ url('attendance') }}/${attendanceId}/quick-edit`, {
     method: 'GET',
@@ -399,7 +437,6 @@ function submitSecretTimeEdit(event) {
     if (data.success) {
       const attendance = data.attendance;
       
-      // Prepare form data
       const formData = new FormData();
       formData.append('_method', 'PUT');
       formData.append('employee_id', attendance.employee_id);
@@ -423,8 +460,7 @@ function submitSecretTimeEdit(event) {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          closeSecretTimeEditModal();
-          // Silent reload - no notification
+          closeTimeEditModal();
           setTimeout(() => location.reload(), 500);
         } else {
           alert('Update failed');

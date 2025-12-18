@@ -27,12 +27,18 @@
   transition: all 0.3s ease;
   min-height: 220px;
   height: 100%;
+  overflow: visible; /* Allow dropdown to overflow */
 }
 
 .emp-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   border-color: #3b82f6;
+}
+
+/* Ensure card with open dropdown is on top */
+.emp-card:has(.dropdown-menu[style*="block"]) {
+  z-index: 100;
 }
 
 /* Card Header */
@@ -97,9 +103,9 @@
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  min-width: 140px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  min-width: 160px;
   padding: 4px 0;
   margin-top: 4px;
   transition: all 0.2s ease;
@@ -159,10 +165,6 @@
 /* Override any conflicting img styles inside profile-image */
 .profile-image > div {
   display: inline-flex !important;
-}
-
-.profile-image img {
-  /* These styles are now handled by the component inline styles */
 }
 
 .profile-info {

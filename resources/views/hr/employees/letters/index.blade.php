@@ -78,7 +78,7 @@
 @section('content')
 <div class="hrp-card">
   <div class="hrp-card-body">
-    <form id="filterForm" method="GET" action="{{ route('employees.letters.index', $employee) }}" class="jv-filter">
+    <form id="filterForm" method="GET" action="{{ route('employees.letters.index', $employee) }}" class="jv-filter" data-no-loader="true">
       <input type="text" name="search" class="filter-pill" placeholder="Search by title, reference..." value="{{ request('search') }}">
       <select name="type" class="filter-pill">
         <option value="" {{ !request('type') ? 'selected' : '' }}>All Types</option>

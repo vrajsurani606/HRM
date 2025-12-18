@@ -44,19 +44,19 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
     }
     .offer-container .bg-cover img { width:100%; height:100%; object-fit:cover; display:block; }
     .letter-content { position:relative; z-index:1; }
-    .letter-content { width:100%; max-width:800px; margin:0 auto; margin-top:220px; padding:40px 30px 20px 30px; border-radius:8px; box-sizing:border-box; }
+    .letter-content { width:100%; max-width:800px; margin:0 auto; margin-top:190px; padding:40px 30px 20px 30px; border-radius:8px; box-sizing:border-box; }
     .letter-meta, .recipient, .subject, .body, .signature { margin-bottom:16px; }
-    .letter-meta { display:flex; justify-content:space-between; font-size:13.2px; color:#222; font-weight:500; }
-    .recipient { font-size:13.2px; color:#222; }
-    .subject { font-size:13.2px; font-weight:700; color:#222; text-align:center; }
-    .body { font-size:13.2px; color:#222; line-height:1.7; }
+    .letter-meta { display:flex; justify-content:space-between; font-size:12.5px; color:#222; font-weight:500; }
+    .recipient { font-size:12.5px; color:#222; }
+    .subject { font-size:12.5px; font-weight:700; color:#222; text-align:center; }
+    .body { font-size:12.5px; color:#222; line-height:1.5; }
     .body .company { color:#456DB5; font-weight:700; }
     .body .highlight { font-weight:700; }
-    .signature { font-size:13.2px; color:#222; text-align:left; }
-    .signature .name { font-weight:700; font-size:13.2px; }
-    .signature .company { font-size:13.2px; color:#456DB5; font-weight:700; }
-    .signature .sign { margin:6px 0 6px 0; }
-    .signature .sign img { height:62px; width:auto; display:block; object-fit:contain; }
+    .signature { font-size:12.5px; color:#222; text-align:left; }
+    .signature .name { font-weight:700; font-size:12.5px; }
+    .signature .company { font-size:12.5px; color:#456DB5; font-weight:700; }
+    .signature .sign { margin:4px 0 4px 0; }
+    .signature .sign img { height:50px; width:auto; display:block; object-fit:contain; }
     @media print {
       @page {
         size: A4 portrait;
@@ -75,7 +75,7 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
         page-break-after: auto;
       }
       .letter-content { 
-        margin-top: 220px !important;
+        margin-top: 190px !important;
         padding: 40px 30px 20px 30px !important;
       }
       .letter-content.first-page { 
@@ -83,7 +83,7 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
         overflow:visible !important; 
         max-height:none !important; 
         height:auto !important;
-        margin-top: 220px !important;
+        margin-top: 190px !important;
         padding: 0 36px 4px 36px !important;
       }
       .break-section { page-break-before: always; break-inside: avoid; }
@@ -103,7 +103,7 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
     .doc-table th, .doc-table td { border:1.5px solid #b3b3b3; padding:10px 14px; background:transparent; }
     .doc-table th { font-weight:700; text-align:center; font-size:15px; background:transparent; padding:10px 0; }
     .doc-table .doc-table-header { border:2px solid #b3b3b3; font-weight:700; text-align:center; font-size:15px; background:rgba(69,108,181,0.18); padding:10px 0; }
-    .letter-content.first-page { padding:0 36px 4px 36px !important; margin-top:220px !important; font-size:13.2px !important; }
+    .letter-content.first-page { padding:0 36px 4px 36px !important; margin-top:190px !important; font-size:12.5px !important; }
     .print-btn {
       background: #1f2937; color: #fff; border: 0; padding: 10px 14px; border-radius: 6px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15); cursor: pointer; font-weight: 700;
@@ -118,9 +118,9 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
       box-shadow: 0 4px 10px rgba(0,0,0,0.15); cursor: pointer; font-weight: 700;
     }
     .back-btn:hover { background: #4b5563; }
-    .letter-content.first-page .letter-meta, .letter-content.first-page .recipient, .letter-content.first-page .subject, .letter-content.first-page .body, .letter-content.first-page .signature { margin-bottom:4px !important; }
+    .letter-content.first-page .letter-meta, .letter-content.first-page .recipient, .letter-content.first-page .subject, .letter-content.first-page .body { margin-bottom:4px !important; }
     .letter-content.first-page .body p, .letter-content.first-page .body ol, .letter-content.first-page .body ul { margin-bottom:2px !important; }
-    .letter-content.first-page .signature { margin-top:6px !important; }
+    .letter-content.first-page .signature { margin-top:6px !important; margin-bottom: 80px !important; }
     
     /* Font Awesome icons - must be at the end to override other font-family rules */
     .fa, .fas, .far, .fab, .fal, .fad,
@@ -159,11 +159,11 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
   <div class="offer-container">
     <div class="bg-cover"><img src="{{ $background_url }}" alt="" /></div>
     <div class="letter-content first-page">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-        <div style="font-size: 13.2px;"><b>Ref No.:</b> {{ $offer->reference_number ?? $lead->unique_code ?? 'N/A' }}</div>
-        <div style="font-size: 13.2px;"><b>Date:</b> {{ optional($offer->issue_date)->format('d-m-Y') ?? now()->format('d-m-Y') }}</div>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+        <div style="font-size: 12.5px;"><b>Ref No.:</b> {{ $offer->reference_number ?? $lead->unique_code ?? 'N/A' }}</div>
+        <div style="font-size: 12.5px;"><b>Date:</b> {{ optional($offer->issue_date)->format('d-m-Y') ?? now()->format('d-m-Y') }}</div>
       </div>
-      <div class="recipient" style="margin-bottom: 12px;">
+      <div class="recipient" style="margin-bottom: 8px;">
         <div><b>To,</b></div>
         <div>{{ ($lead->gender == 'Female' || $lead->gender == 'female') ? 'Ms.' : 'Mr.' }} {{ $lead->person_name ?? $lead->name }}</div>
         <div>{{ $lead->position ?? $lead->designation ?? 'Candidate' }}</div>
@@ -218,7 +218,7 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
         </p>
         <p style="margin-top:5px;">We are confident that you will make a valuable contribution to the success of <span class="company">{{ $company_name }}</span> and look forward to working with you.</p>
       </div>
-      <div class="signature">
+      <div class="signature" style="margin-bottom: 80px;">
         <div><b>Sincerely,</b></div>
         <div class="sign">
           <img src="{{ asset('letters/signature.png') }}" alt="Signature">

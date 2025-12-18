@@ -2,828 +2,519 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ $profile['name'] }} - Digital Card</title>
-    
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- CSS Libraries -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
-        :root {
-            --primary: #3b82f6;
-            --primary-dark: #1e40af;
-            --secondary: #64748b;
-            --accent: #10b981;
-            --background: #f8fafc;
-            --card-bg: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border: #e2e8f0;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--background);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
-
-        .container-fluid {
-            padding: 0;
-        }
-
-        /* Header Actions */
-        .header-actions {
-            background: var(--card-bg);
-            padding: 1rem 2rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .action-btn:hover {
-            background: var(--primary-dark);
-            color: white;
-            transform: translateY(-1px);
-        }
-
-        .action-btn.danger {
-            background: #ef4444;
-        }
-
-        .action-btn.danger:hover {
-            background: #dc2626;
-        }
-
-        /* Main Card */
-        .digital-card {
-            max-width: 1200px;
-            margin: 2rem auto;
-            background: var(--card-bg);
-            border-radius: 1rem;
-            box-shadow: var(--shadow-lg);
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html, body {
+            height: 100%;
             overflow: hidden;
         }
-
-        /* Profile Header */
-        .profile-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            padding: 3rem 2rem;
-            text-align: center;
-            position: relative;
-        }
-
-        .profile-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
-        }
-
-        .profile-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .profile-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 1.5rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .profile-name {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .profile-title {
-            font-size: 1.25rem;
-            font-weight: 500;
-            opacity: 0.9;
-            margin-bottom: 0.5rem;
-        }
-
-        .profile-company {
-            font-size: 1rem;
-            opacity: 0.8;
-            margin-bottom: 2rem;
-        }
-
-        /* Stats */
-        .profile-stats {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            margin-top: 2rem;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 0.875rem;
-            opacity: 0.8;
-        }
-
-        /* Social Links */
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .social-link {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            text-decoration: none;
-            transition: all 0.2s;
+            padding: 20px;
         }
 
-        .social-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        /* Content Sections */
-        .content-wrapper {
-            padding: 2rem;
-        }
-
-        .section {
-            margin-bottom: 2rem;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
+        .card-wrapper {
+            width: 100%;
+            max-width: 900px;
+            height: calc(100vh - 40px);
+            max-height: 600px;
             display: flex;
-            align-items: center;
-            gap: 0.75rem;
+            flex-direction: column;
         }
 
-        .section-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
+        /* Action Buttons */
+        .action-bar {
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 0.875rem;
-        }
-
-        /* Summary */
-        .summary-text {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        /* Skills */
-        .skills-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            justify-content: center;
-        }
-
-        .skill-tag {
-            background: var(--background);
-            color: var(--text-primary);
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            border: 1px solid var(--border);
-            transition: all 0.2s;
-        }
-
-        .skill-tag:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        /* Timeline Items */
-        .timeline-item {
-            background: var(--background);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border-left: 4px solid var(--primary);
-            transition: all 0.2s;
-        }
-
-        .timeline-item:hover {
-            transform: translateX(4px);
-            box-shadow: var(--shadow);
-        }
-
-        .timeline-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-        }
-
-        .timeline-company {
-            color: var(--primary);
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-        }
-
-        .timeline-duration {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .timeline-description {
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        /* Contact Info */
-        .contact-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-
-        .contact-item {
-            background: var(--background);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: all 0.2s;
-        }
-
-        .contact-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        .contact-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
             flex-shrink: 0;
         }
-
-        .contact-text {
-            flex: 1;
+        .action-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
         }
-
-        .contact-label {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.25rem;
+        .action-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+            color: white;
         }
-
-        .contact-value {
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        /* Gallery */
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .gallery-item {
-            border-radius: 0.75rem;
-            overflow: hidden;
-            aspect-ratio: 1;
-            transition: all 0.2s;
-        }
-
-        .gallery-item:hover {
-            transform: scale(1.02);
-            box-shadow: var(--shadow);
-        }
-
-        .gallery-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header-actions {
-                padding: 1rem;
-                justify-content: center;
-            }
-
-            .digital-card {
-                margin: 1rem;
-                border-radius: 0.5rem;
-            }
-
-            .profile-header {
-                padding: 2rem 1rem;
-            }
-
-            .profile-name {
-                font-size: 2rem;
-            }
-
-            .profile-stats {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .content-wrapper {
-                padding: 1rem;
-            }
-
-            .contact-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Print Styles */
-        @media print {
-            .header-actions {
-                display: none;
-            }
-            
-            body {
-                background: white;
-            }
-            
-            .digital-card {
-                box-shadow: none;
-                margin: 0;
-            }
-        }
-    </style>
+</style>
 </head>
 <body>
-    <!-- Header Actions -->
-    <div class="header-actions">
-        <button onclick="window.print()" class="action-btn">
-            <i class="fas fa-print"></i>
-            Print Card
-        </button>
-        <a href="{{ route('employees.digital-card.download', $employee) }}" class="action-btn">
-            <i class="fas fa-download"></i>
-            Download HTML
-        </a>
-        <button onclick="openQuickEditModal({{ $employee->id }})" class="action-btn">
-            <i class="fas fa-bolt"></i>
-            Quick Edit
-        </button>
-        <a href="{{ route('employees.digital-card.edit', $employee) }}" class="action-btn">
-            <i class="fas fa-edit"></i>
-            Full Edit
-        </a>
-        <form method="POST" action="{{ route('employees.digital-card.destroy', $employee) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this digital card?')">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="action-btn danger">
-                <i class="fas fa-trash"></i>
-                Delete
-            </button>
-        </form>
-    </div>
+    <div class="card-wrapper">
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <a href="{{ route('employees.index') }}" class="action-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            <button onclick="window.print()" class="action-btn"><i class="fas fa-print"></i> Print</button>
+            <a href="{{ route('employees.digital-card.download', $employee) }}" class="action-btn"><i class="fas fa-download"></i> Download</a>
+            <button onclick="openQuickEditModal({{ $employee->id }})" class="action-btn"><i class="fas fa-edit"></i> Edit</button>
+        </div>
 
-    <!-- Digital Card -->
-    <div class="digital-card">
-        <!-- Profile Header -->
-        <div class="profile-header">
-            <div class="profile-content">
-                <img src="{{ $profile_image }}" alt="Profile" class="profile-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9Ijc1IiBjeT0iNjAiIHI9IjIwIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik03NSA5MEM5NSA5MCAxMTAgMTAwIDExMCAxMjBWMTUwSDQwVjEyMEM0MCAxMDAgNTUgOTAgNzUgOTBaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo='">
-                
-                <h1 class="profile-name">{{ $profile['name'] }}</h1>
-                <h2 class="profile-title">{{ $profile['position'] }}</h2>
-                <p class="profile-company">{{ $profile['company'] }}</p>
-                
-                <div class="profile-stats">
-                    <div class="stat-item">
-                        <span class="stat-number">{{ $profile['experience_years'] }}+</span>
-                        <span class="stat-label">Years Experience</span>
+        <!-- Main Card -->
+        <div class="digital-card">
+            <!-- Left Panel - Profile -->
+            <div class="card-left">
+                <div class="profile-section">
+                    <div class="avatar-container">
+                        <img src="{{ $profile_image }}" alt="{{ $profile['name'] }}" class="avatar" 
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiBmaWxsPSIjNjM2NmYxIi8+CjxjaXJjbGUgY3g9Ijc1IiBjeT0iNTUiIHI9IjI1IiBmaWxsPSJ3aGl0ZSIgb3BhY2l0eT0iMC44Ii8+CjxwYXRoIGQ9Ik03NSA5MEMxMDAgOTAgMTE1IDEwNSAxMTUgMTMwVjE1MEgzNVYxMzBDMzUgMTA1IDUwIDkwIDc1IDkwWiIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuOCIvPgo8L3N2Zz4='">
+                        <div class="status-dot"></div>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{ count($projects) }}</span>
+                    <h1 class="name">{{ $profile['name'] }}</h1>
+                    <p class="title">{{ $profile['position'] }}</p>
+                    <p class="company"><i class="fas fa-building"></i> {{ $profile['company'] }}</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-row">
+                    <div class="stat">
+                        <span class="stat-num">{{ $profile['experience_years'] ?? '0' }}+</span>
+                        <span class="stat-label">Years</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-num">{{ count($projects ?? []) }}</span>
                         <span class="stat-label">Projects</span>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{ count($skills) }}</span>
+                    <div class="stat">
+                        <span class="stat-num">{{ count($skills ?? []) }}</span>
                         <span class="stat-label">Skills</span>
                     </div>
                 </div>
 
                 <!-- Social Links -->
-                <div class="social-links">
+                @if(!empty($socials) && collect($socials)->filter()->count() > 0)
+                <div class="social-row">
                     @foreach($socials as $platform => $url)
                         @if(!empty($url))
-                            <a href="{{ $url }}" target="_blank" class="social-link" title="{{ ucfirst($platform) }}">
-                                <i class="fab fa-{{ $platform === 'portfolio' ? 'globe' : $platform }}"></i>
-                            </a>
+                        <a href="{{ $url }}" target="_blank" class="social-icon" title="{{ ucfirst($platform) }}">
+                            <i class="fab fa-{{ $platform === 'portfolio' || $platform === 'website' ? 'globe' : $platform }}"></i>
+                        </a>
                         @endif
                     @endforeach
                 </div>
-            </div>
-        </div>
-
-        <!-- Content -->
-        <div class="content-wrapper">
-            <div class="row">
-                <div class="col-lg-8">
-                    <!-- Summary Section -->
-                    @if(!empty($profile['summary']))
-                    <div class="section">
-                        <h3 class="section-title">
-                            <div class="section-icon">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            About Me
-                        </h3>
-                        <p class="summary-text">{!! nl2br(e($profile['summary'])) !!}</p>
-                    </div>
-                    @endif
-
-                    <!-- Skills Section -->
-                    @if(!empty($skills))
-                    <div class="section">
-                        <h3 class="section-title">
-                            <div class="section-icon">
-                                <i class="fas fa-code"></i>
-                            </div>
-                            Skills
-                        </h3>
-                        <div class="skills-grid">
-                            @foreach($skills as $skill)
-                                <span class="skill-tag">{{ trim($skill) }}</span>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
-
-                    <!-- Experience Section -->
-                    @if(!empty($previous_roles))
-                    <div class="section">
-                        <h3 class="section-title">
-                            <div class="section-icon">
-                                <i class="fas fa-briefcase"></i>
-                            </div>
-                            Experience
-                        </h3>
-                        @foreach($previous_roles as $role)
-                            <div class="timeline-item">
-                                <h4 class="timeline-title">{{ $role['position'] ?? 'Position' }}</h4>
-                                <p class="timeline-company">{{ $role['company'] ?? 'Company' }}</p>
-                                <p class="timeline-duration">{{ $role['duration'] ?? 'Duration' }}</p>
-                                @if(!empty($role['description']))
-                                    <p class="timeline-description">{!! nl2br(e($role['description'])) !!}</p>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                    @endif
-
-                    <!-- Education Section -->
-                    @if(!empty($education))
-                    <div class="section">
-                        <h3 class="section-title">
-                            <div class="section-icon">
-                                <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            Education
-                        </h3>
-                        @foreach($education as $edu)
-                            <div class="timeline-item">
-                                <h4 class="timeline-title">{{ $edu['degree'] ?? 'Degree' }}</h4>
-                                <p class="timeline-company">{{ $edu['institution'] ?? 'Institution' }}</p>
-                                <p class="timeline-duration">{{ $edu['year'] ?? 'Year' }}</p>
-                                @if(!empty($edu['description']))
-                                    <p class="timeline-description">{!! nl2br(e($edu['description'])) !!}</p>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                    @endif
-
-                    <!-- Projects Section -->
-                    @if(!empty($projects))
-                    <div class="section">
-                        <h3 class="section-title">
-                            <div class="section-icon">
-                                <i class="fas fa-project-diagram"></i>
-                            </div>
-                            Projects
-                        </h3>
-                        @foreach($projects as $project)
-                            <div class="timeline-item">
-                                <h4 class="timeline-title">{{ $project['name'] ?? 'Project Name' }}</h4>
-                                @if(!empty($project['technologies']))
-                                    <p class="timeline-company">{{ $project['technologies'] }}</p>
-                                @endif
-                                @if(!empty($project['duration']))
-                                    <p class="timeline-duration">{{ $project['duration'] }}</p>
-                                @endif
-                                @if(!empty($project['description']))
-                                    <p class="timeline-description">{!! nl2br(e($project['description'])) !!}</p>
-                                @endif
-                                @if(!empty($project['link']))
-                                    <p class="timeline-description">
-                                        <strong>Link:</strong> <a href="{{ $project['link'] }}" target="_blank" style="color: var(--primary);">{{ $project['link'] }}</a>
-                                    </p>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                    @endif
-                </div>
-
-                <div class="col-lg-4">
-                    <!-- Contact Information -->
-                    <div class="section">
-                        <h3 class="section-title">
-                            <div class="section-icon">
-                                <i class="fas fa-address-card"></i>
-                            </div>
-                            Contact
-                        </h3>
-                        
-                        <div class="contact-grid">
-                            @if(!empty($profile['email']))
-                            <div class="contact-item">
-                                <div class="contact-icon">
-                                    <i class="fas fa-envelope"></i>
-                                </div>
-                                <div class="contact-text">
-                                    <div class="contact-label">Email</div>
-                                    <div class="contact-value">{{ $profile['email'] }}</div>
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(!empty($profile['phone']))
-                            <div class="contact-item">
-                                <div class="contact-icon">
-                                    <i class="fas fa-phone"></i>
-                                </div>
-                                <div class="contact-text">
-                                    <div class="contact-label">Phone</div>
-                                    <div class="contact-value">{{ $profile['phone'] }}</div>
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(!empty($profile['location']))
-                            <div class="contact-item">
-                                <div class="contact-icon">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div class="contact-text">
-                                    <div class="contact-label">Location</div>
-                                    <div class="contact-value">{{ $profile['location'] }}</div>
-                                </div>
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Languages Section -->
-                    @if(!empty($languages))
-                    <div class="section">
-                        <h3 class="section-title">
-                            <div class="section-icon">
-                                <i class="fas fa-language"></i>
-                            </div>
-                            Languages
-                        </h3>
-                        <div class="skills-grid">
-                            @foreach($languages as $language)
-                                <span class="skill-tag">
-                                    {{ is_array($language) ? ($language['name'] ?? $language) : $language }}
-                                    @if(is_array($language) && !empty($language['proficiency']))
-                                        <small style="opacity: 0.7;">({{ $language['proficiency'] }})</small>
-                                    @endif
-                                </span>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
-
-                    <!-- Hobbies Section -->
-                    @if(!empty($hobbies))
-                    <div class="section">
-                        <h3 class="section-title">
-                            <div class="section-icon">
-                                <i class="fas fa-heart"></i>
-                            </div>
-                            Hobbies
-                        </h3>
-                        <div class="skills-grid">
-                            @foreach($hobbies as $hobby)
-                                <span class="skill-tag">{{ trim($hobby) }}</span>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
-
-                    <!-- Certifications Section -->
-                    @if(!empty($certifications))
-                    <div class="section">
-                        <h3 class="section-title">
-                            <div class="section-icon">
-                                <i class="fas fa-certificate"></i>
-                            </div>
-                            Certifications
-                        </h3>
-                        @foreach($certifications as $cert)
-                            <div class="timeline-item">
-                                <h4 class="timeline-title">{{ $cert['name'] ?? 'Certification' }}</h4>
-                                @if(!empty($cert['issuer']))
-                                    <p class="timeline-company">{{ $cert['issuer'] }}</p>
-                                @endif
-                                @if(!empty($cert['date']))
-                                    <p class="timeline-duration">{{ $cert['date'] }}</p>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                    @endif
-
-                    <!-- Achievements Section -->
-                    @if(!empty($achievements))
-                    <div class="section">
-                        <h3 class="section-title">
-                            <div class="section-icon">
-                                <i class="fas fa-trophy"></i>
-                            </div>
-                            Achievements
-                        </h3>
-                        @foreach($achievements as $achievement)
-                            <div class="timeline-item">
-                                <h4 class="timeline-title">{{ $achievement['title'] ?? 'Achievement' }}</h4>
-                                @if(!empty($achievement['year']))
-                                    <p class="timeline-duration">{{ $achievement['year'] }}</p>
-                                @endif
-                                @if(!empty($achievement['description']))
-                                    <p class="timeline-description">{!! nl2br(e($achievement['description'])) !!}</p>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                    @endif
-                </div>
+                @endif
             </div>
 
-            <!-- Gallery Section -->
-            @if(!empty($gallery) && count($gallery) > 1)
-            <div class="section">
-                <h3 class="section-title">
-                    <div class="section-icon">
-                        <i class="fas fa-images"></i>
-                    </div>
-                    Gallery
-                </h3>
-                <div class="gallery-grid">
-                    @foreach($gallery as $image)
-                        @if(!empty($image))
-                            <div class="gallery-item">
-                                <img src="{{ asset('storage/' . $image) }}" alt="Gallery Image" class="gallery-image" onerror="this.style.display='none'">
-                            </div>
+            <!-- Right Panel - Details -->
+            <div class="card-right">
+                <!-- Contact Info -->
+                <div class="info-section">
+                    <h3 class="section-title"><i class="fas fa-address-card"></i> Contact</h3>
+                    <div class="contact-grid">
+                        @if(!empty($profile['email']))
+                        <a href="mailto:{{ $profile['email'] }}" class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>{{ $profile['email'] }}</span>
+                        </a>
                         @endif
+                        @if(!empty($profile['phone']))
+                        <a href="tel:{{ $profile['phone'] }}" class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>{{ $profile['phone'] }}</span>
+                        </a>
+                        @endif
+                        @if(!empty($profile['location']))
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{ $profile['location'] }}</span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Skills -->
+                @if(!empty($skills))
+                <div class="info-section">
+                    <h3 class="section-title"><i class="fas fa-code"></i> Skills</h3>
+                    <div class="skills-wrap">
+                        @foreach(array_slice($skills, 0, 8) as $skill)
+                        <span class="skill-tag">{{ trim($skill) }}</span>
+                        @endforeach
+                        @if(count($skills) > 8)
+                        <span class="skill-tag more">+{{ count($skills) - 8 }}</span>
+                        @endif
+                    </div>
+                </div>
+                @endif
+
+                <!-- About -->
+                @if(!empty($profile['summary']))
+                <div class="info-section">
+                    <h3 class="section-title"><i class="fas fa-user"></i> About</h3>
+                    <p class="about-text">{{ Str::limit($profile['summary'], 200) }}</p>
+                </div>
+                @endif
+
+                <!-- Experience Preview -->
+                @if(!empty($previous_roles) && count($previous_roles) > 0)
+                <div class="info-section">
+                    <h3 class="section-title"><i class="fas fa-briefcase"></i> Experience</h3>
+                    @foreach(array_slice($previous_roles, 0, 2) as $role)
+                    <div class="exp-item">
+                        <strong>{{ $role['position'] ?? 'Position' }}</strong>
+                        <span>{{ $role['company'] ?? '' }} {{ !empty($role['duration']) ? '• ' . $role['duration'] : '' }}</span>
+                    </div>
                     @endforeach
                 </div>
+                @endif
             </div>
-            @endif
         </div>
     </div>
 
     <!-- Quick Edit Modal -->
     @include('hr.employees.digital-card.quick-edit-modal')
-    
-    <!-- JavaScript Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    
-    <script>
-        // Set current employee ID for quick edit
-        window.currentEmployeeId = {{ $employee->id }};
-        
-        // Notification system
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i>
-                ${message}
-            `;
-            
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'error' ? '#ef4444' : '#10b981'};
-                color: white;
-                padding: 12px 20px;
-                border-radius: 8px;
-                z-index: 10000;
-                animation: slideInRight 0.3s ease-out;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideOutRight 0.3s ease-in';
-                setTimeout(() => {
-                    if (document.body.contains(notification)) {
-                        document.body.removeChild(notification);
-                    }
-                }, 300);
-            }, 3000);
+
+    <style>
+        /* Main Card */
+        .digital-card {
+            flex: 1;
+            display: flex;
+            background: #ffffff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
         }
+
+        /* Left Panel */
+        .card-left {
+            width: 320px;
+            flex-shrink: 0;
+            background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-left::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+        }
+
+        .profile-section {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+        .avatar-container {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 20px;
+        }
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid rgba(255,255,255,0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .status-dot {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: #22c55e;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(34,197,94,0.5);
+        }
+        .name {
+            font-size: 26px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .title {
+            font-size: 15px;
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .company {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* Stats */
+        .stats-row {
+            display: flex;
+            gap: 20px;
+            margin-top: 25px;
+            position: relative;
+            z-index: 1;
+        }
+        .stat {
+            text-align: center;
+            background: rgba(255,255,255,0.15);
+            padding: 12px 18px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        .stat-num {
+            display: block;
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Social */
+        .social-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .social-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .social-icon:hover {
+            background: white;
+            color: #6366f1;
+            transform: translateY(-3px);
+        }
+
+        /* Right Panel */
+        .card-right {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+        .card-right::-webkit-scrollbar { width: 4px; }
+        .card-right::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+
+        .info-section {
+            margin-bottom: 22px;
+        }
+        .info-section:last-child { margin-bottom: 0; }
         
-        // Add CSS for notifications
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6366f1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title i {
+            font-size: 14px;
+        }
+
+        /* Contact */
+        .contact-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: white;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #374151;
+            font-size: 13px;
+            transition: all 0.2s;
+            border: 1px solid #e5e7eb;
+        }
+        .contact-item:hover {
+            border-color: #6366f1;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.15);
+        }
+        .contact-item i {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .contact-item span {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Skills */
+        .skills-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .skill-tag {
+            background: white;
+            color: #4b5563;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+        .skill-tag:hover {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+        .skill-tag.more {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        /* About */
+        .about-text {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.7;
+            background: white;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Experience */
+        .exp-item {
+            background: white;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        .exp-item:last-child { margin-bottom: 0; }
+        .exp-item strong {
+            display: block;
+            font-size: 13px;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+        .exp-item span {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            body { padding: 15px; }
+            .card-wrapper { max-height: none; height: auto; }
+            .digital-card { flex-direction: column; height: auto; }
+            .card-left { width: 100%; padding: 25px 20px; }
+            .card-right { padding: 25px 20px; }
+            .avatar-container { width: 100px; height: 100px; }
+            .name { font-size: 22px; }
+            .stats-row { gap: 12px; }
+            .stat { padding: 10px 14px; }
+            .stat-num { font-size: 18px; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .action-bar { flex-wrap: wrap; gap: 8px; }
+            .action-btn { padding: 6px 12px; font-size: 12px; }
+            .card-left { padding: 20px 15px; }
+            .card-right { padding: 20px 15px; }
+            .avatar-container { width: 80px; height: 80px; }
+            .name { font-size: 20px; }
+            .title { font-size: 13px; }
+            .stats-row { gap: 8px; }
+            .stat { padding: 8px 12px; }
+            .stat-num { font-size: 16px; }
+            .stat-label { font-size: 10px; }
+        }
+
+        /* Print */
+        @media print {
+            body { 
+                background: white; 
+                padding: 0;
+                height: auto;
+                overflow: visible;
             }
-            @keyframes slideOutRight {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
+            .action-bar { display: none; }
+            .card-wrapper { 
+                max-width: none; 
+                max-height: none;
+                height: auto;
             }
-        `;
-        document.head.appendChild(style);
+            .digital-card { 
+                box-shadow: none; 
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+            .card-left::before { display: none; }
+        }
+    </style>
+
+    <script>
+        window.currentEmployeeId = {{ $employee->id }};
     </script>
 </body>
 </html>

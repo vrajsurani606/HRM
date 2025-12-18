@@ -3,7 +3,7 @@
 @section('content')
 
 <!-- Filter Row -->
-<form method="GET" action="{{ route('receipts.index') }}" class="jv-filter performa-filter">
+<form method="GET" action="{{ route('receipts.index') }}" class="jv-filter performa-filter" data-no-loader="true">
   <input type="text" name="search" placeholder="Search Receipt No, Company..." class="filter-pill live-search" value="{{ request('search') }}" />
   <select name="invoice_type" class="filter-pill">
     <option value="">All Types</option>

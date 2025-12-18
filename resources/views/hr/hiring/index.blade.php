@@ -4,7 +4,7 @@
 @section('content')
 <div class="hrp-card">
   <div class="hrp-card-body">
-    <form id="filterForm" method="GET" action="{{ route('hiring.index') }}" class="jv-filter">
+    <form id="filterForm" method="GET" action="{{ route('hiring.index') }}" class="jv-filter" data-no-loader="true">
       <select name="status" class="filter-pill" onchange="this.form.submit()">
         <option value="all_active" {{ request('status', 'all_active') == 'all_active' ? 'selected' : '' }}>All Active</option>
         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>

@@ -55,7 +55,7 @@ if ($contentLength > 3000) {
     /* Page Container */
     .offer-container {
         width: 100vw; min-width: 100vw; height: 100vh; margin: 0;
-        position: relative; overflow: hidden; border: none; page-break-inside: avoid;
+        position: relative; overflow: visible; border: none; page-break-inside: avoid;
         display: flex; flex-direction: column; justify-content: flex-start;
     }
     
@@ -73,10 +73,11 @@ if ($contentLength > 3000) {
     .letter-content { 
         position:relative; z-index:1;
         width:100%; max-width:800px; margin:0 auto; 
-        /* Reduced top padding for less space */
-        padding: 160px 36px 200px 36px;
+        /* Top padding for header, bottom padding for footer */
+        padding: 190px 36px 120px 36px;
         box-sizing:border-box;
-        min-height: 100vh;
+        max-height: calc(100vh - 310px); /* Limit height to prevent footer overlap */
+        overflow: hidden;
     }
     
     /* Letter Elements */
@@ -241,6 +242,7 @@ if ($contentLength > 3000) {
             box-shadow:none; border:none; 
             width: 210mm; height: 297mm;
             page-break-after: always;
+            overflow: hidden;
         }
         
         .offer-container:last-child {
@@ -253,10 +255,10 @@ if ($contentLength > 3000) {
         }
         
         .letter-content { 
-            /* Reduced top padding for less space above content */
-            padding: 200px 30px 200px 30px;
-            min-height: 618px;
-            overflow: visible !important;
+            /* Top padding for header, bottom padding for footer */
+            padding: 190px 30px 120px 30px;
+            max-height: 620px; /* ~35 lines at 13px font with 1.7 line-height */
+            overflow: hidden !important;
         }
         
         .break-section { 
@@ -290,12 +292,17 @@ if ($contentLength > 3000) {
             margin:40px auto; box-shadow:0 4px 24px rgba(44,108,164,0.10); 
             position:relative; overflow:hidden; border:1.5px solid #dbe6f7; display:block;
         }
-        /* Screen view needs more top padding to avoid header overlap */
+        /* Screen view - limit content height to prevent footer overlap */
         .letter-content { 
-            max-height:none !important; 
-            height:auto !important; 
-            overflow:visible !important;
-            padding-top: 200px !important;
+            max-height: none !important;
+            overflow: visible !important;
+            padding-top: 190px !important;
+            padding-bottom: 120px !important;
+        }
+        
+        /* Clip content that overflows the page */
+        .offer-container {
+            overflow: hidden !important;
         }
         .break-section { margin-top:32px; }
         
@@ -304,7 +311,8 @@ if ($contentLength > 3000) {
             margin-top: 40px;
         }
         #page2 .letter-content {
-            padding-top: 200px !important;
+            padding-top: 190px !important;
+            max-height: 650px !important;
         }
     }
     
@@ -331,8 +339,8 @@ if ($contentLength > 3000) {
     $lineCount += substr_count($contentHtml, '<li>');
     $lineCount += substr_count($contentHtml, '<br');
     
-    // Check if content needs page break (more than 17 lines)
-    $needsPageBreak = $lineCount > 17;
+    // Check if content needs page break (more than 35 lines)
+    $needsPageBreak = $lineCount > 35;
 @endphp
 
 <div class="btn-container">
@@ -471,111 +479,98 @@ function goBack() {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const page1 = document.getElementById('page1');
     const page1Content = document.getElementById('content-page1');
     const page2 = document.getElementById('page2');
     const page2Content = document.getElementById('content-page2');
     
-    // Maximum 25 lines allowed on first page
-    const MAX_LINES_PAGE1 = 25;
+    // Maximum content height before page break (in pixels)
+    // A4 page height = 1123px
+    // Header area (logo + company name) = ~140px from top
+    // Footer area (contact info) = ~80px from bottom
+    // Safe content area = 1123 - 140 - 80 = ~903px
+    // With padding (190px top, 120px bottom) = content area ~613px
+    // For 35 lines at ~17px per line = ~595px
+    const MAX_CONTENT_HEIGHT = 595; // pixels - approximately 35 lines of body content
     
-    function countLines(element) {
-        let lineCount = 0;
-        
-        // Count paragraphs
-        const paragraphs = element.querySelectorAll('p');
-        lineCount += paragraphs.length;
-        
-        // Count list items
-        const listItems = element.querySelectorAll('li');
-        lineCount += listItems.length;
-        
-        // Count divs that are direct content (not containers)
-        const divs = element.querySelectorAll('.body > div, .recipient > div, .letter-meta > div');
-        lineCount += divs.length;
-        
-        // Add for header elements (Ref, To, Subject)
-        const letterHeader = element.querySelector('.letter-header');
-        if (letterHeader) lineCount += 5; // Ref, To, Name, Position, Address
-        
-        const subject = element.querySelector('.subject');
-        if (subject) lineCount += 1;
-        
-        const signature = element.querySelector('.signature');
-        if (signature) lineCount += 4; // Sincerely, Sign, Name, Company
-        
-        return lineCount;
-    }
-    
-    function splitContentByLines() {
+    function splitContentIfNeeded() {
+        // Get actual rendered heights
         const body = page1Content.querySelector('.body');
+        const signature = page1Content.querySelector('.signature');
+        
         if (!body) return;
         
-        // Get all line elements (p, li, div with text)
-        const allElements = [];
+        // Calculate total content height (body + signature)
+        const bodyHeight = body.offsetHeight;
+        const signatureHeight = signature ? signature.offsetHeight : 0;
+        const totalContentHeight = bodyHeight + signatureHeight;
         
-        // Collect paragraphs
-        body.querySelectorAll('p').forEach(el => allElements.push({el, type: 'p'}));
+        console.log('Body height:', bodyHeight, 'Signature height:', signatureHeight, 'Total:', totalContentHeight, 'Max allowed:', MAX_CONTENT_HEIGHT);
         
-        // Collect list items
-        body.querySelectorAll('li').forEach(el => allElements.push({el, type: 'li'}));
-        
-        // Count header lines (Ref, To, Subject = approximately 6 lines)
-        const headerLines = 6;
-        // Count signature lines (4 lines)
-        const signatureLines = 4;
-        
-        // Available lines for body content
-        const availableBodyLines = MAX_LINES_PAGE1 - headerLines - signatureLines;
-        
-        // Count actual content lines in body
-        let bodyLineCount = 0;
-        const bodyChildren = Array.from(body.children);
-        
-        bodyChildren.forEach(child => {
-            if (child.tagName === 'P') bodyLineCount++;
-            if (child.tagName === 'UL' || child.tagName === 'OL') {
-                bodyLineCount += child.querySelectorAll('li').length;
-            }
-            if (child.tagName === 'DIV') bodyLineCount++;
-        });
-        
-        // If content exceeds available lines, split it
-        if (bodyLineCount > availableBodyLines) {
+        // Only split if total content exceeds max height
+        if (totalContentHeight > MAX_CONTENT_HEIGHT) {
+            // Content overflows - need to split
             page2.style.display = 'block';
             
-            let currentLineCount = 0;
-            let splitFound = false;
+            // Get all paragraphs and elements in body
+            const bodyChildren = Array.from(body.children);
             
-            bodyChildren.forEach((child, index) => {
-                if (splitFound) {
-                    // Move to page 2
-                    page2Content.appendChild(child.cloneNode(true));
-                    child.style.display = 'none';
-                } else {
-                    if (child.tagName === 'P') currentLineCount++;
-                    if (child.tagName === 'UL' || child.tagName === 'OL') {
-                        currentLineCount += child.querySelectorAll('li').length;
-                    }
-                    if (child.tagName === 'DIV') currentLineCount++;
-                    
-                    // Check if we've reached the limit (17 - header - signature = ~7 lines for body)
-                    if (currentLineCount >= availableBodyLines) {
-                        splitFound = true;
-                    }
+            // Calculate available height for body (leave room for signature on page 2)
+            const availableBodyHeight = MAX_CONTENT_HEIGHT - 20; // Small buffer
+            
+            // Find split point based on actual element heights
+            let currentHeight = 0;
+            let splitIndex = -1;
+            
+            for (let i = 0; i < bodyChildren.length; i++) {
+                const child = bodyChildren[i];
+                const childHeight = child.offsetHeight + 8; // Add margin
+                
+                if (currentHeight + childHeight > availableBodyHeight) {
+                    splitIndex = i;
+                    break;
                 }
-            });
+                currentHeight += childHeight;
+            }
             
-            // Move signature to page 2
-            const signature = page1Content.querySelector('.signature');
-            if (signature) {
-                page2Content.appendChild(signature.cloneNode(true));
-                signature.style.display = 'none';
+            console.log('Split at index:', splitIndex, 'Current height at split:', currentHeight);
+            
+            // If we found a split point, move content
+            if (splitIndex >= 0 && splitIndex < bodyChildren.length) {
+                // Create body container for page 2
+                const page2Body = document.createElement('div');
+                page2Body.className = 'body';
+                page2Body.style.fontSize = '13px';
+                page2Body.style.color = '#222';
+                page2Body.style.lineHeight = '1.7';
+                page2Body.style.textAlign = 'justify';
+                
+                // Move elements after split point to page 2
+                for (let i = splitIndex; i < bodyChildren.length; i++) {
+                    const child = bodyChildren[i];
+                    page2Body.appendChild(child.cloneNode(true));
+                    child.remove();
+                }
+                
+                page2Content.appendChild(page2Body);
+                
+                // Move signature to page 2
+                if (signature) {
+                    const signatureClone = signature.cloneNode(true);
+                    page2Content.appendChild(signatureClone);
+                    signature.remove();
+                }
+            } else if (signature) {
+                // All body content fits, just move signature to page 2
+                const signatureClone = signature.cloneNode(true);
+                page2Content.appendChild(signatureClone);
+                signature.remove();
             }
         }
     }
     
-    // Run after content is rendered
-    setTimeout(splitContentByLines, 150);
+    // Run after content is fully rendered
+    setTimeout(splitContentIfNeeded, 200);
 });
 </script>
 

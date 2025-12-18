@@ -382,10 +382,35 @@ class EmployeeController extends Controller
         // Summary
         $presentDays = $attendances->where('status', 'present')->count();
         $absentDays  = $attendances->where('status', 'absent')->count();
-        $lateEntries = 0; // No clear late rule in model; keep 0 for now
-
+        
+        // Calculate late entries and early exits
+        $lateEntries = 0;
+        $earlyExits = 0;
+        $lateThreshold = '09:30:00'; // Office start time
+        $earlyExitThreshold = '18:00:00'; // Office end time
+        $workingStatuses = ['present', 'late', 'half_day', 'early_leave'];
+        
         $totalMinutes = 0;
         foreach ($attendances as $a) {
+            $wasAtWork = in_array($a->status, $workingStatuses);
+            
+            // Count late entries (check_in after 9:30 AM)
+            if ($a->check_in && $wasAtWork) {
+                $checkInTime = \Carbon\Carbon::parse($a->check_in)->format('H:i:s');
+                if (strcmp($checkInTime, $lateThreshold) > 0) {
+                    $lateEntries++;
+                }
+            }
+            
+            // Count early exits (check_out before 6:00 PM)
+            if ($a->check_out && $wasAtWork) {
+                $checkOutTime = \Carbon\Carbon::parse($a->check_out)->format('H:i:s');
+                if (strcmp($checkOutTime, $earlyExitThreshold) < 0) {
+                    $earlyExits++;
+                }
+            }
+            
+            // Calculate working hours
             if ($a->check_in && $a->check_out) {
                 $in  = \Carbon\Carbon::parse($a->check_in);
                 $out = \Carbon\Carbon::parse($a->check_out);
@@ -404,6 +429,7 @@ class EmployeeController extends Controller
             'present' => $presentDays,
             'absent'  => $absentDays,
             'late'    => $lateEntries,
+            'early_exit' => $earlyExits,
             'hours'   => $hoursFormatted,
         ];
 
@@ -698,7 +724,6 @@ class EmployeeController extends Controller
         'start_date' => 'nullable|date',
         'end_date' => 'nullable|date',
         'termination_end_date' => 'nullable|date',
-        'termination_end_date' => 'nullable|date',
         'increment_amount' => 'nullable|numeric|min:0',
         'increment_effective_date' => 'nullable|date',
         'internship_position' => 'nullable|string|max:190',
@@ -756,14 +781,25 @@ class EmployeeController extends Controller
     {
         $prefix = 'LTR-' . date('Y') . '-';
         $latest = \App\Models\EmployeeLetter::where('reference_number', 'like', $prefix . '%')
-            ->orderBy('reference_number', 'desc')
+            ->orderBy('id', 'desc')
             ->first();
 
-        $number = $latest ? (int) str_replace($prefix, '', $latest->reference_number) + 1 : 1;
+        // Extract sequence number using regex for more reliable parsing
+        $number = 1;
+        if ($latest && preg_match('/LTR-\d{4}-(\d+)/', $latest->reference_number, $matches)) {
+            $number = (int)$matches[1] + 1;
+        }
         
         // Generate a more unique reference number with random string
         $randomString = strtoupper(Str::random(3));
         $referenceNumber = $prefix . str_pad($number, 4, '0', STR_PAD_LEFT) . '-' . $randomString;
+        
+        // Ensure uniqueness by checking if it already exists
+        while (\App\Models\EmployeeLetter::where('reference_number', $referenceNumber)->exists()) {
+            $number++;
+            $randomString = strtoupper(Str::random(3));
+            $referenceNumber = $prefix . str_pad($number, 4, '0', STR_PAD_LEFT) . '-' . $randomString;
+        }
         
         // Return JSON response for AJAX calls
         if (request()->ajax()) {
@@ -839,7 +875,8 @@ class EmployeeController extends Controller
             'probation_period' => 'nullable',
             'salary_increment' => 'nullable',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'end_date' => 'nullable|date',
+            'termination_end_date' => 'nullable|date',
             'increment_amount' => 'nullable|numeric|min:0',
             'increment_effective_date' => 'nullable|date',
             'internship_position' => 'nullable|string|max:190',

@@ -16,7 +16,7 @@
         $endDateDisplay = \Carbon\Carbon::parse($endDateDisplay)->format('d/m/Y');
     }
   @endphp
-  <form method="GET" action="{{ route('leave-approval.index') }}" class="jv-filter" id="leaveFilterForm">
+  <form method="GET" action="{{ route('leave-approval.index') }}" class="jv-filter" id="leaveFilterForm" data-no-loader="true">
     <input type="text" name="start_date" class="filter-pill date-picker" placeholder="From : dd/mm/yyyy" value="{{ $startDateDisplay }}" autocomplete="off">
     <input type="text" name="end_date" class="filter-pill date-picker" placeholder="To : dd/mm/yyyy" value="{{ $endDateDisplay }}" autocomplete="off">
     
