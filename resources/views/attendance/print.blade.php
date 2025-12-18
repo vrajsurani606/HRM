@@ -18,10 +18,12 @@
         }
         
         .container {
-            max-width: 800px;
+            width: 210mm;
+            min-height: 297mm;
+            max-width: 210mm;
             margin: 0 auto;
             background: white;
-            padding: 40px;
+            padding: 15mm;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
@@ -148,19 +150,62 @@
             background: #2563eb;
         }
         
+        /* A4 Page Setup */
+        @page {
+            size: A4;
+            margin: 15mm 15mm 15mm 15mm;
+        }
+        
         @media print {
-            body {
-                background: white;
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            html, body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
                 padding: 0;
+                background: white !important;
+            }
+            
+            body {
+                padding: 0 !important;
             }
             
             .container {
-                box-shadow: none;
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
                 padding: 0;
+                box-shadow: none;
+                border-radius: 0;
+                page-break-inside: avoid;
             }
             
             .print-button {
-                display: none;
+                display: none !important;
+            }
+            
+            .header {
+                margin-bottom: 30px;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+            }
+            
+            .info-grid {
+                gap: 15px;
+            }
+            
+            .footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 10px 0;
             }
         }
     </style>

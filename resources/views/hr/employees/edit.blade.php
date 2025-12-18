@@ -311,7 +311,7 @@
         <!-- Employee Date of Birth -->
         <div>
           <label class="hrp-label">Employee Date of Birth:</label>
-          <input name="date_of_birth" id="date_of_birth" type="text" value="{{ old('date_of_birth', optional($employee->date_of_birth)->format('d/m/Y')) }}" class="hrp-input Rectangle-29 dob-picker" placeholder="dd/mm/yyyy" autocomplete="off">
+          <input name="date_of_birth" id="date_of_birth" type="text" value="{{ old('date_of_birth', optional($employee->date_of_birth)->format('d/m/y')) }}" class="hrp-input Rectangle-29 dob-picker" placeholder="dd/mm/yy" autocomplete="off">
           @error('date_of_birth')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
@@ -359,7 +359,7 @@
         <!-- Employee Joining Date -->
         <div>
           <label class="hrp-label">Employee Joining Date:</label>
-          <input name="joining_date" type="text" value="{{ old('joining_date', optional($employee->joining_date)->format('d/m/Y')) }}" class="hrp-input Rectangle-29 date-picker" placeholder="dd/mm/yyyy" autocomplete="off">
+          <input name="joining_date" type="text" value="{{ old('joining_date', optional($employee->joining_date)->format('d/m/y')) }}" class="hrp-input Rectangle-29 date-picker" placeholder="dd/mm/yy" autocomplete="off">
           @error('joining_date')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
@@ -475,17 +475,29 @@ $(document).ready(function() {
   var form = document.getElementById('employeeForm');
   if(form){
     form.addEventListener('submit', function(e){
-      // Convert dates from dd/mm/yyyy to yyyy-mm-dd before submission
+      // Convert dates from dd/mm/yy to yyyy-mm-dd before submission
       var dateFields = ['joining_date', 'date_of_birth'];
       dateFields.forEach(function(fieldName) {
         var dateInput = document.querySelector('input[name="' + fieldName + '"]');
         if(dateInput && dateInput.value){
           var parts = dateInput.value.split('/');
           if(parts.length === 3){
-            // Convert dd/mm/yyyy to yyyy-mm-dd
-            var day = parts[0];
-            var month = parts[1];
+            // Convert dd/mm/yy to yyyy-mm-dd
+            var day = parts[0].padStart(2, '0');
+            var month = parts[1].padStart(2, '0');
             var year = parts[2];
+            
+            // Handle 2-digit year
+            if(year.length === 2){
+              // For DOB, years > 30 are 1900s, otherwise 2000s
+              // For joining date, years > 50 are 1900s, otherwise 2000s
+              if(fieldName === 'date_of_birth'){
+                year = (parseInt(year) > 30 ? '19' : '20') + year;
+              } else {
+                year = (parseInt(year) > 50 ? '19' : '20') + year;
+              }
+            }
+            
             dateInput.value = year + '-' + month + '-' + day;
           }
         }

@@ -522,6 +522,11 @@ function toggleTransactionField() {
     }
 }
 
+// Store original values for edit mode comparison
+var originalEmployeeId = {{ isset($payroll) ? $payroll->employee_id : 'null' }};
+var originalMonth = '{{ isset($payroll) ? $payroll->month : '' }}';
+var originalYear = {{ isset($payroll) ? $payroll->year : 'null' }};
+
 function loadEmployeeSalaryData(forceRefresh = false) {
     const employeeId = document.getElementById('employee_id').value;
     const month = document.getElementById('month').value;
@@ -534,13 +539,49 @@ function loadEmployeeSalaryData(forceRefresh = false) {
         return;
     }
     
-    // In edit mode, don't auto-fetch unless force refresh is requested
-    if (isEditMode && !forceRefresh) {
-        console.log('Edit mode: Using saved database values');
+    // Check if user changed employee or month/year in edit mode
+    const employeeChanged = isEditMode && (employeeId != originalEmployeeId);
+    const monthYearChanged = isEditMode && (month != originalMonth || year != originalYear);
+    
+    // In edit mode, fetch new data if employee or month/year changed
+    if (isEditMode && !forceRefresh && !employeeChanged && !monthYearChanged) {
+        console.log('Edit mode: Using saved database values (no changes detected)');
         // Just recalculate with existing values
         calculateNetSalary();
         return;
     }
+    
+    // If employee or month/year changed in edit mode, show confirmation
+    if (isEditMode && (employeeChanged || monthYearChanged) && !forceRefresh) {
+        Swal.fire({
+            icon: 'question',
+            title: 'Load New Data?',
+            html: employeeChanged 
+                ? 'You changed the employee. Do you want to load salary data for the new employee?'
+                : 'You changed the salary month/year. Do you want to load leave data for the new period?',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Load Data',
+            cancelButtonText: 'No, Keep Current',
+            confirmButtonColor: '#3b82f6',
+            cancelButtonColor: '#6b7280',
+            width: '450px'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // User confirmed, fetch new data
+                fetchEmployeeSalaryData(employeeId, month, year, employeeChanged);
+            } else {
+                // User cancelled, just recalculate
+                calculateNetSalary();
+            }
+        });
+        return;
+    }
+    
+    // Fetch data (for create mode or force refresh)
+    fetchEmployeeSalaryData(employeeId, month, year, true);
+}
+
+function fetchEmployeeSalaryData(employeeId, month, year, loadBasicSalary = true) {
     
     fetch('{{ route("payroll.get-employee-salary") }}', {
         method: 'POST',
@@ -588,29 +629,29 @@ function loadEmployeeSalaryData(forceRefresh = false) {
             document.getElementById('personal_leave_unpaid').value = personal;
             updateLeaveTotals();
             
-            // Fill salary - Basic Salary only, rest are manual entry (default 0)
-            // Only update basic salary if it's empty or zero (don't overwrite in edit mode)
-            const currentBasic = parseFloat(document.getElementById('basic_salary').value) || 0;
-            if (currentBasic === 0 || forceRefresh) {
+            // Fill salary - Basic Salary only when employee changes or creating new
+            if (loadBasicSalary) {
                 document.getElementById('basic_salary').value = data.basic_salary || 0;
-            }
-            
-            // HRA, City Allowance, PF default to 0 - HR/Admin enters manually
-            // Do NOT auto-calculate
-            if (!document.getElementById('hra').value || document.getElementById('hra').value == '0.00') {
+                
+                // Reset allowances and deductions when employee changes
                 document.getElementById('hra').value = '0.00';
-            }
-            if (!document.getElementById('city_allowance').value || document.getElementById('city_allowance').value == '0.00') {
                 document.getElementById('city_allowance').value = '0.00';
-            }
-            if (!document.getElementById('pf').value || document.getElementById('pf').value == '0.00') {
+                document.getElementById('medical_allowance').value = '0.00';
+                document.getElementById('tiffin_allowance').value = '0.00';
+                document.getElementById('assistant_allowance').value = '0.00';
+                document.getElementById('dearness_allowance').value = '0.00';
+                document.getElementById('bonuses').value = '0.00';
                 document.getElementById('pf').value = '0.00';
+                document.getElementById('tds').value = '0.00';
+                document.getElementById('professional_tax').value = '0.00';
+                document.getElementById('esic').value = '0.00';
+                document.getElementById('security_deposit').value = '0.00';
             }
             
             calculateNetSalary();
             
             if (typeof toastr !== 'undefined') {
-                toastr.success(forceRefresh ? 'Leave data refreshed from system!' : 'Employee data loaded successfully!');
+                toastr.success(loadBasicSalary ? 'Employee data loaded successfully!' : 'Leave data refreshed from system!');
             }
             console.log('Data loaded successfully');
         } else {
@@ -630,9 +671,23 @@ function loadEmployeeSalaryData(forceRefresh = false) {
 
 // Function to manually refresh leave data from leave system
 function refreshLeaveData() {
-    if (confirm('This will refresh leave data from the Leave Management system. Your manually entered leave values will be overwritten. Continue?')) {
-        loadEmployeeSalaryData(true);
-    }
+    Swal.fire({
+        icon: 'question',
+        title: 'Refresh Leave Data?',
+        text: 'This will refresh leave data from the Leave Management system. Your manually entered leave values will be overwritten.',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Refresh',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#6b7280'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const employeeId = document.getElementById('employee_id').value;
+            const month = document.getElementById('month').value;
+            const year = document.getElementById('year').value;
+            fetchEmployeeSalaryData(employeeId, month, year, false); // false = don't reset basic salary
+        }
+    });
 }
 
 function setSelectValue(selectId, value) {
@@ -718,10 +773,37 @@ document.getElementById('payrollForm').addEventListener('submit', function(e) {
         return;
     }
     
+    // Convert payment_date from dd/mm/yy to yyyy-mm-dd before submission
+    const paymentDateInput = document.getElementById('payment_date');
+    let originalDateValue = '';
+    if (paymentDateInput && paymentDateInput.value) {
+        originalDateValue = paymentDateInput.value;
+        const dateValue = paymentDateInput.value;
+        if (dateValue.match(/^\d{1,2}\/\d{1,2}\/\d{2,4}$/)) {
+            const parts = dateValue.split('/');
+            const day = parts[0].padStart(2, '0');
+            const month_part = parts[1].padStart(2, '0');
+            let year_part = parts[2];
+            
+            // Handle 2-digit year
+            if (year_part.length === 2) {
+                year_part = (parseInt(year_part) > 50 ? '19' : '20') + year_part;
+            }
+            
+            // Convert to yyyy-mm-dd format for backend
+            paymentDateInput.value = year_part + '-' + month_part + '-' + day;
+        }
+    }
+    
     // Get form data
     const formData = new FormData(this);
     const url = this.action;
     const method = this.querySelector('input[name="_method"]') ? 'PUT' : 'POST';
+    
+    // Restore original date value for display (will be converted again on next submit)
+    if (originalDateValue) {
+        paymentDateInput.value = originalDateValue;
+    }
     
     // Show loading
     Swal.fire({
@@ -747,13 +829,20 @@ document.getElementById('payrollForm').addEventListener('submit', function(e) {
         },
         body: formData
     })
-    .then(response => response.json())
-    .then(result => {
-        if (result.success) {
+    .then(response => {
+        // Parse JSON and include status for error handling
+        return response.json().then(data => ({
+            ok: response.ok,
+            status: response.status,
+            data: data
+        }));
+    })
+    .then(({ok, status, data}) => {
+        if (data.success) {
             Swal.fire({
                 icon: 'success',
                 title: 'Success!',
-                text: result.message || 'Payroll saved successfully!',
+                text: data.message || 'Payroll saved successfully!',
                 confirmButtonColor: '#10b981',
                 width: '400px',
                 padding: '1.5rem',
@@ -761,12 +850,50 @@ document.getElementById('payrollForm').addEventListener('submit', function(e) {
             }).then(() => {
                 window.location.href = '{{ route("payroll.index") }}';
             });
-        } else {
+        } else if (data.duplicate) {
+            // Duplicate entry error - show warning popup
             Swal.fire({
                 icon: 'warning',
-                title: 'Already Exists',
-                text: result.message || 'This payroll entry already exists',
+                title: 'Duplicate Entry',
+                html: `<div style="text-align: center;">
+                    <p style="margin-bottom: 10px;">${data.message || 'A payroll entry already exists for this employee, month, and year.'}</p>
+                    <p style="font-size: 13px; color: #6b7280;">Please go back to the payroll list and edit the existing record.</p>
+                </div>`,
                 confirmButtonColor: '#f59e0b',
+                confirmButtonText: 'Go to Payroll List',
+                showCancelButton: true,
+                cancelButtonText: 'Stay Here',
+                cancelButtonColor: '#6b7280',
+                width: '450px',
+                padding: '1.5rem',
+                customClass: { popup: 'perfect-swal-popup' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '{{ route("payroll.index") }}';
+                }
+            });
+        } else if (status === 422 && data.errors) {
+            // Validation errors - show specific error messages
+            let errorMessages = '';
+            for (const field in data.errors) {
+                errorMessages += data.errors[field].join('<br>') + '<br>';
+            }
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                html: errorMessages || data.message || 'Please check your input and try again.',
+                confirmButtonColor: '#ef4444',
+                width: '450px',
+                padding: '1.5rem',
+                customClass: { popup: 'perfect-swal-popup' }
+            });
+        } else {
+            // Other errors
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'An error occurred while saving the payroll.',
+                confirmButtonColor: '#ef4444',
                 width: '400px',
                 padding: '1.5rem',
                 customClass: { popup: 'perfect-swal-popup' }
@@ -787,9 +914,32 @@ document.getElementById('payrollForm').addEventListener('submit', function(e) {
     });
 });
 
-// jQuery UI Datepicker initialization
+// jQuery UI Datepicker initialization will be done after jQuery UI loads
+</script>
+<!-- jQuery UI JS for Datepicker -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<script>
+// Initialize datepicker after jQuery UI is loaded
 $(document).ready(function() {
-    $('.date-picker').datepicker({
+    // Initialize datepicker with dd/mm/yy format
+    $('#payment_date').datepicker({
+        dateFormat: 'dd/mm/yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-10:+10',
+        maxDate: '+10y',
+        showButtonPanel: true,
+        beforeShow: function(input, inst) {
+            setTimeout(function() {
+                inst.dpDiv.css({
+                    'z-index': 9999
+                });
+            }, 0);
+        }
+    });
+    
+    // Also initialize any other date-picker class elements
+    $('.date-picker').not('#payment_date').datepicker({
         dateFormat: 'dd/mm/yy',
         changeMonth: true,
         changeYear: true,
@@ -797,26 +947,28 @@ $(document).ready(function() {
         maxDate: '+10y'
     });
     
-    // Convert date format before form submission
+    // Convert date format before form submission (dd/mm/yy to yyyy-mm-dd for backend)
     $('#payrollForm').on('submit', function(e) {
-        $('.date-picker').each(function() {
-            const dateValue = $(this).val();
-            if (dateValue && dateValue.match(/^\d{1,2}\/\d{1,2}\/\d{2,4}$/)) {
-                const parts = dateValue.split('/');
-                const day = parts[0].padStart(2, '0');
-                const month = parts[1].padStart(2, '0');
-                let year = parts[2];
-                if (year.length === 2) {
-                    year = (parseInt(year) > 50 ? '19' : '20') + year;
-                }
-                $(this).val(`${year}-${month}-${day}`);
+        var paymentDateInput = $('#payment_date');
+        var dateValue = paymentDateInput.val();
+        
+        if (dateValue && dateValue.match(/^\d{1,2}\/\d{1,2}\/\d{2,4}$/)) {
+            var parts = dateValue.split('/');
+            var day = parts[0].padStart(2, '0');
+            var month = parts[1].padStart(2, '0');
+            var year = parts[2];
+            
+            // Handle 2-digit year
+            if (year.length === 2) {
+                year = (parseInt(year) > 50 ? '19' : '20') + year;
             }
-        });
+            
+            // Convert to yyyy-mm-dd format for backend
+            paymentDateInput.val(year + '-' + month + '-' + day);
+        }
     });
 });
 </script>
-<!-- jQuery UI JS for Datepicker -->
-<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 @endpush
 @endsection
 

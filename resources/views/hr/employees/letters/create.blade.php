@@ -1305,11 +1305,11 @@ $(document).ready(function() {
                 const existingWarning = field.parentElement.querySelector('.content-length-warning');
                 if (existingWarning) existingWarning.remove();
                 
-                if (length > 10000) {
+                if (length > 65000) {
                     // Show error - exceeds max
                     const warning = document.createElement('div');
                     warning.className = 'content-length-warning text-red-600 text-sm mt-2 font-semibold';
-                    warning.innerHTML = `<i class="fas fa-exclamation-circle"></i> Content is too long (${length}/10000 characters). Please reduce content to save.`;
+                    warning.innerHTML = `<i class="fas fa-exclamation-circle"></i> Content is too long (${length}/65000 characters). Please reduce content to save.`;
                     field.parentElement.appendChild(warning);
                     return false;
                 } else if (length > 3000) {

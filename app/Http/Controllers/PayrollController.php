@@ -617,51 +617,115 @@ class PayrollController extends Controller
         $totalDeductions = $pf + $professionalTax + $tds + $esic + $securityDeposit + $leaveDeduction + $deductions + $tax;
         $netSalary = ($basicSalary + $totalAllowances + $bonuses) - $totalDeductions;
 
-        $payroll->update([
-            'employee_id' => $request->employee_id,
-            'month' => $request->month,
-            'year' => $request->year,
-            'total_working_days' => $request->total_working_days,
-            'attended_working_days' => $request->attended_working_days,
-            'casual_leave' => max(0, $request->casual_leave ?? 0),
-            'medical_leave' => max(0, $request->medical_leave ?? 0),
-            'holiday_leave' => max(0, $request->holiday_leave ?? 0),
-            'personal_leave_unpaid' => max(0, $request->personal_leave_unpaid ?? 0),
-            'basic_salary' => $basicSalary,
-            'hra' => $hra,
-            'medical_allowance' => $medicalAllowance,
-            'city_allowance' => $cityAllowance,
-            'tiffin_allowance' => $tiffinAllowance,
-            'assistant_allowance' => $assistantAllowance,
-            'dearness_allowance' => $dearnessAllowance,
-            'allowances' => $totalAllowances,
-            'bonuses' => $bonuses,
-            'pf' => $pf,
-            'professional_tax' => $professionalTax,
-            'tds' => $tds,
-            'esic' => $esic,
-            'security_deposit' => $securityDeposit,
-            'leave_deduction' => $leaveDeduction,
-            'leave_deduction_days' => $leaveDeductionDays,
-            'deductions' => $totalDeductions,
-            'tax' => $professionalTax + $tds,
-            'net_salary' => $netSalary,
-            'payment_date' => $request->payment_date,
-            'payment_method' => $request->payment_method,
-            'status' => $request->status,
-            'notes' => $request->notes,
-            'attachment' => $attachmentPath,
-        ]);
-
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Payroll updated successfully!',
-                'payroll' => $payroll
-            ]);
+        // Check if changing employee/month/year would create a duplicate
+        if ($request->employee_id != $payroll->employee_id || 
+            $request->month != $payroll->month || 
+            $request->year != $payroll->year) {
+            
+            $existingPayroll = Payroll::where('employee_id', $request->employee_id)
+                ->where('month', $request->month)
+                ->where('year', $request->year)
+                ->where('id', '!=', $payroll->id)
+                ->first();
+            
+            if ($existingPayroll) {
+                $employee = Employee::find($request->employee_id);
+                $employeeName = $employee ? $employee->name : 'This employee';
+                
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'duplicate' => true,
+                        'message' => "Payroll for {$employeeName} already exists for {$request->month} {$request->year}. Please edit the existing record instead."
+                    ], 422);
+                }
+                
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', "Payroll for {$employeeName} already exists for {$request->month} {$request->year}. Please edit the existing record instead.");
+            }
         }
 
-        return redirect()->route('payroll.index')->with('success', 'Payroll updated successfully!');
+        try {
+            $payroll->update([
+                'employee_id' => $request->employee_id,
+                'month' => $request->month,
+                'year' => $request->year,
+                'total_working_days' => $request->total_working_days,
+                'attended_working_days' => $request->attended_working_days,
+                'casual_leave' => max(0, $request->casual_leave ?? 0),
+                'medical_leave' => max(0, $request->medical_leave ?? 0),
+                'holiday_leave' => max(0, $request->holiday_leave ?? 0),
+                'personal_leave_unpaid' => max(0, $request->personal_leave_unpaid ?? 0),
+                'basic_salary' => $basicSalary,
+                'hra' => $hra,
+                'medical_allowance' => $medicalAllowance,
+                'city_allowance' => $cityAllowance,
+                'tiffin_allowance' => $tiffinAllowance,
+                'assistant_allowance' => $assistantAllowance,
+                'dearness_allowance' => $dearnessAllowance,
+                'allowances' => $totalAllowances,
+                'bonuses' => $bonuses,
+                'pf' => $pf,
+                'professional_tax' => $professionalTax,
+                'tds' => $tds,
+                'esic' => $esic,
+                'security_deposit' => $securityDeposit,
+                'leave_deduction' => $leaveDeduction,
+                'leave_deduction_days' => $leaveDeductionDays,
+                'deductions' => $totalDeductions,
+                'tax' => $professionalTax + $tds,
+                'net_salary' => $netSalary,
+                'payment_date' => $request->payment_date,
+                'payment_method' => $request->payment_method,
+                'status' => $request->status,
+                'notes' => $request->notes,
+                'attachment' => $attachmentPath,
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Payroll updated successfully!',
+                    'payroll' => $payroll
+                ]);
+            }
+
+            return redirect()->route('payroll.index')->with('success', 'Payroll updated successfully!');
+            
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Handle duplicate entry error
+            if ($e->getCode() == 23000) {
+                $employee = Employee::find($request->employee_id);
+                $employeeName = $employee ? $employee->name : 'This employee';
+                
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'duplicate' => true,
+                        'message' => "Payroll for {$employeeName} already exists for {$request->month} {$request->year}. Please edit the existing record instead."
+                    ], 422);
+                }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', "Payroll for {$employeeName} already exists for {$request->month} {$request->year}. Please edit the existing record instead.");
+            }
+
+            // Handle other database errors
+            \Log::error('Payroll update error: ' . $e->getMessage());
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while updating the payroll. Please try again.'
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'An error occurred while updating the payroll. Please try again.');
+        }
     }
 
     public function show($id)
