@@ -317,21 +317,89 @@ class LeaveController extends Controller
             return redirect()->back()->with('error', 'Permission denied.');
         }
         
-        $leave->update([
-            'status' => 'approved',
-            'approved_by' => Auth::id(),
-            'approved_at' => now()
-        ]);
+        $message = 'Leave approved successfully!';
+        
+        // Check monthly paid leave limit and auto-convert excess to unpaid
+        if ($leave->is_paid && $leave->total_days > 0) {
+            $startDate = \Carbon\Carbon::parse($leave->start_date);
+            
+            // Get already approved paid leaves for this month (excluding current leave)
+            $monthUsed = Leave::where('employee_id', $leave->employee_id)
+                ->where('is_paid', true)
+                ->whereYear('start_date', $startDate->year)
+                ->whereMonth('start_date', $startDate->month)
+                ->where('status', 'approved')
+                ->where('id', '!=', $leave->id)
+                ->sum('total_days');
+            
+            $monthlyLimit = 1; // Only 1 paid leave per month
+            $availablePaid = max(0, $monthlyLimit - $monthUsed);
+            
+            if ($availablePaid <= 0) {
+                // No paid leave available, convert entire leave to unpaid
+                $leave->update([
+                    'status' => 'approved',
+                    'is_paid' => false,
+                    'approved_by' => Auth::id(),
+                    'approved_at' => now()
+                ]);
+                $message = 'Leave approved as UNPAID (monthly paid leave limit of 1 already used).';
+            } elseif ($leave->total_days > $availablePaid) {
+                // Partial paid leave available - split into paid and unpaid
+                $paidDays = $availablePaid;
+                $unpaidDays = $leave->total_days - $availablePaid;
+                
+                // Update original leave as paid with reduced days
+                $leave->update([
+                    'status' => 'approved',
+                    'is_paid' => true,
+                    'total_days' => $paidDays,
+                    'approved_by' => Auth::id(),
+                    'approved_at' => now()
+                ]);
+                
+                // Create new unpaid leave for remaining days
+                $unpaidStartDate = \Carbon\Carbon::parse($leave->start_date)->addDays((int)$paidDays);
+                Leave::create([
+                    'employee_id' => $leave->employee_id,
+                    'leave_type' => $leave->leave_type,
+                    'is_paid' => false,
+                    'start_date' => $unpaidStartDate,
+                    'end_date' => $leave->end_date,
+                    'total_days' => $unpaidDays,
+                    'reason' => $leave->reason . ' (Auto-converted to unpaid - exceeded monthly limit)',
+                    'status' => 'approved',
+                    'approved_by' => Auth::id(),
+                    'approved_at' => now()
+                ]);
+                
+                $message = "Leave approved: {$paidDays} day(s) PAID, {$unpaidDays} day(s) converted to UNPAID (monthly limit: 1 paid leave).";
+            } else {
+                // Full paid leave available
+                $leave->update([
+                    'status' => 'approved',
+                    'approved_by' => Auth::id(),
+                    'approved_at' => now()
+                ]);
+            }
+        } else {
+            // Already unpaid or zero days, just approve
+            $leave->update([
+                'status' => 'approved',
+                'approved_by' => Auth::id(),
+                'approved_at' => now()
+            ]);
+        }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Leave approved successfully!',
-                'leave' => $leave
+                'message' => $message,
+                'leave' => $leave->fresh()
             ]);
         }
 
-        return redirect()->back()->with('success', 'Leave approved successfully!');
+        return redirect()->back()->with('success', $message);
     }
 
     /**

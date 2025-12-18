@@ -1,6 +1,11 @@
 @extends('layouts.macos')
 @section('page_title', $page_title)
 
+@push('styles')
+<!-- jQuery UI CSS for Datepicker -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+@endpush
+
 @section('content')
   <div class="hrp-card">
       <div class="Rectangle-30 hrp-compact">
@@ -22,7 +27,7 @@
 
         <div>
           <label class="hrp-label">Date: <span class="text-red-500">*</span></label>
-          <input name="date" value="{{ old('date', date('Y-m-d')) }}" class="hrp-input Rectangle-29" type="date" required>
+          <input name="date" id="attendance_date" value="{{ old('date', date('d/m/Y')) }}" class="hrp-input Rectangle-29 date-picker" type="text" placeholder="dd/mm/yyyy" autocomplete="off" required>
           @error('date')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
 
@@ -62,7 +67,7 @@
         <div class="md:col-span-2">
           <div class="hrp-actions">
             <button type="submit" class="hrp-btn hrp-btn-primary">Create Attendance Record</button>
-            <a href="{{ route('attendance.reports') }}" class="hrp-btn hrp-btn-secondary">Cancel</a>
+            <a href="{{ route('attendance.report') }}" class="hrp-btn hrp-btn-secondary">Cancel</a>
           </div>
         </div>
       </form>
@@ -73,14 +78,25 @@
 @section('breadcrumb')
   <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
   <span class="hrp-bc-sep">›</span>
-  <a href="{{ route('attendance.reports') }}" style="font-weight:800;color:#0f0f0f;text-decoration:none">Attendance</a>
+  <a href="{{ route('attendance.report') }}" style="font-weight:800;color:#0f0f0f;text-decoration:none">Attendance</a>
   <span class="hrp-bc-sep">›</span>
   <span class="hrp-bc-current">Create Attendance Record</span>
 @endsection
 
 @push('scripts')
+<!-- jQuery UI JS for Datepicker -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script>
-(function(){
+$(document).ready(function() {
+  // Initialize jQuery datepicker
+  $('.date-picker').datepicker({
+    dateFormat: 'dd/mm/yy',
+    changeMonth: true,
+    changeYear: true,
+    yearRange: '-5:+1',
+    showButtonPanel: true
+  });
+
   var form = document.getElementById('attendanceForm');
   var checkInInput = document.querySelector('input[name="check_in"]');
   var checkOutInput = document.querySelector('input[name="check_out"]');
@@ -135,14 +151,40 @@
     checkOutInput.addEventListener('change', suggestStatus);
   }
 
-  if(form){
-    form.addEventListener('submit', function(e){
-      if(!form.checkValidity()){
-        e.preventDefault();
-        form.reportValidity();
+  // Convert date from dd/mm/yyyy to yyyy-mm-dd before form submission
+  $('#attendanceForm').on('submit', function(e) {
+    var dateInput = $('#attendance_date');
+    var dateValue = dateInput.val();
+    
+    if (dateValue && dateValue.match(/^\d{1,2}\/\d{1,2}\/\d{2,4}$/)) {
+      var parts = dateValue.split('/');
+      var day = parts[0].padStart(2, '0');
+      var month = parts[1].padStart(2, '0');
+      var year = parts[2];
+      
+      // Convert 2-digit year to 4-digit if needed
+      if (year.length === 2) {
+        var currentYear = new Date().getFullYear();
+        var century = Math.floor(currentYear / 100) * 100;
+        year = century + parseInt(year);
       }
-    });
-  }
-})();
+      
+      // Create hidden input with converted date
+      var hiddenInput = $('<input>')
+        .attr('type', 'hidden')
+        .attr('name', 'date')
+        .val(year + '-' + month + '-' + day);
+      
+      // Remove name from original input and add hidden input
+      dateInput.removeAttr('name');
+      dateInput.after(hiddenInput);
+    }
+    
+    if(!form.checkValidity()){
+      e.preventDefault();
+      form.reportValidity();
+    }
+  });
+});
 </script>
 @endpush

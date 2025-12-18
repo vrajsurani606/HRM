@@ -323,27 +323,27 @@
             $monthNumber = date('n', strtotime($payroll->month . ' 1'));
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $monthNumber, $payroll->year);
             
-            // Get detailed leave breakdown
-            $casualLeave = \App\Models\Leave::where('employee_id', $payroll->employee_id)
-                ->where('leave_type', 'casual')->where('status', 'approved')
-                ->whereYear('start_date', $payroll->year)->whereMonth('start_date', $monthNumber)
-                ->sum('total_days') ?? 0;
+            // Use database values for leave days (from payroll record) - NOT from Leave model
+            // This ensures the payslip shows exactly what was saved during payroll creation/edit
+            $casualLeave = $payroll->casual_leave ?? 0;
+            $medicalLeave = $payroll->medical_leave ?? 0;
+            $holidayLeave = $payroll->holiday_leave ?? 0;
+            $unpaidLeaveDays = $payroll->personal_leave_unpaid ?? $payroll->leave_deduction_days ?? 0;
             
-            $medicalLeave = \App\Models\Leave::where('employee_id', $payroll->employee_id)
-                ->where('leave_type', 'medical')->where('status', 'approved')
-                ->whereYear('start_date', $payroll->year)->whereMonth('start_date', $monthNumber)
-                ->sum('total_days') ?? 0;
+            // Personal/unpaid leave (deducted from salary)
+            $personalLeave = $unpaidLeaveDays;
             
-            $personalLeave = \App\Models\Leave::where('employee_id', $payroll->employee_id)
-                ->where('leave_type', 'personal')->where('status', 'approved')
-                ->whereYear('start_date', $payroll->year)->whereMonth('start_date', $monthNumber)
-                ->sum('total_days') ?? 0;
+            // Total leave = Paid (Casual + Medical + Holiday) + Unpaid (Personal)
+            $totalLeave = $casualLeave + $medicalLeave + $holidayLeave + $personalLeave;
             
-            $totalLeave = $casualLeave + $medicalLeave + $personalLeave;
-            // Working days = Total days - unpaid leaves only (personal leaves)
-            $workingDays = $daysInMonth - $personalLeave;
-            $paidLeaveDays = $casualLeave + $medicalLeave;
-            $perDaySalary = $daysInMonth > 0 ? $payroll->basic_salary / $daysInMonth : 0;
+            // Working days from database or calculate
+            $totalWorkingDays = $payroll->total_working_days ?? $daysInMonth;
+            $attendedWorkingDays = $payroll->attended_working_days ?? ($daysInMonth - $totalLeave);
+            $workingDays = $attendedWorkingDays;
+            
+            // Paid leave days = Casual + Medical + Holiday (NOT deducted from salary)
+            $paidLeaveDays = $casualLeave + $medicalLeave + $holidayLeave;
+            $perDaySalary = $totalWorkingDays > 0 ? $payroll->basic_salary / $totalWorkingDays : 0;
             
             // Use actual database values for allowances and deductions
             $actualHra = $payroll->hra ?? 0;
@@ -366,8 +366,8 @@
             $grossEarnings = $payroll->basic_salary + $totalAllowances + $payroll->bonuses;
             $totalDeductionsActual = $actualPf + $actualProfessionalTax + $actualTds + $actualEsic + $actualSecurityDeposit + $actualLeaveDeduction;
             
-            // Verify leave deduction calculation
-            $calculatedLeaveDeduction = $personalLeave * $perDaySalary;
+            // Use database leave deduction or calculate from unpaid days
+            $calculatedLeaveDeduction = $payroll->leave_deduction ?? ($unpaidLeaveDays * $perDaySalary);
             
             // Calculate net salary
             $calculatedNetSalary = $grossEarnings - $totalDeductionsActual;
@@ -376,20 +376,24 @@
         <div class="section-header">ATTENDANCE & LEAVE SUMMARY</div>
         <table class="info-table">
             <tr>
-                <td>Total Days in Month</td><td>{{ $daysInMonth }}</td>
-                <td>Actual Working Days</td><td>{{ $workingDays }}</td>
+                <td>Total Working Days</td><td>{{ $totalWorkingDays }}</td>
+                <td>Attended Working Days</td><td>{{ $attendedWorkingDays }}</td>
             </tr>
             <tr>
-                <td>Casual Leave (Paid)</td><td>{{ $casualLeave }}</td>
-                <td>Medical Leave (Paid)</td><td>{{ $medicalLeave }}</td>
+                <td>Casual Leave (Paid)</td><td><span style="color: #059669;">{{ $casualLeave }}</span></td>
+                <td>Medical Leave (Paid)</td><td><span style="color: #059669;">{{ $medicalLeave }}</span></td>
             </tr>
             <tr>
-                <td>Personal Leave (Unpaid)</td><td>{{ $personalLeave }}</td>
-                <td>Total Paid Leave Days</td><td>{{ $paidLeaveDays }}</td>
+                <td>Holiday Leave (Paid)</td><td><span style="color: #059669;">{{ $holidayLeave }}</span></td>
+                <td>Total Paid Leave Days</td><td><strong style="color: #059669;">{{ $paidLeaveDays }}</strong></td>
+            </tr>
+            <tr>
+                <td>Unpaid Leave Days</td><td><strong style="color: #dc2626;">{{ $unpaidLeaveDays }}</strong></td>
+                <td>Payable Days</td><td>{{ $totalWorkingDays - $unpaidLeaveDays }}</td>
             </tr>
             <tr>
                 <td>Per Day Salary</td><td>₹ {{ number_format($perDaySalary, 2) }}</td>
-                <td>Payable Days</td><td>{{ $daysInMonth - $personalLeave }}</td>
+                <td>Total Leave Days</td><td>{{ $totalLeave }}</td>
             </tr>
         </table>
         
@@ -437,7 +441,7 @@
                 <tr>
                     <td>Assistant Allowance</td>
                     <td class="amount">{{ number_format($actualAssistantAllowance, 2) }}</td>
-                    <td>Leave Deduction ({{ $personalLeave }} days)</td>
+                    <td>Leave Deduction ({{ $unpaidLeaveDays }} days)</td>
                     <td class="amount">{{ number_format($calculatedLeaveDeduction, 2) }}</td>
                 </tr>
                 <tr>

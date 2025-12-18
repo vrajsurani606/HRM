@@ -2765,7 +2765,6 @@ function toggleAddTaskBox() {
 function cancelAddTask() {
     document.getElementById('addTaskBox').style.display = 'none';
     document.getElementById('newTaskTitle').value = '';
-    document.getElementById('newTaskDescription').value = '';
     document.getElementById('newTaskDueDate').value = '';
     document.getElementById('newTaskDueTime').value = '';
 }
@@ -2866,11 +2865,9 @@ function saveNewTask() {
         body: (() => {
             const dueDateVal = document.getElementById('newTaskDueDate').value;
             const dueTimeVal = document.getElementById('newTaskDueTime').value;
-            console.log('Due Date Value:', dueDateVal, 'Type:', typeof dueDateVal);
-            console.log('Due Time Value:', dueTimeVal, 'Type:', typeof dueTimeVal);
             return JSON.stringify({
                 title: taskTitle,
-                description: document.getElementById('newTaskDescription').value.trim() || null,
+                description: null,
                 due_date: dueDateVal && dueDateVal.trim() !== '' ? dueDateVal : null,
                 due_time: dueTimeVal && dueTimeVal.trim() !== '' ? dueTimeVal : null,
                 parent_id: null
@@ -2887,7 +2884,6 @@ function saveNewTask() {
             
             // Clear all inputs and hide the form
             document.getElementById('newTaskTitle').value = '';
-            document.getElementById('newTaskDescription').value = '';
             document.getElementById('newTaskDueDate').value = '';
             document.getElementById('newTaskDueTime').value = '';
             document.getElementById('addTaskBox').style.display = 'none';
@@ -2958,7 +2954,7 @@ async function toggleTaskComplete(taskId) {
         // If unchecking the main task, automatically uncheck all subtasks
         const subtasksContainer = document.getElementById(taskId + '-subtasks');
         if (subtasksContainer) {
-            const subtaskElements = subtasksContainer.querySelectorAll('[id^="' + taskId + '-sub-"]');
+            const subtaskElements = subtasksContainer.querySelectorAll(':scope > [id^="' + taskId + '-sub-"]');
             
             // Uncheck all subtasks
             for (const subtaskElement of subtaskElements) {
@@ -3012,7 +3008,7 @@ async function toggleTaskComplete(taskId) {
     // If checking the main task, automatically check all subtasks
     if (isCompleted) {
         const subtasksContainer = document.getElementById(taskId + '-subtasks');
-        const subtaskElements = subtasksContainer.querySelectorAll('[id^="' + taskId + '-sub-"]');
+        const subtaskElements = subtasksContainer.querySelectorAll(':scope > [id^="' + taskId + '-sub-"]');
         
         // Check all subtasks
         for (const subtaskElement of subtaskElements) {
@@ -3086,6 +3082,46 @@ async function toggleTaskComplete(taskId) {
         
         const data = await response.json();
         
+        // Handle conflict - someone else already completed this task
+        if (response.status === 409 && data.conflict) {
+            // Revert checkbox
+            checkbox.checked = !isCompleted;
+            titleElement.style.textDecoration = 'none';
+            titleElement.style.color = '#000';
+            taskElement.style.background = 'white';
+            
+            // Show conflict popup
+            Swal.fire({
+                title: '<span style="color: #dc2626;">⚠️ Task Already Completed</span>',
+                html: `
+                    <div style="text-align: center; padding: 10px 0;">
+                        <p style="font-size: 15px; color: #374151; margin-bottom: 15px;">${data.message}</p>
+                        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; margin-top: 10px;">
+                            <p style="font-size: 13px; color: #92400e; margin: 0;">
+                                <strong>Completed by:</strong> ${data.completed_by.name}<br>
+                                <strong>At:</strong> ${data.completed_by.completed_at}
+                            </p>
+                        </div>
+                    </div>
+                `,
+                icon: 'warning',
+                confirmButtonText: 'OK, Refresh Tasks',
+                confirmButtonColor: '#3b82f6',
+                customClass: {
+                    popup: 'custom-swal-popup',
+                    confirmButton: 'custom-swal-confirm'
+                }
+            }).then(() => {
+                // Refresh tasks to get latest status
+                if (typeof loadProjectTasks === 'function') {
+                    loadProjectTasks(currentProjectId);
+                } else {
+                    location.reload();
+                }
+            });
+            return;
+        }
+        
         if (data.success) {
             // Update task progress bar
             updateTaskProgress(taskId);
@@ -3097,14 +3133,20 @@ async function toggleTaskComplete(taskId) {
         } else {
             // Revert checkbox on error
             checkbox.checked = !isCompleted;
+            titleElement.style.textDecoration = 'none';
+            titleElement.style.color = '#000';
+            taskElement.style.background = 'white';
             if (typeof toastr !== 'undefined') {
-                toastr.error('Failed to update task');
+                toastr.error(data.message || 'Failed to update task');
             }
         }
     } catch (error) {
         console.error('Error updating task:', error);
         // Revert checkbox on error
         checkbox.checked = !isCompleted;
+        titleElement.style.textDecoration = 'none';
+        titleElement.style.color = '#000';
+        taskElement.style.background = 'white';
         if (typeof toastr !== 'undefined') {
             toastr.error('Failed to update task');
         }
@@ -3609,8 +3651,8 @@ async function toggleSubtaskComplete(subtaskId, taskId) {
             
             // Check if all subtasks are now completed (check both checkboxes and avatars)
             const subtasksContainer = document.getElementById(taskId + '-subtasks');
-            // Select only subtask container divs (not date spans or date inputs)
-            const subtaskElements = subtasksContainer.querySelectorAll('[id^="' + taskId + '-sub-"]:not([id$="-date"]):not([id$="-date-input"])');
+            // Select only direct child subtask container divs
+            const subtaskElements = subtasksContainer.querySelectorAll(':scope > [id^="' + taskId + '-sub-"]');
             const allCompleted = Array.from(subtaskElements).every(el => {
                 const checkbox = el.querySelector('input.subtask-checkbox');
                 const avatar = el.querySelector('.subtask-completed-avatar');
@@ -3732,8 +3774,9 @@ function toggleSubtasksSection(taskId) {
 
 function updateTaskProgress(taskId) {
     const subtasksContainer = document.getElementById(taskId + '-subtasks');
-    // Select only subtask container divs (not date spans or date inputs)
-    const subtaskElements = subtasksContainer.querySelectorAll('[id^="' + taskId + '-sub-"]:not([id$="-date"]):not([id$="-date-input"])');
+    // Select only subtask container divs - they have the subtask-checkbox inside
+    // This ensures we only count actual subtask elements, not datetime spans or hidden inputs
+    const subtaskElements = subtasksContainer.querySelectorAll(':scope > [id^="' + taskId + '-sub-"]');
     const total = subtaskElements.length;
     
     // Count completed subtasks (either has avatar/done-by section or checked checkbox)
@@ -3773,37 +3816,30 @@ function updateKanbanCardTaskCount() {
     if (!tasksContainer) return;
     
     // Count ALL task elements (main tasks + subtasks)
-    const mainTaskElements = tasksContainer.querySelectorAll('[id^="task-"]:not([id*="-sub-"]):not([id*="-subtasks"]):not([id*="-progress"]):not([id*="-subtask-"])');
-    // Select only subtask container divs (format: task-XXX-sub-YYY, not task-XXX-sub-YYY-date or task-XXX-sub-YYY-date-input)
-    const subtaskElements = tasksContainer.querySelectorAll('[id*="-sub-"]:not([id$="-date"]):not([id$="-date-input"])');
-    
+    // Main tasks have class task-checkbox, subtasks have class subtask-checkbox
     let totalTasks = 0;
     let completedTasks = 0;
     
-    // Count main tasks
-    mainTaskElements.forEach(el => {
-        // Make sure it's a task element (has checkbox)
-        const checkbox = el.querySelector('input.task-checkbox');
-        if (checkbox) {
-            totalTasks++;
-            const avatar = el.querySelector('.completed-by-avatar');
-            if (avatar !== null || checkbox.checked) {
-                completedTasks++;
-            }
+    // Count main tasks by finding elements with task-checkbox
+    const mainTaskCheckboxes = tasksContainer.querySelectorAll('input.task-checkbox');
+    mainTaskCheckboxes.forEach(checkbox => {
+        totalTasks++;
+        const taskElement = checkbox.closest('[id^="task-"]');
+        const avatar = taskElement ? taskElement.querySelector('.completed-by-avatar') : null;
+        if (avatar !== null || checkbox.checked) {
+            completedTasks++;
         }
     });
     
-    // Count subtasks
-    subtaskElements.forEach(el => {
-        const checkbox = el.querySelector('input.subtask-checkbox');
-        if (checkbox) {
-            totalTasks++;
-            // Check for completion: either checkbox is checked or has avatar/done-by section
-            const avatar = el.querySelector('.subtask-completed-avatar');
-            const doneBySection = el.querySelector('.subtask-done-by');
-            if (avatar !== null || doneBySection !== null || checkbox.checked) {
-                completedTasks++;
-            }
+    // Count subtasks by finding elements with subtask-checkbox
+    const subtaskCheckboxes = tasksContainer.querySelectorAll('input.subtask-checkbox');
+    subtaskCheckboxes.forEach(checkbox => {
+        totalTasks++;
+        const subtaskElement = checkbox.closest('[id*="-sub-"]');
+        const avatar = subtaskElement ? subtaskElement.querySelector('.subtask-completed-avatar') : null;
+        const doneBySection = subtaskElement ? subtaskElement.querySelector('.subtask-done-by') : null;
+        if (avatar !== null || doneBySection !== null || checkbox.checked) {
+            completedTasks++;
         }
     });
     
@@ -3986,6 +4022,9 @@ function deleteSubtask(subtaskId, taskId) {
 function loadProjectTasks(projectId) {
     currentProjectId = projectId;
     
+    // Reset task status tracking when loading new project
+    lastKnownTaskStatus = {};
+    
     fetch(`{{ url('/projects') }}/${projectId}/tasks`, {
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -3999,9 +4038,29 @@ function loadProjectTasks(projectId) {
             document.getElementById('tasksContainer').innerHTML = '';
             taskCounter = 0;
             
-            // Render each task
+            // Render each task and initialize status tracking
             data.tasks.forEach(task => {
                 renderTaskFromDB(task);
+                
+                // Initialize last known status for conflict detection
+                lastKnownTaskStatus[task.id] = {
+                    is_completed: task.is_completed,
+                    completed_by: task.completed_by,
+                    completed_by_name: task.completed_by_user ? task.completed_by_user.name : null,
+                    completed_at: task.completed_at
+                };
+                
+                // Also track subtasks
+                if (task.subtasks) {
+                    task.subtasks.forEach(subtask => {
+                        lastKnownTaskStatus[subtask.id] = {
+                            is_completed: subtask.is_completed,
+                            completed_by: subtask.completed_by,
+                            completed_by_name: subtask.completed_by_user ? subtask.completed_by_user.name : null,
+                            completed_at: subtask.completed_at
+                        };
+                    });
+                }
             });
         }
     })
@@ -4409,15 +4468,266 @@ function startChatPolling() {
     // Clear any existing interval
     stopChatPolling();
     
-    // Poll every 2 seconds for new messages
+    // Poll every 1.5 seconds for real-time updates (messages, typing, task status)
     chatPollingInterval = setInterval(() => {
         if (currentProjectId) {
             pollNewMessages();
             pollTypingStatus();
+            pollTasksStatus(); // Poll for task status changes - live sync across users
         }
-    }, 2000);
+    }, 1500);
     
-    console.log('Chat polling started');
+    console.log('Chat and task polling started');
+}
+
+// Track last known task status to detect changes
+let lastKnownTaskStatus = {};
+
+// Poll for task status changes (real-time conflict detection)
+function pollTasksStatus() {
+    if (!currentProjectId) return;
+    
+    fetch(`{{ url('/projects') }}/${currentProjectId}/tasks-status`, {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.tasks) {
+            data.tasks.forEach(task => {
+                // Determine if this is a main task or subtask based on parent_id
+                const isSubtask = task.parent_id !== null;
+                let elementId;
+                
+                if (isSubtask) {
+                    // Find the parent task element to construct subtask ID
+                    elementId = 'task-' + task.parent_id + '-sub-' + task.id;
+                } else {
+                    elementId = 'task-' + task.id;
+                }
+                
+                const taskElement = document.getElementById(elementId);
+                
+                // Check if task status changed by someone else
+                if (lastKnownTaskStatus[task.id] !== undefined) {
+                    const wasCompleted = lastKnownTaskStatus[task.id].is_completed;
+                    const wasCompletedBy = lastKnownTaskStatus[task.id].completed_by;
+                    
+                    // If task was just completed by someone else
+                    if (!wasCompleted && task.is_completed && task.completed_by != {{ auth()->id() }}) {
+                        // Show notification popup (only for main tasks to avoid spam)
+                        if (!isSubtask) {
+                            showTaskCompletedByOtherPopup(task);
+                        }
+                        
+                        // Update UI to reflect the change
+                        if (taskElement) {
+                            if (isSubtask) {
+                                updateSubtaskUIAsCompleted(elementId, task);
+                            } else {
+                                updateTaskUIAsCompleted(elementId, task);
+                            }
+                        }
+                    }
+                    // If task was uncompleted by someone else
+                    else if (wasCompleted && !task.is_completed && wasCompletedBy != {{ auth()->id() }}) {
+                        // Show notification (only for main tasks)
+                        if (!isSubtask) {
+                            toastr.info(`Task was reopened by ${task.completed_by_name || 'another user'}`);
+                        }
+                        
+                        // Update UI to reflect the change
+                        if (taskElement) {
+                            if (isSubtask) {
+                                updateSubtaskUIAsNotCompleted(elementId, task.parent_id);
+                            } else {
+                                updateTaskUIAsNotCompleted(elementId);
+                            }
+                        }
+                    }
+                }
+                
+                // Update last known status
+                lastKnownTaskStatus[task.id] = {
+                    is_completed: task.is_completed,
+                    completed_by: task.completed_by,
+                    completed_by_name: task.completed_by_name,
+                    completed_at: task.completed_at,
+                    completed_by_user: task.completed_by_user
+                };
+            });
+        }
+    })
+    .catch(error => console.error('Error polling task status:', error));
+}
+
+// Show popup when another user completes a task
+function showTaskCompletedByOtherPopup(task) {
+    Swal.fire({
+        title: '<span style="color: #10b981;">✅ Task Completed</span>',
+        html: `
+            <div style="text-align: center; padding: 10px 0;">
+                <p style="font-size: 15px; color: #374151; margin-bottom: 15px;">
+                    <strong>${task.completed_by_name}</strong> just completed a task!
+                </p>
+                <div style="background: #ecfdf5; border: 1px solid #10b981; border-radius: 8px; padding: 12px; margin-top: 10px;">
+                    <p style="font-size: 13px; color: #065f46; margin: 0;">
+                        <strong>Completed at:</strong> ${task.completed_at}
+                    </p>
+                </div>
+            </div>
+        `,
+        icon: 'info',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 5000,
+        timerProgressBar: true
+    });
+}
+
+// Update task UI as completed (when another user completes it)
+function updateTaskUIAsCompleted(taskId, task) {
+    const taskElement = document.getElementById(taskId);
+    if (!taskElement) return;
+    
+    const checkbox = taskElement.querySelector('input.task-checkbox');
+    const titleElement = taskElement.querySelector('.task-title');
+    const existingAvatar = taskElement.querySelector('.completed-by-avatar');
+    
+    // Get user info from task
+    const completedByUser = task.completed_by_user;
+    const completedColor = completedByUser && completedByUser.chat_color ? completedByUser.chat_color : '#10b981';
+    
+    if (checkbox) {
+        checkbox.checked = true;
+        checkbox.style.setProperty('--completed-color', completedColor);
+    }
+    if (titleElement) {
+        titleElement.style.textDecoration = 'line-through';
+        titleElement.style.color = '#9ca3af';
+    }
+    taskElement.style.background = '#f0fdf4';
+    
+    // Add avatar next to checkbox if not already present
+    if (!existingAvatar && completedByUser) {
+        const avatarHTML = createCompletedAvatar(
+            completedByUser.name, 
+            completedColor, 
+            completedByUser.photo_path, 
+            false
+        );
+        const wrapper = checkbox ? checkbox.closest('.checkbox-avatar-wrapper') : null;
+        if (wrapper) {
+            wrapper.insertAdjacentHTML('beforeend', avatarHTML);
+        } else if (checkbox) {
+            checkbox.insertAdjacentHTML('afterend', avatarHTML);
+        }
+    }
+    
+    // Update progress
+    updateTaskProgress(taskId);
+    updateKanbanCardTaskCount();
+}
+
+// Update task UI as not completed (when another user reopens it)
+function updateTaskUIAsNotCompleted(taskId) {
+    const taskElement = document.getElementById(taskId);
+    if (!taskElement) return;
+    
+    const checkbox = taskElement.querySelector('input.task-checkbox');
+    const titleElement = taskElement.querySelector('.task-title');
+    const existingAvatar = taskElement.querySelector('.completed-by-avatar');
+    
+    if (checkbox) {
+        checkbox.checked = false;
+        checkbox.style.removeProperty('--completed-color');
+    }
+    if (titleElement) {
+        titleElement.style.textDecoration = 'none';
+        titleElement.style.color = '#000';
+    }
+    taskElement.style.background = 'white';
+    if (existingAvatar) existingAvatar.remove();
+    
+    // Update progress
+    updateTaskProgress(taskId);
+    updateKanbanCardTaskCount();
+}
+
+// Update subtask UI as completed (when another user completes it)
+function updateSubtaskUIAsCompleted(subtaskId, task) {
+    const subtaskElement = document.getElementById(subtaskId);
+    if (!subtaskElement) return;
+    
+    const checkbox = subtaskElement.querySelector('input.subtask-checkbox');
+    const textElement = subtaskElement.querySelector('.subtask-text');
+    const existingAvatar = subtaskElement.querySelector('.subtask-completed-avatar');
+    
+    // Get user info from task
+    const completedByUser = task.completed_by_user;
+    const completedColor = completedByUser && completedByUser.chat_color ? completedByUser.chat_color : '#10b981';
+    
+    if (checkbox) {
+        checkbox.checked = true;
+        checkbox.style.setProperty('--completed-color', completedColor);
+    }
+    if (textElement) {
+        textElement.style.textDecoration = 'line-through';
+        textElement.style.color = '#9ca3af';
+    }
+    subtaskElement.style.borderLeftColor = completedColor;
+    
+    // Add avatar next to checkbox if not already present
+    if (!existingAvatar && completedByUser) {
+        const avatarHTML = createCompletedAvatar(
+            completedByUser.name, 
+            completedColor, 
+            completedByUser.photo_path, 
+            true // isSubtask
+        );
+        const wrapper = checkbox ? checkbox.closest('.checkbox-avatar-wrapper') : null;
+        if (wrapper) {
+            wrapper.insertAdjacentHTML('beforeend', avatarHTML);
+        } else if (checkbox) {
+            checkbox.insertAdjacentHTML('afterend', avatarHTML);
+        }
+    }
+    
+    // Update parent task progress
+    const parentTaskId = subtaskId.split('-sub-')[0];
+    updateTaskProgress(parentTaskId);
+    updateKanbanCardTaskCount();
+}
+
+// Update subtask UI as not completed (when another user reopens it)
+function updateSubtaskUIAsNotCompleted(subtaskId, parentId) {
+    const subtaskElement = document.getElementById(subtaskId);
+    if (!subtaskElement) return;
+    
+    const checkbox = subtaskElement.querySelector('input.subtask-checkbox');
+    const textElement = subtaskElement.querySelector('.subtask-text');
+    const existingAvatar = subtaskElement.querySelector('.subtask-completed-avatar');
+    const doneByInfo = subtaskElement.querySelector('.subtask-done-by');
+    
+    if (checkbox) {
+        checkbox.checked = false;
+        checkbox.style.removeProperty('--completed-color');
+    }
+    if (textElement) {
+        textElement.style.textDecoration = 'none';
+        textElement.style.color = '#374151';
+    }
+    subtaskElement.style.borderLeftColor = '#e5e7eb';
+    if (existingAvatar) existingAvatar.remove();
+    if (doneByInfo) doneByInfo.remove();
+    
+    // Update parent task progress
+    const parentTaskId = 'task-' + parentId;
+    updateTaskProgress(parentTaskId);
+    updateKanbanCardTaskCount();
 }
 
 // Stop polling

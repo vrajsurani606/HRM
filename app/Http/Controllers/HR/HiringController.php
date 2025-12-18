@@ -187,7 +187,38 @@ class HiringController extends Controller
                 $employeeData['joining_date'] = $offer->date_of_joining;
             }
 
-            Employee::create($employeeData);
+            $employee = Employee::create($employeeData);
+
+            // Transfer offer letter to employee_letters table if exists
+            if ($lead->offerLetter) {
+                $offer = $lead->offerLetter;
+                
+                // Generate reference number for offer letter
+                $lastLetter = \App\Models\EmployeeLetter::where('type', 'offer')
+                    ->orderBy('id', 'desc')
+                    ->first();
+                $nextNum = $lastLetter ? ((int)substr($lastLetter->reference_number ?? 'OL-0000', 3) + 1) : 1;
+                $referenceNumber = 'OL-' . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
+                
+                \App\Models\EmployeeLetter::create([
+                    'employee_id' => $employee->id,
+                    'reference_number' => $referenceNumber,
+                    'title' => 'Offer Letter',
+                    'subject' => 'Offer Letter for ' . $employee->name,
+                    'type' => 'offer',
+                    'issue_date' => $offer->issue_date,
+                    'use_default_content' => true,
+                    'notes' => $offer->note,
+                    'created_by' => auth()->id(),
+                    'monthly_salary' => $offer->monthly_salary,
+                    'annual_ctc' => $offer->annual_ctc,
+                    'reporting_manager' => $offer->reporting_manager,
+                    'working_hours' => $offer->working_hours,
+                    'date_of_joining' => $offer->date_of_joining,
+                    'probation_period' => $offer->probation_period,
+                    'salary_increment' => $offer->salary_increment,
+                ]);
+            }
 
             // Update lead status (if exists)
             try {
@@ -473,7 +504,9 @@ class HiringController extends Controller
                 'redirect_to' => route('hiring.index')
             ])->with('success','Offer letter updated');
         }
-        return back()->with('success','Offer letter updated');
+        
+        // Redirect back to hiring leads list
+        return redirect()->route('hiring.index')->with('success','Offer letter updated');
     }
 
     public function resume($id)

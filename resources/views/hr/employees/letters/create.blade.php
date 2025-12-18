@@ -132,26 +132,20 @@
             </div>
             
             <!-- Use Default Content Checkbox -->
-            <div id="defaultContentCheckboxContainer" class="hidden col-span-2">
-                <div class="p-5 bg-blue-50 border-2 border-blue-300 rounded-lg shadow-sm transition-all" id="checkbox-container">
-                    <div class="flex items-start gap-4">
+            <div id="defaultContentCheckboxContainer" class="hidden md:col-span-2 mt-2 mb-2">
+                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg" id="checkbox-container">
+                    <div class="flex items-center gap-3">
                         <input type="hidden" name="use_default_content" id="use_default_content_hidden" value="1">
-                        <input type="checkbox" id="use_default_content" class="w-6 h-6 mt-1 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer" checked>
+                        <input type="checkbox" id="use_default_content" class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer" checked>
                         <div class="flex-1">
-                            <label for="use_default_content" class="text-lg font-bold text-gray-900 cursor-pointer flex items-center gap-2 mb-2">
-                                <i class="fas fa-file-alt text-blue-600 text-xl" id="checkbox-icon"></i> 
+                            <label for="use_default_content" class="font-semibold text-gray-800 cursor-pointer flex items-center gap-2">
+                                <i class="fas fa-file-alt text-blue-600" id="checkbox-icon"></i> 
                                 <span>Use Default Letter Content</span>
                             </label>
-                            <div class="text-sm text-gray-700 leading-relaxed">
-                                <div class="mb-1">
-                                    <i class="fas fa-check-circle text-green-600"></i> 
-                                    <strong>When Checked:</strong> Letter will include standard template content plus any custom content you add below.
-                                </div>
-                                <div>
-                                    <i class="fas fa-times-circle text-red-600"></i> 
-                                    <strong>When Unchecked:</strong> Letter will show only your custom content (no default template).
-                                </div>
-                            </div>
+                            <p class="text-xs text-gray-600 mt-1">
+                                <span class="text-green-600"><i class="fas fa-check-circle"></i> Checked:</span> Uses template + custom content | 
+                                <span class="text-red-600"><i class="fas fa-times-circle"></i> Unchecked:</span> Custom content only
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -886,6 +880,35 @@ $(document).ready(function() {
     // Handle form submission
     $('form').on('submit', function(e) {
         e.preventDefault();
+        
+        // Clear hidden field values that are not relevant to current letter type
+        var letterType = $('#type').val();
+        
+        // Clear experience fields if not experience letter
+        if (letterType !== 'experience') {
+            $('#start_date').val('');
+            $('#end_date').val('');
+        }
+        
+        // Clear termination fields if not termination letter
+        if (letterType !== 'termination') {
+            $('#termination_date').val('');
+        }
+        
+        // Clear increment fields if not increment letter
+        if (letterType !== 'increment') {
+            $('#current_salary').val('');
+            $('#new_salary').val('');
+            $('#increment_effective_date').val('');
+        }
+        
+        // Clear internship fields if not internship letter
+        if (letterType !== 'internship_offer' && letterType !== 'internship_letter') {
+            $('[name="internship_position"]').val('');
+            $('[name="internship_start_date"]').val('');
+            $('[name="internship_end_date"]').val('');
+            $('[name="internship_address"]').val('');
+        }
         
         // Ensure use_default_content hidden input has the correct value
         const checkbox = $('#use_default_content');

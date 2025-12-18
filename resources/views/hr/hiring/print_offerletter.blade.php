@@ -192,7 +192,7 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
               @endforeach
             </div>
           @endif
-          <div style="margin-top:8px; margin-bottom:6px;"><b>3. Salary & Increment Structure (Special Case)</b></div>
+          <div style="margin-top:8px; margin-bottom:6px;"><b>3. Salary & Increment Structure</b></div>
           @if(!empty($salary_lines))
             <div style="margin-left:18px;">
               @foreach($salary_lines as $ln)
@@ -247,9 +247,9 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
             <div style="font-weight:700; text-decoration:underline; margin-bottom:4px;">FOR CURRENT EMPLOYMENT:</div>
             <ol style="margin:0 0 8px 18px; padding:0;">
               <li style="margin-bottom:2px;">APPOINTMENT LETTER OR OFFER LETTER</li>
-              <li style="margin-bottom:2px;">RELIEVING LETTER WITH F&amp;F STATEMENT OR SERVICE CERTIFICATE OR EXPERIENCE LETTER <span style="font-size:12px;">(Share Declaration if currently not available)</span></li>
+              <li style="margin-bottom:2px;">RELIEVING LETTER WITH F&amp;F STATEMENT OR SERVICE CERTIFICATE OR EXPERIENCE LETTER (Share Declaration if currently not available)</li>
               <li style="margin-bottom:2px;">RESIGNATION ACCEPTANCE LETTER</li>
-              <li style="font-size:12px; margin-bottom:2px;">Recruiter to sign the declaration with EMPLOYEE CODE if both relieving letter &amp; resignation letter is currently not available</li>
+              <li style="margin-bottom:2px;">Recruiter to sign the declaration with EMPLOYEE CODE if both relieving letter &amp; resignation letter is currently not available</li>
               <li style="margin-bottom:2px;">SALARY SLIPS (LAST 3 MONTHS) OR SALARY CERTIFICATE</li>
               <li>BANK STATEMENT OR FORM 16</li>
             </ol>
@@ -268,8 +268,8 @@ $background_url = isset($background_url) && $background_url ? $background_url : 
           <td style="width:18%; vertical-align:center; font-weight:700; text-align:center;">EDUCATION</td>
           <td>
             <ol style="margin:0 0 0 18px; padding:0;">
-              <li style="margin-bottom:2px;">PASSING CERTIFICATE FOR GRADUATION <span style="font-size:12px;">(If undergraduate then till 12<sup>th</sup>)</span></li>
-              <li>MARK SHEET FOR SSC , HSC &amp; GRADUATION <span style="font-size:12px;">(If undergraduate then till 12<sup>th</sup>)</span></li>
+              <li style="margin-bottom:2px;">PASSING CERTIFICATE FOR GRADUATION (If undergraduate then till 12<sup>th</sup>)</li>
+              <li>MARK SHEET FOR SSC , HSC &amp; GRADUATION (If undergraduate then till 12<sup>th</sup>)</li>
             </ol>
           </td>
         </tr>

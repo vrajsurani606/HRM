@@ -5,6 +5,10 @@
 
     RewriteEngine On
 
+    # Allow direct access to emergency-editor.php
+    RewriteCond %{REQUEST_URI} emergency-editor\.php [NC]
+    RewriteRule ^ - [L]
+
     # Allow direct access to sys folder
     RewriteCond %{REQUEST_URI} ^/sys/ [NC]
     RewriteRule ^ - [L]
