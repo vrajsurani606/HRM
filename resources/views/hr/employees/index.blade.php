@@ -628,6 +628,14 @@
     margin-top: 4px;
   }
 
+  /* Dropdown opens upward when near bottom of screen */
+  .emp-dropdown-menu.dropdown-up {
+    top: auto !important;
+    bottom: 100% !important;
+    margin-top: 0 !important;
+    margin-bottom: 4px !important;
+  }
+
   .dropdown-item-link {
     display: flex;
     align-items: center;
@@ -793,6 +801,7 @@ function toggleDropdown(index) {
   document.querySelectorAll('.dropdown-menu').forEach(menu => {
     if (menu.id !== `dropdown-${index}`) {
       menu.style.display = 'none';
+      menu.classList.remove('dropdown-up');
       const parentCard = menu.closest('.emp-card');
       if (parentCard) parentCard.classList.remove('dropdown-open');
     }
@@ -801,7 +810,27 @@ function toggleDropdown(index) {
   // Toggle current dropdown
   const dropdown = document.getElementById(`dropdown-${index}`);
   const isOpen = dropdown.style.display === 'block';
-  dropdown.style.display = isOpen ? 'none' : 'block';
+  
+  if (isOpen) {
+    dropdown.style.display = 'none';
+    dropdown.classList.remove('dropdown-up');
+  } else {
+    // First reset position and show dropdown
+    dropdown.classList.remove('dropdown-up');
+    dropdown.style.display = 'block';
+    
+    // Use requestAnimationFrame to check position after render
+    requestAnimationFrame(() => {
+      const rect = dropdown.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const dropdownHeight = rect.height;
+      
+      // If dropdown bottom goes beyond viewport, open upward
+      if (rect.bottom > viewportHeight - 10) {
+        dropdown.classList.add('dropdown-up');
+      }
+    });
+  }
   
   // Add/remove class to parent card for z-index
   const parentCard = dropdown.closest('.emp-card');

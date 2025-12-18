@@ -667,9 +667,9 @@ function clearTicketFiles(clearPreview = true) {
         <!-- Action Buttons -->
         <div id="viewTicketActionButtons" style="display: flex; gap: 12px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
           @php
-            $canEditTicket = auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.edit ticket') || $isEmployeeUser;
+            $canEditTicket = auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.edit ticket');
           @endphp
-          <!-- Edit button - shown for admins always, for employees only if assigned (controlled via JS) -->
+          <!-- Edit button - shown only for users with edit permission -->
           <button id="viewTicketEditBtn" onclick="editTicketFromView()" style="display: {{ $canEditTicket ? 'flex' : 'none' }}; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; align-items: center; gap: 8px; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Edit Ticket
@@ -1291,23 +1291,13 @@ function populateViewTicketModal(ticket) {
     attachmentsSection.style.display = 'none';
   }
   
-  // Handle edit button visibility for employees
+  // Handle edit button visibility - only show for users with edit permission
   const editBtn = document.getElementById('viewTicketEditBtn');
-  const isAdmin = {{ auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr') ? 'true' : 'false' }};
-  const isEmployee = {{ auth()->user()->hasRole('employee') || auth()->user()->hasRole('Employee') ? 'true' : 'false' }};
-  const currentEmployeeId = {{ $currentEmployeeId ?? 'null' }};
+  const canEditTicket = {{ auth()->user()->hasRole('super-admin') || auth()->user()->can('Tickets Management.edit ticket') ? 'true' : 'false' }};
   
   if (editBtn) {
-    if (isAdmin) {
-      // Admins can always edit
-      editBtn.style.display = 'flex';
-    } else if (isEmployee && currentEmployeeId && ticket.assigned_to == currentEmployeeId) {
-      // Employees can edit only if assigned to them
-      editBtn.style.display = 'flex';
-    } else if (!isAdmin && !isEmployee) {
-      // Customers - hide edit button (they use the main form)
-      editBtn.style.display = 'none';
-    }
+    // Only show edit button if user has permission
+    editBtn.style.display = canEditTicket ? 'flex' : 'none';
   }
 }
 

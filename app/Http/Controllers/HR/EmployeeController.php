@@ -86,35 +86,11 @@ class EmployeeController extends Controller
         // Get per_page from request, default to 12
         $perPage = $request->get('per_page', 12);
         
-        // Get all employees first for role-based sorting
-        $allEmployees = $query->get();
+        // Get all employees ordered by newest first (descending by id)
+        $allEmployees = $query->orderBy('id', 'desc')->get();
         
-        // Define role priority order: Super Admin > Admin > HR > Receptionist > Employee > Client
-        $rolePriority = [
-            'super-admin' => 1,
-            'admin' => 2,
-            'hr' => 3,
-            'receptionist' => 4,
-            'employee' => 5,
-            'client' => 6,
-        ];
-        
-        // Sort employees by role priority
-        $sortedEmployees = $allEmployees->sortBy(function($employee) use ($rolePriority) {
-            if ($employee->user && $employee->user->roles->isNotEmpty()) {
-                // Get the highest priority role (lowest number)
-                $minPriority = 999;
-                foreach ($employee->user->roles as $role) {
-                    $roleName = strtolower($role->name);
-                    if (isset($rolePriority[$roleName]) && $rolePriority[$roleName] < $minPriority) {
-                        $minPriority = $rolePriority[$roleName];
-                    }
-                }
-                return $minPriority;
-            }
-            // No role assigned, put at the end
-            return 999;
-        })->values();
+        // Use the descending order directly (newest first)
+        $sortedEmployees = $allEmployees->values();
         
         // Manual pagination
         $page = $request->get('page', 1);
