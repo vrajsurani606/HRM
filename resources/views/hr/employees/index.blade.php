@@ -110,64 +110,68 @@
                 @endif
                 <div class="dropdown">
                   <button class="dropdown-toggle" onclick="toggleDropdown({{ $loop->index }})" title="More options">⋮</button>
-                  <div id="dropdown-{{ $loop->index }}" class="dropdown-menu">
+                  <div id="dropdown-{{ $loop->index }}" class="dropdown-menu emp-dropdown-menu">
                     @if($isModel)
                       @can('Employees Management.view employee')
-                        <a href="{{ route('employees.show', $emp) }}">
-                          <img src="{{ asset('action_icon/view.svg') }}" width="16" height="16"> View
+                        <a href="{{ route('employees.show', $emp) }}" class="dropdown-item-link">
+                          <img src="{{ asset('action_icon/view.svg') }}" width="16" height="16" alt="View">
+                          View
                         </a>
                       @endcan
                       @can('Employees Management.edit employee')
-                        <a href="{{ route('employees.edit', $emp) }}">
-                          <img src="{{ asset('action_icon/edit.svg') }}" width="16" height="16"> Edit
+                        <a href="{{ route('employees.edit', $emp) }}" class="dropdown-item-link">
+                          <img src="{{ asset('action_icon/edit.svg') }}" width="16" height="16" alt="Edit">
+                          Edit
                         </a>
-                        <form method="POST" action="{{ route('employees.toggle-status', $emp->id) }}" style="display:inline;margin:0;">
+                        <form method="POST" action="{{ route('employees.toggle-status', $emp->id) }}" style="display:block;margin:0;">
                           @csrf
                           <button type="submit" class="dropdown-item-btn">
                             @if(($emp->status ?? 'active') === 'active')
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="15" y1="9" x2="9" y2="15"></line>
-                                <line x1="9" y1="9" x2="15" y2="15"></line>
-                              </svg>
+                              <img src="{{ asset('action_icon/block.svg') }}" width="16" height="16" alt="Block">
                               Mark Inactive
                             @else
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="9 11 12 14 22 4"></polyline>
-                              </svg>
+                              <img src="{{ asset('action_icon/approve.svg') }}" width="16" height="16" alt="Activate">
                               Mark Active
                             @endif
                           </button>
                         </form>
                       @endcan
                       @can('Employees Management.delete employee')
-                        <form method="POST" action="{{ route('employees.destroy', $emp) }}" class="delete-form">
+                        <form method="POST" action="{{ route('employees.destroy', $emp) }}" class="delete-form" style="display:block;margin:0;">
                           @csrf @method('DELETE')
-                          <button type="button" class="delete-btn" onclick="confirmDelete(this)">
-                            <img src="{{ asset('action_icon/delete.svg') }}" width="16" height="16"> Delete
+                          <button type="button" class="dropdown-item-btn delete-btn-style" onclick="confirmDelete(this)">
+                            <img src="{{ asset('action_icon/delete.svg') }}" width="16" height="16" alt="Delete">
+                            Delete
                           </button>
                         </form>
                       @endcan
                       @can('Employees Management.letters')
-                        <a href="{{ route('employees.letters.index', $emp) }}">
-                          <img src="{{ asset('action_icon/print.svg') }}" width="16" height="16"> Letter
+                        <a href="{{ route('employees.letters.index', $emp) }}" class="dropdown-item-link">
+                          <img src="{{ asset('action_icon/print.svg') }}" width="16" height="16" alt="Letter">
+                          Letter
                         </a>
                       @endcan
+                      
+                      {{-- Digital Card --}}
                       @can('Employees Management.digital card')
                         @if($emp->digitalCard)
-                          <a href="{{ route('employees.digital-card.show', $emp) }}" title="View Digital Card">
-                            <img src="{{ asset('action_icon/show.svg') }}" width="16" height="16"> Digital Card
+                          <a href="{{ route('employees.digital-card.show', $emp) }}" class="dropdown-item-link">
+                            <img src="{{ asset('action_icon/digital_card.svg') }}" width="16" height="16" alt="Digital Card">
+                            Show Digital Card
                           </a>
                         @else
-                          <a href="{{ route('employees.digital-card.create', $emp) }}" title="Create Digital Card">
-                            <img src="{{ asset('action_icon/pluse.svg') }}" width="16" height="16"> Create Digital Card
+                          <a href="{{ route('employees.digital-card.create', $emp) }}" class="dropdown-item-link">
+                            <img src="{{ asset('action_icon/digital_card.svg') }}" width="16" height="16" alt="Create Digital Card">
+                            Create Digital Card
                           </a>
                         @endif
                       @endcan
+                      
+                      {{-- ID Card --}}
                       @can('Employees Management.view employee')
-                        <a href="{{ route('employees.id-card.show', $emp) }}" title="Employee ID Card">
-                          <i class="fas fa-id-card" style="width: 16px; margin-right: 4px; color: #6b7280;"></i> ID Card
+                        <a href="{{ route('id-cards.select-style', $emp) }}" class="dropdown-item-link">
+                          <img src="{{ asset('action_icon/id_card.svg') }}" width="16" height="16" alt="ID Card">
+                          ID Card
                         </a>
                       @endcan
                     @endif
@@ -245,31 +249,44 @@
                 <td>
                   <div class="action-icons">
                     @can('Employees Management.view employee')
-                      <a href="{{ route('employees.show', $emp) }}" title="View"><img src="{{ asset('action_icon/view.svg') }}" class="action-icon" alt="View"></a>
+                      <a href="{{ route('employees.show', $emp) }}" title="View"><img src="{{ asset('action_icon/view.svg') }}" width="18" height="18" class="action-icon" alt="View"></a>
                     @endcan
                     @can('Employees Management.edit employee')
-                      <a href="{{ route('employees.edit', $emp) }}" title="Edit"><img src="{{ asset('action_icon/edit.svg') }}" class="action-icon" alt="Edit"></a>
+                      <a href="{{ route('employees.edit', $emp) }}" title="Edit"><img src="{{ asset('action_icon/edit.svg') }}" width="18" height="18" class="action-icon" alt="Edit"></a>
+                      {{-- Mark Inactive/Active --}}
+                      <form method="POST" action="{{ route('employees.toggle-status', $emp->id) }}" style="display:inline;margin:0;">
+                        @csrf
+                        <button type="submit" title="{{ ($emp->status ?? 'active') === 'active' ? 'Mark Inactive' : 'Mark Active' }}" style="background:transparent;border:0;padding:0;line-height:1;cursor:pointer;">
+                          @if(($emp->status ?? 'active') === 'active')
+                            <img src="{{ asset('action_icon/block.svg') }}" width="18" height="18" class="action-icon" alt="Mark Inactive">
+                          @else
+                            <img src="{{ asset('action_icon/approve.svg') }}" width="18" height="18" class="action-icon" alt="Mark Active">
+                          @endif
+                        </button>
+                      </form>
                     @endcan
                     @can('Employees Management.delete employee')
-                      <form method="POST" action="{{ route('employees.destroy', $emp) }}" class="delete-form" style="display:inline">
+                      <form method="POST" action="{{ route('employees.destroy', $emp) }}" class="delete-form" style="display:inline;margin:0;">
                         @csrf @method('DELETE')
-                        <button type="button" onclick="confirmDelete(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:1;cursor:pointer">
-                          <img src="{{ asset('action_icon/delete.svg') }}" class="action-icon" alt="Delete">
+                        <button type="button" onclick="confirmDelete(this)" title="Delete" style="background:transparent;border:0;padding:0;line-height:1;cursor:pointer;">
+                          <img src="{{ asset('action_icon/delete.svg') }}" width="18" height="18" class="action-icon" alt="Delete">
                         </button>
                       </form>
                     @endcan
                     @can('Employees Management.letters')
-                      <a href="{{ route('employees.letters.index', $emp) }}" title="Letter"><img src="{{ asset('action_icon/print.svg') }}" class="action-icon" alt="Letter"></a>
+                      <a href="{{ route('employees.letters.index', $emp) }}" title="Letter"><img src="{{ asset('action_icon/print.svg') }}" width="18" height="18" class="action-icon" alt="Letter"></a>
                     @endcan
+                    {{-- Digital Card --}}
                     @can('Employees Management.digital card')
                       @if($emp->digitalCard)
-                        <a href="{{ route('employees.digital-card.show', $emp) }}" title="View Digital Card"><img src="{{ asset('action_icon/show.svg') }}" class="action-icon" alt="Digital Card"></a>
+                        <a href="{{ route('employees.digital-card.show', $emp) }}" title="Show Digital Card"><img src="{{ asset('action_icon/digital_card.svg') }}" width="18" height="18" class="action-icon" alt="Digital Card"></a>
                       @else
-                        <a href="{{ route('employees.digital-card.create', $emp) }}" title="Create Digital Card"><img src="{{ asset('action_icon/pluse.svg') }}" class="action-icon" alt="Create Digital Card"></a>
+                        <a href="{{ route('employees.digital-card.create', $emp) }}" title="Create Digital Card"><img src="{{ asset('action_icon/digital_card.svg') }}" width="18" height="18" class="action-icon" alt="Create Digital Card"></a>
                       @endif
                     @endcan
+                    {{-- ID Card --}}
                     @can('Employees Management.view employee')
-                      <a href="{{ route('employees.id-card.show', $emp) }}" title="Employee ID Card" style="display: inline-flex; align-items: center; padding: 2px;"><i class="fas fa-id-card" style="font-size: 14px; color: #6b7280;"></i></a>
+                      <a href="{{ route('id-cards.select-style', $emp) }}" title="ID Card"><img src="{{ asset('action_icon/id_card.svg') }}" width="18" height="18" class="action-icon" alt="ID Card"></a>
                     @endcan
                   </div>
                 </td>
@@ -375,40 +392,53 @@
   .employees-list-view { display:none; padding: 0 0 12px; }
   .employees-list-view.active { display:block; }
 
+  .JV-datatble.table-wrap {
+    overflow-x: auto;
+  }
+  .JV-datatble table { 
+    width: 100%;
+    table-layout: auto;
+  }
   .JV-datatble table td { vertical-align: middle; }
-  .action-icons { display:inline-flex; align-items:center; gap:8px; }
-  .action-icons form { margin:0; padding:0; display:inline-flex; }
-  .action-icons button { display:inline-flex; align-items:center; justify-content:center; padding:0; margin:0; line-height:1; background:transparent; border:0; cursor:pointer; }
-  
-  /* Action icon styling */
+  .JV-datatble table th:first-child,
+  .JV-datatble table td:first-child { 
+    min-width: 220px; 
+    white-space: nowrap;
+    padding-right: 10px;
+  }
+  .action-icons { 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 8px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+  .action-icons a,
+  .action-icons form,
+  .action-icons button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .action-icons form { display: inline-flex; }
+  .action-icons button { background: transparent; border: 0; cursor: pointer; }
   .action-icon {
-    width: 16px;
-    height: 16px;
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
+    width: 18px !important;
+    height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+    object-fit: contain;
+    display: inline-block;
+    vertical-align: middle;
+    transition: transform 0.15s ease, opacity 0.15s ease;
   }
-
-  .action-icons a:hover .action-icon {
-    opacity: 1;
-  }
-
-  /* FontAwesome icon styling in action buttons */
-  .action-icons .fas {
-    color: #6b7280;
-    font-size: 14px;
-    transition: color 0.2s ease;
-  }
-
-  .action-icons a:hover .fas {
-    color: #374151;
-  }
-
-  /* Grid view dropdown icon styling */
-  .dropdown-menu .fas {
-    color: #6b7280;
-    font-size: 14px;
-    width: 16px;
-    text-align: center;
+  .action-icon:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
   }
   
   /* Status badges */
@@ -530,6 +560,142 @@
     border-color: #e5e7eb;
   }
 
+
+
+  /* Grid View Dropdown ID Card Styles */
+  .dropdown-divider-line {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 8px 0;
+  }
+
+  .dropdown-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .dropdown-section-header svg {
+    color: #3b82f6;
+  }
+
+  .id-card-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    color: #374151;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    border-radius: 4px;
+    margin: 2px 4px;
+  }
+
+  .id-card-link:hover {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    color: #1d4ed8;
+  }
+
+  .id-card-link svg {
+    color: #6b7280;
+    transition: color 0.15s ease;
+  }
+
+  .id-card-link:hover svg {
+    color: #3b82f6;
+  }
+
+  /* Employee Dropdown Menu Styles */
+  .emp-dropdown-menu {
+    min-width: 200px;
+    padding: 8px 0;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    background: white;
+    z-index: 9999 !important;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+  }
+
+  .dropdown-item-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    color: #374151;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+  }
+
+  .dropdown-item-link:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+  }
+
+  .dropdown-item-link svg {
+    flex-shrink: 0;
+  }
+
+  .dropdown-item-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    transition: all 0.15s ease;
+  }
+
+  .dropdown-item-btn:hover {
+    background: #f3f4f6;
+  }
+
+  .dropdown-item-btn svg {
+    flex-shrink: 0;
+  }
+
+  .delete-btn-style:hover {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  .dropdown-divider-line {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 8px 0;
+  }
+
+  .dropdown-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
   /* Action button spacing */
   .action-buttons-group {
     display: flex;
@@ -623,16 +789,29 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 function toggleDropdown(index) {
-  // Close all other dropdowns
+  // Close all other dropdowns and remove active class from cards
   document.querySelectorAll('.dropdown-menu').forEach(menu => {
     if (menu.id !== `dropdown-${index}`) {
       menu.style.display = 'none';
+      const parentCard = menu.closest('.emp-card');
+      if (parentCard) parentCard.classList.remove('dropdown-open');
     }
   });
   
   // Toggle current dropdown
   const dropdown = document.getElementById(`dropdown-${index}`);
-  dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+  const isOpen = dropdown.style.display === 'block';
+  dropdown.style.display = isOpen ? 'none' : 'block';
+  
+  // Add/remove class to parent card for z-index
+  const parentCard = dropdown.closest('.emp-card');
+  if (parentCard) {
+    if (isOpen) {
+      parentCard.classList.remove('dropdown-open');
+    } else {
+      parentCard.classList.add('dropdown-open');
+    }
+  }
 }
 
 // Close dropdown when clicking outside
@@ -640,6 +819,8 @@ document.addEventListener('click', function(event) {
   if (!event.target.closest('.dropdown')) {
     document.querySelectorAll('.dropdown-menu').forEach(menu => {
       menu.style.display = 'none';
+      const parentCard = menu.closest('.emp-card');
+      if (parentCard) parentCard.classList.remove('dropdown-open');
     });
   }
 });

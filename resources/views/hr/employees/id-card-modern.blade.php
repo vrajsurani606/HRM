@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light">
     <meta name="print-color-adjust" content="exact">
-    <title>{{ $employee->name }} - Simple ID Card</title>
+    <title>{{ $employee->name }} - Modern ID Card</title>
     
     <!-- FontAwesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -18,8 +18,8 @@
         }
 
         body { 
-            font-family: 'Arial', sans-serif; 
-            background: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 20px;
             display: flex;
             flex-direction: column;
@@ -31,94 +31,117 @@
         }
 
         .container {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             margin-bottom: 20px;
+            backdrop-filter: blur(10px);
         }
 
         .id-card { 
-            width: 350px; 
-            height: 220px; 
-            border: 2px solid #2563eb; 
-            border-radius: 12px; 
-            background: white;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            width: 380px; 
+            height: 240px; 
+            border-radius: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
             overflow: hidden;
             position: relative;
+            transform: perspective(1000px) rotateY(-5deg);
+            transition: all 0.3s ease;
         }
 
-        .header { 
-            background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
-            color: white; 
-            padding: 12px 16px; 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
+        .id-card:hover {
+            transform: perspective(1000px) rotateY(0deg) translateY(-5px);
+            box-shadow: 0 25px 50px rgba(102, 126, 234, 0.6);
         }
 
-        .header::before {
-            content: '';
+        .card-overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1" fill="white" opacity="0.15"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="white" stroke-width="0.5" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        }
+
+        .header { 
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            color: white; 
+            padding: 15px 20px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
         }
 
         .company-logo {
-            font-size: 14px;
-            font-weight: bold;
-            position: relative;
-            z-index: 2;
+            font-size: 16px;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .logo-img {
-            max-height: 24px;
-            max-width: 80px;
+            max-height: 28px;
+            max-width: 100px;
             object-fit: contain;
-            filter: brightness(0) invert(1);
+            filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
         .card-type {
-            font-size: 10px;
+            font-size: 11px;
             opacity: 0.9;
-            position: relative;
-            z-index: 2;
             font-weight: 600;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .card-body {
-            padding: 16px;
-            height: calc(220px - 50px - 4px);
+            padding: 20px;
+            height: calc(240px - 60px);
             display: flex;
-            gap: 16px;
+            gap: 20px;
+            position: relative;
+            z-index: 2;
         }
 
         .employee-info { 
             display: flex; 
-            gap: 16px; 
+            gap: 18px; 
             flex: 1;
         }
 
         .photo { 
-            width: 70px; 
-            height: 70px; 
+            width: 80px; 
+            height: 80px; 
             border-radius: 50%; 
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            background: rgba(255, 255, 255, 0.2);
             display: flex; 
             align-items: center; 
             justify-content: center;
-            border: 3px solid #2563eb;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .photo::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #fff, transparent, #fff);
+            border-radius: 50%;
+            z-index: -1;
         }
 
         .photo img {
@@ -129,8 +152,8 @@
         }
 
         .photo-placeholder {
-            font-size: 24px;
-            color: #9ca3af;
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .details { 
@@ -138,98 +161,106 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            color: white;
         }
 
         .name { 
-            font-size: 16px; 
-            font-weight: bold; 
-            margin-bottom: 4px;
-            color: #1f2937;
+            font-size: 18px; 
+            font-weight: 700; 
+            margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            line-height: 1.2;
         }
 
         .employee-id { 
-            color: #2563eb; 
-            font-weight: bold; 
-            margin-bottom: 8px;
-            background: #f0f9ff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            border: 1px solid #2563eb;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 600; 
+            margin-bottom: 10px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             display: inline-block;
             font-size: 12px;
+            backdrop-filter: blur(5px);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .detail { 
-            margin-bottom: 3px; 
+            margin-bottom: 4px; 
             font-size: 11px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            color: #4b5563;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .detail-icon {
-            width: 12px;
-            color: #2563eb;
-            opacity: 0.7;
+            width: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .qr-section {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             flex-shrink: 0;
         }
 
         .qr-code {
-            width: 60px;
-            height: 60px;
-            border: 2px solid #e5e7eb;
-            border-radius: 6px;
-            background: white;
+            width: 70px;
+            height: 70px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.95);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             position: relative;
+            backdrop-filter: blur(10px);
         }
 
         .qr-code::before {
             content: '';
             position: absolute;
-            top: -1px;
-            left: -1px;
-            right: -1px;
-            bottom: -1px;
-            background: linear-gradient(135deg, #2563eb, #0ea5e9);
-            border-radius: 6px;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, rgba(255,255,255,0.5), transparent, rgba(255,255,255,0.5));
+            border-radius: 12px;
             z-index: -1;
         }
 
         .qr-code img {
-            width: 95%;
-            height: 95%;
+            width: 90%;
+            height: 90%;
             object-fit: contain;
-            border-radius: 4px;
+            border-radius: 8px;
         }
 
         .qr-placeholder {
-            font-size: 8px;
-            color: #9ca3af;
+            font-size: 9px;
+            color: #666;
             text-align: center;
             line-height: 1.2;
+            font-weight: 600;
         }
 
         .qr-label {
-            font-size: 8px;
-            color: #6b7280;
-            font-weight: bold;
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             text-align: center;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .card-footer {
@@ -237,47 +268,53 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #2563eb, #0ea5e9, #10b981);
+            height: 6px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            opacity: 0.8;
         }
 
         .actions {
             display: flex;
-            gap: 12px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-top: 25px;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 6px;
+            border-radius: 25px;
             font-weight: 600;
             text-decoration: none;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 14px;
         }
 
         .btn-primary {
-            background: #2563eb;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
 
         .btn-primary:hover {
-            background: #1d4ed8;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
         }
 
         .btn-secondary {
-            background: #6b7280;
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
             color: white;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
         }
 
         .btn-secondary:hover {
-            background: #4b5563;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.6);
         }
 
         /* Print Styles */
@@ -306,6 +343,7 @@
                 box-shadow: none !important;
                 padding: 0 !important;
                 margin: 0 !important;
+                background: white !important;
             }
 
             .actions {
@@ -315,33 +353,10 @@
             .id-card {
                 margin: 0 auto !important;
                 page-break-inside: avoid !important;
+                transform: none !important;
             }
 
-            .header {
-                -webkit-print-color-adjust: exact !important;
-                color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-
-            .card-footer {
-                -webkit-print-color-adjust: exact !important;
-                color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-
-            .employee-id {
-                -webkit-print-color-adjust: exact !important;
-                color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-
-            .photo {
-                -webkit-print-color-adjust: exact !important;
-                color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-
-            .qr-code {
+            .header, .card-footer, .employee-id, .photo, .qr-code {
                 -webkit-print-color-adjust: exact !important;
                 color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -352,6 +367,8 @@
 <body>
     <div class="container">
         <div class="id-card">
+            <div class="card-overlay"></div>
+            
             <!-- Card Header -->
             <div class="header">
                 <div class="company-logo">
@@ -362,7 +379,7 @@
                         <span>{{ config('app.name', 'Company Name') }}</span>
                     @endif
                 </div>
-                <div class="card-type">EMPLOYEE ID</div>
+                <div class="card-type">Employee ID</div>
             </div>
 
             <!-- Card Body -->
@@ -406,7 +423,7 @@
                             </div>
                             <div class="detail">
                                 <i class="fas fa-envelope detail-icon"></i>
-                                {{ Str::limit($employee->email, 25) }}
+                                {{ Str::limit($employee->email, 22) }}
                             </div>
                             <div class="detail">
                                 <i class="fas fa-phone detail-icon"></i>
@@ -415,7 +432,7 @@
                             @if($employee->joining_date)
                             <div class="detail">
                                 <i class="fas fa-calendar detail-icon"></i>
-                                {{ \Carbon\Carbon::parse($employee->joining_date)->format('M Y') }}
+                                Joined {{ \Carbon\Carbon::parse($employee->joining_date)->format('M Y') }}
                             </div>
                             @endif
                         </div>
@@ -427,11 +444,11 @@
                     <div class="qr-code">
                         @php
                             $qrData = route('employees.show', $employee);
-                            $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=" . urlencode($qrData);
+                            $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=70x70&data=" . urlencode($qrData);
                         @endphp
                         <img src="{{ $qrUrl }}" alt="QR Code" onerror="this.parentElement.innerHTML='<div class=\'qr-placeholder\'>{{ $employee->code ?? 'EMP-' . str_pad($employee->id, 4, '0', STR_PAD_LEFT) }}</div>'">
                     </div>
-                    <div class="qr-label">SCAN TO VERIFY</div>
+                    <div class="qr-label">Scan to Verify</div>
                 </div>
             </div>
 
@@ -441,6 +458,7 @@
     </div>
     
     <!-- Action Buttons -->
+    @if(!isset($printMode))
     <div class="actions">
         <button onclick="printCard()" class="btn btn-primary">
             <i class="fas fa-print"></i>
@@ -451,10 +469,10 @@
             Back to Profile
         </a>
     </div>
+    @endif
 
     <script>
         function printCard() {
-            // Show color printing instruction
             if (confirm('For best color printing:\n\n1. Enable "Background graphics" in print settings\n2. Set "Color" to "Color" (not Black & White)\n3. Click "Print"\n\nContinue to print?')) {
                 window.print();
             }

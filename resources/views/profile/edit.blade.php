@@ -71,6 +71,29 @@
             {{ isset($employee->joining_date) ? $employee->joining_date->format('d / m / Y') : '—' }}
           </div>
         </div>
+        
+        @if($employee)
+        <!-- Divider -->
+        <div style="width:1px;height:36px;background:#e5e7eb"></div>
+        
+        <!-- ID Card Quick Actions -->
+        <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
+          <a href="{{ route('id-cards.active', $employee) }}" target="_blank" 
+             style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;transition:all 0.2s ease;box-shadow:0 2px 4px rgba(59, 130, 246, 0.3)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM4 6h16v2H4V6zm0 12v-6h16v6H4z"/>
+            </svg>
+            View ID Card
+          </a>
+          <a href="{{ route('id-cards.select-style', $employee) }}" 
+             style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg, #10b981 0%, #059669 100%);color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;transition:all 0.2s ease;box-shadow:0 2px 4px rgba(16, 185, 129, 0.3)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            Choose Style
+          </a>
+        </div>
+        @endif
       </div>
     </div>
     

@@ -39,6 +39,24 @@
           {{ $employee->joining_date ? \Carbon\Carbon::parse($employee->joining_date)->format('d / m / Y') : 'N/A' }}
         </div>
       </div>
+      <div style="width:1px;height:36px;background:#e5e7eb"></div>
+      <!-- ID Card Quick Actions -->
+      <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
+        <a href="{{ route('id-cards.active', $employee) }}" target="_blank" 
+           style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;transition:all 0.2s ease;box-shadow:0 2px 4px rgba(59, 130, 246, 0.3)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM8.5 15H7.3l-2.55-3.5V15H3.5V9h1.25l2.5 3.5V9H8.5V15zm5-4.74H11v1.12h2.5v1.26H11v1.11h2.5V15h-4V9h4v1.26zm7 3.74c0 .55-.45 1-1 1h-4c-.55 0-1-.45-1-1V9h1.25v4.51h.75V9.99h1v3.51h.75V9.01h1.25V14z"/>
+          </svg>
+          View ID Card
+        </a>
+        <a href="{{ route('id-cards.select-style', $employee) }}" 
+           style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg, #10b981 0%, #059669 100%);color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;transition:all 0.2s ease;box-shadow:0 2px 4px rgba(16, 185, 129, 0.3)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          Choose Style
+        </a>
+      </div>
     </div>
   </div>
     <div class="tabbar" style="display:flex;border-bottom:1px solid #e5e7eb;padding:0 32px;background:white;align-items:center;margin-bottom:0">
@@ -474,6 +492,7 @@
       @include('profile.partials.bank-details', ['employee' => $employee, 'user' => $employee->user ?? auth()->user()])
     </div>
   </div>
+
 @endsection
 
 @section('breadcrumb')

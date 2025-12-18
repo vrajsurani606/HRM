@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $employee->name }} - Employee ID Card</title>
+    <meta name="color-scheme" content="light">
+    <meta name="print-color-adjust" content="exact">
+    <title>{{ $employee->name }} - Professional ID Card</title>
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -14,13 +16,13 @@
     
     <style>
         :root {
-            --primary-color: #2563eb;
+            --primary-color: #1e40af;
             --secondary-color: #64748b;
-            --accent-color: #0ea5e9;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --dark-color: #1e293b;
+            --accent-color: #3b82f6;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --dark-color: #1f2937;
             --light-color: #f8fafc;
             --white: #ffffff;
             --gray-50: #f9fafb;
@@ -33,12 +35,6 @@
             --gray-700: #374151;
             --gray-800: #1f2937;
             --gray-900: #111827;
-            
-            --card-width: 350px;
-            --card-height: 220px;
-            --border-radius: 12px;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
         * {
@@ -49,118 +45,106 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--gray-50);
-            color: var(--gray-800);
-            line-height: 1.5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            -webkit-print-color-adjust: exact;
+            color-adjust: exact;
+            print-color-adjust: exact;
         }
 
-        /* Header Actions */
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
         .header-actions {
-            background: var(--white);
-            padding: 1rem 2rem;
-            border-bottom: 1px solid var(--gray-200);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--gray-200);
         }
 
         .header-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--gray-800);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
 
         .action-buttons {
             display: flex;
-            gap: 0.75rem;
+            gap: 1rem;
             flex-wrap: wrap;
         }
 
         .action-btn {
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
             color: var(--white);
             border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.875rem;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 0.5rem;
             cursor: pointer;
+            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
         }
 
         .action-btn:hover {
-            background: var(--primary-color);
-            filter: brightness(1.1);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.4);
             color: var(--white);
         }
 
         .action-btn.secondary {
-            background: var(--gray-600);
+            background: linear-gradient(135deg, var(--gray-600) 0%, var(--gray-700) 100%);
+            box-shadow: 0 4px 15px rgba(75, 85, 99, 0.3);
         }
 
         .action-btn.success {
-            background: var(--success-color);
+            background: linear-gradient(135deg, var(--success-color) 0%, #10b981 100%);
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
         }
 
-        .action-btn.danger {
-            background: var(--danger-color);
-        }
-
-        /* Main Container */
-        .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
-
-        /* Card Container */
-        .card-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 60vh;
-            padding: 2rem 0;
-        }
-
-        /* Employee ID Card */
-        .employee-id-card {
-            width: var(--card-width);
-            height: var(--card-height);
+        /* Professional ID Card */
+        .professional-id-card {
+            width: 420px;
+            height: 260px;
             background: var(--white);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
-            position: relative;
+            border-radius: 16px;
             overflow: hidden;
-            border: 1px solid var(--gray-200);
-            transition: all 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border: 3px solid var(--primary-color);
+            position: relative;
+            margin: 0 auto;
         }
 
-        .employee-id-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        /* Card Header */
         .card-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
             color: var(--white);
-            padding: 0.75rem 1rem;
+            padding: 1rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: relative;
+            height: 60px;
         }
 
         .card-header::before {
@@ -170,40 +154,53 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
-            opacity: 0.3;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="6" cy="6" r="1.5" fill="white" opacity="0.2"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
         }
 
         .company-logo {
-            font-size: 1.125rem;
-            font-weight: 700;
+            font-size: 1.25rem;
+            font-weight: 800;
             position: relative;
-            z-index: 1;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-img {
+            max-height: 32px;
+            max-width: 100px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            drop-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .card-type {
-            font-size: 0.75rem;
-            font-weight: 500;
-            opacity: 0.9;
+            font-size: 0.875rem;
+            font-weight: 700;
+            opacity: 0.95;
             position: relative;
-            z-index: 1;
+            z-index: 2;
+            letter-spacing: 1px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
-        /* Card Body */
         .card-body {
-            padding: 1rem;
+            padding: 1.25rem;
             display: flex;
             gap: 1rem;
-            height: calc(100% - 60px);
+            height: calc(260px - 60px - 6px);
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            align-items: stretch;
         }
 
-        /* Employee Photo */
-        .employee-photo {
-            flex-shrink: 0;
+        .employee-section {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
+            flex: 1;
+            align-items: flex-start;
+            overflow: hidden;
         }
 
         .photo-container {
@@ -212,8 +209,12 @@
             border-radius: 50%;
             overflow: hidden;
             border: 3px solid var(--primary-color);
-            box-shadow: var(--shadow);
-            position: relative;
+            box-shadow: 0 6px 12px rgba(30, 64, 175, 0.3);
+            background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
         .photo-container img {
@@ -223,43 +224,50 @@
         }
 
         .photo-placeholder {
-            width: 100%;
-            height: 100%;
-            background: var(--gray-100);
-            display: flex;
-            align-items: center;
-            justify-content: center;
             color: var(--gray-400);
-            font-size: 2rem;
+            font-size: 2.5rem;
         }
 
-        /* Employee Info */
         .employee-info {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .employee-name {
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--gray-800);
-            margin-bottom: 0.25rem;
-            line-height: 1.2;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--dark-color);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .employee-id {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             color: var(--primary-color);
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            border: 2px solid var(--primary-color);
+            display: inline-block;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.2);
+            white-space: nowrap;
         }
 
         .employee-details {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 0.5rem;
         }
 
         .detail-item {
@@ -267,164 +275,174 @@
             align-items: center;
             gap: 0.5rem;
             font-size: 0.75rem;
-            color: var(--gray-600);
+            color: var(--gray-700);
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .detail-icon {
-            width: 12px;
-            height: 12px;
-            color: var(--gray-400);
+            width: 16px;
+            height: 16px;
+            color: var(--primary-color);
             flex-shrink: 0;
         }
 
-        .detail-text {
-            font-weight: 500;
-        }
-
-        /* QR Code Section */
         .qr-section {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.5rem;
+            flex-shrink: 0;
         }
 
         .qr-code {
-            width: 60px;
-            height: 60px;
-            border: 1px solid var(--gray-200);
-            border-radius: 4px;
+            width: 70px;
+            height: 70px;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            background: var(--white);
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--white);
+            box-shadow: 0 6px 12px rgba(30, 64, 175, 0.2);
+            position: relative;
+        }
+
+        .qr-code::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 12px;
+            z-index: -1;
         }
 
         .qr-code img {
-            width: 100%;
-            height: 100%;
+            width: 90%;
+            height: 90%;
             object-fit: contain;
+            border-radius: 8px;
         }
 
         .qr-placeholder {
-            width: 100%;
-            height: 100%;
-            background: var(--gray-50);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 0.7rem;
             color: var(--gray-400);
-            font-size: 0.75rem;
             text-align: center;
             line-height: 1.2;
-            border-radius: 4px;
-        }
-
-        .qr-code canvas,
-        .qr-code img {
-            border-radius: 4px;
+            font-weight: 600;
         }
 
         .qr-label {
-            font-size: 0.625rem;
-            color: var(--gray-500);
+            font-size: 0.7rem;
+            color: var(--gray-600);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             text-align: center;
-            font-weight: 500;
         }
 
-        /* Card Footer */
         .card-footer {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-color), var(--success-color));
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 50%, var(--success-color) 100%);
         }
 
-        /* Card Preview Section */
-        .card-preview-section {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            margin-bottom: 2rem;
-        }
+        /* Print Styles */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
 
-        .preview-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--gray-800);
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
+            @page {
+                size: A4;
+                margin: 15mm;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+                print-color-adjust: exact;
+            }
 
-        /* Employee Details Table */
-        .employee-details-table {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            margin-top: 2rem;
-        }
+            body {
+                background: white !important;
+                padding: 0 !important;
+                display: block !important;
+                min-height: auto !important;
+            }
 
-        .details-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--gray-800);
-            margin-bottom: 1.5rem;
-        }
+            .container {
+                background: white !important;
+                backdrop-filter: none !important;
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
 
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-        }
+            .header-actions {
+                display: none !important;
+            }
 
-        .detail-card {
-            background: var(--gray-50);
-            border-radius: 8px;
-            padding: 1rem;
-            border-left: 4px solid var(--primary-color);
-        }
+            .professional-id-card {
+                margin: 0 auto !important;
+                page-break-inside: avoid !important;
+                border: 3px solid var(--primary-color) !important;
+            }
 
-        .detail-label {
-            font-size: 0.75rem;
-            color: var(--gray-500);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.25rem;
-        }
+            .card-header {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
 
-        .detail-value {
-            font-size: 0.875rem;
-            color: var(--gray-800);
-            font-weight: 600;
+            .card-footer {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .employee-id {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .photo-container {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .qr-code {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .header-actions {
+            body {
                 padding: 1rem;
-                flex-direction: column;
-                gap: 1rem;
-                align-items: stretch;
             }
 
-            .action-buttons {
-                justify-content: center;
+            .container {
+                padding: 1rem;
             }
 
-            .main-container {
-                padding: 1rem 0.5rem;
-            }
-
-            .employee-id-card {
+            .professional-id-card {
                 width: 100%;
-                max-width: 350px;
+                max-width: 420px;
                 height: auto;
-                min-height: var(--card-height);
+                min-height: 260px;
             }
 
             .card-body {
@@ -434,240 +452,150 @@
                 padding: 1rem;
             }
 
-            .employee-photo {
-                flex-direction: row;
-                justify-content: space-between;
+            .employee-section {
+                flex-direction: column;
                 align-items: center;
+                text-align: center;
             }
 
-            .details-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Print Styles */
-        @media print {
-            body {
-                background: white;
+            .header-actions {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
             }
 
-            .header-actions,
-            .employee-details-table {
-                display: none;
+            .action-buttons {
+                justify-content: center;
             }
-
-            .main-container {
-                padding: 0;
-            }
-
-            .card-container {
-                min-height: auto;
-                padding: 0;
-            }
-
-            .employee-id-card {
-                box-shadow: none;
-                border: 2px solid var(--gray-300);
-                page-break-inside: avoid;
-            }
-
-            .employee-id-card:hover {
-                transform: none;
-            }
-        }
-
-        /* Loading Animation */
-        .loading {
-            opacity: 0;
-            animation: fadeIn 0.5s ease-in-out forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
     </style>
-</head>
-<body>
-    <!-- Header Actions -->
-    <div class="header-actions">
-        <div class="header-title">
-            <i class="fas fa-id-card"></i>
-            Employee ID Card - {{ $employee->name }}
-        </div>
-        <div class="action-buttons">
-            <button onclick="printCard()" class="action-btn">
-                <i class="fas fa-print"></i>
-                Print Card
-            </button>
-            <button onclick="downloadPDF()" class="action-btn success">
-                <i class="fas fa-download"></i>
-                Download PDF
-            </button>
-            <button onclick="downloadImage()" class="action-btn secondary">
-                <i class="fas fa-image"></i>
-                Download Image
-            </button>
-            <a href="{{ route('employees.id-card.compact', $employee) }}" class="action-btn secondary" target="_blank">
-                <i class="fas fa-mobile-alt"></i>
-                Compact View
-            </a>
-            <a href="{{ route('employees.show', $employee) }}" class="action-btn secondary">
-                <i class="fas fa-arrow-left"></i>
-                Back to Profile
-            </a>
-        </div>
-    </div>
+</head><body>
 
-    <!-- Main Container -->
-    <div class="main-container">
-        <!-- Card Preview Section -->
-        <div class="card-preview-section loading">
-            <h2 class="preview-title">Employee ID Card Preview</h2>
-            
-            <!-- Card Container -->
-            <div class="card-container">
-                <div class="employee-id-card" id="employeeCard">
-                    <!-- Card Header -->
-                    <div class="card-header">
-                        <div class="company-logo">
-                            {{ config('app.name', 'Company Name') }}
-                        </div>
-                        <div class="card-type">
-                            EMPLOYEE ID
-                        </div>
-                    </div>
-
-                    <!-- Card Body -->
-                    <div class="card-body">
-                        <!-- Employee Photo -->
-                        <div class="employee-photo">
-                            <div class="photo-container">
-                                @php
-                                    $photoUrl = null;
-                                    if ($employee->photo_path) {
-                                        $photoUrl = asset('storage/' . $employee->photo_path);
-                                    } elseif ($employee->user && $employee->user->profile_photo_path) {
-                                        $photoUrl = asset('storage/' . $employee->user->profile_photo_path);
-                                    }
-                                @endphp
-                                
-                                @if($photoUrl)
-                                    <img src="{{ $photoUrl }}" alt="{{ $employee->name }}" onerror="showPhotoPlaceholder(this)">
-                                @else
-                                    <div class="photo-placeholder">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <!-- Employee Info -->
-                        <div class="employee-info">
-                            <div>
-                                <div class="employee-name">{{ $employee->name }}</div>
-                                <div class="employee-id">ID: {{ $employee->code ?? 'EMP-' . str_pad($employee->id, 4, '0', STR_PAD_LEFT) }}</div>
-                            </div>
-
-                            <div class="employee-details">
-                                <div class="detail-item">
-                                    <i class="fas fa-briefcase detail-icon"></i>
-                                    <span class="detail-text">{{ $employee->position ?? 'N/A' }}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-building detail-icon"></i>
-                                    <span class="detail-text">{{ $employee->department ?? ($employee->position ? 'Department' : 'General') }}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-phone detail-icon"></i>
-                                    <span class="detail-text">{{ $employee->mobile_no ?? 'N/A' }}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-envelope detail-icon"></i>
-                                    <span class="detail-text">{{ $employee->email }}</span>
-                                </div>
-                                @if($employee->joining_date)
-                                <div class="detail-item">
-                                    <i class="fas fa-calendar detail-icon"></i>
-                                    <span class="detail-text">Joined: {{ \Carbon\Carbon::parse($employee->joining_date)->format('M Y') }}</span>
-                                </div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <!-- QR Code -->
-                        <div class="qr-section">
-                            <div class="qr-code" id="qrCode">
-                                <div class="qr-placeholder">
-                                    QR Code
-                                </div>
-                            </div>
-                            <div class="qr-label">Scan to Verify</div>
-                        </div>
-                    </div>
-
-                    <!-- Card Footer -->
-                    <div class="card-footer"></div>
-                </div>
+    <div class="container">
+        <!-- Header Actions -->
+        <div class="header-actions">
+            <div class="header-title">
+                <i class="fas fa-id-card-clip"></i>
+                Professional ID Card - {{ $employee->name }}
+            </div>
+            <div class="action-buttons">
+                <button onclick="printCard()" class="action-btn">
+                    <i class="fas fa-print"></i>
+                    Print Card
+                </button>
+                <button onclick="downloadPDF()" class="action-btn success">
+                    <i class="fas fa-download"></i>
+                    Download PDF
+                </button>
+                <button onclick="downloadImage()" class="action-btn secondary">
+                    <i class="fas fa-image"></i>
+                    Download Image
+                </button>
+                <a href="{{ route('employees.show', $employee) }}" class="action-btn secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Profile
+                </a>
             </div>
         </div>
 
-        <!-- Employee Details Table -->
-        <div class="employee-details-table loading">
-            <h3 class="details-title">Employee Information</h3>
-            <div class="details-grid">
-                <div class="detail-card">
-                    <div class="detail-label">Full Name</div>
-                    <div class="detail-value">{{ $employee->name }}</div>
+        <!-- Professional ID Card -->
+        <div class="professional-id-card" id="professionalCard">
+            <!-- Card Header -->
+            <div class="card-header">
+                <div class="company-logo">
+                    @if(file_exists(public_path('full_logo.jpeg')))
+                        <img src="{{ asset('full_logo.jpeg') }}" alt="Company Logo" class="logo-img">
+                    @else
+                        <i class="fas fa-building"></i>
+                        <span>{{ config('app.name', 'Company Name') }}</span>
+                    @endif
                 </div>
-                <div class="detail-card">
-                    <div class="detail-label">Employee ID</div>
-                    <div class="detail-value">{{ $employee->code ?? 'EMP-' . str_pad($employee->id, 4, '0', STR_PAD_LEFT) }}</div>
+                <div class="card-type">EMPLOYEE ID</div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="employee-section">
+                    <!-- Employee Photo -->
+                    <div class="photo-container">
+                        @php
+                            $photoUrl = null;
+                            if ($employee->photo_path) {
+                                $photoUrl = asset('storage/' . $employee->photo_path);
+                            } elseif ($employee->user && $employee->user->profile_photo_path) {
+                                $photoUrl = asset('storage/' . $employee->user->profile_photo_path);
+                            }
+                        @endphp
+                        
+                        @if($photoUrl)
+                            <img src="{{ $photoUrl }}" alt="{{ $employee->name }}" onerror="this.parentElement.innerHTML='<div class=\'photo-placeholder\'><i class=\'fas fa-user\'></i></div>'">
+                        @else
+                            <div class="photo-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Employee Info -->
+                    <div class="employee-info">
+                        <div>
+                            <div class="employee-name">{{ $employee->name }}</div>
+                            <div class="employee-id">{{ $employee->code ?? 'EMP-' . str_pad($employee->id, 4, '0', STR_PAD_LEFT) }}</div>
+                        </div>
+
+                        <div class="employee-details">
+                            <div class="detail-item">
+                                <i class="fas fa-briefcase detail-icon"></i>
+                                {{ $employee->position ?? 'N/A' }}
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-building detail-icon"></i>
+                                {{ $employee->department ?? 'General' }}
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-envelope detail-icon"></i>
+                                {{ Str::limit($employee->email, 20) }}
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-phone detail-icon"></i>
+                                {{ $employee->mobile_no ?? 'N/A' }}
+                            </div>
+                            @if($employee->joining_date)
+                            <div class="detail-item">
+                                <i class="fas fa-calendar detail-icon"></i>
+                                {{ \Carbon\Carbon::parse($employee->joining_date)->format('M Y') }}
+                            </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
-                <div class="detail-card">
-                    <div class="detail-label">Designation</div>
-                    <div class="detail-value">{{ $employee->position ?? 'N/A' }}</div>
-                </div>
-                <div class="detail-card">
-                    <div class="detail-label">Department</div>
-                    <div class="detail-value">{{ $employee->department ?? 'Administration' }}</div>
-                </div>
-                <div class="detail-card">
-                    <div class="detail-label">Email</div>
-                    <div class="detail-value">{{ $employee->email }}</div>
-                </div>
-                <div class="detail-card">
-                    <div class="detail-label">Phone</div>
-                    <div class="detail-value">{{ $employee->mobile_no ?? 'N/A' }}</div>
-                </div>
-                @if($employee->joining_date)
-                <div class="detail-card">
-                    <div class="detail-label">Joining Date</div>
-                    <div class="detail-value">{{ \Carbon\Carbon::parse($employee->joining_date)->format('d M, Y') }}</div>
-                </div>
-                @endif
-                @if($employee->date_of_birth)
-                <div class="detail-card">
-                    <div class="detail-label">Date of Birth</div>
-                    <div class="detail-value">{{ \Carbon\Carbon::parse($employee->date_of_birth)->format('d M, Y') }}</div>
-                </div>
-                @endif
-                <div class="detail-card">
-                    <div class="detail-label">Status</div>
-                    <div class="detail-value">{{ ucfirst($employee->status ?? 'active') }}</div>
+
+                <!-- QR Code Section -->
+                <div class="qr-section">
+                    <div class="qr-code">
+                        @php
+                            $qrData = route('employees.show', $employee);
+                            $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=70x70&data=" . urlencode($qrData);
+                        @endphp
+                        <img src="{{ $qrUrl }}" alt="QR Code" onerror="this.parentElement.innerHTML='<div class=\'qr-placeholder\'>{{ $employee->code ?? 'EMP-' . str_pad($employee->id, 4, '0', STR_PAD_LEFT) }}</div>'">
+                    </div>
+                    <div class="qr-label">SCAN TO VERIFY</div>
                 </div>
             </div>
+
+            <!-- Card Footer -->
+            <div class="card-footer"></div>
         </div>
     </div>
 
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
-        // Employee data for QR code
+        // Employee data
         const employeeData = {
             id: {{ $employee->id }},
             code: '{{ $employee->code ?? 'EMP-' . str_pad($employee->id, 4, '0', STR_PAD_LEFT) }}',
@@ -677,87 +605,40 @@
             verification_url: '{{ route('employees.show', $employee) }}'
         };
 
-        // Generate QR Code
-        function generateQRCode() {
-            const qrContainer = document.getElementById('qrCode');
-            
-            // Simple QR data - just the employee verification URL
-            const qrData = employeeData.verification_url;
-
-            // Clear existing content
-            qrContainer.innerHTML = '';
-
-            try {
-                // Generate QR code using QRCode.js
-                QRCode.toCanvas(qrData, {
-                    width: 60,
-                    height: 60,
-                    margin: 1,
-                    color: {
-                        dark: '#1e293b',
-                        light: '#ffffff'
-                    },
-                    errorCorrectionLevel: 'M'
-                }, function (error, canvas) {
-                    if (error) {
-                        console.error('QR Code generation failed:', error);
-                        // Fallback to text-based QR
-                        generateFallbackQR();
-                    } else {
-                        canvas.style.width = '60px';
-                        canvas.style.height = '60px';
-                        qrContainer.appendChild(canvas);
-                    }
-                });
-            } catch (error) {
-                console.error('QR Code library error:', error);
-                generateFallbackQR();
-            }
-        }
-
-        // Fallback QR code generation
-        function generateFallbackQR() {
-            const qrContainer = document.getElementById('qrCode');
-            const qrData = employeeData.verification_url;
-            
-            // Use Google Charts API as fallback
-            const qrImg = document.createElement('img');
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=${encodeURIComponent(qrData)}`;
-            qrImg.style.width = '60px';
-            qrImg.style.height = '60px';
-            qrImg.onerror = function() {
-                // Final fallback - show employee code as text
-                qrContainer.innerHTML = `<div class="qr-placeholder" style="font-size: 8px; line-height: 1.1;">${employeeData.code}</div>`;
-            };
-            
-            qrContainer.appendChild(qrImg);
-        }
-
         // Print Card
         function printCard() {
-            window.print();
+            Swal.fire({
+                title: 'Color Printing Instructions',
+                html: `
+                    <div style="text-align: left; font-size: 14px; line-height: 1.6;">
+                        <p><strong>To print in full color:</strong></p>
+                        <ol style="margin: 10px 0; padding-left: 20px;">
+                            <li>In the print dialog, click <strong>"More settings"</strong></li>
+                            <li>Under <strong>"Options"</strong>, check <strong>"Background graphics"</strong></li>
+                            <li>Set <strong>"Color"</strong> to <strong>"Color"</strong> (not Black & White)</li>
+                            <li>Click <strong>"Print"</strong></li>
+                        </ol>
+                        <p style="color: #1e40af; font-weight: 500;">This ensures all gradients and colors print correctly!</p>
+                    </div>
+                `,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Continue to Print',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#1e40af',
+                width: '500px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.print();
+                }
+            });
         }
 
         // Download as PDF
         function downloadPDF() {
-            // Use the backend route for PDF generation
-            showNotification('Generating PDF...', 'info');
-            
-            // Create a temporary link to trigger download
-            const link = document.createElement('a');
-            link.href = '{{ route('employees.id-card.pdf', $employee) }}';
-            link.target = '_blank';
-            link.click();
-            
-            showNotification('PDF download started!', 'success');
-        }
-
-        // Alternative client-side PDF generation
-        function downloadPDFClientSide() {
             const { jsPDF } = window.jspdf;
-            const card = document.getElementById('employeeCard');
+            const card = document.getElementById('professionalCard');
             
-            // Show loading
             showNotification('Generating PDF...', 'info');
             
             html2canvas(card, {
@@ -765,24 +646,20 @@
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#ffffff',
-                logging: false,
-                width: 350,
-                height: 220
+                width: 420,
+                height: 260
             }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png', 1.0);
                 
-                // Create PDF in ID card dimensions (85.6mm x 54mm)
                 const pdf = new jsPDF({
                     orientation: 'landscape',
                     unit: 'mm',
-                    format: [85.6, 54]
+                    format: [100, 63] // Professional card size
                 });
                 
-                // Add the image to fit the entire page
-                pdf.addImage(imgData, 'PNG', 0, 0, 85.6, 54, '', 'FAST');
+                pdf.addImage(imgData, 'PNG', 0, 0, 100, 63, '', 'FAST');
                 
-                // Save the PDF
-                const fileName = `${employeeData.name.replace(/\s+/g, '_')}_ID_Card.pdf`;
+                const fileName = `${employeeData.name.replace(/\s+/g, '_')}_Professional_ID_Card.pdf`;
                 pdf.save(fileName);
                 
                 showNotification('PDF downloaded successfully!', 'success');
@@ -794,19 +671,18 @@
 
         // Download as Image
         function downloadImage() {
-            const card = document.getElementById('employeeCard');
+            const card = document.getElementById('professionalCard');
             
-            // Show loading
             showNotification('Generating image...', 'info');
             
             html2canvas(card, {
-                scale: 3,
+                scale: 4,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#ffffff'
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `${employeeData.name.replace(/\s+/g, '_')}_ID_Card.png`;
+                link.download = `${employeeData.name.replace(/\s+/g, '_')}_Professional_ID_Card.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 
@@ -830,13 +706,13 @@
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'error' ? 'var(--danger-color)' : type === 'success' ? 'var(--success-color)' : 'var(--primary-color)'};
+                background: ${type === 'error' ? '#dc2626' : type === 'success' ? '#059669' : '#1e40af'};
                 color: white;
                 padding: 1rem 1.5rem;
                 border-radius: 8px;
                 z-index: 10000;
                 animation: slideInRight 0.3s ease-out;
-                box-shadow: var(--shadow-lg);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
                 font-weight: 500;
                 display: flex;
                 align-items: center;
@@ -870,28 +746,10 @@
         `;
         document.head.appendChild(style);
 
-        // Initialize everything when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            // Generate QR code
-            generateQRCode();
-            
-            // Add loading animation delay
-            setTimeout(() => {
-                document.querySelectorAll('.loading').forEach(element => {
-                    element.style.opacity = '1';
-                });
-            }, 100);
-        });
-
-        // Photo placeholder function
-        function showPhotoPlaceholder(img) {
-            img.parentElement.innerHTML = '<div class="photo-placeholder"><i class="fas fa-user"></i></div>';
-        }
-
         // Handle image loading errors
         document.addEventListener('error', function(e) {
             if (e.target.tagName === 'IMG' && e.target.closest('.photo-container')) {
-                showPhotoPlaceholder(e.target);
+                e.target.parentElement.innerHTML = '<div class="photo-placeholder"><i class="fas fa-user"></i></div>';
             }
         }, true);
     </script>
