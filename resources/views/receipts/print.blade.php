@@ -424,9 +424,6 @@
             <div class="header-info">
                 <p><strong>Date:</strong> {{ $receipt->receipt_date ? $receipt->receipt_date->format('d-m-Y') : date('d-m-Y') }}</p>
                 <p><strong>Receipt No.:</strong> {{ $receipt->unique_code }}</p>
-                @if($invoices->count() > 0)
-                <p><strong>Invoice No.:</strong> {{ $invoices->pluck('unique_code')->implode(', ') }}</p>
-                @endif
             </div>
             
             <!-- Title -->

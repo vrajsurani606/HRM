@@ -328,6 +328,18 @@ class PerformaController extends Controller
                     ->with('error', 'Please add at least one service item with description and quantity.');
             }
             
+            // Check for duplicate proforma if template_index is provided
+            if (!empty($validated['quotation_id']) && isset($validated['template_index']) && $validated['template_index'] !== '') {
+                $existingProforma = Proforma::where('quotation_id', $validated['quotation_id'])
+                    ->where('template_index', $validated['template_index'])
+                    ->first();
+                
+                if ($existingProforma) {
+                    return redirect()->route('quotations.template-list', $validated['quotation_id'])
+                        ->with('error', 'A proforma for this template (Index: ' . $validated['template_index'] . ') has already been created. Proforma Code: ' . $existingProforma->unique_code);
+                }
+            }
+            
             // Generate unique code
             $lastProforma = Proforma::orderByDesc('id')->first();
             $nextNumber = 1;
@@ -382,7 +394,16 @@ class PerformaController extends Controller
                 }
             }
             
+            // Log the template_index for debugging
+            \Log::info('Creating proforma with template_index: ' . ($validated['template_index'] ?? 'null') . ' for quotation: ' . ($validated['quotation_id'] ?? 'null'));
+            
             $proforma = Proforma::create($validated);
+            
+            // If created from quotation template, redirect back to template list
+            if (!empty($validated['quotation_id'])) {
+                return redirect()->route('quotations.template-list', $validated['quotation_id'])
+                    ->with('success', 'Proforma created successfully with ID: ' . $proforma->unique_code . ' (Template Index: ' . ($proforma->template_index ?? 'null') . ')');
+            }
             
             return redirect()->route('performas.index')
                 ->with('status', 'Proforma created successfully with ID: ' . $proforma->unique_code);

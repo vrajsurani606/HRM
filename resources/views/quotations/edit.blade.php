@@ -357,7 +357,7 @@
 
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;">
       @php
-      // Map form field names to database column names
+      // Map form field names to database column names (corrected mapping)
       $features = [
           'sample_management' => ['label' => 'Sample Management', 'db' => 'sample_management'],
           'user_friendly_interface' => ['label' => 'User-Friendly Interface', 'db' => 'user_friendly_interface'],
@@ -387,7 +387,10 @@
       @foreach($features as $key => $feature)
       @php
         $dbColumn = $feature['db'];
-        $isChecked = $quotation->$dbColumn ?? false;
+        $isChecked = (bool)($quotation->$dbColumn ?? false);
+        
+        // Debug: Log the checkbox values
+        // error_log("Checkbox {$key} ({$dbColumn}): " . ($isChecked ? 'true' : 'false'));
       @endphp
       <label style="display: flex; align-items: center; cursor: pointer;" class="custom-checkbox">
         <input type="checkbox" name="features[]" value="{{ $key }}" style="display: none;" 
@@ -576,7 +579,8 @@
 
 <!-- Second Services Table -->
 <div style="margin: 30px 0;">
-  <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+  <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px;">
+    <button type="button" onclick="recalculateAllServices2()" style="padding: 8px 15px; background: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;" title="Recalculate All Payment Terms">↻ Recalculate</button>
     <button type="button" class="inquiry-submit-btn add-more-services-2" style="background: #28a745;">+ Add More</button>
   </div>
   <div class="Rectangle-30 hrp-compact">
@@ -662,7 +666,10 @@
     <div class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5" style="margin-top: 20px;">
       <div>
         <label class="hrp-label">Services Total Amount:</label>
-        <input type="text" class="Rectangle-29" id="services_total_amount" name="services_total_amount" placeholder="Auto-calculated" readonly value="{{ old('services_total_amount') }}" style="background-color: #f3f4f6; font-weight: 600;">
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <input type="text" class="Rectangle-29" id="services_total_amount" name="services_total_amount" placeholder="Auto-calculated" readonly value="{{ old('services_total_amount') }}" style="background-color: #f3f4f6; font-weight: 600; flex: 1;">
+          <button type="button" onclick="calculateServicesTotalAmount()" style="padding: 8px 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;" title="Recalculate Services Total">↻</button>
+        </div>
       </div>
       <div></div>
     </div>
@@ -734,14 +741,41 @@
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">
               Custom Terms & Conditions
             </label>
-            <textarea 
-              name="custom_terms_text" 
-              id="custom_terms_text" 
-              class="hrp-input Rectangle-29" 
-              rows="4" 
-              placeholder="Enter custom terms and conditions (one per line)" 
-              style="width: 100%; resize: vertical; font-size: 14px; line-height: 1.5;">{{ old('custom_terms_text', isset($quotation) && is_array($quotation->custom_terms_and_conditions) ? implode("\n", $quotation->custom_terms_and_conditions) : '') }}</textarea>
-            <small class="text-gray-500" style="font-size: 12px; margin-top: 4px; display: block;">Enter each term on a new line</small>
+            
+            <!-- Terms Input Area -->
+            <div style="border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; background: white;">
+              <div style="background: #f9fafb; padding: 12px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: between; align-items: center;">
+                <span style="font-size: 13px; font-weight: 500; color: #6b7280;">Terms & Conditions Editor</span>
+                <div style="display: flex; gap: 8px;">
+                  <button type="button" onclick="addNewTerm()" style="padding: 4px 8px; background: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">+ Add Term</button>
+                  <button type="button" onclick="togglePreview()" style="padding: 4px 8px; background: #10b981; color: white; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">👁 Preview</button>
+                </div>
+              </div>
+              
+              <!-- Input Mode -->
+              <div id="termsInputMode" style="padding: 0;">
+                <textarea 
+                  name="custom_terms_text" 
+                  id="custom_terms_text" 
+                  class="hrp-input" 
+                  rows="6" 
+                  placeholder="Enter custom terms and conditions (one per line)&#10;Example:&#10;• Payment terms: 30 days from invoice date&#10;• Delivery within 15 working days&#10;• Warranty: 12 months from delivery date" 
+                  style="width: 100%; border: none; resize: vertical; font-size: 14px; line-height: 1.6; padding: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;"
+                  oninput="updatePreview()">{{ old('custom_terms_text', isset($quotation) && is_array($quotation->custom_terms_and_conditions) ? implode("\n", $quotation->custom_terms_and_conditions) : '') }}</textarea>
+              </div>
+              
+              <!-- Preview Mode -->
+              <div id="termsPreviewMode" style="display: none; padding: 16px; background: #fefefe; min-height: 120px;">
+                <div id="termsPreviewContent" style="font-size: 14px; line-height: 1.6; color: #374151;">
+                  <!-- Preview content will be populated by JavaScript -->
+                </div>
+              </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+              <small class="text-gray-500" style="font-size: 12px;">Enter each term on a new line. Use • or - for bullet points</small>
+              <small id="termCount" style="font-size: 11px; color: #6b7280; background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">0 terms</small>
+            </div>
           </div>
           
           <div style="margin-bottom: 20px;">
@@ -945,19 +979,32 @@ document.addEventListener('DOMContentLoaded', function() {
 // Copy all JavaScript functions from create.blade.php
 function calculateRowTotal(input) {
     const row = input.closest('tr');
-    const quantity = parseFloat(row.querySelector('.quantity')?.value) || 0;
-    const rate = parseFloat(row.querySelector('.rate')?.value) || 0;
-    const total = quantity * rate;
-    row.querySelector('.total').value = total.toFixed(2);
-    
-    // If this is services_2 table and has completion percentage, calculate percentage amount
     const percentInput = row.querySelector('.completion-percent');
-    if (percentInput && percentInput.value) {
+    
+    // Check if this is services_2 table (has completion-percent)
+    const isServices2 = percentInput !== null;
+    
+    if (isServices2 && percentInput && percentInput.value) {
+        // For services_2, prioritize percentage-based calculation
         calculatePercentageAmount(percentInput);
+    } else {
+        // For services_1 or services_2 without percentage, use quantity * rate
+        const quantity = parseFloat(row.querySelector('.quantity')?.value) || 0;
+        const rate = parseFloat(row.querySelector('.rate')?.value) || 0;
+        const total = quantity * rate;
+        const totalInput = row.querySelector('.total');
+        if (totalInput) {
+            totalInput.value = total.toFixed(2);
+        }
     }
     
+    // Recalculate contract amount and services total
     calculateContractAmount();
-    calculateServicesTotalAmount();
+    
+    // Only recalculate services total if this is services_2 table
+    if (isServices2) {
+        calculateServicesTotalAmount();
+    }
 }
 
 function calculateContractAmount() {
@@ -968,10 +1015,24 @@ function calculateContractAmount() {
     } else {
         let total = 0;
         // Calculate total from services_1 table only (main services)
-        document.querySelectorAll('.services-table-1 .total').forEach(i => total += parseFloat(i.value) || 0);
+        document.querySelectorAll('.services-table-1 .total').forEach(i => {
+            const value = parseFloat(i.value) || 0;
+            if (value > 0) {
+                total += value;
+            }
+        });
         
-        document.getElementById('contract_amount').value = total.toFixed(2);
-        document.getElementById('hidden_contract_amount').value = total.toFixed(2);
+        const contractAmountField = document.getElementById('contract_amount');
+        const hiddenContractAmountField = document.getElementById('hidden_contract_amount');
+        
+        if (contractAmountField) {
+            contractAmountField.value = total.toFixed(2);
+        }
+        if (hiddenContractAmountField) {
+            hiddenContractAmountField.value = total.toFixed(2);
+        }
+        
+        console.log('Contract Amount calculated:', total);
         
         // Recalculate all percentage-based amounts in services_2
         document.querySelectorAll('.services-table-2 .completion-percent').forEach(input => {
@@ -981,7 +1042,10 @@ function calculateContractAmount() {
         // Recalculate retention amount
         calculateRetentionAmount();
         
-
+        // Recalculate services total amount with a small delay to ensure all calculations are complete
+        setTimeout(function() {
+            calculateServicesTotalAmount();
+        }, 10);
     }
 }
 
@@ -991,6 +1055,12 @@ function calculateBasicTotal(input) {
     const rate = parseFloat(row.querySelector('.basic-rate')?.value) || 0;
     row.querySelector('.basic-total').value = (quantity * rate).toFixed(2);
     calculateBasicCostTotal();
+    
+    // Recalculate contract amount since basic costs affect premium total
+    const premiumSection = document.getElementById('premiumSection');
+    if (premiumSection && premiumSection.style.display === 'block') {
+        updateContractAmountWithPremium();
+    }
 }
 
 function calculateBasicCostTotal() {
@@ -1008,6 +1078,12 @@ function calculateAdditionalTotal(input) {
     const rate = parseFloat(row.querySelector('.additional-rate')?.value) || 0;
     row.querySelector('.additional-total').value = (quantity * rate).toFixed(2);
     calculateAdditionalCostTotal();
+    
+    // Recalculate contract amount since additional costs affect premium total
+    const premiumSection = document.getElementById('premiumSection');
+    if (premiumSection && premiumSection.style.display === 'block') {
+        updateContractAmountWithPremium();
+    }
 }
 
 function calculateAdditionalCostTotal() {
@@ -1025,6 +1101,12 @@ function calculateMaintenanceTotal(input) {
     const rate = parseFloat(row.querySelector('.maintenance-rate')?.value) || 0;
     row.querySelector('.maintenance-total').value = (quantity * rate).toFixed(2);
     calculateMaintenanceCostTotal();
+    
+    // Recalculate contract amount since maintenance costs affect premium total
+    const premiumSection = document.getElementById('premiumSection');
+    if (premiumSection && premiumSection.style.display === 'block') {
+        updateContractAmountWithPremium();
+    }
 }
 
 function calculateMaintenanceCostTotal() {
@@ -1076,6 +1158,31 @@ function calculatePercentageAmount(input) {
         if (rateInput) rateInput.value = '';
         if (totalInput) totalInput.value = '';
     }
+    
+    // Recalculate Services Total Amount after updating totals
+    calculateServicesTotalAmount();
+}
+
+function recalculateAllServices2() {
+    console.log('Manually recalculating all services_2 calculations...');
+    
+    // First recalculate contract amount
+    calculateContractAmount();
+    
+    // Then recalculate all percentage-based amounts with a small delay
+    setTimeout(function() {
+        document.querySelectorAll('.services-table-2 .completion-percent').forEach(input => {
+            if (input.value && parseFloat(input.value) > 0) {
+                calculatePercentageAmount(input);
+            }
+        });
+        
+        // Finally recalculate services total amount
+        setTimeout(function() {
+            calculateServicesTotalAmount();
+            console.log('Manual recalculation completed');
+        }, 50);
+    }, 50);
 }
 
 function updateContractAmountWithPremium() {
@@ -1095,21 +1202,37 @@ function updateContractAmountWithPremium() {
     
     // Recalculate retention amount
     calculateRetentionAmount();
+    
+    // Recalculate services total amount
+    calculateServicesTotalAmount();
 }
 
 function calculateServicesTotalAmount() {
     let servicesTotal = 0;
+    let totalCount = 0;
     
     // Sum ONLY totals from services_2 table (Service Terms with Completion %)
-    document.querySelectorAll('.services-table-2 .total').forEach(input => {
-        servicesTotal += parseFloat(input.value) || 0;
+    const services2Totals = document.querySelectorAll('.services-table-2 tbody .total');
+    services2Totals.forEach(input => {
+        if (input && input.value !== undefined) {
+            const value = parseFloat(input.value) || 0;
+            if (value > 0) {
+                servicesTotal += value;
+                totalCount++;
+            }
+        }
     });
     
     // Update the Services Total Amount field if it exists
     const servicesTotalField = document.getElementById('services_total_amount');
     if (servicesTotalField) {
         servicesTotalField.value = '₹ ' + servicesTotal.toFixed(2);
+        console.log('Services Total Amount updated to:', servicesTotalField.value);
+    } else {
+        console.error('Services Total Amount field not found!');
     }
+    
+    console.log('Services Total Amount calculated:', servicesTotal, 'from', totalCount, 'valid inputs out of', services2Totals.length, 'total inputs');
 }
 
 function calculateTotalPremiumCost() {
@@ -1467,14 +1590,35 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.classList.contains('remove-basic-row')) {
             e.target.closest('tr').remove();
             calculateBasicCostTotal();
+            // Recalculate contract amount since basic costs affect premium total
+            const premiumSection = document.getElementById('premiumSection');
+            if (premiumSection && premiumSection.style.display === 'block') {
+                updateContractAmountWithPremium();
+            } else {
+                calculateContractAmount();
+            }
         }
         if (e.target.classList.contains('remove-additional-row')) {
             e.target.closest('tr').remove();
             calculateAdditionalCostTotal();
+            // Recalculate contract amount since additional costs affect premium total
+            const premiumSection = document.getElementById('premiumSection');
+            if (premiumSection && premiumSection.style.display === 'block') {
+                updateContractAmountWithPremium();
+            } else {
+                calculateContractAmount();
+            }
         }
         if (e.target.classList.contains('remove-maintenance-row')) {
             e.target.closest('tr').remove();
             calculateMaintenanceCostTotal();
+            // Recalculate contract amount since maintenance costs affect premium total
+            const premiumSection = document.getElementById('premiumSection');
+            if (premiumSection && premiumSection.style.display === 'block') {
+                updateContractAmountWithPremium();
+            } else {
+                calculateContractAmount();
+            }
         }
     });
 
@@ -1513,11 +1657,72 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Calculate contract amount first
     calculateContractAmount();
-    calculateServicesTotalAmount();
+    
+    // Then calculate services total amount with a small delay to ensure all totals are updated
+    setTimeout(function() {
+        calculateServicesTotalAmount();
+    }, 50);
     calculateBasicCostTotal();
     calculateAdditionalCostTotal();
     calculateMaintenanceCostTotal();
+    
+    // Check if premium section should be visible (if there are existing premium costs)
+    setTimeout(function() {
+        const premiumSection = document.getElementById('premiumSection');
+        const premiumBtn = document.querySelector('.premium-quotation-btn');
+        
+        if (premiumSection && premiumBtn) {
+            // Check if any premium tables have data
+            let hasData = false;
+            let totalPremiumCost = 0;
+            
+            // Check basic costs
+            document.querySelectorAll('.basic-total').forEach(input => {
+                const value = parseFloat(input.value) || 0;
+                if (value > 0) {
+                    hasData = true;
+                    totalPremiumCost += value;
+                }
+            });
+            
+            // Check additional costs
+            document.querySelectorAll('.additional-total').forEach(input => {
+                const value = parseFloat(input.value) || 0;
+                if (value > 0) {
+                    hasData = true;
+                    totalPremiumCost += value;
+                }
+            });
+            
+            // Check maintenance costs
+            document.querySelectorAll('.maintenance-total').forEach(input => {
+                const value = parseFloat(input.value) || 0;
+                if (value > 0) {
+                    hasData = true;
+                    totalPremiumCost += value;
+                }
+            });
+            
+            console.log('Premium costs found:', totalPremiumCost, 'hasData:', hasData);
+            
+            if (hasData) {
+                premiumSection.style.display = 'block';
+                premiumBtn.textContent = 'Hide Premium';
+                premiumBtn.style.background = '#dc3545';
+                // Recalculate with premium
+                updateContractAmountWithPremium();
+                console.log('Premium section shown and contract amount updated');
+            }
+        }
+        
+        // Force recalculate Services Total Amount after everything is loaded
+        setTimeout(function() {
+            calculateServicesTotalAmount();
+            console.log('Final Services Total Amount calculation completed');
+        }, 100);
+    }, 200);
 });
 
 // Initialize date pickers with dd/mm/yyyy format
@@ -1673,6 +1878,95 @@ function generateEmployeePasswordEdit() {
         width: '400px'
     });
 }
+
+// Custom Terms & Conditions Functions
+function addNewTerm() {
+    const textarea = document.getElementById('custom_terms_text');
+    const currentValue = textarea.value.trim();
+    const newTerm = '• ';
+    
+    if (currentValue === '') {
+        textarea.value = newTerm;
+    } else {
+        textarea.value = currentValue + '\n' + newTerm;
+    }
+    
+    // Focus at the end of the new term
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    updatePreview();
+}
+
+function togglePreview() {
+    const inputMode = document.getElementById('termsInputMode');
+    const previewMode = document.getElementById('termsPreviewMode');
+    const toggleBtn = event.target;
+    
+    if (inputMode.style.display === 'none') {
+        // Switch to input mode
+        inputMode.style.display = 'block';
+        previewMode.style.display = 'none';
+        toggleBtn.textContent = '👁 Preview';
+        toggleBtn.style.background = '#10b981';
+    } else {
+        // Switch to preview mode
+        updatePreview();
+        inputMode.style.display = 'none';
+        previewMode.style.display = 'block';
+        toggleBtn.textContent = '✏️ Edit';
+        toggleBtn.style.background = '#f59e0b';
+    }
+}
+
+function updatePreview() {
+    const textarea = document.getElementById('custom_terms_text');
+    const previewContent = document.getElementById('termsPreviewContent');
+    const termCount = document.getElementById('termCount');
+    
+    const text = textarea.value.trim();
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    
+    // Update term count
+    termCount.textContent = `${lines.length} term${lines.length !== 1 ? 's' : ''}`;
+    
+    if (lines.length === 0) {
+        previewContent.innerHTML = '<p style="color: #9ca3af; font-style: italic;">No terms entered yet...</p>';
+        return;
+    }
+    
+    // Generate preview HTML
+    let html = '<div style="font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif;">';
+    html += '<h4 style="margin: 0 0 12px 0; font-size: 15px; font-weight: 600; color: #1f2937;">Terms & Conditions:</h4>';
+    html += '<ul style="margin: 0; padding-left: 0; list-style: none;">';
+    
+    lines.forEach((line, index) => {
+        let cleanLine = line.trim();
+        
+        // Remove existing bullet points and add consistent formatting
+        cleanLine = cleanLine.replace(/^[•\-\*]\s*/, '');
+        
+        if (cleanLine) {
+            html += `<li style="margin-bottom: 8px; padding-left: 20px; position: relative; line-height: 1.5; color: #374151;">`;
+            html += `<span style="position: absolute; left: 0; color: #3b82f6; font-weight: bold;">•</span>`;
+            html += `${cleanLine}`;
+            html += `</li>`;
+        }
+    });
+    
+    html += '</ul></div>';
+    previewContent.innerHTML = html;
+}
+
+// Initialize Custom Terms & Conditions on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updatePreview();
+    
+    // Update preview when typing
+    const textarea = document.getElementById('custom_terms_text');
+    if (textarea) {
+        textarea.addEventListener('input', updatePreview);
+    }
+});
 
 </script>
 @endpush

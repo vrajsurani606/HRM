@@ -590,8 +590,16 @@
                             @if(!empty($customTerms) && is_array($customTerms))
                                 @foreach($customTerms as $customTerm)
                                     @if(!empty(trim($customTerm)))
-                                        <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> {{ trim($customTerm) }}</div>
-                                        @php $termNumber++; @endphp
+                                        @php
+                                            // Remove bullet points and clean up the term
+                                            $cleanTerm = trim($customTerm);
+                                            $cleanTerm = preg_replace('/^[•\-\*\+]\s*/', '', $cleanTerm); // Remove bullet points
+                                            $cleanTerm = trim($cleanTerm);
+                                        @endphp
+                                        @if(!empty($cleanTerm))
+                                            <div style="margin-bottom: 10px;"><strong>{{ $termNumber }}.</strong> {{ $cleanTerm }}</div>
+                                            @php $termNumber++; @endphp
+                                        @endif
                                     @endif
                                 @endforeach
                             @endif

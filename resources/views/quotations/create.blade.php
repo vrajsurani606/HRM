@@ -833,14 +833,41 @@
             <label class="hrp-label" style="font-weight: 500; margin-bottom: 8px; display: block; color: #374151; font-size: 14px;">
               Custom Terms & Conditions
             </label>
-            <textarea 
-              name="custom_terms_text" 
-              id="custom_terms_text" 
-              class="hrp-input Rectangle-29" 
-              rows="4" 
-              placeholder="Enter custom terms and conditions (one per line)" 
-              style="width: 100%; resize: vertical; font-size: 14px; line-height: 1.5;">{{ old('custom_terms_text', isset($quotation) && is_array($quotation->custom_terms_and_conditions) ? implode("\n", $quotation->custom_terms_and_conditions) : '') }}</textarea>
-            <small class="text-gray-500" style="font-size: 12px; margin-top: 4px; display: block;">Enter each term on a new line</small>
+            
+            <!-- Terms Input Area -->
+            <div style="border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; background: white;">
+              <div style="background: #f9fafb; padding: 12px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: between; align-items: center;">
+                <span style="font-size: 13px; font-weight: 500; color: #6b7280;">Terms & Conditions Editor</span>
+                <div style="display: flex; gap: 8px;">
+                  <button type="button" onclick="addNewTerm()" style="padding: 4px 8px; background: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">+ Add Term</button>
+                  <button type="button" onclick="togglePreview()" style="padding: 4px 8px; background: #10b981; color: white; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">👁 Preview</button>
+                </div>
+              </div>
+              
+              <!-- Input Mode -->
+              <div id="termsInputMode" style="padding: 0;">
+                <textarea 
+                  name="custom_terms_text" 
+                  id="custom_terms_text" 
+                  class="hrp-input" 
+                  rows="6" 
+                  placeholder="Enter custom terms and conditions (one per line)&#10;Example:&#10;• Payment terms: 30 days from invoice date&#10;• Delivery within 15 working days&#10;• Warranty: 12 months from delivery date" 
+                  style="width: 100%; border: none; resize: vertical; font-size: 14px; line-height: 1.6; padding: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;"
+                  oninput="updatePreview()">{{ old('custom_terms_text', isset($quotation) && is_array($quotation->custom_terms_and_conditions) ? implode("\n", $quotation->custom_terms_and_conditions) : '') }}</textarea>
+              </div>
+              
+              <!-- Preview Mode -->
+              <div id="termsPreviewMode" style="display: none; padding: 16px; background: #fefefe; min-height: 120px;">
+                <div id="termsPreviewContent" style="font-size: 14px; line-height: 1.6; color: #374151;">
+                  <!-- Preview content will be populated by JavaScript -->
+                </div>
+              </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+              <small class="text-gray-500" style="font-size: 12px;">Enter each term on a new line. Use • or - for bullet points</small>
+              <small id="termCount" style="font-size: 11px; color: #6b7280; background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">0 terms</small>
+            </div>
           </div>
           
           <div style="margin-bottom: 20px;">
@@ -2409,6 +2436,95 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+    }
+});
+
+// Custom Terms & Conditions Functions
+function addNewTerm() {
+    const textarea = document.getElementById('custom_terms_text');
+    const currentValue = textarea.value.trim();
+    const newTerm = '• ';
+    
+    if (currentValue === '') {
+        textarea.value = newTerm;
+    } else {
+        textarea.value = currentValue + '\n' + newTerm;
+    }
+    
+    // Focus at the end of the new term
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    updatePreview();
+}
+
+function togglePreview() {
+    const inputMode = document.getElementById('termsInputMode');
+    const previewMode = document.getElementById('termsPreviewMode');
+    const toggleBtn = event.target;
+    
+    if (inputMode.style.display === 'none') {
+        // Switch to input mode
+        inputMode.style.display = 'block';
+        previewMode.style.display = 'none';
+        toggleBtn.textContent = '👁 Preview';
+        toggleBtn.style.background = '#10b981';
+    } else {
+        // Switch to preview mode
+        updatePreview();
+        inputMode.style.display = 'none';
+        previewMode.style.display = 'block';
+        toggleBtn.textContent = '✏️ Edit';
+        toggleBtn.style.background = '#f59e0b';
+    }
+}
+
+function updatePreview() {
+    const textarea = document.getElementById('custom_terms_text');
+    const previewContent = document.getElementById('termsPreviewContent');
+    const termCount = document.getElementById('termCount');
+    
+    const text = textarea.value.trim();
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    
+    // Update term count
+    termCount.textContent = `${lines.length} term${lines.length !== 1 ? 's' : ''}`;
+    
+    if (lines.length === 0) {
+        previewContent.innerHTML = '<p style="color: #9ca3af; font-style: italic;">No terms entered yet...</p>';
+        return;
+    }
+    
+    // Generate preview HTML
+    let html = '<div style="font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif;">';
+    html += '<h4 style="margin: 0 0 12px 0; font-size: 15px; font-weight: 600; color: #1f2937;">Terms & Conditions:</h4>';
+    html += '<ul style="margin: 0; padding-left: 0; list-style: none;">';
+    
+    lines.forEach((line, index) => {
+        let cleanLine = line.trim();
+        
+        // Remove existing bullet points and add consistent formatting
+        cleanLine = cleanLine.replace(/^[•\-\*]\s*/, '');
+        
+        if (cleanLine) {
+            html += `<li style="margin-bottom: 8px; padding-left: 20px; position: relative; line-height: 1.5; color: #374151;">`;
+            html += `<span style="position: absolute; left: 0; color: #3b82f6; font-weight: bold;">•</span>`;
+            html += `${cleanLine}`;
+            html += `</li>`;
+        }
+    });
+    
+    html += '</ul></div>';
+    previewContent.innerHTML = html;
+}
+
+// Initialize Custom Terms & Conditions on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updatePreview();
+    
+    // Update preview when typing
+    const textarea = document.getElementById('custom_terms_text');
+    if (textarea) {
+        textarea.addEventListener('input', updatePreview);
     }
 });
 

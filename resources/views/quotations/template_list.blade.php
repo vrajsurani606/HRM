@@ -5,6 +5,61 @@
 <div class="inquiry-index-container">
   {{-- <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #111827;">TEMPLATE LIST - {{ $quotation->unique_code }}</h3> --}}
   
+  <!-- Receipt Section -->
+  <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+    <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #111827; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">
+      📋 Receipt Information
+    </h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+      <div>
+        <label style="font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Quotation Code</label>
+        <p style="margin: 4px 0 0 0; font-size: 14px; font-weight: 600; color: #111827;">{{ $quotation->unique_code }}</p>
+      </div>
+      
+      <div>
+        <label style="font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+          Company Name
+          @if($quotation->customer_type === 'new' || !$quotation->customer_id)
+            <span style="color: #ef4444; font-weight: bold;">*</span>
+          @endif
+        </label>
+        <p style="margin: 4px 0 0 0; font-size: 14px; font-weight: 600; color: #111827;">
+          {{ $quotation->company_name ?? 'N/A' }}
+          @if($quotation->customer_type === 'new' || !$quotation->customer_id)
+            <small style="color: #ef4444; font-size: 11px; margin-left: 8px;">(Not Converted to Company)</small>
+          @else
+            <small style="color: #10b981; font-size: 11px; margin-left: 8px;">(✓ Company Created)</small>
+          @endif
+        </p>
+      </div>
+      
+      <div>
+        <label style="font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Customer Type</label>
+        <p style="margin: 4px 0 0 0; font-size: 14px; font-weight: 600; color: #111827;">
+          <span style="padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase;
+            @if($quotation->customer_type === 'new') background: #fef3c7; color: #92400e; @else background: #d1fae5; color: #065f46; @endif">
+            {{ ucfirst($quotation->customer_type ?? 'New') }}
+          </span>
+        </p>
+      </div>
+      
+      <div>
+        <label style="font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">GST No</label>
+        <p style="margin: 4px 0 0 0; font-size: 14px; font-weight: 600; color: #111827;">{{ $quotation->gst_no ?? 'N/A' }}</p>
+      </div>
+    </div>
+    
+    @if($quotation->customer_type === 'new' || !$quotation->customer_id)
+      <div style="margin-top: 16px; padding: 12px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px;">
+        <p style="margin: 0; font-size: 13px; color: #92400e;">
+          <strong>⚠️ Note:</strong> This quotation has not been converted to a company yet. 
+          The company name marked with <span style="color: #ef4444; font-weight: bold;">*</span> indicates it's still a prospect.
+        </p>
+      </div>
+    @endif
+  </div>
+  
   <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
     <table style="table-layout: auto; width: 100%;">
       <colgroup>
@@ -19,7 +74,7 @@
       </colgroup>
         <thead>
           <tr>
-            <th>Sr.No.</th>
+            <th style="text-align: center;">Sr.No.</th>
             <th style="text-align: center;">Action</th>
             <th>Status</th>
             <th>Company Name</th>
@@ -32,10 +87,11 @@
         <tbody>
           @forelse($templates as $template)
           @php
-            $proformaGenerated = $quotation->proformas->where('type_of_billing', $template['description'])->first();
+            // Check if proforma already exists for this specific template index only
+            $proformaGenerated = $quotation->proformas->where('template_index', $template['index'])->first();
           @endphp
           <tr>
-            <td>{{ $loop->iteration }}</td>
+            <td style="text-align: center;">{{ $loop->iteration }}</td>
             <td style="text-align: center; vertical-align: middle;">
               <div class="action-icons">
                 @if($proformaGenerated)
@@ -56,20 +112,31 @@
                 @endif
               </div>
             </td>
-            <td>
+            <td style="text-align: center; white-space: nowrap;">
               @if($proformaGenerated)
-                <div style="width: 20px; height: 20px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                  <span style="color: white; font-size: 12px;">✓</span>
-                </div>
+                <span style="display: inline-flex; align-items: center; gap: 4px; color: #10b981; font-weight: 600; font-size: 12px; white-space: nowrap;">
+                  <div style="width: 14px; height: 14px; background: #10b981; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <span style="color: white; font-size: 9px; font-weight: bold;">✓</span>
+                  </div>
+                  Generated
+                </span>
               @else
-                <div style="width: 20px; height: 20px; background: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                  <span style="color: white; font-size: 12px;">⏳</span>
-                </div>
+                <span style="display: inline-flex; align-items: center; gap: 4px; color: #f59e0b; font-weight: 600; font-size: 12px; white-space: nowrap;">
+                  <div style="width: 14px; height: 14px; background: #f59e0b; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <span style="color: white; font-size: 9px; font-weight: bold;">⏳</span>
+                  </div>
+                  Pending
+                </span>
               @endif
             </td>
             <td>{{ $quotation->company_name }}</td>
             <td>{{ $quotation->gst_no ?? 'N/A' }}</td>
-            <td>{{ $template['description'] }}</td>
+            <td>
+              {{ $template['description'] }}
+              @if($proformaGenerated)
+                <small style="color: #10b981; font-size: 11px; margin-left: 8px;">({{ $proformaGenerated->unique_code }})</small>
+              @endif
+            </td>
             <td>₹ {{ number_format($template['amount'], 2) }}</td>
             <td>
               @if($template['completion_percent'])

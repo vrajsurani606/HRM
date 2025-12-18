@@ -155,8 +155,19 @@
                         </a>
                       @endcan
                       @can('Employees Management.digital card')
-                        <a href="{{ route('employees.digital-card.create', $emp) }}">
-                          <img src="{{ asset('action_icon/pluse.svg') }}" width="16" height="16"> Add Dig. Card
+                        @if($emp->digitalCard)
+                          <a href="{{ route('employees.digital-card.show', $emp) }}" title="View Digital Card">
+                            <img src="{{ asset('action_icon/show.svg') }}" width="16" height="16"> Digital Card
+                          </a>
+                        @else
+                          <a href="{{ route('employees.digital-card.create', $emp) }}" title="Create Digital Card">
+                            <img src="{{ asset('action_icon/pluse.svg') }}" width="16" height="16"> Create Digital Card
+                          </a>
+                        @endif
+                      @endcan
+                      @can('Employees Management.view employee')
+                        <a href="{{ route('employees.id-card.show', $emp) }}" title="Employee ID Card">
+                          <i class="fas fa-id-card" style="width: 16px; margin-right: 4px; color: #6b7280;"></i> ID Card
                         </a>
                       @endcan
                     @endif
@@ -251,7 +262,14 @@
                       <a href="{{ route('employees.letters.index', $emp) }}" title="Letter"><img src="{{ asset('action_icon/print.svg') }}" class="action-icon" alt="Letter"></a>
                     @endcan
                     @can('Employees Management.digital card')
-                      <a href="{{ route('employees.digital-card.create', $emp) }}" title="Add Digital Card"><img src="{{ asset('action_icon/pluse.svg') }}" class="action-icon" alt="Add Digital Card"></a>
+                      @if($emp->digitalCard)
+                        <a href="{{ route('employees.digital-card.show', $emp) }}" title="View Digital Card"><img src="{{ asset('action_icon/show.svg') }}" class="action-icon" alt="Digital Card"></a>
+                      @else
+                        <a href="{{ route('employees.digital-card.create', $emp) }}" title="Create Digital Card"><img src="{{ asset('action_icon/pluse.svg') }}" class="action-icon" alt="Create Digital Card"></a>
+                      @endif
+                    @endcan
+                    @can('Employees Management.view employee')
+                      <a href="{{ route('employees.id-card.show', $emp) }}" title="Employee ID Card" style="display: inline-flex; align-items: center; padding: 2px;"><i class="fas fa-id-card" style="font-size: 14px; color: #6b7280;"></i></a>
                     @endcan
                   </div>
                 </td>
@@ -362,6 +380,37 @@
   .action-icons form { margin:0; padding:0; display:inline-flex; }
   .action-icons button { display:inline-flex; align-items:center; justify-content:center; padding:0; margin:0; line-height:1; background:transparent; border:0; cursor:pointer; }
   
+  /* Action icon styling */
+  .action-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+
+  .action-icons a:hover .action-icon {
+    opacity: 1;
+  }
+
+  /* FontAwesome icon styling in action buttons */
+  .action-icons .fas {
+    color: #6b7280;
+    font-size: 14px;
+    transition: color 0.2s ease;
+  }
+
+  .action-icons a:hover .fas {
+    color: #374151;
+  }
+
+  /* Grid view dropdown icon styling */
+  .dropdown-menu .fas {
+    color: #6b7280;
+    font-size: 14px;
+    width: 16px;
+    text-align: center;
+  }
+  
   /* Status badges */
   .status-badge {
     display: inline-flex;
@@ -428,6 +477,70 @@
   }
   
   .dropdown-item-btn svg {
+    flex-shrink: 0;
+  }
+
+  /* Digital Card Dropdown Styles */
+  .digital-card-dropdown .dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .digital-card-dropdown .dropdown-toggle:hover {
+    background-color: #f3f4f6;
+  }
+
+  .digital-card-dropdown .dropdown-menu {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 4px 0;
+    min-width: 200px;
+  }
+
+  .digital-card-dropdown .dropdown-item {
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #374151;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+
+  .digital-card-dropdown .dropdown-item:hover {
+    background-color: #f3f4f6;
+    color: #1f2937;
+  }
+
+  .digital-card-dropdown .dropdown-item i {
+    width: 16px;
+    text-align: center;
+    color: #6b7280;
+  }
+
+  .digital-card-dropdown .dropdown-divider {
+    margin: 4px 0;
+    border-color: #e5e7eb;
+  }
+
+  /* Action button spacing */
+  .action-buttons-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .action-buttons-group > a,
+  .action-buttons-group > form,
+  .action-buttons-group > .dropdown {
     flex-shrink: 0;
   }
   

@@ -371,9 +371,6 @@
             <div class="header-info">
                 <p><strong>Date:</strong> {{ $invoice->invoice_date ? $invoice->invoice_date->format('d-m-Y') : date('d-m-Y') }}</p>
                 <p><strong>Invoice No.:</strong> {{ $invoice->unique_code }}</p>
-                @if($invoice->proforma)
-                <p><strong>Proforma No.:</strong> {{ $invoice->proforma->unique_code }}</p>
-                @endif
             </div>
             
             <!-- Title -->

@@ -181,10 +181,34 @@ Route::middleware('auth')->group(function () {
         Route::put('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'update'])->name('employees.digital-card.update');
         Route::delete('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'destroy'])->name('employees.digital-card.destroy');
         Route::post('/digital-card/quick-edit', [\App\Http\Controllers\HR\DigitalCardController::class, 'quickEdit'])->name('employees.digital-card.quick-edit');
+        Route::get('/digital-card/download', [\App\Http\Controllers\HR\DigitalCardController::class, 'downloadHtml'])->name('employees.digital-card.download');
+        // ID Card routes
+        Route::get('/id-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'showIdCard'])->name('employees.id-card.show');
+        Route::get('/id-card/compact', [\App\Http\Controllers\HR\DigitalCardController::class, 'showCompactIdCard'])->name('employees.id-card.compact');
+        Route::get('/id-card/pdf', [\App\Http\Controllers\HR\DigitalCardController::class, 'downloadIdCardPdf'])->name('employees.id-card.pdf');
     });
     Route::get('employees/letters/generate-number', [EmployeeController::class, 'generateLetterNumber'])->name('employees.letters.generate-number');
     Route::get('employees/letters/generate-reference', [EmployeeController::class, 'generateLetterNumber'])->name('employees.letters.generate-reference');
     Route::get('employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
+    
+    // ID Card Showcase
+    Route::get('id-cards/showcase', [\App\Http\Controllers\HR\DigitalCardController::class, 'showcase'])->name('id-cards.showcase');
+    
+    // Test ID Card (no auth required for testing)
+    Route::get('test-id-card/{employee}', function(\App\Models\Employee $employee) {
+        return view('hr.employees.id-card-professional', [
+            'employee' => $employee,
+            'page_title' => 'Employee ID Card - ' . $employee->name,
+        ]);
+    })->name('test.id-card');
+    
+    // Simple ID Card (for debugging)
+    Route::get('simple-id-card/{employee}', function(\App\Models\Employee $employee) {
+        return view('hr.employees.id-card-simple', [
+            'employee' => $employee,
+            'page_title' => 'Employee ID Card - ' . $employee->name,
+        ]);
+    })->name('simple.id-card');
 
     // HR Hiring Leads
     Route::resource('hiring', HiringController::class);
