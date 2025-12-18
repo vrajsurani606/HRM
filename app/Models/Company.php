@@ -15,7 +15,8 @@ class Company extends Model
         'sop_upload', 'quotation_upload', 'person_name_1', 'person_number_1',
         'person_position_1', 'person_name_2', 'person_number_2', 'person_position_2',
         'person_name_3', 'person_number_3', 'person_position_3', 'company_password',
-        'company_employee_email', 'company_employee_password'
+        'company_password_plain', 'company_employee_email', 'company_employee_password',
+        'company_employee_password_plain'
     ];
     
     protected $hidden = [
@@ -88,11 +89,13 @@ class Company extends Model
             
             // Hash the company password if it's being set
             if ($model->company_password) {
+                $model->company_password_plain = $model->company_password; // Store plain password
                 $model->company_password = bcrypt($model->company_password);
             }
             
             // Hash the employee password if it's being set
             if ($model->company_employee_password) {
+                $model->company_employee_password_plain = $model->company_employee_password; // Store plain password
                 $model->company_employee_password = bcrypt($model->company_employee_password);
             }
         });
@@ -100,11 +103,13 @@ class Company extends Model
         static::updating(function ($model) {
             // Only update the password if a new one is provided
             if ($model->isDirty('company_password') && $model->company_password) {
+                $model->company_password_plain = $model->company_password; // Store plain password
                 $model->company_password = bcrypt($model->company_password);
             }
             
             // Only update the employee password if a new one is provided
             if ($model->isDirty('company_employee_password') && $model->company_employee_password) {
+                $model->company_employee_password_plain = $model->company_employee_password; // Store plain password
                 $model->company_employee_password = bcrypt($model->company_employee_password);
             }
         });

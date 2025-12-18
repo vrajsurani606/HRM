@@ -73,22 +73,24 @@
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Password</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            @if($company->company_password)
+            @if($company->company_password_plain)
             <div style="display:flex;align-items:center;gap:8px;flex:1">
-              <input type="password" id="company-password-{{ $company->id }}" value="{{ $company->company_password }}" readonly style="border:1px solid #e5e7eb;background:#f9fafb;padding:6px 10px;border-radius:6px;flex:1;outline:none;font-size:14px">
+              <input type="password" id="company-password-{{ $company->id }}" value="{{ $company->company_password_plain }}" readonly style="border:1px solid #e5e7eb;background:#f9fafb;padding:6px 10px;border-radius:6px;flex:1;outline:none;font-size:14px">
               <button type="button" onclick="toggleCompanyPassword({{ $company->id }})" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Show/Hide Password">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" id="company-eye-icon-{{ $company->id }}">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </button>
-              <button type="button" onclick="copyPassword('{{ $company->company_password }}')" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Copy Password">
+              <button type="button" onclick="copyPassword('{{ $company->company_password_plain }}')" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Copy Password">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
               </button>
             </div>
+            @elseif($company->company_password)
+            <span style="color: #f59e0b; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">⚠️ Password set but not visible. Update password to enable visibility.</span>
             @else
             <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">-</span>
             @endif
@@ -103,22 +105,24 @@
           <div style="display: flex; align-items: center; padding: 8px 0px;">
             <span style="color: #000; font-weight: 600; width: 220px; text-align: left; font-size: 14px;">Company Employee Password</span>
             <span style="color: #1f2937; width: 30px; text-align: center; font-weight: 600;">:</span>
-            @if($company->company_employee_password)
+            @if($company->company_employee_password_plain)
             <div style="display:flex;align-items:center;gap:8px;flex:1">
-              <input type="password" id="company-emp-password-{{ $company->id }}" value="{{ $company->company_employee_password }}" readonly style="border:1px solid #e5e7eb;background:#f9fafb;padding:6px 10px;border-radius:6px;flex:1;outline:none;font-size:14px">
+              <input type="password" id="company-emp-password-{{ $company->id }}" value="{{ $company->company_employee_password_plain }}" readonly style="border:1px solid #e5e7eb;background:#f9fafb;padding:6px 10px;border-radius:6px;flex:1;outline:none;font-size:14px">
               <button type="button" onclick="toggleCompanyEmpPassword({{ $company->id }})" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Show/Hide Password">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" id="company-emp-eye-icon-{{ $company->id }}">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </button>
-              <button type="button" onclick="copyPassword('{{ $company->company_employee_password }}')" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Copy Password">
+              <button type="button" onclick="copyPassword('{{ $company->company_employee_password_plain }}')" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Copy Password">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
               </button>
             </div>
+            @elseif($company->company_employee_password)
+            <span style="color: #f59e0b; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">⚠️ Password set but not visible. Update password to enable visibility.</span>
             @else
             <span style="color: #4b5563; font-weight: 400; text-align: left; flex: 1; font-size: 14px;">-</span>
             @endif
